@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+
+Name=opa
+GenericName=A Simple Application written with KDE Frameworks
+Icon=opa
+
+Exec=opa
+StartupWMClass=opa
+X-DocPath=opa/index.html
