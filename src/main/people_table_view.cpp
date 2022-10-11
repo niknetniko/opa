@@ -8,23 +8,37 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QLineEdit>
 
 #include "people_table_view.h"
-#include "people_list_model.h"
+#include "people_table_model.h"
 
 PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
 
+    auto *model = new PeopleTableModel(this);
     // TODO: fix this and make it proper.
-    auto *model = new PeopleListModel(this);
     while (model->canFetchMore()) { model->fetchMore(); }
 
-    this->tableView = new QTableView(this);
-    tableView->setModel(model);
+    tableView = new QTableView(this);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->verticalHeader()->setVisible(false);
+    tableView->sortByColumn(1, Qt::SortOrder::AscendingOrder);
+    tableView->horizontalHeader()->resizeSections(QHeaderView::Stretch);
+    tableView->setSortingEnabled(true);
+    // We are done setting up, attach the model.
+    tableView->setModel(model);
+    tableView->hideColumn(2);
+    tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+
+    auto* searchBox = new QLineEdit(this);
+    searchBox->setPlaceholderText(QString("Zoeken..."));
+
+    connect(searchBox, &QLineEdit::textEdited, model, &PeopleTableModel::onSearchChanged);
 
     // Wrap in a VBOX for layout reasons.
     auto* layout = new QVBoxLayout(this);
+    layout->addWidget(searchBox);
     layout->addWidget(tableView);
 
     auto config = KSharedConfig::openStateConfig();
@@ -40,11 +54,11 @@ PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
             &PeopleTableView::handleSelectedNewRow);
 }
 
-void PeopleTableView::handleSelectedPersonChanged(int personId) {
-    // TODO: properly do all this stuff somehow.
-    auto index = tableView->model()->index(personId - 1, 0);
+void PeopleTableView::handleSelectedPersonChanged(unsigned long long personId) {
+    int rowNumber = findRowIndex(personId);
+    auto index = tableView->model()->index(rowNumber, 0);
     tableView->scrollTo(index);
-    tableView->selectRow(personId - 1);
+    tableView->selectRow(rowNumber);
 }
 
 void PeopleTableView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &_deselected) {
@@ -52,14 +66,22 @@ void PeopleTableView::handleSelectedNewRow(const QItemSelection &selected, const
     if (selected.empty()) {
         return;
     }
-    qDebug() << "Indices are is now " << selected;
-    auto personId = selected.indexes().front().data(Qt::EditRole).toULongLong();
-    qDebug() << "Person is now " << personId;
+    auto personId = selected.indexes().front().data(Qt::UserRole).toULongLong();
 
-    emit handlePersonSelected(personId);
 //    auto config = KSharedConfig::openStateConfig();
 //    KConfigGroup selectionGroup(config, "selection");
 //    selectionGroup.writeEntry("current", personId);
+    emit handlePersonSelected(personId);
 }
 
+int PeopleTableView::findRowIndex(unsigned long long personId) {
+    for (int i = 0; i < tableView->model()->rowCount(); ++i) {
+        auto rowIndex = tableView->model()->index(i, 0);
+        auto data = tableView->model()->data(rowIndex, Qt::UserRole);
+        if (data.toULongLong() == personId) {
+            return i;
+        }
+    }
 
+    return -1;
+}

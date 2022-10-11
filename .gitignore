@@ -54,3 +54,5 @@ install_manifest.txt
 CTestTestfile.cmake
 _deps
 .cmake/
+bin/
+opa_autogen/

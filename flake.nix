@@ -14,12 +14,12 @@
         {
           devShell = pkgs.mkShell {
               buildInputs = with pkgs; [
-                glibc
+#                 glibc
                 clang-tools
                 clang
                 cmake
-                glib
-                gcc10
+#                 glib
+#                 gcc10
                 git
                 valgrind
                 extra-cmake-modules
@@ -43,5 +43,4 @@
           };
         }
     );
-
 }

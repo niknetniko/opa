@@ -4,9 +4,10 @@ target_sources(opa PRIVATE
         main.cpp
         main/main_window.cpp
         data/database.cpp
-        main/people_list_model.cpp
+        main/people_table_model.cpp
         main/people_table_view.cpp
         main/person_detail_view.cpp
+        data/person.h
         )
 
 ecm_qt_declare_logging_category(opa

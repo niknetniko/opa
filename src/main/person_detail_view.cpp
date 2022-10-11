@@ -6,11 +6,13 @@
 #include <QSqlQuery>
 #include <QDebug>
 #include <QSqlError>
-#include <QLabel>
 #include <QSqlField>
+
+#include "data/person.h"
 
 PersonDetailView::PersonDetailView(int id, QWidget* parent): QWidget(parent), id(id) {
     qDebug() << "Created new instance...";
+    this->displayName = new QLabel(this);
 }
 
 void PersonDetailView::populate() {
@@ -26,10 +28,8 @@ void PersonDetailView::populate() {
     query.first();
     this->record = query.record();
 
-    auto name = record.field("name").value().toString();
-
-    auto* textView = new QLabel(this);
-    textView->setText(name);
+    auto name = record.field(Data::Person::Table::GIVEN_NAMES).value().toString();
+    this->displayName->setText(name);
 
     emit this->personNameChanged(this->id, name);
 }

@@ -7,6 +7,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QSqlRecord>
+#include <QLabel>
 
 /**
  * Detail view for a single person.
@@ -28,6 +29,7 @@ Q_SIGNALS:
 
 private:
     QSqlRecord record;
+    QLabel *displayName;
 };
 
 #endif //OPA_PERSON_DETAIL_VIEW_H

@@ -34,7 +34,10 @@ void open_database(const QString &file) {
     initQuery.prepare(R"SQLSNIP(
         CREATE TABLE IF NOT EXISTS person(
             id integer not null primary key autoincrement,
-            name text not null
+            given_names text not null,
+            nick_name text,
+            call_name text,
+            suffix text
         );
 
         CREATE TABLE IF NOT EXISTS roots(
@@ -46,7 +49,7 @@ void open_database(const QString &file) {
 )SQLSNIP");
 
     if (!initQuery.exec()) {
-        qWarning("%s", initQuery.lastError().text().toLocal8Bit().data());
+        qWarning("%s", qPrintable(initQuery.lastError().text()));
     } else {
         qDebug() << "OK, database initialized!";
     }
