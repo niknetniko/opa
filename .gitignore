@@ -56,3 +56,4 @@ _deps
 .cmake/
 bin/
 opa_autogen/
+src/opa_autogen/

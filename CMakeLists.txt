@@ -28,7 +28,6 @@ find_package(KF5 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     XmlGui
 )
 
-add_subdirectory(doc)
 add_subdirectory(src)
 add_subdirectory(icons)
 

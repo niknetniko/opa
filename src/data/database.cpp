@@ -30,6 +30,7 @@ void open_database(const QString &file) {
     // Run the creation script if this is a new database.
     // The script is conditional, so we don't actually need to check
     // if the database is new at the moment.
+    qDebug("Running database creation script...");
     QSqlQuery initQuery(database);
     initQuery.prepare(R"SQLSNIP(
         CREATE TABLE IF NOT EXISTS person(
@@ -49,6 +50,7 @@ void open_database(const QString &file) {
 )SQLSNIP");
 
     if (!initQuery.exec()) {
+        qDebug("Error occurred running the database creation script.");
         qWarning("%s", qPrintable(initQuery.lastError().text()));
     } else {
         qDebug() << "OK, database initialized!";
