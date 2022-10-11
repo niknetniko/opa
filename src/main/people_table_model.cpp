@@ -7,6 +7,8 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QColor>
+#include <QSqlRecord>
+#include <QSqlField>
 #include "people_table_model.h"
 
 #include "data/person.h"
@@ -31,7 +33,7 @@ QVariant PeopleTableModel::data(const QModelIndex &item, int role) const {
         if (!value.isValid()) {
             return value;
         }
-        if (item.column() == 0) {
+        if (record().fieldName(item.column()) == Data::Person::Table::ID) {
             // Format the ID.
             return QString("P%1").arg(value.toULongLong(), 4, 10, QLatin1Char('0'));
         }

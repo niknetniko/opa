@@ -29,7 +29,6 @@ Q_SIGNALS:
 
 private:
     QSqlRecord record;
-    QLabel *displayName;
 };
 
 #endif //OPA_PERSON_DETAIL_VIEW_H

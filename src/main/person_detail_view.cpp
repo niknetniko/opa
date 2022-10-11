@@ -7,12 +7,13 @@
 #include <QDebug>
 #include <QSqlError>
 #include <QSqlField>
+#include <QVBoxLayout>
 
 #include "data/person.h"
+#include "event/event_table_view.h"
 
 PersonDetailView::PersonDetailView(int id, QWidget* parent): QWidget(parent), id(id) {
     qDebug() << "Created new instance...";
-    this->displayName = new QLabel(this);
 }
 
 void PersonDetailView::populate() {
@@ -29,7 +30,16 @@ void PersonDetailView::populate() {
     this->record = query.record();
 
     auto name = record.field(Data::Person::Table::GIVEN_NAMES).value().toString();
-    this->displayName->setText(name);
+    auto* displayName = new QLabel(name, this);
+
+    // Show details.
+    auto *tableView = new EventTableView(this->id, this);
+    tableView->show();
+
+    auto* layout = new QVBoxLayout(this);
+//    layout->setAlignment(Qt::AlignTop);
+    layout->addWidget(displayName);
+    layout->addWidget(tableView);
 
     emit this->personNameChanged(this->id, name);
 }

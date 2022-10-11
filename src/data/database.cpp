@@ -47,6 +47,14 @@ void open_database(const QString &file) {
             color text not null,
             FOREIGN KEY (person) REFERENCES person(id)
         );
+
+        CREATE TABLE IF NOT EXISTS event(
+            id integer not null primary key autoincrement,
+            person integer not null,
+            type text not null,
+            date text,
+            FOREIGN KEY (person) REFERENCES person(id)
+        );
 )SQLSNIP");
 
     if (!initQuery.exec()) {

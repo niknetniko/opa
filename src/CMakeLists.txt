@@ -8,6 +8,9 @@ target_sources(opa PRIVATE
         main/people_table_view.cpp
         main/person_detail_view.cpp
         data/person.h
+        data/event.h
+        event/event_table_model.cpp
+        event/event_table_view.cpp
         )
 
 ecm_qt_declare_logging_category(opa
