@@ -14,7 +14,7 @@ class EventTableModel : public QSqlQueryModel {
     Q_OBJECT
 
 public:
-    explicit EventTableModel(int personId, QObject *parent = nullptr);
+    explicit EventTableModel(long long personId, QObject *parent = nullptr);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     QVariant data(const QModelIndex &item, int role) const override;
@@ -22,7 +22,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
-    int personId;
+    long long personId;
     Qt::SortOrder sortOrder;
     QString sortColumn;
 

@@ -9,11 +9,12 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QDate>
+#include <QString>
 #include "event_table_model.h"
 
 #include "data/event.h"
 
-EventTableModel::EventTableModel(int personId, QObject *parent) : QSqlQueryModel(parent), personId(personId),
+EventTableModel::EventTableModel(long long personId, QObject *parent) : QSqlQueryModel(parent), personId(personId),
                                                                   sortOrder(Qt::SortOrder::AscendingOrder),
                                                                   sortColumn(Data::Event::Table::DATE) {
     this->regenerateQuery();

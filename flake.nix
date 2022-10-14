@@ -30,6 +30,8 @@
                 libsForQt5.kdbusaddons
                 libsForQt5.kxmlgui
                 libsForQt5.appstream-qt
+                libsForQt5.kirigami2
+                libsForQt5.kiconthemes
                 qtcreator
                 qt5.full
                 libsForQt5.breeze-icons
@@ -39,6 +41,7 @@
 
               shellHook = ''
                 export KF5ConfigWidgets_DIR=${pkgs.libsForQt5.kconfigwidgets}
+                export KF5KIconThemes_DIR=${pkgs.libsForQt5.kiconthemes}
               '';
           };
         }

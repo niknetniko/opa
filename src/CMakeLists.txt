@@ -6,11 +6,11 @@ target_sources(opa PRIVATE
         data/database.cpp
         main/people_table_model.cpp
         main/people_table_view.cpp
-        main/person_detail_view.cpp
         data/person.h
         data/event.h
         event/event_table_model.cpp
         event/event_table_view.cpp
+        person_detail/person_detail_view.cpp
         )
 
 ecm_qt_declare_logging_category(opa
@@ -19,9 +19,10 @@ ecm_qt_declare_logging_category(opa
         CATEGORY_NAME "opa"
         )
 kconfig_add_kcfg_files(opa main/opaSettings.kcfgc)
-ki18n_wrap_ui(opa
-        main/settings.ui
-        )
+#ki18n_wrap_ui(opa
+#        main/settings.ui
+#        person_detail/person_detail_view.ui
+#        )
 
 target_link_libraries(opa
         KF5::CoreAddons
@@ -30,6 +31,7 @@ target_link_libraries(opa
         KF5::ConfigWidgets
         KF5::DBusAddons
         KF5::Crash
+        KF5::IconThemes
         Qt5::Widgets
         Qt5::Sql
         )

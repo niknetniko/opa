@@ -9,7 +9,7 @@
 
 #include "opadebug.h"
 #include "people_table_view.h"
-#include "person_detail_view.h"
+#include "person_detail/person_detail_view.h"
 
 // KF headers
 #include <KActionCollection>

@@ -4,6 +4,7 @@ project(opa)
 
 set(QT_MIN_VERSION "5.15.0")
 set(KF_MIN_VERSION "5.83.0")
+set(CMAKE_AUTOUIC ON)
 
 find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
@@ -26,6 +27,7 @@ find_package(KF5 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     DocTools
     I18n
     XmlGui
+    IconThemes
 )
 
 add_subdirectory(src)

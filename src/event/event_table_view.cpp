@@ -12,7 +12,7 @@
 #include "event_table_view.h"
 #include "event_table_model.h"
 
-EventTableView::EventTableView(int personId, QWidget *parent): QWidget(parent) {
+EventTableView::EventTableView(long long personId, QWidget *parent): QWidget(parent) {
 
     auto *model = new EventTableModel(personId, this);
     // TODO: fix this and make it proper.

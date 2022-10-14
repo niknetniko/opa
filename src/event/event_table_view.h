@@ -21,7 +21,7 @@
 class EventTableView: public QWidget {
     Q_OBJECT
 public:
-    explicit EventTableView(int personId, QWidget* parent);
+    explicit EventTableView(long long personId, QWidget* parent);
 
     ~EventTableView() override = default;
 
