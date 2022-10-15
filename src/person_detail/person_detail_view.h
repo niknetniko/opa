@@ -25,6 +25,8 @@ Q_SIGNALS:
 private:
     Ui::PersonDetailView *ui;
     QSqlRecord record;
+
+    void populateBirth();
 };
 
 #endif // PERSONDETAILVIEW_H

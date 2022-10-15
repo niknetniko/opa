@@ -17,7 +17,17 @@ namespace Data {
             const QString NICK_NAME = "nick_name";
             const QString CALL_NAME = "call_name";
             const QString SUFFIX = "suffix";
+            const QString SEX = "sex";
         };
+
+        namespace Sex {
+            const QString MALE = "male";
+            const QString FEMALE = "female";
+            const QString UNKNOWN = "unknown";
+
+            QString toDisplay(const QString &sex);
+            QString toIcon(const QString& sex);
+        }
 
         namespace Order {
             const int ID = 0;
