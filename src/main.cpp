@@ -7,7 +7,7 @@
 // application header
 #include "main/main_window.h"
 #include "opadebug.h"
-#include "data/database.h"
+#include "database/database.h"
 
 // KF headers
 #include <KCrash>

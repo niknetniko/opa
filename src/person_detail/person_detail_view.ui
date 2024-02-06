@@ -108,7 +108,7 @@
      </property>
      <widget class="QWidget" name="eventTab">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Gebeurtenissen</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>

@@ -1,9 +1,11 @@
-add_executable(opa)
+SET(CMAKE_AUTORCC ON)
+
+add_executable(opa main.cpp resources.qrc)
 
 target_sources(opa PRIVATE
-        main.cpp
         main/main_window.cpp
-        data/database.cpp
+        database/database.cpp
+        database/schema.h
         main/people_table_model.cpp
         main/people_table_view.cpp
         data/person.cpp
@@ -11,13 +13,14 @@ target_sources(opa PRIVATE
         event/event_table_model.cpp
         event/event_table_view.cpp
         person_detail/person_detail_view.cpp
-        )
+        utils/gramps_date.cpp
+)
 
 ecm_qt_declare_logging_category(opa
         HEADER opadebug.h
         IDENTIFIER OPA
         CATEGORY_NAME "opa"
-        )
+)
 kconfig_add_kcfg_files(opa main/opaSettings.kcfgc)
 #ki18n_wrap_ui(opa
 #        main/settings.ui
@@ -34,7 +37,7 @@ target_link_libraries(opa
         KF5::IconThemes
         Qt5::Widgets
         Qt5::Sql
-        )
+)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

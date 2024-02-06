@@ -1,0 +1,78 @@
+//
+// Created by niko on 7/04/2022.
+//
+
+#include "database.h"
+
+#include <QSqlDatabase>
+#include <QDebug>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QFile>
+
+const QString driver = "QSQLITE";
+
+void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
+    auto commands = script.split(";");
+    for (auto &command: commands) {
+        command.replace("\n", " ");
+        if (command.trimmed().isEmpty()) {
+            qDebug("Skipping command %s...", qPrintable(command));
+            continue;
+        }
+        qDebug("Executing %s", qPrintable(command));
+        QSqlQuery theQuery(database);
+        theQuery.prepare(command);
+        if (!theQuery.exec()) {
+            qDebug("Error occurred running SQL query.");
+            qWarning("%s", qPrintable(theQuery.lastError().text()));
+            abort();
+        }
+    }
+}
+
+void open_database(const QString &file) {
+    if (!QSqlDatabase::isDriverAvailable(driver)) {
+        qCritical() << "SQLite driver is not available. Hu?" << QSqlDatabase::drivers();
+        abort();
+    }
+
+    if (QFile::exists(file)) {
+        qDebug("Removing existing databasde...");
+        QFile::remove(file);
+    }
+
+    // The main database connection.
+    QSqlDatabase database = QSqlDatabase::addDatabase(driver);
+    database.setDatabaseName(file);
+
+    if (!database.open()) {
+        qDebug("Error occurred opening the database %s", qPrintable(file));
+        qDebug("%s.", qPrintable(database.lastError().text()));
+        abort();
+    }
+
+    QFile schema_file(":/schema.sql");
+    if (!schema_file.open(QFile::ReadOnly | QFile::Text)) {
+        qDebug("Error occurred opening database schema file");
+        abort();
+    }
+    QTextStream schema_stream(&schema_file);
+    QString schema = schema_stream.readAll();
+
+
+    // Run the creation script if this is a new database.
+    // The script is conditional, so we don't actually need to check
+    // if the database is new at the moment.
+    qDebug("Running database creation script...");
+    executeScriptOrAbort(schema, database);
+
+    QFile init_file(":/init.sql");
+    if (!init_file.open(QFile::ReadOnly | QFile::Text)) {
+        qDebug("Error occurred opening database init file");
+        abort();
+    }
+    QTextStream init_stream(&init_file);
+    QString init = init_stream.readAll();
+    executeScriptOrAbort(init, database);
+}

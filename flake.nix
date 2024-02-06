@@ -33,10 +33,13 @@
                 libsForQt5.kirigami2
                 libsForQt5.kiconthemes
                 qtcreator
-                qt5.full
+                qt5.qtbase
+                qt5.qtwayland
+
                 libsForQt5.breeze-icons
                 libsForQt5.breeze-qt5
                 libsForQt5.kitemmodels
+                atlas
               ];
 
               shellHook = ''
