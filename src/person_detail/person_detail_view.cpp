@@ -4,12 +4,15 @@
 #include <QSqlField>
 #include <QToolBar>
 #include <QDate>
+#include <KLocalizedString>
 
 #include "person_detail_view.h"
 #include "ui_person_detail_view.h"
 #include "data/person.h"
 #include "event/event_table_view.h"
 #include "data/event.h"
+#include "database/schema.h"
+#include "names.h"
 
 PersonDetailView::PersonDetailView(long long id, QWidget *parent) :
         QFrame(parent),
@@ -45,7 +48,7 @@ void PersonDetailView::populate() {
 
     // Get the person from the database.
     QSqlQuery query;
-    query.prepare("SELECT * FROM person WHERE id = :id");
+    query.prepare("SELECT * FROM people JOIN names ON people.id = names.person_id WHERE people.id = :id");
     query.bindValue(":id", id);
 
     if (!query.exec()) {
@@ -55,7 +58,11 @@ void PersonDetailView::populate() {
     query.first();
     this->record = query.record();
 
-    auto name = record.field(Data::Person::Table::GIVEN_NAMES).value().toString();
+    auto titles = record.field(Schema::Names::titles).value().toString();
+    auto given_names = record.field(Schema::Names::givenNames).value().toString();
+    auto prefix = record.field(Schema::Names::prefix).value().toString();
+    auto surname = record.field(Schema::Names::surname).value().toString();
+    auto name = Names::construct_display_name(titles, given_names, prefix, surname);
     ui->displayName->setText(name);
 
     auto sex = record.field(Data::Person::Table::SEX).value().toString();
@@ -64,24 +71,36 @@ void PersonDetailView::populate() {
     ui->sexIcon->setText(sexSymbol);
     ui->sexIcon->setToolTip(sexDescription);
 
-    // Show details.
-    // This is manually created...
-//    ui->eventTab->setWid
-    auto *eventTabContainer = ui->eventTab->layout();
-    eventTabContainer->setSpacing(0);
+    auto *tabWidget = ui->tabWidget;
 
-    auto *eventToolbar = new QToolBar(ui->eventTab);
-//    eventToolbar->layout()->setMargin(0);
-    eventToolbar->setMovable(false);
-    eventToolbar->setFloatable(false);
+    // Create tab for events
+    auto *evenTabContainer = new QWidget();
+    auto *evenTabContainerLayout = new QVBoxLayout(evenTabContainer);
+    evenTabContainerLayout->setSpacing(0);
+    auto *eventToolbar = new QToolBar(evenTabContainer);
     auto *action = new QAction(eventToolbar);
     action->setText("Add Event");
     action->setIcon(QIcon::fromTheme("list-add"));
     eventToolbar->addAction(action);
-    eventTabContainer->addWidget(eventToolbar);
+    evenTabContainerLayout->addWidget(eventToolbar);
+    auto *tableView = new EventTableView(this->id, evenTabContainer);
+    evenTabContainerLayout->addWidget(tableView);
+    tabWidget->addTab(evenTabContainer, i18n("Events"));
 
-    auto *tableView = new EventTableView(this->id, ui->eventTab);
-    eventTabContainer->addWidget(tableView);
+
+    // Create tab for names
+    auto *nameTabContainer = new QWidget(tabWidget);
+    auto *nameTabContainerLayout = new QVBoxLayout(nameTabContainer);
+    nameTabContainerLayout->setSpacing(0);
+    auto *nameToolbar = new QToolBar(nameTabContainer);
+    auto *addNameAction = new QAction(nameToolbar);
+    addNameAction->setText("Add Name");
+    addNameAction->setIcon(QIcon::fromTheme("list-add"));
+    nameToolbar->addAction(addNameAction);
+    nameTabContainerLayout->addWidget(nameToolbar);
+    auto *nameTableView = new NamesTableView(this->id, nameTabContainer);
+    nameTabContainerLayout->addWidget(nameTableView);
+    tabWidget->addTab(nameTabContainer, i18n("Names"));
 
     this->populateBirth();
 

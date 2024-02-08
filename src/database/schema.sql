@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS names
     nickname    TEXT,
     prefix      TEXT,
     surname     TEXT,
-    origin      TEXT,
+    origin      TEXT DEFAULT 'none',
     sort_as     TEXT,
     main        BOOLEAN,
     FOREIGN KEY (person_id) REFERENCES people (id)

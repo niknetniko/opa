@@ -5,6 +5,7 @@ project(opa)
 set(QT_MIN_VERSION "5.15.0")
 set(KF_MIN_VERSION "5.83.0")
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
@@ -29,7 +30,10 @@ find_package(KF5 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     I18n
     XmlGui
     IconThemes
+    ItemModels
 )
+
+kde_enable_exceptions()
 
 add_subdirectory(src)
 add_subdirectory(icons)

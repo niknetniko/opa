@@ -38,7 +38,7 @@ void open_database(const QString &file) {
     }
 
     if (QFile::exists(file)) {
-        qDebug("Removing existing databasde...");
+        qDebug("Removing existing database...");
         QFile::remove(file);
     }
 
@@ -49,6 +49,13 @@ void open_database(const QString &file) {
     if (!database.open()) {
         qDebug("Error occurred opening the database %s", qPrintable(file));
         qDebug("%s.", qPrintable(database.lastError().text()));
+        abort();
+    }
+
+    // Ensure we have foreign keys...
+    QSqlQuery foreignKeys(database);
+    if (!foreignKeys.exec("PRAGMA foreign_keys = ON;")) {
+        qWarning("Could not enable foreign keys: %s", qPrintable(foreignKeys.lastError().text()));
         abort();
     }
 

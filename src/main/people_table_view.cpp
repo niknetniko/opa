@@ -16,8 +16,6 @@
 PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
 
     auto *model = new PeopleTableModel(this);
-    // TODO: fix this and make it proper.
-    while (model->canFetchMore()) { model->fetchMore(); }
 
     tableView = new QTableView(this);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -27,7 +25,7 @@ PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
     tableView->setSortingEnabled(true);
     // We are done setting up, attach the model.
     tableView->setModel(model);
-    tableView->hideColumn(2);
+    qDebug() << model->columnCount();
     tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 

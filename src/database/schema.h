@@ -21,7 +21,6 @@ namespace Schema {
         const QString personId = "person_id";
         const QString givenNames = "given_names";
         const QString titles = "titles";
-        const QString nickname = "nickname";
         const QString prefix = "prefix";
         const QString surname = "surname";
         const QString origin = "origin";

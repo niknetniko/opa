@@ -1,5 +1,3 @@
-SET(CMAKE_AUTORCC ON)
-
 add_executable(opa main.cpp resources.qrc)
 
 target_sources(opa PRIVATE
@@ -14,6 +12,8 @@ target_sources(opa PRIVATE
         event/event_table_view.cpp
         person_detail/person_detail_view.cpp
         utils/gramps_date.cpp
+        names.cpp
+        formatting.cpp
 )
 
 ecm_qt_declare_logging_category(opa
@@ -35,6 +35,7 @@ target_link_libraries(opa
         KF5::DBusAddons
         KF5::Crash
         KF5::IconThemes
+        KF5::ItemModels
         Qt5::Widgets
         Qt5::Sql
 )

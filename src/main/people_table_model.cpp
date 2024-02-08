@@ -12,13 +12,19 @@
 #include "people_table_model.h"
 
 #include "data/person.h"
+#include "names.h"
 
-PeopleTableModel::PeopleTableModel(QObject *parent) : QSqlQueryModel(parent), sortOrder(Qt::SortOrder::AscendingOrder),
-                                                      sortColumn(Data::Person::Table::GIVEN_NAMES) {
+const int SqlColumnRole = Qt::UserRole + 1;
+
+BasicPeopleTableModel::BasicPeopleTableModel(QObject *parent) : QSqlQueryModel(parent),
+                                                                sortOrder(Qt::SortOrder::AscendingOrder),
+                                                                sortColumn(Data::Person::Table::GIVEN_NAMES) {
     this->regenerateQuery();
+    // TODO: fix this and make it proper.
+    while (this->canFetchMore()) { this->fetchMore(); }
 }
 
-QVariant PeopleTableModel::data(const QModelIndex &item, int role) const {
+QVariant BasicPeopleTableModel::data(const QModelIndex &item, int role) const {
     int originalRole = role;
 
     // Some roles are not implemented in the parent class, so ignore those.
@@ -39,36 +45,34 @@ QVariant PeopleTableModel::data(const QModelIndex &item, int role) const {
         }
     }
 
-    // Modify the text colour.
-    if (originalRole == Qt::ForegroundRole) {
-        // Modify from every row.
-        auto colorIndex = item.siblingAtColumn(2);
-        auto colorValue = QSqlQueryModel::data(colorIndex, Qt::ItemDataRole::DisplayRole);
-        QColor color;
-        color.setNamedColor(colorValue.toString());
-        return QVariant::fromValue(color);
-    }
-
     return value;
 }
 
-void PeopleTableModel::sort(int column, Qt::SortOrder order) {
-    qDebug() << "Sorting called...";
-    this->sortColumn = this->headerData(column, Qt::Horizontal).toString();
+void BasicPeopleTableModel::sort(int column, Qt::SortOrder order) {
+    qDebug() << "Sorting called... " << column;
+    if (column > 0) {
+        column = 1; // We only support sorting column 0 or 1 for now.
+    }
+    if (column == 0) {
+        this->sortColumn = "people.id";
+    } else if (column == 1) {
+        this->sortColumn = "names.given_names";
+    }
     this->sortOrder = order;
+    qDebug("New sort column is %s", qPrintable(this->sortColumn));
     this->regenerateQuery();
 }
 
-void PeopleTableModel::onSearchChanged(const QString &text) {
+void BasicPeopleTableModel::onSearchChanged(const QString &text) {
     this->searchQuery = text;
     this->regenerateQuery();
 }
 
-void PeopleTableModel::regenerateQuery() {
-    QString queryString = "SELECT person.id, person.given_names, color FROM person LEFT JOIN roots ON person.id = roots.person";
+void BasicPeopleTableModel::regenerateQuery() {
+    QString queryString = "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname FROM people JOIN names on people.id = names.person_id WHERE (names.main IS TRUE)";
 
     if (!this->searchQuery.isEmpty()) {
-        queryString += " WHERE person.given_names LIKE '%" + this->searchQuery + "%'";
+        queryString += " AND (names.given_names LIKE '%" + this->searchQuery + "%')";
     }
 
     QString sortString;
@@ -81,7 +85,7 @@ void PeopleTableModel::regenerateQuery() {
             break;
     }
 
-    queryString += " ORDER BY person." + this->sortColumn  + " " + sortString;
+    queryString += " ORDER BY " + this->sortColumn + " " + sortString;
 
     qDebug() << queryString;
 
@@ -89,3 +93,35 @@ void PeopleTableModel::regenerateQuery() {
 }
 
 
+AdditionalColumnModel::AdditionalColumnModel(QObject *parent) : KExtraColumnsProxyModel(parent) {
+    qDebug("Appending additional column...");
+    this->setSourceModel(new BasicPeopleTableModel(this));
+    this->appendColumn(i18n("Naam"));
+}
+
+QVariant AdditionalColumnModel::extraColumnData(const QModelIndex &parent, int row, int  /*extraColumn*/, int role) const {
+    auto *source = this->sourceModel();
+    auto titles = source->index(row, 1, parent).data(role).toString();
+    auto givenNames = source->index(row, 2, parent).data(role).toString();
+    auto prefix = source->index(row, 3, parent).data(role).toString();
+    auto surname = source->index(row, 4, parent).data(role).toString();
+    return Names::construct_display_name(titles, givenNames, prefix, surname);
+}
+
+void AdditionalColumnModel::onSearchChanged(const QString &text) {
+    auto model = static_cast<BasicPeopleTableModel>(this->sourceModel());
+    model.onSearchChanged(text);
+}
+
+PeopleTableModel::PeopleTableModel(QObject *parent) : KRearrangeColumnsProxyModel(parent) {
+    this->setSourceModel(new AdditionalColumnModel(this));
+    setSourceColumns(QVector<int>() << 0 << this->sourceModel()->columnCount() - 1);
+    this->setHeaderData(0, Qt::Horizontal, i18n("ID"));
+    // Find out why this won't work...
+//    this->setHeaderData(1, Qt::Horizontal, i18n("Naam"), Qt::DisplayRole);
+}
+
+void PeopleTableModel::onSearchChanged(const QString &text) {
+    auto model = static_cast<AdditionalColumnModel>(this->sourceModel());
+    model.onSearchChanged(text);
+}
