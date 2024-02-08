@@ -15,6 +15,7 @@
 #include "names.h"
 #include "database/schema.h"
 #include "formatting.h"
+#include "names/nameEditor.h"
 
 QString Names::construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
                                       const QString &surname) {
@@ -61,7 +62,7 @@ QString Names::origin_to_display(const Names::Origin &origin) {
     }
 }
 
-NamesTableModel::NamesTableModel(long long int personId, QObject *parent): QSqlQueryModel(parent) {
+NamesTableModel::NamesTableModel(long long int personId, QObject *parent) : QSqlQueryModel(parent) {
     this->personId = personId;
     this->regenerateQuery();
 }
@@ -77,10 +78,12 @@ void NamesTableModel::regenerateQuery() {
     this->setHeaderData(5, Qt::Vertical, i18n("Surname"));
     this->setHeaderData(6, Qt::Vertical, i18n("Origin"));
 
+    this->editable = {1, 2, 3, 4, 5, 6};
+
     QSqlQuery query;
     query.prepare(queryString);
     query.bindValue(":person_id", this->personId);
-    if(!query.exec()) {
+    if (!query.exec()) {
         qDebug() << query.lastQuery();
         qCritical() << "Could not get names...";
         qCritical() << "Error executing query: " << query.lastError().text();
@@ -116,12 +119,47 @@ QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
     return value;
 }
 
+Qt::ItemFlags NamesTableModel::flags(const QModelIndex &index) const {
+    Qt::ItemFlags flags = QSqlQueryModel::flags(index);
+    if (this->editable.contains(index.column())) {
+        flags |= Qt::ItemIsEditable;
+    }
+    return flags;
+}
+
+bool NamesTableModel::updateField(const QString &field, const QVariant &value) {
+    QSqlQuery query;
+    query.prepare("UPDATE names SET " + field + " = :val WHERE id = :id");
+    qDebug("Saving data...");
+
+    qDebug() << value;
+    query.bindValue(":val", value);
+    query.bindValue(":id", this->record().value(0));
+    auto res = query.exec();
+    qDebug() << query.executedQuery();
+    qWarning() << query.lastError();
+    return res;
+}
+
+bool NamesTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (!this->editable.contains(index.column())) {
+        return false;
+    }
+    auto column = this->record().fieldName(index.column());
+    this->clear();
+
+    bool success = this->updateField(column, value);
+    this->regenerateQuery();
+    return success;
+}
+
 SortableAndFilterableModel::SortableAndFilterableModel(long long id, QObject *parent) : QSortFilterProxyModel(parent) {
+    this->personId = id;
     this->setSourceModel(new NamesTableModel(id));
 }
 
-NamesTableView::NamesTableView(long long int personId, QWidget *parent): QWidget(parent) {
-    auto *model = new SortableAndFilterableModel(personId, this);
+NamesTableView::NamesTableView(long long int personId, QWidget *parent) : QWidget(parent) {
+    this->model = new SortableAndFilterableModel(personId, this);
     // TODO: fix this and make it proper.
 //    while (model->canFetchMore()) { model->fetchMore(); }
 
@@ -137,7 +175,7 @@ NamesTableView::NamesTableView(long long int personId, QWidget *parent): QWidget
     tableView->setModel(model);
 
     // Wrap in a VBOX for layout reasons.
-    auto* layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     layout->addWidget(tableView);
 
     connect(tableView->selectionModel(),
@@ -151,6 +189,11 @@ void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const 
     if (selected.empty()) {
         return;
     }
+
+    auto *editorWindow = new NamesEditor(this->model->personId, this);
+    editorWindow->show();
+    editorWindow->adjustSize();
+
     // TODO: open something?
 }
 

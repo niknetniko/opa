@@ -1,4 +1,6 @@
-add_executable(opa main.cpp resources.qrc)
+add_executable(opa main.cpp resources.qrc
+    names/nameEditor.ui
+)
 
 target_sources(opa PRIVATE
         main/main_window.cpp
@@ -14,6 +16,7 @@ target_sources(opa PRIVATE
         utils/gramps_date.cpp
         names.cpp
         formatting.cpp
+        names/nameEditor.cpp
 )
 
 ecm_qt_declare_logging_category(opa
@@ -27,6 +30,8 @@ kconfig_add_kcfg_files(opa main/opaSettings.kcfgc)
 #        person_detail/person_detail_view.ui
 #        )
 
+
+
 target_link_libraries(opa
         KF5::CoreAddons
         KF5::I18n
@@ -38,6 +43,9 @@ target_link_libraries(opa
         KF5::ItemModels
         Qt5::Widgets
         Qt5::Sql
+        Qt5::Quick
+        Qt5::QuickControls2
+        Qt5::QuickWidgets
 )
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

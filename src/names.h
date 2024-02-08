@@ -47,9 +47,15 @@ public:
 
     [[nodiscard]] QVariant data(const QModelIndex &item, int role) const override;
 
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
 private:
     long long personId;
+    QVector<int> editable;
     void regenerateQuery();
+    bool updateField(const QString &field, const QVariant &value);
 };
 
 class SortableAndFilterableModel : public QSortFilterProxyModel {
@@ -57,6 +63,9 @@ class SortableAndFilterableModel : public QSortFilterProxyModel {
 
 public:
     explicit SortableAndFilterableModel(long long id, QObject *parent = nullptr);
+
+public:
+    long long personId;
 };
 
 /**
@@ -85,8 +94,8 @@ public Q_SLOTS:
 
 private:
     QTableView* tableView;
+    SortableAndFilterableModel* model;
 };
-
 
 
 

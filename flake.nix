@@ -32,9 +32,11 @@
                 libsForQt5.appstream-qt
                 libsForQt5.kirigami2
                 libsForQt5.kiconthemes
+                libsForQt5.qt5.qtquickcontrols2
                 qtcreator
                 qt5.qtbase
                 qt5.qtwayland
+                qt5.qtdeclarative
 
                 libsForQt5.breeze-icons
                 libsForQt5.breeze-qt5
@@ -45,6 +47,7 @@
               shellHook = ''
                 export KF5ConfigWidgets_DIR=${pkgs.libsForQt5.kconfigwidgets}
                 export KF5KIconThemes_DIR=${pkgs.libsForQt5.kiconthemes}
+                export QML_DIR=${pkgs.qt5.qtdeclarative}
               '';
           };
         }
