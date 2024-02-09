@@ -6,9 +6,11 @@
 #include <QVBoxLayout>
 #include <QDataWidgetMapper>
 #include <QMessageBox>
+#include <QSqlError>
 #include "nameEditor.h"
 #include "ui_nameEditor.h"
 #include "names.h"
+
 
 NamesEditor::NamesEditor(long long int personId, QWidget *parent) : QDialog(parent) {
 
@@ -18,7 +20,7 @@ NamesEditor::NamesEditor(long long int personId, QWidget *parent) : QDialog(pare
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     this->mapper = new QDataWidgetMapper(this);
-    mapper->setModel(new NamesTableModel(personId, this));
+    mapper->setModel(new SelectedDataNamesTableModel(personId, this));
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     // TODO
 //    mapper->addMapping(1);
@@ -32,10 +34,13 @@ NamesEditor::NamesEditor(long long int personId, QWidget *parent) : QDialog(pare
 
 void NamesEditor::accept() {
     if (this->mapper != nullptr) {
-        if (mapper->submit()) {
+        auto submitted = mapper->submit();
+        if (submitted) {
             QDialog::accept();
         } else {
             QMessageBox::critical(this, "Problem during saving", "The changes could not be saved for some reason");
+            auto warn = static_cast<QSqlQueryModel>(mapper->model()).lastError();
+            qDebug() << "Error was: " << warn.text().toStdString().c_str();
             return;
         }
     }

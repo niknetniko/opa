@@ -62,37 +62,20 @@ QString Names::origin_to_display(const Names::Origin &origin) {
     }
 }
 
-NamesTableModel::NamesTableModel(long long int personId, QObject *parent) : QSqlQueryModel(parent) {
+NamesTableModel::NamesTableModel(long long int personId, QObject *parent) : QSqlTableModel(parent) {
     this->personId = personId;
     this->regenerateQuery();
 }
 
 void NamesTableModel::regenerateQuery() {
-    QString queryString = "SELECT id, main, titles, given_names, prefix, surname, origin FROM names WHERE person_id = :person_id";
-
-    this->setHeaderData(0, Qt::Vertical, i18n("ID"));
-    this->setHeaderData(1, Qt::Vertical, i18n("Main"));
-    this->setHeaderData(2, Qt::Vertical, i18n("Titles"));
-    this->setHeaderData(3, Qt::Vertical, i18n("Given names"));
-    this->setHeaderData(4, Qt::Vertical, i18n("Prefixes"));
-    this->setHeaderData(5, Qt::Vertical, i18n("Surname"));
-    this->setHeaderData(6, Qt::Vertical, i18n("Origin"));
-
-    this->editable = {1, 2, 3, 4, 5, 6};
-
-    QSqlQuery query;
-    query.prepare(queryString);
-    query.bindValue(":person_id", this->personId);
-    if (!query.exec()) {
-        qDebug() << query.lastQuery();
-        qCritical() << "Could not get names...";
-        qCritical() << "Error executing query: " << query.lastError().text();
-    }
-    this->setQuery(query);
+    this->setTable("names");
+    this->setFilter(QString("person_id = %1").arg(this->personId));
+//    this->setEditStrategy(QSqlTableModel::OnRowChange);
+    this->select();
 }
 
 QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
-    auto value = QSqlQueryModel::data(item, role);
+    auto value = QSqlTableModel::data(item, role);
     if (!value.isValid()) {
         return value;
     }
@@ -119,43 +102,9 @@ QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
     return value;
 }
 
-Qt::ItemFlags NamesTableModel::flags(const QModelIndex &index) const {
-    Qt::ItemFlags flags = QSqlQueryModel::flags(index);
-    if (this->editable.contains(index.column())) {
-        flags |= Qt::ItemIsEditable;
-    }
-    return flags;
-}
-
-bool NamesTableModel::updateField(const QString &field, const QVariant &value) {
-    QSqlQuery query;
-    query.prepare("UPDATE names SET " + field + " = :val WHERE id = :id");
-    qDebug("Saving data...");
-
-    qDebug() << value;
-    query.bindValue(":val", value);
-    query.bindValue(":id", this->record().value(0));
-    auto res = query.exec();
-    qDebug() << query.executedQuery();
-    qWarning() << query.lastError();
-    return res;
-}
-
-bool NamesTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-    if (!this->editable.contains(index.column())) {
-        return false;
-    }
-    auto column = this->record().fieldName(index.column());
-    this->clear();
-
-    bool success = this->updateField(column, value);
-    this->regenerateQuery();
-    return success;
-}
-
 SortableAndFilterableModel::SortableAndFilterableModel(long long id, QObject *parent) : QSortFilterProxyModel(parent) {
     this->personId = id;
-    this->setSourceModel(new NamesTableModel(id));
+    this->setSourceModel(new SelectedDataNamesTableModel(id));
 }
 
 NamesTableView::NamesTableView(long long int personId, QWidget *parent) : QWidget(parent) {
@@ -198,3 +147,15 @@ void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const 
 }
 
 
+SelectedDataNamesTableModel::SelectedDataNamesTableModel(long long int personId, QObject *parent): KRearrangeColumnsProxyModel(parent) {
+    this->setSourceModel(new NamesTableModel(personId, parent));
+    this->setSourceColumns({0, 9, 3, 2, 5, 6, 7});
+
+    this->setHeaderData(0, Qt::Horizontal, i18n("ID"));
+    this->setHeaderData(1, Qt::Horizontal, i18n("Main"));
+    this->setHeaderData(2, Qt::Horizontal, i18n("Titles"));
+    this->setHeaderData(3, Qt::Horizontal, i18n("Given names"));
+    this->setHeaderData(4, Qt::Horizontal, i18n("Prefixes"));
+    this->setHeaderData(5, Qt::Horizontal, i18n("Surname"));
+    this->setHeaderData(6, Qt::Horizontal, i18n("Origin"));
+}

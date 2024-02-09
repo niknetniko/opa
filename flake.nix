@@ -42,6 +42,7 @@
                 libsForQt5.breeze-qt5
                 libsForQt5.kitemmodels
                 atlas
+                gdb
               ];
 
               shellHook = ''

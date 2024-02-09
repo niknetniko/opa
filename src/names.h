@@ -11,6 +11,8 @@
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include <QTableView>
+#include <QSqlTableModel>
+#include <KRearrangeColumnsProxyModel>
 
 
 namespace Names {
@@ -28,18 +30,20 @@ namespace Names {
         OCCUPATION, // Derived from person's occupation.
         LOCATION, // Derived from person's location
     };
+
     Q_ENUM_NS(Origin)
 
     QString origin_to_display(const Origin &origin);
 
 
-    QString construct_display_name(const QString& titles, const QString& givenNames, const QString& prefix, const QString& surname);
+    QString construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
+                                   const QString &surname);
 };
 
 /**
  * The data model for the PeopleTableView.
  */
-class NamesTableModel : public QSqlQueryModel {
+class NamesTableModel : public QSqlTableModel {
 Q_OBJECT
 
 public:
@@ -47,24 +51,27 @@ public:
 
     [[nodiscard]] QVariant data(const QModelIndex &item, int role) const override;
 
-    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
-
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
-
 private:
     long long personId;
     QVector<int> editable;
+
     void regenerateQuery();
-    bool updateField(const QString &field, const QVariant &value);
+};
+
+class SelectedDataNamesTableModel : public KRearrangeColumnsProxyModel {
+Q_OBJECT
+
+public:
+    explicit SelectedDataNamesTableModel(long long personId, QObject *parent = nullptr);
+
 };
 
 class SortableAndFilterableModel : public QSortFilterProxyModel {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit SortableAndFilterableModel(long long id, QObject *parent = nullptr);
 
-public:
     long long personId;
 };
 
@@ -82,21 +89,21 @@ public:
  * the act of selecting a person will not cause the globally selected person
  * to change. This is the job of a listener.
  */
-class NamesTableView: public QWidget {
+class NamesTableView : public QWidget {
 Q_OBJECT
 public:
-    explicit NamesTableView(long long personId, QWidget* parent);
+    explicit NamesTableView(long long personId, QWidget *parent);
 
     ~NamesTableView() override = default;
 
 public Q_SLOTS:
+
     void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
-    QTableView* tableView;
-    SortableAndFilterableModel* model;
+    QTableView *tableView;
+    SortableAndFilterableModel *model;
 };
-
 
 
 #endif //OPA_NAMES_H
