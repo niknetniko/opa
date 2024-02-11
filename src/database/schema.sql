@@ -9,14 +9,12 @@ CREATE TABLE IF NOT EXISTS names
 (
     id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     person_id   INTEGER NOT NULL,
-    given_names TEXT,
+    main        BOOLEAN NOT NULL,
     titles      TEXT,
-    nickname    TEXT,
+    given_names TEXT,
     prefix      TEXT,
     surname     TEXT,
-    origin      TEXT DEFAULT 'none',
-    sort_as     TEXT,
-    main        BOOLEAN,
+    origin      TEXT,
     FOREIGN KEY (person_id) REFERENCES people (id)
 );
 

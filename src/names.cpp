@@ -11,6 +11,7 @@
 #include <QMetaEnum>
 #include <QHeaderView>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 #include "names.h"
 #include "database/schema.h"
@@ -58,20 +59,27 @@ QString Names::origin_to_display(const Names::Origin &origin) {
         case LOCATION:
             return i18n("Location");
         default:
-            throw std::invalid_argument("Unhandled case in switch statement");
+            throw std::invalid_argument(QString("Unhandled case in switch statement %1").arg(origin).toStdString());
     }
 }
 
-NamesTableModel::NamesTableModel(long long int personId, QObject *parent) : QSqlTableModel(parent) {
+NamesTableModel::NamesTableModel(IntegerPrimaryKey personId, QObject *parent) : QSqlTableModel(parent) {
     this->personId = personId;
-    this->regenerateQuery();
-}
-
-void NamesTableModel::regenerateQuery() {
-    this->setTable("names");
-    this->setFilter(QString("person_id = %1").arg(this->personId));
-//    this->setEditStrategy(QSqlTableModel::OnRowChange);
+    this->setTable(Schema::Names::TableName);
+    if (this->personId != -1) {
+        this->setFilter(QString("person_id = %1").arg(this->personId));
+    }
     this->select();
+
+    // Set the correct headers.
+    this->setHeaderData(ID, Qt::Horizontal, i18n("ID"));
+    this->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Person ID"));
+    this->setHeaderData(MAIN, Qt::Horizontal, i18n("Main"));
+    this->setHeaderData(TITLES, Qt::Horizontal, i18n("Titles"));
+    this->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Given names"));
+    this->setHeaderData(PREFIX, Qt::Horizontal, i18n("Prefixes"));
+    this->setHeaderData(SURNAME, Qt::Horizontal, i18n("Surname"));
+    this->setHeaderData(ORIGIN, Qt::Horizontal, i18n("Origin"));
 }
 
 QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
@@ -82,35 +90,67 @@ QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
 
     // Modify the data itself.
     if (role == Qt::DisplayRole) {
-        if (record().fieldName(item.column()) == Schema::Names::id) {
+        if (item.column() == ID) {
             // Format the ID.
             return format_name_id(value);
-        } else if (record().fieldName(item.column()) == Schema::Names::main) {
-            if (value.toBool()) {
-                return "✅";
-            } else {
-                return "";
-            }
-        } else if (record().fieldName(item.column()) == Schema::Names::origin) {
+        } else if (item.column() == ORIGIN) {
             auto metaEnum = QMetaEnum::fromType<Names::Origin>();
-            const auto *asString = value.toString().toUpper().toStdString().c_str();
-            auto originEnum = static_cast<Names::Origin>(metaEnum.keyToValue(asString));
+            Names::Origin originEnum;
+            if (value.toString().isEmpty()) {
+                originEnum = Names::Origin::NONE;
+            } else {
+                auto asStdString = value.toString().toUpper().toStdString();
+                originEnum = static_cast<Names::Origin>(metaEnum.keyToValue(asStdString.c_str()));
+            }
+
             return Names::origin_to_display(originEnum);
+        }
+    } else if (role == Qt::EditRole) {
+        if (item.column() == ORIGIN) {
+            return value.toString();
         }
     }
 
     return value;
 }
 
-SortableAndFilterableModel::SortableAndFilterableModel(long long id, QObject *parent) : QSortFilterProxyModel(parent) {
-    this->personId = id;
-    this->setSourceModel(new SelectedDataNamesTableModel(id));
+bool NamesTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (role == Qt::EditRole) {
+        if (index.column() == ORIGIN) {
+            // Handle this once we use enums everywhere.
+//            qDebug() << "Setting value, type is " << value.typeName();
+//            auto newValue = QVariant::fromValue(value).toString();
+//            return QSqlTableModel::setData(index, newValue, role);
+        }
+    }
+
+    return QSqlTableModel::setData(index, value, role);
 }
 
-NamesTableView::NamesTableView(long long int personId, QWidget *parent) : QWidget(parent) {
-    this->model = new SortableAndFilterableModel(personId, this);
+NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
+    this->personId = personId;
+    this->baseModel = new NamesTableModel(personId, this);
+    this->baseModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    // We only show certain columns here.
+    auto *selectedColumnsModel = new KRearrangeColumnsProxyModel(this);
+    selectedColumnsModel->setSourceModel(baseModel);
+    selectedColumnsModel->setSourceColumns({
+                                                   NamesTableModel::ID,
+                                                   NamesTableModel::MAIN,
+                                                   NamesTableModel::TITLES,
+                                                   NamesTableModel::GIVEN_NAMES,
+                                                   NamesTableModel::PREFIX,
+                                                   NamesTableModel::SURNAME,
+                                                   NamesTableModel::ORIGIN
+                                           });
+
+    // We want to filter and sort.
+    auto *filterProxyModel = new QSortFilterProxyModel(this);
+    filterProxyModel->setSourceModel(selectedColumnsModel);
+
     // TODO: fix this and make it proper.
-//    while (model->canFetchMore()) { model->fetchMore(); }
+    // while (model->canFetchMore()) { model->fetchMore(); }
 
     tableView = new QTableView(this);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -121,7 +161,7 @@ NamesTableView::NamesTableView(long long int personId, QWidget *parent) : QWidge
     tableView->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
     tableView->setSortingEnabled(true);
     // We are done setting up, attach the model.
-    tableView->setModel(model);
+    tableView->setModel(filterProxyModel);
 
     // Wrap in a VBOX for layout reasons.
     auto *layout = new QVBoxLayout(this);
@@ -133,29 +173,33 @@ NamesTableView::NamesTableView(long long int personId, QWidget *parent) : QWidge
             &NamesTableView::handleSelectedNewRow);
 }
 
-void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected) {
+void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
     // Hack
     if (selected.empty()) {
         return;
     }
 
-    auto *editorWindow = new NamesEditor(this->model->personId, this);
+    auto *editorWindow = new NamesEditor(this->baseModel, selected.indexes().first().row(), this);
     editorWindow->show();
     editorWindow->adjustSize();
-
-    // TODO: open something?
 }
 
+void NamesTableView::handleNewName() {
+    auto newRecord = this->baseModel->record();
+    newRecord.setGenerated(NamesTableModel::ID, true);
+    newRecord.setValue(NamesTableModel::PERSON_ID, this->personId);
+    newRecord.setValue(NamesTableModel::MAIN, false);
+    if (!this->baseModel->insertRecord(-1, newRecord)) {
+        QMessageBox::warning(this, "Could not insert name", "Problem inserting new name into database.");
+        qWarning() << "Error was: " << this->baseModel->lastError();
+        qDebug() << "Query was: " << this->baseModel->query().lastQuery();
+        return;
+    }
 
-SelectedDataNamesTableModel::SelectedDataNamesTableModel(long long int personId, QObject *parent): KRearrangeColumnsProxyModel(parent) {
-    this->setSourceModel(new NamesTableModel(personId, parent));
-    this->setSourceColumns({0, 9, 3, 2, 5, 6, 7});
+    auto index = this->baseModel->rowCount() - 1;
 
-    this->setHeaderData(0, Qt::Horizontal, i18n("ID"));
-    this->setHeaderData(1, Qt::Horizontal, i18n("Main"));
-    this->setHeaderData(2, Qt::Horizontal, i18n("Titles"));
-    this->setHeaderData(3, Qt::Horizontal, i18n("Given names"));
-    this->setHeaderData(4, Qt::Horizontal, i18n("Prefixes"));
-    this->setHeaderData(5, Qt::Horizontal, i18n("Surname"));
-    this->setHeaderData(6, Qt::Horizontal, i18n("Origin"));
+    // Show the dialog for the other data.
+    auto *editorWindow = new NamesEditor(this->baseModel, index, this);
+    editorWindow->show();
+    editorWindow->adjustSize();
 }

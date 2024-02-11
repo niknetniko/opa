@@ -7,6 +7,8 @@
 
 #include <QString>
 
+using IntegerPrimaryKey = qint64;
+
 // TODO: generate this with a script...
 namespace Schema {
     namespace People {
@@ -24,7 +26,6 @@ namespace Schema {
         const QString prefix = "prefix";
         const QString surname = "surname";
         const QString origin = "origin";
-        const QString sortAs = "sort_as";
         const QString main = "main";
     }
 

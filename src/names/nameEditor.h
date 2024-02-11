@@ -7,15 +7,22 @@
 
 #include <QDataWidgetMapper>
 #include <QDialog>
+#include "names.h"
 
+/**
+ * Editor for names.
+ *
+ */
 class NamesEditor : public QDialog {
 Q_OBJECT
 public:
-    explicit NamesEditor(long long personId, QWidget *parent);
+    explicit NamesEditor(NamesTableModel *model, int selectedRow, QWidget *parent);
 
     void accept() override;
+    void reject() override;
 
 private:
+    NamesTableModel *model;
     QDataWidgetMapper *mapper;
 };
 

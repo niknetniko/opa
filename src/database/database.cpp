@@ -9,6 +9,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QFile>
+#include <qsqldriver.h>
 
 const QString driver = "QSQLITE";
 
@@ -82,4 +83,6 @@ void open_database(const QString &file) {
     QTextStream init_stream(&init_file);
     QString init = init_stream.readAll();
     executeScriptOrAbort(init, database);
+
+    QSqlDriver* dr = database.driver();
 }

@@ -102,6 +102,8 @@ void PersonDetailView::populate() {
     nameTabContainerLayout->addWidget(nameTableView);
     tabWidget->addTab(nameTabContainer, i18n("Names"));
 
+    connect(addNameAction, &QAction::triggered, nameTableView, &NamesTableView::handleNewName);
+
     this->populateBirth();
 
     emit this->personNameChanged(this->id, name);

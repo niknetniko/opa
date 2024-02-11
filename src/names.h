@@ -13,6 +13,7 @@
 #include <QTableView>
 #include <QSqlTableModel>
 #include <KRearrangeColumnsProxyModel>
+#include "database/schema.h"
 
 
 namespace Names {
@@ -38,41 +39,42 @@ namespace Names {
 
     QString construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
                                    const QString &surname);
-};
+}
 
 /**
- * The data model for the PeopleTableView.
+ * Model for the "names" SQL table.
+ *
+ * The model contains all names in the database.
+ *
+ * The table will automatically enforce constraints, e.g. that only one row may
+ * be the main name at a time.
+ *
+ * The columns and their positions is exposed as special variables. Use those.
  */
 class NamesTableModel : public QSqlTableModel {
 Q_OBJECT
 
 public:
-    explicit NamesTableModel(long long personId, QObject *parent = nullptr);
+    static const int ID = 0;
+    static const int PERSON_ID = 1;
+    static const int MAIN = 2;
+    static const int TITLES = 3;
+    static const int GIVEN_NAMES = 4;
+    static const int PREFIX = 5;
+    static const int SURNAME = 6;
+    static const int ORIGIN = 7;
+
+    explicit NamesTableModel(QObject *parent = nullptr) : NamesTableModel(-1, parent) {};
+
+    explicit NamesTableModel(IntegerPrimaryKey personId, QObject *parent = nullptr);
 
     [[nodiscard]] QVariant data(const QModelIndex &item, int role) const override;
 
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+
 private:
-    long long personId;
-    QVector<int> editable;
-
-    void regenerateQuery();
-};
-
-class SelectedDataNamesTableModel : public KRearrangeColumnsProxyModel {
-Q_OBJECT
-
-public:
-    explicit SelectedDataNamesTableModel(long long personId, QObject *parent = nullptr);
-
-};
-
-class SortableAndFilterableModel : public QSortFilterProxyModel {
-Q_OBJECT
-
-public:
-    explicit SortableAndFilterableModel(long long id, QObject *parent = nullptr);
-
-    long long personId;
+    // -1 if full table, otherwise the ID of the person whose names to use.
+    IntegerPrimaryKey personId;
 };
 
 /**
@@ -92,18 +94,18 @@ public:
 class NamesTableView : public QWidget {
 Q_OBJECT
 public:
-    explicit NamesTableView(long long personId, QWidget *parent);
-
-    ~NamesTableView() override = default;
-
-public Q_SLOTS:
-
-    void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
+    explicit NamesTableView(IntegerPrimaryKey personId, QWidget *parent);
 
 private:
     QTableView *tableView;
-    SortableAndFilterableModel *model;
-};
+    NamesTableModel *baseModel;
+    IntegerPrimaryKey personId;
 
+public Q_SLOTS:
+
+    void handleNewName();
+
+    void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
+};
 
 #endif //OPA_NAMES_H
