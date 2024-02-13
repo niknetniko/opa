@@ -104,10 +104,6 @@ QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
 
             return Names::origin_to_display(originEnum);
         }
-    } else if (role == Qt::EditRole) {
-        if (item.column() == ORIGIN) {
-            return value.toString();
-        }
     }
 
     return value;
@@ -116,10 +112,10 @@ QVariant NamesTableModel::data(const QModelIndex &item, int role) const {
 bool NamesTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
     if (role == Qt::EditRole) {
         if (index.column() == ORIGIN) {
-            // Handle this once we use enums everywhere.
-//            qDebug() << "Setting value, type is " << value.typeName();
-//            auto newValue = QVariant::fromValue(value).toString();
-//            return QSqlTableModel::setData(index, newValue, role);
+            auto newValue = static_cast<Names::Origin>(value.toInt());
+            auto metaEnum = QMetaEnum::fromType<Names::Origin>();
+            auto newNewValue = QString(metaEnum.key(newValue));
+            return QSqlTableModel::setData(index, newNewValue.toLower(), role);
         }
     }
 
@@ -153,6 +149,7 @@ NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QW
     // while (model->canFetchMore()) { model->fetchMore(); }
 
     tableView = new QTableView(this);
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->verticalHeader()->setVisible(false);
     tableView->sortByColumn(1, Qt::SortOrder::AscendingOrder);
@@ -203,3 +200,40 @@ void NamesTableView::handleNewName() {
     editorWindow->show();
     editorWindow->adjustSize();
 }
+
+NameOriginModel::NameOriginModel(QObject *parent) : QAbstractListModel(parent) {
+    auto metaEnum = QMetaEnum::fromType<Names::Origin>();
+    for (int i = 0; i < metaEnum.keyCount(); ++i) {
+        auto value = static_cast<Names::Origin>(metaEnum.value(i));
+        this->values.append(value);
+    }
+}
+
+int NameOriginModel::rowCount(const QModelIndex & /*parent*/) const {
+    return  this->values.count();
+}
+
+QVariant NameOriginModel::data(const QModelIndex &index, int role) const {
+    Q_ASSERT(this->checkIndex(index, QAbstractItemModel::CheckIndexOption::IndexIsValid));
+
+    auto value = this->values.value(index.row());
+
+    if (role == Qt::DisplayRole) {
+        return Names::origin_to_display(value);
+    } else if (role == Qt::EditRole) {
+        return QVariant::fromValue(role);
+    }
+
+    // Nothing we support at the moment.
+    return {};
+}
+
+QVariant NameOriginModel::headerData(int section, Qt::Orientation  /*orientation*/, int  /*role*/) const {
+    if (section != 0) {
+        return {};
+    }
+
+    return i18n("Name origin");
+}
+
+

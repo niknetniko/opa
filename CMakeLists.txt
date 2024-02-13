@@ -21,7 +21,7 @@ include(ECMInstallIcons)
 include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 
-find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Sql Quick QuickControls2 QuickWidgets)
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Sql Quick QuickControls2 QuickWidgets Test)
 
 find_package(KF5 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     ConfigWidgets

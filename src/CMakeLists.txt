@@ -46,6 +46,7 @@ target_link_libraries(opa
         Qt5::Quick
         Qt5::QuickControls2
         Qt5::QuickWidgets
+        Qt5::Test
 )
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

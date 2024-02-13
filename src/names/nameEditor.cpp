@@ -30,8 +30,11 @@ NamesEditor::NamesEditor(NamesTableModel *model, int selectedRow, QWidget *paren
     mapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
-    mapper->addMapping(form->originCombo, NamesTableModel::ORIGIN);
+    mapper->addMapping(form->originCombo, NamesTableModel::ORIGIN, "currentIndex");
     mapper->setCurrentIndex(selectedRow);
+
+    auto* originModel = new NameOriginModel(this);
+    form->originCombo->setModel(originModel);
 
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.

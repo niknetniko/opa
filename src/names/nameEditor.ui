@@ -74,7 +74,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="originCombo"/>
+       <widget class="QComboBox" name="originCombo"/>
       </item>
      </layout>
     </item>

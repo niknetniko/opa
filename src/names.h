@@ -41,6 +41,22 @@ namespace Names {
                                    const QString &surname);
 }
 
+class NameOriginModel: public QAbstractListModel {
+    Q_OBJECT
+
+public:
+    explicit NameOriginModel(QObject* parent = nullptr);
+
+    [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+private:
+    QList<Names::Origin> values;
+};
+
 /**
  * Model for the "names" SQL table.
  *
