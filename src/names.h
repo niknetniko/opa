@@ -44,12 +44,11 @@ namespace Names {
 /**
  * Model for the "names" SQL table.
  *
- * The model contains all names in the database.
+ * The model contains all names in the database. Some notes:
  *
- * The table will automatically enforce constraints, e.g. that only one row may
- * be the main name at a time.
- *
- * The columns and their positions is exposed as special variables. Use those.
+ * - The table will automatically enforce constraints, e.g. that only one row may
+ * be the main name at a time. TODO
+ * - The columns and their positions is exposed as special variables. Use those.
  */
 class NamesTableModel : public QSqlTableModel {
 Q_OBJECT

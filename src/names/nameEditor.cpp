@@ -7,6 +7,7 @@
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 #include <QSqlError>
+#include <QCompleter>
 #include "nameEditor.h"
 #include "ui_nameEditor.h"
 #include "names.h"
@@ -25,14 +26,25 @@ NamesEditor::NamesEditor(NamesTableModel *model, int selectedRow, QWidget *paren
     this->mapper = new QDataWidgetMapper(this);
     mapper->setModel(this->model);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    // TODO
-//    mapper->addMapping(1);
     mapper->addMapping(form->titles, NamesTableModel::TITLES);
     mapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->originCombo, NamesTableModel::ORIGIN);
     mapper->setCurrentIndex(selectedRow);
+
+    // Set up autocomplete on the last name.
+    // We want to sort this, so we need to create a new model.
+    // Additionally, we want to use all last names, not just the once from the current person.
+    auto* autocompleteModel = new NamesTableModel(this);
+    autocompleteModel->setSort(NamesTableModel::SURNAME, Qt::SortOrder::AscendingOrder);
+    autocompleteModel->select();
+    auto* completer = new QCompleter(autocompleteModel, this);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    completer->setCompletionColumn(NamesTableModel::SURNAME);
+    completer->setCompletionMode(QCompleter::InlineCompletion);
+    form->surname->setCompleter(completer);
 }
 
 void NamesEditor::accept() {

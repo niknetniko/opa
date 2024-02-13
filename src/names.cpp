@@ -69,7 +69,6 @@ NamesTableModel::NamesTableModel(IntegerPrimaryKey personId, QObject *parent) : 
     if (this->personId != -1) {
         this->setFilter(QString("person_id = %1").arg(this->personId));
     }
-    this->select();
 
     // Set the correct headers.
     this->setHeaderData(ID, Qt::Horizontal, i18n("ID"));
@@ -130,6 +129,7 @@ bool NamesTableModel::setData(const QModelIndex &index, const QVariant &value, i
 NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
     this->personId = personId;
     this->baseModel = new NamesTableModel(personId, this);
+    this->baseModel->select();
     this->baseModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
     // We only show certain columns here.
