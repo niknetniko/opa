@@ -36,15 +36,27 @@ NamesEditor::NamesEditor(NamesTableModel *model, int selectedRow, QWidget *paren
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.
     // Additionally, we want to use all last names, not just the once from the current person.
-    auto* autocompleteModel = new NamesTableModel(this);
-    autocompleteModel->setSort(NamesTableModel::SURNAME, Qt::SortOrder::AscendingOrder);
-    autocompleteModel->select();
-    auto* completer = new QCompleter(autocompleteModel, this);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    completer->setCompletionColumn(NamesTableModel::SURNAME);
-    completer->setCompletionMode(QCompleter::InlineCompletion);
-    form->surname->setCompleter(completer);
+    auto* surnameAutocompleteModel = new NamesTableModel(this);
+    surnameAutocompleteModel->setSort(NamesTableModel::SURNAME, Qt::SortOrder::AscendingOrder);
+    surnameAutocompleteModel->select();
+    auto* surnameCompleter = new QCompleter(surnameAutocompleteModel, this);
+    surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    surnameCompleter->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
+    surnameCompleter->setCompletionMode(QCompleter::InlineCompletion);
+    form->surname->setCompleter(surnameCompleter);
+
+    // Set up autocomplete on the given names.
+    // This is very basic: it will not tokenize the names.
+    auto* givenNamesAutocompleteModel = new NamesTableModel(this);
+    givenNamesAutocompleteModel->setSort(NamesTableModel::GIVEN_NAMES, Qt::SortOrder::AscendingOrder);
+    givenNamesAutocompleteModel->select();
+    auto* givenNameCompleter = new QCompleter(givenNamesAutocompleteModel, this);
+    givenNameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    givenNameCompleter->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    givenNameCompleter->setCompletionColumn(NamesTableModel::GIVEN_NAMES);
+    givenNameCompleter->setCompletionMode(QCompleter::InlineCompletion);
+    form->givenNames->setCompleter(givenNameCompleter);
 }
 
 void NamesEditor::accept() {
