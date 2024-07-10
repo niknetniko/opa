@@ -9,21 +9,21 @@
 
 namespace Data {
     namespace Person {
-        const QString TABLE_NAME = "person";
+        const QString TABLE_NAME = QString::fromUtf8("person");
 
         namespace Table {
-            const QString ID = "id";
-            const QString GIVEN_NAMES = "given_names";
-            const QString NICK_NAME = "nick_name";
-            const QString CALL_NAME = "call_name";
-            const QString SUFFIX = "suffix";
-            const QString SEX = "sex";
+            const QString ID = QString::fromUtf8("id");
+            const QString GIVEN_NAMES = QString::fromUtf8("given_names");
+            const QString NICK_NAME = QString::fromUtf8("nick_name");
+            const QString CALL_NAME = QString::fromUtf8("call_name");
+            const QString SUFFIX = QString::fromUtf8("suffix");
+            const QString SEX = QString::fromUtf8("sex");
         };
 
         namespace Sex {
-            const QString MALE = "male";
-            const QString FEMALE = "female";
-            const QString UNKNOWN = "unknown";
+            const QString MALE = QString::fromUtf8("male");
+            const QString FEMALE = QString::fromUtf8("female");
+            const QString UNKNOWN = QString::fromUtf8("unknown");
 
             QString toDisplay(const QString &sex);
             QString toIcon(const QString& sex);

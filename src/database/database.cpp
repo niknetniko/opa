@@ -11,12 +11,12 @@
 #include <QFile>
 #include <qsqldriver.h>
 
-const QString driver = "QSQLITE";
+const QString driver = QString::fromUtf8("QSQLITE");
 
 void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
-    auto commands = script.split(";");
+    auto commands = script.split(QString::fromUtf8(";"));
     for (auto &command: commands) {
-        command.replace("\n", " ");
+        command.replace(QString::fromUtf8("\n"), QString::fromUtf8(" "));
         if (command.trimmed().isEmpty()) {
             qDebug("Skipping command %s...", qPrintable(command));
             continue;
@@ -55,12 +55,12 @@ void open_database(const QString &file) {
 
     // Ensure we have foreign keys...
     QSqlQuery foreignKeys(database);
-    if (!foreignKeys.exec("PRAGMA foreign_keys = ON;")) {
+    if (!foreignKeys.exec(QString::fromUtf8("PRAGMA foreign_keys = ON;"))) {
         qWarning("Could not enable foreign keys: %s", qPrintable(foreignKeys.lastError().text()));
         abort();
     }
 
-    QFile schema_file(":/schema.sql");
+    QFile schema_file(QString::fromUtf8(":/schema.sql"));
     if (!schema_file.open(QFile::ReadOnly | QFile::Text)) {
         qDebug("Error occurred opening database schema file");
         abort();
@@ -75,7 +75,7 @@ void open_database(const QString &file) {
     qDebug("Running database creation script...");
     executeScriptOrAbort(schema, database);
 
-    QFile init_file(":/init.sql");
+    QFile init_file(QString::fromUtf8(":/init.sql"));
     if (!init_file.open(QFile::ReadOnly | QFile::Text)) {
         qDebug("Error occurred opening database init file");
         abort();

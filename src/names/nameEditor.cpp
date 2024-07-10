@@ -2,12 +2,17 @@
 // Created by niko on 8/02/24.
 //
 
+#include <QDialog>
 #include <QQuickWidget>
 #include <QSqlQuery>
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 #include <QSqlError>
 #include <QCompleter>
+#include <QString>
+#include <QtLogging>
+#include <QDialogButtonBox>
+#include <QItemEditorFactory>
 #include "nameEditor.h"
 #include "ui_nameEditor.h"
 #include "names.h"
@@ -31,10 +36,10 @@ NamesEditor::NamesEditor(NamesTableModel *model, int selectedRow, QWidget *paren
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->originCombo, NamesTableModel::ORIGIN, "currentIndex");
-    mapper->setCurrentIndex(selectedRow);
 
     auto* originModel = new NameOriginModel(this);
     form->originCombo->setModel(originModel);
+    mapper->setCurrentIndex(selectedRow);
 
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.
@@ -68,7 +73,7 @@ void NamesEditor::accept() {
         // We are done.
         QDialog::accept();
     } else {
-        QMessageBox::critical(this, "Problem during saving", "The changes could not be saved for some reason");
+        QMessageBox::critical(this, QString::fromUtf8("Problem during saving"), QString::fromUtf8("The changes could not be saved for some reason"));
         qDebug() << "Error was: " << this->model->lastError();
         qDebug() << "Query was: " << this->model->query().lastQuery();
         return;

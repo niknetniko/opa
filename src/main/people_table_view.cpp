@@ -30,7 +30,7 @@ PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
     tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
     auto* searchBox = new QLineEdit(this);
-    searchBox->setPlaceholderText(QString("Zoeken..."));
+    searchBox->setPlaceholderText(tr("Zoeken..."));
 
     connect(searchBox, &QLineEdit::textEdited, model, &PeopleTableModel::onSearchChanged);
 
@@ -40,7 +40,7 @@ PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
     layout->addWidget(tableView);
 
     auto config = KSharedConfig::openStateConfig();
-    KConfigGroup selectionGroup(config, "selection");
+    KConfigGroup selectionGroup(config, tr("selection"));
     if (selectionGroup.hasKey("current")) {
         auto row = selectionGroup.readEntry("current").toInt();
         handleSelectedPersonChanged(row);
@@ -69,7 +69,7 @@ void PeopleTableView::handleSelectedNewRow(const QItemSelection &selected, const
 //    auto config = KSharedConfig::openStateConfig();
 //    KConfigGroup selectionGroup(config, "selection");
 //    selectionGroup.writeEntry("current", personId);
-    emit handlePersonSelected(personId);
+    Q_EMIT(handlePersonSelected(personId));
 }
 
 int PeopleTableView::findRowIndex(unsigned long long personId) {

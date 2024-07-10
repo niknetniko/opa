@@ -3,7 +3,6 @@
 //
 
 #include <KLocalizedString>
-#include <QException>
 #include <QSqlQuery>
 #include <QDebug>
 #include <QSqlError>
@@ -33,13 +32,13 @@ QString Names::construct_display_name(const QString &titles, const QString &give
     if (!surname.isEmpty()) {
         nameParts.append(surname);
     }
-    return nameParts.join(" ");
+    return nameParts.join(QString::fromUtf8(" "));
 }
 
 QString Names::origin_to_display(const Names::Origin &origin) {
     switch (origin) {
         case NONE:
-            return "";
+            return QString::fromUtf8("");
         case UNKNOWN:
             return i18n("Unknown");
         case PATRILINEAL:
@@ -59,7 +58,7 @@ QString Names::origin_to_display(const Names::Origin &origin) {
         case LOCATION:
             return i18n("Location");
         default:
-            throw std::invalid_argument(QString("Unhandled case in switch statement %1").arg(origin).toStdString());
+            throw std::invalid_argument(QString::fromUtf8("Unhandled case in switch statement %1").arg(origin).toStdString());
     }
 }
 
@@ -67,7 +66,7 @@ NamesTableModel::NamesTableModel(IntegerPrimaryKey personId, QObject *parent) : 
     this->personId = personId;
     this->setTable(Schema::Names::TableName);
     if (this->personId != -1) {
-        this->setFilter(QString("person_id = %1").arg(this->personId));
+        this->setFilter(QString::fromUtf8("person_id = %1").arg(this->personId));
     }
 
     // Set the correct headers.
@@ -114,7 +113,7 @@ bool NamesTableModel::setData(const QModelIndex &index, const QVariant &value, i
         if (index.column() == ORIGIN) {
             auto newValue = static_cast<Names::Origin>(value.toInt());
             auto metaEnum = QMetaEnum::fromType<Names::Origin>();
-            auto newNewValue = QString(metaEnum.key(newValue));
+            auto newNewValue = QString::fromUtf8(metaEnum.key(newValue));
             return QSqlTableModel::setData(index, newNewValue.toLower(), role);
         }
     }
@@ -187,7 +186,7 @@ void NamesTableView::handleNewName() {
     newRecord.setValue(NamesTableModel::PERSON_ID, this->personId);
     newRecord.setValue(NamesTableModel::MAIN, false);
     if (!this->baseModel->insertRecord(-1, newRecord)) {
-        QMessageBox::warning(this, "Could not insert name", "Problem inserting new name into database.");
+        QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
         qWarning() << "Error was: " << this->baseModel->lastError();
         qDebug() << "Query was: " << this->baseModel->query().lastQuery();
         return;

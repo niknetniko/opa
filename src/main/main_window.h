@@ -55,7 +55,7 @@ private Q_SLOTS:
     /**
      * Open or select a person.
      */
-    void openOrSelectPerson(long long personId);
+    void openOrSelectPerson(unsigned long long personId);
 
     void updatePersonName(int personId, const QString& newName);
     void closeTab(int tabIndex);

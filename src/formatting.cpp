@@ -11,11 +11,11 @@ QString format(const QString& pattern, const QVariant &id) {
 }
 
 QString format_person_id(const QVariant &id) {
-    return format("P%1", id);
+    return format(QString::fromUtf8("P%1"), id);
 }
 
 QString format_name_id(const QVariant &id) {
-    return format("N%1", id);
+    return format(QString::fromUtf8("N%1"), id);
 }
 
 

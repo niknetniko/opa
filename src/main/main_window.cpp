@@ -22,7 +22,7 @@ MainWindow::MainWindow() : KXmlGuiWindow() {
     this->tabWidget = new QTabWidget();
     tabWidget->setTabsClosable(true);
     tabWidget->setMovable(true);
-    tabWidget->addTab(new QLabel("Niets", this), "Test");
+    tabWidget->addTab(new QLabel(tr("Niets"), this), tr("Test"));
     setCentralWidget(tabWidget);
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
 
@@ -74,7 +74,7 @@ void MainWindow::settingsConfigure() {
 }
 
 
-void MainWindow::openOrSelectPerson(long long personId) {
+void MainWindow::openOrSelectPerson(unsigned long long personId) {
 
     qDebug() << "Selecting person... " << personId;
 
@@ -94,7 +94,7 @@ void MainWindow::openOrSelectPerson(long long personId) {
 
     auto* detailView = new PersonDetailView(personId, this);
     connect(detailView, &PersonDetailView::personNameChanged, this, &MainWindow::updatePersonName);
-    tabWidget->setCurrentIndex(tabWidget->addTab(detailView, "Laden..."));
+    tabWidget->setCurrentIndex(tabWidget->addTab(detailView, tr("Laden...")));
 
     qDebug() << "Populating...";
     detailView->populate();

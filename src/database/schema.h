@@ -12,35 +12,35 @@ using IntegerPrimaryKey = qint64;
 // TODO: generate this with a script...
 namespace Schema {
     namespace People {
-        const QString TableName = "people";
-        const QString id = "id";
-        const QString root = "root";
-        const QString sex = "sex";
+        const QString TableName = QString::fromUtf8("people");
+        const QString id = QString::fromUtf8("id");
+        const QString root = QString::fromUtf8("root");
+        const QString sex = QString::fromUtf8("sex");
     }
     namespace Names {
-        const QString TableName = "names";
-        const QString id = "id";
-        const QString personId = "person_id";
-        const QString givenNames = "given_names";
-        const QString titles = "titles";
-        const QString prefix = "prefix";
-        const QString surname = "surname";
-        const QString origin = "origin";
-        const QString main = "main";
+        const QString TableName = QString::fromUtf8("names");
+        const QString id = QString::fromUtf8("id");
+        const QString personId = QString::fromUtf8("person_id");
+        const QString givenNames = QString::fromUtf8("given_names");
+        const QString titles = QString::fromUtf8("titles");
+        const QString prefix = QString::fromUtf8("prefix");
+        const QString surname = QString::fromUtf8("surname");
+        const QString origin = QString::fromUtf8("origin");
+        const QString main = QString::fromUtf8("main");
     }
 
     namespace Events {
-        const QString TableName = "events";
-        const QString id = "id";
-        const QString type = "type";
-        const QString date = "date";
+        const QString TableName = QString::fromUtf8("events");
+        const QString id = QString::fromUtf8("id");
+        const QString type = QString::fromUtf8("type");
+        const QString date = QString::fromUtf8("date");
     }
 
     namespace EventPeople {
-        const QString TableName = "event_people";
-        const QString personId = "person_id";
-        const QString eventId = "event_id";
-        const QString role = "role";
+        const QString TableName = QString::fromUtf8("event_people");
+        const QString personId = QString::fromUtf8("person_id");
+        const QString eventId = QString::fromUtf8("event_id");
+        const QString role = QString::fromUtf8("role");
     }
 
     // TODO: other data...

@@ -31,8 +31,8 @@
 
 int main(int argc, char **argv)
 {
-    qSetMessagePattern("%{file}(%{line}): %{message}");
-    QApplication application(argc, argv);
+    qSetMessagePattern(QString::fromUtf8("%{file}(%{line}): %{message}"));
+    QApplication const application(argc, argv);
 
     KLocalizedString::setApplicationDomain("opa");
     KCrash::initialize();
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
 
     // Do start-up
-    open_database("./test.db");
+    open_database(QString::fromUtf8("./test.db"));
 
     auto *window = new MainWindow;
     window->show();

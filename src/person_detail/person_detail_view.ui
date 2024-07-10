@@ -50,9 +50,9 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="KIconButton" name="editButton"/>
-     </item>
+<!--     <item>-->
+<!--      <widget class="KIconButton" name="editButton"/>-->
+<!--     </item>-->
     </layout>
    </item>
    <item>
@@ -112,9 +112,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KIconButton</class>
+<!--   <class>KIconButton</class>-->
    <extends>QPushButton</extends>
-   <header>kiconbutton.h</header>
+<!--   <header>kiconbutton.h</header>-->
   </customwidget>
  </customwidgets>
  <resources/>

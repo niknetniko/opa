@@ -23,32 +23,32 @@
                 git
                 valgrind
                 extra-cmake-modules
-                libsForQt5.kcoreaddons
-                libsForQt5.kconfigwidgets
-                libsForQt5.ki18n
-                libsForQt5.kcrash
-                libsForQt5.kdbusaddons
-                libsForQt5.kxmlgui
-                libsForQt5.appstream-qt
-                libsForQt5.kirigami2
-                libsForQt5.kiconthemes
-                libsForQt5.qt5.qtquickcontrols2
+                kdePackages.kcoreaddons
+                kdePackages.kconfigwidgets
+                kdePackages.ki18n
+                kdePackages.kcrash
+                kdePackages.kdbusaddons
+                kdePackages.kxmlgui
+                kdePackages.appstream-qt
+                kdePackages.kirigami
+                kdePackages.kiconthemes
+#                 qt6.qtquickcontrols
                 qtcreator
-                qt5.qtbase
-                qt5.qtwayland
-                qt5.qtdeclarative
+                qt6.qtbase
+                qt6.qtwayland
+                qt6.qtdeclarative
 
-                libsForQt5.breeze-icons
-                libsForQt5.breeze-qt5
-                libsForQt5.kitemmodels
+                kdePackages.breeze-icons
+                kdePackages.breeze
+                kdePackages.kitemmodels
                 atlas
                 gdb
               ];
 
               shellHook = ''
-                export KF5ConfigWidgets_DIR=${pkgs.libsForQt5.kconfigwidgets}
-                export KF5KIconThemes_DIR=${pkgs.libsForQt5.kiconthemes}
-                export QML_DIR=${pkgs.qt5.qtdeclarative}
+                export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
+                export KF5KIconThemes_DIR=${pkgs.kdePackages.kiconthemes}
+                export QML_DIR=${pkgs.qt6.qtdeclarative}
               '';
           };
         }

@@ -17,13 +17,13 @@ QString Data::Person::Sex::toDisplay(const QString &sex) {
 
 QString Data::Person::Sex::toIcon(const QString &sex) {
     if (sex == Person::Sex::MALE) {
-        return "♂";
+        return QString::fromUtf8("♂");
     }
     if (sex == Person::Sex::FEMALE) {
-        return "♀";
+        return QString::fromUtf8("♀");
     }
     if (sex == Person::Sex::UNKNOWN) {
-        return "?";
+        return QString::fromUtf8("?");
     }
-    return "⚥";
+    return QString::fromUtf8("⚥");
 }

@@ -7,11 +7,11 @@
 
 #include <QDataWidgetMapper>
 #include <QDialog>
+#include <QStyledItemDelegate>
 #include "names.h"
 
 /**
  * Editor for names.
- *
  */
 class NamesEditor : public QDialog {
 Q_OBJECT

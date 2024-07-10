@@ -23,8 +23,8 @@ PersonDetailView::PersonDetailView(long long id, QWidget *parent) :
 
 void PersonDetailView::populateBirth() {
     QSqlQuery query;
-    query.prepare("SELECT * FROM event WHERE person = :id AND type = 'birth'");
-    query.bindValue(":id", id);
+    query.prepare(QString::fromUtf8("SELECT * FROM event WHERE person = :id AND type = 'birth'"));
+    query.bindValue(QString::fromUtf8(":id"), id);
     if (!query.exec()) {
         qCritical() << "Could not get birth event..." << query.lastError();
     }
@@ -37,19 +37,19 @@ void PersonDetailView::populateBirth() {
         // Calculate the age of the person.
         auto days = birthdate.daysTo(QDate::currentDate());
         auto years = days / 365;
-        ui->death->setText(QString::number(years) + " dagen");
+        ui->death->setText(QString::number(years) + QString::fromUtf8(" dagen"));
     } else {
-        ui->birth->setText("?");
+        ui->birth->setText(QString::fromUtf8("?"));
     }
 }
 
 void PersonDetailView::populate() {
-    ui->id->setText(QString("P%1").arg(this->id, 4, 10, QLatin1Char('0')));
+    ui->id->setText(QString::fromUtf8("P%1").arg(this->id, 4, 10, QLatin1Char('0')));
 
     // Get the person from the database.
     QSqlQuery query;
-    query.prepare("SELECT * FROM people JOIN names ON people.id = names.person_id WHERE people.id = :id");
-    query.bindValue(":id", id);
+    query.prepare(QString::fromUtf8("SELECT * FROM people JOIN names ON people.id = names.person_id WHERE people.id = :id"));
+    query.bindValue(QString::fromUtf8(":id"), id);
 
     if (!query.exec()) {
         qCritical() << "Error:" << query.lastError();
@@ -79,8 +79,8 @@ void PersonDetailView::populate() {
     evenTabContainerLayout->setSpacing(0);
     auto *eventToolbar = new QToolBar(evenTabContainer);
     auto *action = new QAction(eventToolbar);
-    action->setText("Add Event");
-    action->setIcon(QIcon::fromTheme("list-add"));
+    action->setText(tr("Add Event"));
+    action->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
     eventToolbar->addAction(action);
     evenTabContainerLayout->addWidget(eventToolbar);
     auto *tableView = new EventTableView(this->id, evenTabContainer);
@@ -94,8 +94,8 @@ void PersonDetailView::populate() {
     nameTabContainerLayout->setSpacing(0);
     auto *nameToolbar = new QToolBar(nameTabContainer);
     auto *addNameAction = new QAction(nameToolbar);
-    addNameAction->setText("Add Name");
-    addNameAction->setIcon(QIcon::fromTheme("list-add"));
+    addNameAction->setText(tr("Add Name"));
+    addNameAction->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
     nameToolbar->addAction(addNameAction);
     nameTabContainerLayout->addWidget(nameToolbar);
     auto *nameTableView = new NamesTableView(this->id, nameTabContainer);
@@ -106,7 +106,7 @@ void PersonDetailView::populate() {
 
     this->populateBirth();
 
-    emit this->personNameChanged(this->id, name);
+    Q_EMIT(this->personNameChanged(this->id, name));
 }
 
 PersonDetailView::~PersonDetailView() {

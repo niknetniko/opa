@@ -41,7 +41,7 @@ QVariant BasicPeopleTableModel::data(const QModelIndex &item, int role) const {
         }
         if (record().fieldName(item.column()) == Data::Person::Table::ID) {
             // Format the ID.
-            return QString("P%1").arg(value.toULongLong(), 4, 10, QLatin1Char('0'));
+            return QString::fromUtf8("P%1").arg(value.toULongLong(), 4, 10, QLatin1Char('0'));
         }
     }
 
@@ -54,9 +54,9 @@ void BasicPeopleTableModel::sort(int column, Qt::SortOrder order) {
         column = 1; // We only support sorting column 0 or 1 for now.
     }
     if (column == 0) {
-        this->sortColumn = "people.id";
+        this->sortColumn = QString::fromUtf8("people.id");
     } else if (column == 1) {
-        this->sortColumn = "names.given_names";
+        this->sortColumn = QString::fromUtf8("names.given_names");
     }
     this->sortOrder = order;
     qDebug("New sort column is %s", qPrintable(this->sortColumn));
@@ -69,23 +69,23 @@ void BasicPeopleTableModel::onSearchChanged(const QString &text) {
 }
 
 void BasicPeopleTableModel::regenerateQuery() {
-    QString queryString = "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname FROM people JOIN names on people.id = names.person_id WHERE (names.main IS TRUE)";
+    QString queryString = QString::fromUtf8("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname FROM people JOIN names on people.id = names.person_id WHERE (names.main IS TRUE)");
 
     if (!this->searchQuery.isEmpty()) {
-        queryString += " AND (names.given_names LIKE '%" + this->searchQuery + "%')";
+        queryString += QString::fromUtf8(" AND (names.given_names LIKE '%") + this->searchQuery + QString::fromUtf8("%')");
     }
 
     QString sortString;
     switch (this->sortOrder) {
         case Qt::SortOrder::AscendingOrder:
-            sortString = "ASC";
+            sortString = QString::fromUtf8("ASC");
             break;
         case Qt::SortOrder::DescendingOrder:
-            sortString = "DESC";
+            sortString = QString::fromUtf8("DESC");
             break;
     }
 
-    queryString += " ORDER BY " + this->sortColumn + " " + sortString;
+    queryString += QString::fromUtf8(" ORDER BY ") + this->sortColumn + QString::fromUtf8(" ") + sortString;
 
     qDebug() << queryString;
 

@@ -33,20 +33,20 @@ kconfig_add_kcfg_files(opa main/opaSettings.kcfgc)
 
 
 target_link_libraries(opa
-        KF5::CoreAddons
-        KF5::I18n
-        KF5::XmlGui
-        KF5::ConfigWidgets
-        KF5::DBusAddons
-        KF5::Crash
-        KF5::IconThemes
-        KF5::ItemModels
-        Qt5::Widgets
-        Qt5::Sql
-        Qt5::Quick
-        Qt5::QuickControls2
-        Qt5::QuickWidgets
-        Qt5::Test
+        KF6::CoreAddons
+        KF6::I18n
+        KF6::XmlGui
+        KF6::ConfigWidgets
+        KF6::DBusAddons
+        KF6::Crash
+        KF6::IconThemes
+        KF6::ItemModels
+        Qt6::Widgets
+        Qt6::Sql
+        Qt6::Quick
+        Qt6::QuickControls2
+        Qt6::QuickWidgets
+        Qt6::Test
 )
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

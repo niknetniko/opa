@@ -30,14 +30,12 @@ public Q_SLOTS:
     void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 Q_SIGNALS:
-#pragma clang diagnostic push
 #pragma ide diagnostic ignored "NotImplementedFunctions"
     /**
      * Called when a new person is selected by the table view.
      * @param personId
      */
     void handlePersonSelected(unsigned long long personId);
-#pragma clang diagnostic pop
 
 private:
     QTableView* tableView;

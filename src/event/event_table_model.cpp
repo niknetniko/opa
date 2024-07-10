@@ -62,7 +62,7 @@ QVariant EventTableModel::data(const QModelIndex &item, int role) const {
         }
         if (record().fieldName(item.column()) == Data::Event::Table::ID) {
             // Format the ID.
-            return QString("E%1").arg(value.toULongLong(), 4, 10, QLatin1Char('0'));
+            return QString::fromUtf8("E%1").arg(value.toULongLong(), 4, 10, QLatin1Char('0'));
         }
         if (record().fieldName(item.column()) == Data::Event::Table::DATE) {
             // Format the date.
@@ -94,23 +94,23 @@ void EventTableModel::sort(int column, Qt::SortOrder order) {
 }
 
 void EventTableModel::regenerateQuery() {
-    QString queryString = "SELECT id, type, date FROM event WHERE person = :person_id";
+    QString queryString = QString::fromUtf8("SELECT id, type, date FROM event WHERE person = :person_id");
 
     QString sortString;
     switch (this->sortOrder) {
         case Qt::SortOrder::AscendingOrder:
-            sortString = "ASC";
+            sortString = QString::fromUtf8("ASC");
             break;
         case Qt::SortOrder::DescendingOrder:
-            sortString = "DESC";
+            sortString = QString::fromUtf8("DESC");
             break;
     }
 
-    queryString += " ORDER BY " + this->sortColumn + " " + sortString;
+    queryString += QString::fromUtf8(" ORDER BY ") + this->sortColumn + QString::fromUtf8(" ") + sortString;
 
     QSqlQuery query;
     query.prepare(queryString);
-    query.bindValue(":person_id", this->personId);
+    query.bindValue(QString::fromUtf8(":person_id"), this->personId);
 
     if(!query.exec()) {
         qDebug() << query.lastQuery();

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 project(opa)
 
-set(QT_MIN_VERSION "5.15.0")
-set(KF_MIN_VERSION "5.83.0")
+set(QT_MIN_VERSION "6.0.0")
+set(KF_MIN_VERSION "6.3.0")
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -21,9 +21,9 @@ include(ECMInstallIcons)
 include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 
-find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Sql Quick QuickControls2 QuickWidgets Test)
+find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Sql Quick QuickControls2 QuickWidgets Test)
 
-find_package(KF5 ${KF_MIN_VERSION} REQUIRED COMPONENTS
+find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     ConfigWidgets
     CoreAddons
     Crash
@@ -33,7 +33,7 @@ find_package(KF5 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     XmlGui
     IconThemes
     ItemModels
-    Kirigami2
+    Kirigami
 )
 
 kde_enable_exceptions()
