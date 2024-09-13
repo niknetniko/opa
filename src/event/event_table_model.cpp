@@ -117,7 +117,7 @@ void EventTableModel::regenerateQuery() {
         qCritical() << "Error executing query: " << query.lastError().text();
     }
 
-    this->setQuery(query);
+    this->setQuery(std::move(query));
 }
 
 

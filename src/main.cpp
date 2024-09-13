@@ -23,7 +23,8 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
+#include <QString>
+#include <QtLogging>
 #include <QTableView>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
