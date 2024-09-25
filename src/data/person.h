@@ -6,6 +6,7 @@
 #define OPA_PERSON_H
 
 #include <QString>
+#include <KExtraColumnsProxyModel>
 
 namespace Data {
     namespace Person {
@@ -39,5 +40,23 @@ namespace Data {
     }
 }
 
+namespace DisplayNameModel {
+    const int ID = 0;
+    const int NAME = 1;
+    const int ROOT = 2;
+}
+
+/**
+ * Not for direct use.
+ *
+ * This class adds an additional column to provide a display name.
+ */
+class DisplayNameProxyModel: public KExtraColumnsProxyModel {
+Q_OBJECT
+public:
+    explicit DisplayNameProxyModel(QObject *parent = nullptr);
+
+    QVariant extraColumnData(const QModelIndex &parent, int row, int extraColumn, int role) const override;
+};
 
 #endif //OPA_PERSON_H

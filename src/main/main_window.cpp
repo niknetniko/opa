@@ -49,12 +49,12 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::fileNew() {
-    qCDebug(OPA) << "MainWindow::fileNew()";
+    qDebug() << "MainWindow::fileNew()";
     (new MainWindow)->show();
 }
 
 void MainWindow::settingsConfigure() {
-    qCDebug(OPA) << "MainWindow::settingsConfigure()";
+    qDebug() << "MainWindow::settingsConfigure()";
     // The preference dialog is derived from prefs_base.ui
     //
     // compare the names of the widgets in the .ui file
@@ -74,7 +74,7 @@ void MainWindow::settingsConfigure() {
 }
 
 
-void MainWindow::openOrSelectPerson(unsigned long long personId) {
+void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
 
     qDebug() << "Selecting person... " << personId;
 
@@ -100,7 +100,7 @@ void MainWindow::openOrSelectPerson(unsigned long long personId) {
     detailView->populate();
 }
 
-void MainWindow::updatePersonName(int personId, const QString& newName) {
+void MainWindow::updatePersonName(IntegerPrimaryKey personId, const QString& newName) {
     for (int i = 0; i < tabWidget->count(); i++) {
         QWidget* tab = tabWidget->widget(i);
         // The tab widget should be a "PersonDetailView"

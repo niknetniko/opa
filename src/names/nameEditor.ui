@@ -18,13 +18,16 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>391</width>
-     <height>211</height>
+     <width>363</width>
+     <height>220</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QFormLayout" name="formLayout">
+      <property name="verticalSpacing">
+       <number>6</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -74,14 +77,25 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QComboBox" name="originCombo"/>
+       <widget class="QComboBox" name="origin">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="primaryName">
+        <property name="text">
+         <string>Primaire naam</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
     <item>
      <widget class="QDialogButtonBox" name="dialogButtons">
       <property name="standardButtons">
-       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
       </property>
      </widget>
     </item>

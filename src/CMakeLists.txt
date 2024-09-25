@@ -15,8 +15,11 @@ target_sources(opa PRIVATE
         person_detail/person_detail_view.cpp
         utils/gramps_date.cpp
         names.cpp
-        formatting.cpp
         names/nameEditor.cpp
+        utils/single_row_model.cpp
+        data/data_manager.cpp
+        data/names.cpp
+        utils/formatted_identifier_delegate.cpp
 )
 
 ecm_qt_declare_logging_category(opa
@@ -47,6 +50,7 @@ target_link_libraries(opa
         Qt6::QuickControls2
         Qt6::QuickWidgets
         Qt6::Test
+        ${SQLite3_LIBRARIES}
 )
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

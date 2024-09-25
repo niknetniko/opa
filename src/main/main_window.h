@@ -11,6 +11,7 @@
 
 #include "ui_settings.h"
 #include "opaSettings.h"
+#include "database/schema.h"
 
 class opaView;
 
@@ -55,9 +56,9 @@ private Q_SLOTS:
     /**
      * Open or select a person.
      */
-    void openOrSelectPerson(unsigned long long personId);
+    void openOrSelectPerson(IntegerPrimaryKey personId);
 
-    void updatePersonName(int personId, const QString& newName);
+    void updatePersonName(IntegerPrimaryKey personId, const QString& newName);
     void closeTab(int tabIndex);
 
 private:

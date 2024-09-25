@@ -7,7 +7,7 @@
 
 #include <QString>
 
-using IntegerPrimaryKey = qint64;
+using IntegerPrimaryKey = qlonglong;
 
 // TODO: generate this with a script...
 namespace Schema {
@@ -27,6 +27,12 @@ namespace Schema {
         const QString surname = QString::fromUtf8("surname");
         const QString origin = QString::fromUtf8("origin");
         const QString main = QString::fromUtf8("main");
+    }
+
+    namespace NameOrigins {
+        const QString TableName = QStringLiteral("name_origins");
+        const QString id = QStringLiteral("id");
+        const QString origin = QStringLiteral("origin");
     }
 
     namespace Events {

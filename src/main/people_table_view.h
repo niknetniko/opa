@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QTableView>
+#include "database/schema.h"
 
 /**
  * This view displays a list of people.
@@ -26,16 +27,15 @@ public:
     ~PeopleTableView() override = default;
 
 public Q_SLOTS:
-    void handleSelectedPersonChanged(unsigned long long personId);
-    void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
+    void handleSelectedPersonChanged(IntegerPrimaryKey personId);
+    void handleSelectedNewRow(const QItemSelection &selected);
 
 Q_SIGNALS:
-#pragma ide diagnostic ignored "NotImplementedFunctions"
     /**
      * Called when a new person is selected by the table view.
      * @param personId
      */
-    void handlePersonSelected(unsigned long long personId);
+    void handlePersonSelected(IntegerPrimaryKey personId);
 
 private:
     QTableView* tableView;
@@ -45,7 +45,7 @@ private:
      * @param personId
      * @return -1 if not found.
      */
-    int findRowIndex(unsigned long long personId);
+    int findRowIndex(IntegerPrimaryKey personId);
 };
 
 #endif //OPA_PEOPLE_TABLE_VIEW_H

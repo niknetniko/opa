@@ -36,6 +36,12 @@ find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     Kirigami
 )
 
+find_package(SQLite3)
+
+find_package (SQLite3)
+
+include_directories(${SQLite3_INCLUDE_DIRS})
+
 kde_enable_exceptions()
 
 add_subdirectory(src)

@@ -16,13 +16,13 @@
 class NamesEditor : public QDialog {
 Q_OBJECT
 public:
-    explicit NamesEditor(NamesTableModel *model, int selectedRow, QWidget *parent);
+    explicit NamesEditor(QAbstractItemModel *model, QWidget *parent);
 
     void accept() override;
     void reject() override;
 
 private:
-    NamesTableModel *model;
+    QAbstractItemModel *model;
     QDataWidgetMapper *mapper;
 };
 

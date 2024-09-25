@@ -22,25 +22,25 @@ PersonDetailView::PersonDetailView(long long id, QWidget *parent) :
 }
 
 void PersonDetailView::populateBirth() {
-    QSqlQuery query;
-    query.prepare(QString::fromUtf8("SELECT * FROM event WHERE person = :id AND type = 'birth'"));
-    query.bindValue(QString::fromUtf8(":id"), id);
-    if (!query.exec()) {
-        qCritical() << "Could not get birth event..." << query.lastError();
-    }
-    if (query.first()) {
-        auto eventRecord = query.record();
-        auto birthdate = eventRecord.field(Data::Event::Table::DATE).value().toDate();
-        auto formatted = QLocale().toString(birthdate,QLocale::LongFormat);
-        ui->birth->setText(formatted);
-
-        // Calculate the age of the person.
-        auto days = birthdate.daysTo(QDate::currentDate());
-        auto years = days / 365;
-        ui->death->setText(QString::number(years) + QString::fromUtf8(" dagen"));
-    } else {
+//    QSqlQuery query;
+//    query.prepare(QString::fromUtf8("SELECT * FROM event WHERE person = :id AND type = 'birth'"));
+//    query.bindValue(QString::fromUtf8(":id"), id);
+//    if (!query.exec()) {
+//        qCritical() << "Could not get birth event..." << query.lastError();
+//    }
+//    if (query.first()) {
+//        auto eventRecord = query.record();
+//        auto birthdate = eventRecord.field(Data::Event::Table::DATE).value().toDate();
+//        auto formatted = QLocale().toString(birthdate,QLocale::LongFormat);
+//        ui->birth->setText(formatted);
+//
+//        // Calculate the age of the person.
+//        auto days = birthdate.daysTo(QDate::currentDate());
+//        auto years = days / 365;
+//        ui->death->setText(QString::number(years) + QString::fromUtf8(" dagen"));
+//    } else {
         ui->birth->setText(QString::fromUtf8("?"));
-    }
+//    }
 }
 
 void PersonDetailView::populate() {
@@ -74,18 +74,18 @@ void PersonDetailView::populate() {
     auto *tabWidget = ui->tabWidget;
 
     // Create tab for events
-    auto *evenTabContainer = new QWidget();
-    auto *evenTabContainerLayout = new QVBoxLayout(evenTabContainer);
-    evenTabContainerLayout->setSpacing(0);
-    auto *eventToolbar = new QToolBar(evenTabContainer);
-    auto *action = new QAction(eventToolbar);
-    action->setText(tr("Add Event"));
-    action->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
-    eventToolbar->addAction(action);
-    evenTabContainerLayout->addWidget(eventToolbar);
-    auto *tableView = new EventTableView(this->id, evenTabContainer);
-    evenTabContainerLayout->addWidget(tableView);
-    tabWidget->addTab(evenTabContainer, i18n("Events"));
+//    auto *evenTabContainer = new QWidget();
+//    auto *evenTabContainerLayout = new QVBoxLayout(evenTabContainer);
+//    evenTabContainerLayout->setSpacing(0);
+//    auto *eventToolbar = new QToolBar(evenTabContainer);
+//    auto *action = new QAction(eventToolbar);
+//    action->setText(tr("Add Event"));
+//    action->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
+//    eventToolbar->addAction(action);
+//    evenTabContainerLayout->addWidget(eventToolbar);
+//    auto *tableView = new EventTableView(this->id, evenTabContainer);
+//    evenTabContainerLayout->addWidget(tableView);
+//    tabWidget->addTab(evenTabContainer, i18n("Events"));
 
 
     // Create tab for names

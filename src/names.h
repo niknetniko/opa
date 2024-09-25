@@ -13,83 +13,27 @@
 #include <QTableView>
 #include <QSqlTableModel>
 #include <KRearrangeColumnsProxyModel>
+#include <QSqlRelationalTableModel>
 #include "database/schema.h"
 
 
 namespace Names {
     Q_NAMESPACE
 
-    enum Origin {
-        NONE, // No origin was given.
-        UNKNOWN, // Origin is not known.
-        PATRILINEAL, // Inherited from father.
-        MATRILINEAL, // Inherited from mother.
-        GIVEN, // Given to the person by someone else.
-        CHOSEN, // Chosen by the person himself.
-        PATRONYMIC, // Derived from father's given name(s).
-        MATRONYMIC, // Derived from mother's given name(s).
-        OCCUPATION, // Derived from person's occupation.
-        LOCATION, // Derived from person's location
-    };
-
-    Q_ENUM_NS(Origin)
-
-    QString origin_to_display(const Origin &origin);
-
-
     QString construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
                                    const QString &surname);
 }
 
-class NameOriginModel: public QAbstractListModel {
+class NameOriginTableModel: public QSqlTableModel {
     Q_OBJECT
 
 public:
-    explicit NameOriginModel(QObject* parent = nullptr);
-
-    [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-    [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
-private:
-    QList<Names::Origin> values;
-};
-
-/**
- * Model for the "names" SQL table.
- *
- * The model contains all names in the database. Some notes:
- *
- * - The table will automatically enforce constraints, e.g. that only one row may
- * be the main name at a time. TODO
- * - The columns and their positions is exposed as special variables. Use those.
- */
-class NamesTableModel : public QSqlTableModel {
-Q_OBJECT
-
-public:
     static const int ID = 0;
-    static const int PERSON_ID = 1;
-    static const int MAIN = 2;
-    static const int TITLES = 3;
-    static const int GIVEN_NAMES = 4;
-    static const int PREFIX = 5;
-    static const int SURNAME = 6;
-    static const int ORIGIN = 7;
+    static const int ORIGIN = 1;
 
-    explicit NamesTableModel(QObject *parent = nullptr) : NamesTableModel(-1, parent) {};
-
-    explicit NamesTableModel(IntegerPrimaryKey personId, QObject *parent = nullptr);
-
-    [[nodiscard]] QVariant data(const QModelIndex &item, int role) const override;
-
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-
-private:
-    // -1 if full table, otherwise the ID of the person whose names to use.
-    IntegerPrimaryKey personId;
+    explicit NameOriginTableModel(QObject* parent = nullptr): QSqlTableModel(parent) {
+        this->setTable(Schema::NameOrigins::TableName);
+    };
 };
 
 /**
@@ -113,7 +57,7 @@ public:
 
 private:
     QTableView *tableView;
-    NamesTableModel *baseModel;
+    QAbstractItemModel *baseModel;
     IntegerPrimaryKey personId;
 
 public Q_SLOTS:

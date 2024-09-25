@@ -10,6 +10,7 @@
 #include <QSqlQuery>
 #include <QFile>
 #include <qsqldriver.h>
+#include <sqlite3.h>
 
 const QString driver = QString::fromUtf8("QSQLITE");
 
@@ -32,16 +33,18 @@ void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
     }
 }
 
+static void trace( void* /*arg*/, const char* query )
+{
+    qDebug() << "SQLite:" << QString::fromUtf8( query );
+}
+
 void open_database(const QString &file) {
     if (!QSqlDatabase::isDriverAvailable(driver)) {
         qCritical() << "SQLite driver is not available. Hu?" << QSqlDatabase::drivers();
         abort();
     }
 
-    if (QFile::exists(file)) {
-        qDebug("Removing existing database...");
-        QFile::remove(file);
-    }
+    bool existing = QFile::exists(file);
 
     // The main database connection.
     QSqlDatabase database = QSqlDatabase::addDatabase(driver);
@@ -58,6 +61,11 @@ void open_database(const QString &file) {
     if (!foreignKeys.exec(QString::fromUtf8("PRAGMA foreign_keys = ON;"))) {
         qWarning("Could not enable foreign keys: %s", qPrintable(foreignKeys.lastError().text()));
         abort();
+    }
+
+    if (existing) {
+        qWarning("Skipping initialization, as it exists already.");
+        return;
     }
 
     QFile schema_file(QString::fromUtf8(":/schema.sql"));
@@ -84,5 +92,9 @@ void open_database(const QString &file) {
     QString init = init_stream.readAll();
     executeScriptOrAbort(init, database);
 
-    QSqlDriver* dr = database.driver();
+    QSqlDatabase db = QSqlDatabase::database();
+    QVariant v = db.driver()->handle();
+    // v.data() returns a pointer to the handle
+    sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
+    sqlite3_trace(handle, trace, NULL );
 }
