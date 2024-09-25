@@ -45,7 +45,8 @@ BEGIN
     UPDATE names
     SET main = FALSE
     WHERE person_id = NEW.person_id
-      AND MAIN = TRUE;
+      AND MAIN = TRUE
+      AND id != NEW.id;
 END;
 
 CREATE TABLE IF NOT EXISTS events
