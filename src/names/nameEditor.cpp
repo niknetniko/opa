@@ -62,6 +62,11 @@ NamesEditor::NamesEditor(QAbstractItemModel *model, QWidget *parent) : QDialog(p
 //    givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
 //    form->givenNames->setCompleter(givenNameCompleter);
 
+    auto isMain = this->model->data(this->model->index(0, NamesTableModel::MAIN)).toBool();
+    if (isMain) {
+        form->primaryName->setEnabled(false);
+    }
+
     // Map the data from the database to the form.
     this->mapper = new QDataWidgetMapper(this);
     mapper->setModel(this->model);
@@ -72,9 +77,7 @@ NamesEditor::NamesEditor(QAbstractItemModel *model, QWidget *parent) : QDialog(p
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->origin, NamesTableModel::ORIGIN_ID);
     mapper->addMapping(form->primaryName, NamesTableModel::MAIN);
-
-    // Ensure we show the correct row.
-    mapper->setCurrentIndex(0);
+    mapper->toFirst();
 }
 
 void NamesEditor::accept() {

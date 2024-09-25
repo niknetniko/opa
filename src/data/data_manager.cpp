@@ -42,6 +42,12 @@ QAbstractItemModel *DataManager::namesModelForPerson(QObject *parent, IntegerPri
 void DataManager::onNamesTableChanged() {
     qDebug() << "Names table has changed....";
     Q_EMIT this->dataChanged(this->baseNamesModel->tableName());
+
+    // Whe the data has changed, we need to reselect all names.
+    // The reason being that the database itself can change rows with triggers.
+    if (!this->baseNamesModel->isDirty()) {
+        this->baseNamesModel->select();
+    }
 }
 
 QAbstractItemModel *DataManager::singleNameModel(QObject *parent, IntegerPrimaryKey nameId) {
@@ -49,8 +55,6 @@ QAbstractItemModel *DataManager::singleNameModel(QObject *parent, IntegerPrimary
     proxy->setSourceModel(this->namesModel());
     return proxy;
 }
-
-
 
 QAbstractItemModel *DataManager::primaryNamesModel(QObject *parent) {
     auto query = QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root FROM people JOIN names on people.id = names.person_id WHERE (names.main = TRUE)");
@@ -75,16 +79,10 @@ QAbstractItemModel *DataManager::primaryNamesModel(QObject *parent) {
 
     // Connect the original model to changes.
     connect(this, &DataManager::dataChanged, this, [=]( const QString &table ) {
-        qDebug() << "Changed with name " << table;
         if (table == Schema::People::TableName || table == Schema::Names::TableName) {
-            qDebug() << "Query is " << baseModel->query().lastQuery();
-            qDebug() << "Doing a re-query?";
-            // TODO: fix deprecation somehow
             baseModel->setQuery(query);
-            qDebug() << "First person is now" << baseModel->data(baseModel->index(0, 2));
-            qDebug() << "Second person is now" << baseModel->data(baseModel->index(1, 2));
         }
     });
 
-    return baseModel;
+    return rearrangedModel;
 }
