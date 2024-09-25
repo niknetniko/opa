@@ -17,10 +17,12 @@
 #include "ui_nameEditor.h"
 #include "names.h"
 #include "data/names.h"
+#include "data/data_manager.h"
 
 
-NamesEditor::NamesEditor(QAbstractItemModel *model, QWidget *parent) : QDialog(parent) {
+NamesEditor::NamesEditor(QAbstractItemModel *model, bool newRow, QWidget *parent) : QDialog(parent) {
     this->model = model;
+    this->newRow = newRow;
 
     auto *form = new Ui::NameEditorForm();
     form->setupUi(this);
@@ -40,6 +42,13 @@ NamesEditor::NamesEditor(QAbstractItemModel *model, QWidget *parent) : QDialog(p
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.
     // Additionally, we want to use all last names, not just the once from the current person.
+    auto* surnameCompleter = new QCompleter(DataManager::getInstance(this)->primaryNamesModel(this));
+    surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+//    surnameCompleter->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
+    surnameCompleter->setCompletionMode(QCompleter::PopupCompletion);
+    form->surname->setCompleter(surnameCompleter);
+
 //    auto* surnameAutocompleteModel = new NamesTableModel(this);
 //    surnameAutocompleteModel->setSort(NamesTableModel::SURNAME, Qt::SortOrder::AscendingOrder);
 //    surnameAutocompleteModel->select();
@@ -97,5 +106,9 @@ void NamesEditor::accept() {
 
 void NamesEditor::reject() {
     this->model->revert();
+    if (this->newRow) {
+        qDebug() << "Removing cancelled addition...";
+        this->model->removeRow(this->model->rowCount() - 1);
+    }
     QDialog::reject();
 }

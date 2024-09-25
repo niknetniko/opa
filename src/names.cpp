@@ -98,7 +98,7 @@ void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const 
     qDebug() << "Initialising NamesEditor for name with ID " << theId << ", while index is " << index;
     qDebug() << "  selected index in parent model is " << selected.indexes();
     auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
-    auto *editorWindow = new NamesEditor(theModel, this);
+    auto *editorWindow = new NamesEditor(theModel, false, this);
     editorWindow->show();
     editorWindow->adjustSize();
 }
@@ -121,7 +121,7 @@ void NamesTableView::handleNewName() {
     auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
 
     // Show the dialog for the other data.
-    auto *editorWindow = new NamesEditor(theModel, this);
+    auto *editorWindow = new NamesEditor(theModel, true, this);
     editorWindow->show();
     editorWindow->adjustSize();
 }

@@ -16,7 +16,7 @@
 class NamesEditor : public QDialog {
 Q_OBJECT
 public:
-    explicit NamesEditor(QAbstractItemModel *model, QWidget *parent);
+    explicit NamesEditor(QAbstractItemModel *model, bool newRow, QWidget *parent);
 
     void accept() override;
     void reject() override;
@@ -24,6 +24,7 @@ public:
 private:
     QAbstractItemModel *model;
     QDataWidgetMapper *mapper;
+    bool newRow;
 };
 
 #endif //OPA_NAMEEDITOR_H
