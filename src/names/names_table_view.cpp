@@ -11,9 +11,9 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-#include "names.h"
+#include "names_table_view.h"
 #include "database/schema.h"
-#include "names/nameEditor.h"
+#include "names/name_editor.h"
 #include "utils/single_row_model.h"
 #include "data/names.h"
 #include "data/data_manager.h"
@@ -41,7 +41,6 @@ NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QW
     this->personId = personId;
     qDebug() << "Initializing NamesTableView for person with ID " << personId;
     this->baseModel = DataManager::getInstance(this)->namesModelForPerson(this, personId);
-//    this->baseModel->select();
 
     // We only show certain columns here.
     auto *selectedColumnsModel = new KRearrangeColumnsProxyModel(this);
@@ -84,23 +83,12 @@ NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QW
             &QItemSelectionModel::selectionChanged,
             this,
             &NamesTableView::handleSelectedNewRow);
+
+    connect(tableView, &QTableView::doubleClicked, this, &NamesTableView::handleDoubleClick);
 }
 
 void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
-    // Hack
-    if (selected.empty()) {
-        return;
-    }
-
-    // The first column contains the primary key.
-    auto index = this->tableView->model()->index(selected.indexes().first().row(), 0);
-    auto theId = this->tableView->model()->data(index, Qt::EditRole).toLongLong();
-    qDebug() << "Initialising NamesEditor for name with ID " << theId << ", while index is " << index;
-    qDebug() << "  selected index in parent model is " << selected.indexes();
-    auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
-    auto *editorWindow = new NamesEditor(theModel, false, this);
-    editorWindow->show();
-    editorWindow->adjustSize();
+    Q_EMIT this->selectedName(*this->baseModel, selected);
 }
 
 void NamesTableView::handleNewName() {
@@ -124,4 +112,39 @@ void NamesTableView::handleNewName() {
     auto *editorWindow = new NamesEditor(theModel, true, this);
     editorWindow->show();
     editorWindow->adjustSize();
+}
+
+void NamesTableView::editSelectedName() {
+    // Get the currently selected name.
+    auto selection = this->tableView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    auto selectRow = selection->selectedRows().first();
+
+    // The first column contains the primary key.
+    auto index = this->tableView->model()->index(selectRow.row(), 0);
+    auto theId = this->tableView->model()->data(index, Qt::EditRole).toLongLong();
+    qDebug() << "Initialising NamesEditor for name with ID " << theId << ", while index is " << index;
+    qDebug() << "  selected index in parent model is " << selectRow;
+    auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
+    auto *editorWindow = new NamesEditor(theModel, false, this);
+    editorWindow->show();
+    editorWindow->adjustSize();
+}
+
+void NamesTableView::removeSelectedName() {
+    // Get the currently selected name.
+    auto selection = this->tableView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    auto selectRow = selection->selectedRows().first();
+    this->tableView->model()->removeRow(selectRow.row());
+}
+
+void NamesTableView::handleDoubleClick(const QModelIndex &clicked) {
+    this->editSelectedName();
 }

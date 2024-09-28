@@ -12,7 +12,8 @@
 #include "event/event_table_view.h"
 #include "data/event.h"
 #include "database/schema.h"
-#include "names.h"
+#include "names/names_table_view.h"
+#include "person_name_tab.h"
 
 PersonDetailView::PersonDetailView(long long id, QWidget *parent) :
         QFrame(parent),
@@ -89,20 +90,8 @@ void PersonDetailView::populate() {
 
 
     // Create tab for names
-    auto *nameTabContainer = new QWidget(tabWidget);
-    auto *nameTabContainerLayout = new QVBoxLayout(nameTabContainer);
-    nameTabContainerLayout->setSpacing(0);
-    auto *nameToolbar = new QToolBar(nameTabContainer);
-    auto *addNameAction = new QAction(nameToolbar);
-    addNameAction->setText(tr("Add Name"));
-    addNameAction->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
-    nameToolbar->addAction(addNameAction);
-    nameTabContainerLayout->addWidget(nameToolbar);
-    auto *nameTableView = new NamesTableView(this->id, nameTabContainer);
-    nameTabContainerLayout->addWidget(nameTableView);
-    tabWidget->addTab(nameTabContainer, i18n("Names"));
-
-    connect(addNameAction, &QAction::triggered, nameTableView, &NamesTableView::handleNewName);
+    auto *nameTab = new PersonNameTab(this->id, tabWidget);
+    tabWidget->addTab(nameTab, i18n("Namen"));
 
     this->populateBirth();
 

@@ -2,8 +2,8 @@
 // Created by niko on 8/02/24.
 //
 
-#ifndef OPA_NAMES_H
-#define OPA_NAMES_H
+#ifndef OPA_NAMES_TABLE_VIEW_H
+#define OPA_NAMES_TABLE_VIEW_H
 
 #include <QString>
 #include <QAbstractItemModel>
@@ -65,6 +65,19 @@ public Q_SLOTS:
     void handleNewName();
 
     void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
+    void handleDoubleClick(const QModelIndex& clicked);
+
+    void editSelectedName();
+    void removeSelectedName();
+
+Q_SIGNALS:
+    /**
+     * Called when a person is selected by the user.
+     *
+     * @param selected
+     * @param deselected
+     */
+    void selectedName(const QAbstractItemModel &model, const QItemSelection &selected);
 };
 
-#endif //OPA_NAMES_H
+#endif //OPA_NAMES_TABLE_VIEW_H

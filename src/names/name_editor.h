@@ -2,13 +2,13 @@
 // Created by niko on 8/02/24.
 //
 
-#ifndef OPA_NAMEEDITOR_H
-#define OPA_NAMEEDITOR_H
+#ifndef OPA_NAME_EDITOR_H
+#define OPA_NAME_EDITOR_H
 
 #include <QDataWidgetMapper>
 #include <QDialog>
 #include <QStyledItemDelegate>
-#include "names.h"
+#include "names_table_view.h"
 
 /**
  * Editor for names.
@@ -27,4 +27,4 @@ private:
     bool newRow;
 };
 
-#endif //OPA_NAMEEDITOR_H
+#endif //OPA_NAME_EDITOR_H

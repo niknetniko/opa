@@ -1,5 +1,5 @@
 add_executable(opa main.cpp resources.qrc
-    names/nameEditor.ui
+        names/name_editor.ui
 )
 
 target_sources(opa PRIVATE
@@ -14,13 +14,14 @@ target_sources(opa PRIVATE
         event/event_table_view.cpp
         person_detail/person_detail_view.cpp
         utils/gramps_date.cpp
-        names.cpp
-        names/nameEditor.cpp
+        names/names_table_view.cpp
+        names/name_editor.cpp
         utils/single_row_model.cpp
         data/data_manager.cpp
         data/names.cpp
         utils/formatted_identifier_delegate.cpp
         utils/model_utils.cpp
+        person_detail/person_name_tab.cpp
 )
 
 ecm_qt_declare_logging_category(opa
