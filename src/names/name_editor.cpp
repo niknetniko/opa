@@ -16,7 +16,7 @@
 #include <KLocalizedString>
 #include "name_editor.h"
 #include "ui_name_editor.h"
-#include "names_table_view.h"
+#include "names_overview_view.h"
 #include "data/names.h"
 #include "data/data_manager.h"
 #include "utils/model_utils.h"

@@ -12,7 +12,7 @@
 #include "people_table_model.h"
 
 #include "data/person.h"
-#include "names/names_table_view.h"
+#include "names/names_overview_view.h"
 
 const int SqlColumnRole = Qt::UserRole + 1;
 

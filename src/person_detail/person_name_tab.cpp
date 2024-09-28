@@ -6,7 +6,7 @@
 #include <QToolBar>
 #include <KLocalizedString>
 #include "person_name_tab.h"
-#include "names/names_table_view.h"
+#include "names/names_overview_view.h"
 #include "data/names.h"
 
 PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidget(parent) {
@@ -31,7 +31,7 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     nameToolbar->addAction(this->removeAction);
 
     // Create a table.
-    auto *nameTableView = new NamesTableView(person, this);
+    auto *nameTableView = new NamesOverviewView(person, this);
 
     // Add them together.
     auto *nameTabContainerLayout = new QVBoxLayout(this);
@@ -41,13 +41,13 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
 
     // Connect the buttons and stuff.
     // Allow adding new persons.
-    connect(this->addAction, &QAction::triggered, nameTableView, &NamesTableView::handleNewName);
+    connect(this->addAction, &QAction::triggered, nameTableView, &NamesOverviewView::handleNewName);
     // Listen to when a name is selected, to enable or disable some buttons.
-    connect(nameTableView, &NamesTableView::selectedName, this, &PersonNameTab::onNameSelected);
+    connect(nameTableView, &NamesOverviewView::selectedName, this, &PersonNameTab::onNameSelected);
     // Allow editing a name.
-    connect(this->editAction, &QAction::triggered, nameTableView, &NamesTableView::editSelectedName);
+    connect(this->editAction, &QAction::triggered, nameTableView, &NamesOverviewView::editSelectedName);
     // Allow deleting a name.
-    connect(this->removeAction, &QAction::triggered, nameTableView, &NamesTableView::removeSelectedName);
+    connect(this->removeAction, &QAction::triggered, nameTableView, &NamesOverviewView::removeSelectedName);
 }
 
 void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) {

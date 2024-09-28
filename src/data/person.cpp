@@ -1,7 +1,7 @@
 #include <QString>
 #include <KLocalizedString>
 #include "person.h"
-#include "names/names_table_view.h"
+#include "names/names_overview_view.h"
 
 QString Data::Person::Sex::toDisplay(const QString &sex) {
     if (sex == Person::Sex::MALE) {

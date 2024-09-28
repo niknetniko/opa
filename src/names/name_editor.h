@@ -8,7 +8,7 @@
 #include <QDataWidgetMapper>
 #include <QDialog>
 #include <QStyledItemDelegate>
-#include "names_table_view.h"
+#include "names_overview_view.h"
 
 /**
  * Editor for names.

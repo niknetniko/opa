@@ -6,7 +6,7 @@
 #include <KLocalizedString>
 #include <QSqlQuery>
 #include "data_manager.h"
-#include "names/names_table_view.h"
+#include "names/names_overview_view.h"
 #include "utils/single_row_model.h"
 #include "data/names.h"
 #include "person.h"

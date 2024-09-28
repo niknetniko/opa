@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-#include "names_table_view.h"
+#include "names_overview_view.h"
 #include "database/schema.h"
 #include "names/name_editor.h"
 #include "utils/single_row_model.h"
@@ -37,9 +37,8 @@ QString Names::construct_display_name(const QString &titles, const QString &give
     return nameParts.join(QStringLiteral(" "));
 }
 
-NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
+NamesOverviewView::NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
     this->personId = personId;
-    qDebug() << "Initializing NamesTableView for person with ID " << personId;
     this->baseModel = DataManager::getInstance(this)->namesModelForPerson(this, personId);
 
     // We only show certain columns here.
@@ -79,16 +78,16 @@ NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QW
     connect(treeView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
-            &NamesTableView::handleSelectedNewRow);
+            &NamesOverviewView::handleSelectedNewRow);
 
-    connect(treeView, &QTableView::doubleClicked, this, &NamesTableView::handleDoubleClick);
+    connect(treeView, &QTableView::doubleClicked, this, &NamesOverviewView::handleDoubleClick);
 }
 
-void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
+void NamesOverviewView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
     Q_EMIT this->selectedName(this->treeView->selectionModel()->model(), selected);
 }
 
-void NamesTableView::handleNewName() {
+void NamesOverviewView::handleNewName() {
     auto *nameModel = DataManager::getInstance(this)->namesModel();
     auto newRecord = nameModel->record();
     newRecord.setGenerated(NamesTableModel::ID, true);
@@ -111,7 +110,7 @@ void NamesTableView::handleNewName() {
     editorWindow->adjustSize();
 }
 
-void NamesTableView::editSelectedName() {
+void NamesOverviewView::editSelectedName() {
     // Get the currently selected name.
     auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
@@ -121,6 +120,7 @@ void NamesTableView::editSelectedName() {
     auto selectRow = selection->selectedRows().first();
 
     // The first column contains the primary key.
+    // TODO: do not hardcode this.
     auto index = this->treeView->model()->index(selectRow.row(), 0);
     auto theId = this->treeView->model()->data(index, Qt::EditRole).toLongLong();
     auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
@@ -129,7 +129,7 @@ void NamesTableView::editSelectedName() {
     editorWindow->adjustSize();
 }
 
-void NamesTableView::removeSelectedName() {
+void NamesOverviewView::removeSelectedName() {
     // Get the currently selected name.
     auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
@@ -140,6 +140,6 @@ void NamesTableView::removeSelectedName() {
     this->treeView->model()->removeRow(selectRow.row());
 }
 
-void NamesTableView::handleDoubleClick(const QModelIndex &clicked) {
+void NamesOverviewView::handleDoubleClick(const QModelIndex &clicked) {
     this->editSelectedName();
 }

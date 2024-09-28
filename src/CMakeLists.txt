@@ -14,7 +14,7 @@ target_sources(opa PRIVATE
         event/event_table_view.cpp
         person_detail/person_detail_view.cpp
         utils/gramps_date.cpp
-        names/names_table_view.cpp
+        names/names_overview_view.cpp
         names/name_editor.cpp
         utils/single_row_model.cpp
         data/data_manager.cpp

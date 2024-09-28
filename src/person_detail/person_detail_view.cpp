@@ -12,7 +12,7 @@
 #include "event/event_table_view.h"
 #include "data/event.h"
 #include "database/schema.h"
-#include "names/names_table_view.h"
+#include "names/names_overview_view.h"
 #include "person_name_tab.h"
 
 PersonDetailView::PersonDetailView(long long id, QWidget *parent) :

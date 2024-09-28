@@ -2,8 +2,8 @@
 // Created by niko on 8/02/24.
 //
 
-#ifndef OPA_NAMES_TABLE_VIEW_H
-#define OPA_NAMES_TABLE_VIEW_H
+#ifndef OPA_NAMES_OVERVIEW_VIEW_H
+#define OPA_NAMES_OVERVIEW_VIEW_H
 
 #include <QString>
 #include <QAbstractItemModel>
@@ -38,23 +38,12 @@ public:
 };
 
 /**
- * This view displays a list of events for one person.
- *
- * The intent of the view is to be configurable, with features such as:
- *
- * - Optional searching
- * - Configurable columns
- *
- * However, currently, the view is not configurable at all.
- *
- * When a person is selected, a signal will be emitted. However,
- * the act of selecting a person will not cause the globally selected person
- * to change. This is the job of a listener.
+ * This view displays a list of names for one person.
  */
-class NamesTableView : public QWidget {
+class NamesOverviewView : public QWidget {
 Q_OBJECT
 public:
-    explicit NamesTableView(IntegerPrimaryKey personId, QWidget *parent);
+    explicit NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent);
 
 private:
     QTreeView *treeView;
@@ -62,23 +51,27 @@ private:
     IntegerPrimaryKey personId;
 
 public Q_SLOTS:
-
-    void handleNewName();
-
     void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
     void handleDoubleClick(const QModelIndex& clicked);
 
+    /**
+     * Initiate adding a new name.
+     */
+    void handleNewName();
+    /**
+     * Initiate editing the currently selected name.
+     */
     void editSelectedName();
+    /**
+     * Remove the currently selected name.
+     */
     void removeSelectedName();
 
 Q_SIGNALS:
     /**
      * Called when a person is selected by the user.
-     *
-     * @param selected
-     * @param deselected
      */
     void selectedName(const QAbstractItemModel *model, const QItemSelection &selected);
 };
 
-#endif //OPA_NAMES_TABLE_VIEW_H
+#endif //OPA_NAMES_OVERVIEW_VIEW_H
