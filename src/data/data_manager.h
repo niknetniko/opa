@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QAbstractItemModel>
+#include <QAbstractProxyModel>
 #include <QSqlDatabase>
 #include <QSqlRelationalTableModel>
 #include "database/schema.h"
@@ -41,21 +42,21 @@ public:
      *
      * @param personId The ID of the person to filter on.
      */
-    QAbstractItemModel *namesModelForPerson(QObject *parent, IntegerPrimaryKey personId);
+    QAbstractProxyModel *namesModelForPerson(QObject *parent, IntegerPrimaryKey personId);
 
     /**
      * Model for a single name.
      *
      * @param nameId The ID of the name.
      */
-    QAbstractItemModel *singleNameModel(QObject *parent, IntegerPrimaryKey nameId);
+    QAbstractProxyModel *singleNameModel(QObject *parent, IntegerPrimaryKey nameId);
 
     /**
      * Model showing only the primary names for each person.
      *
      * @param parent The parent of the model.
      */
-    QAbstractItemModel *primaryNamesModel(QObject *parent);
+    QAbstractProxyModel *primaryNamesModel(QObject *parent);
 
 Q_SIGNALS:
     void dataChanged(QString table);

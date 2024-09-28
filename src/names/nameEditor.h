@@ -16,13 +16,13 @@
 class NamesEditor : public QDialog {
 Q_OBJECT
 public:
-    explicit NamesEditor(QAbstractItemModel *model, bool newRow, QWidget *parent);
+    explicit NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent);
 
     void accept() override;
     void reject() override;
 
 private:
-    QAbstractItemModel *model;
+    QAbstractProxyModel *model;
     QDataWidgetMapper *mapper;
     bool newRow;
 };

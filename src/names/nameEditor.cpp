@@ -13,14 +13,16 @@
 #include <QDialogButtonBox>
 #include <QItemEditorFactory>
 #include <QSqlRelationalDelegate>
+#include <KLocalizedString>
 #include "nameEditor.h"
 #include "ui_nameEditor.h"
 #include "names.h"
 #include "data/names.h"
 #include "data/data_manager.h"
+#include "utils/model_utils.h"
 
 
-NamesEditor::NamesEditor(QAbstractItemModel *model, bool newRow, QWidget *parent) : QDialog(parent) {
+NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent) : QDialog(parent) {
     this->model = model;
     this->newRow = newRow;
 
@@ -96,10 +98,17 @@ void NamesEditor::accept() {
         // We are done.
         QDialog::accept();
     } else {
-        QMessageBox::critical(this, QString::fromUtf8("Problem during saving"), QString::fromUtf8("The changes could not be saved for some reason"));
-        // TODO: how should errors be propagated?
-        //        qDebug() << "Error was: " << this->model->lastError();
-        //        qDebug() << "Query was: " << this->model->query().lastQuery();
+        // Find the original model.
+        auto* sqlModel = find_source_model_of_type<QSqlQueryModel>(this->model);
+        assert(sqlModel != nullptr);
+        auto lastError = sqlModel->lastError();
+        auto errorText = lastError.text();
+        qWarning() << "Error was:";
+        qWarning() << errorText;
+        QMessageBox::critical(this, i18n("Fout bij opslaan"), i18n("The changes could not be saved for some reason:\n") + errorText);
+
+        qDebug() << "Native error code is " << lastError.nativeErrorCode();
+        qDebug() << "Last query is " << sqlModel->query().lastQuery();
         return;
     }
 }

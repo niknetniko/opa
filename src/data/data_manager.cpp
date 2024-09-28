@@ -33,7 +33,7 @@ QSqlTableModel *DataManager::namesModel() const {
     return this->baseNamesModel;
 }
 
-QAbstractItemModel *DataManager::namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
+QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     auto *proxy = new CellFilteredProxyModel(parent, personId, NamesTableModel::PERSON_ID);
     proxy->setSourceModel(this->namesModel());
     return proxy;
@@ -50,13 +50,13 @@ void DataManager::onNamesTableChanged() {
     }
 }
 
-QAbstractItemModel *DataManager::singleNameModel(QObject *parent, IntegerPrimaryKey nameId) {
+QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, IntegerPrimaryKey nameId) {
     auto *proxy = new CellFilteredProxyModel(parent, nameId, NamesTableModel::ID);
     proxy->setSourceModel(this->namesModel());
     return proxy;
 }
 
-QAbstractItemModel *DataManager::primaryNamesModel(QObject *parent) {
+QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     auto query = QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root FROM people JOIN names on people.id = names.person_id WHERE (names.main = TRUE)");
     auto * baseModel = new QSqlQueryModel(parent);
 

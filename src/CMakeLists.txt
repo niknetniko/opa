@@ -20,6 +20,7 @@ target_sources(opa PRIVATE
         data/data_manager.cpp
         data/names.cpp
         utils/formatted_identifier_delegate.cpp
+        utils/model_utils.cpp
 )
 
 ecm_qt_declare_logging_category(opa
