@@ -29,13 +29,18 @@ QString Data::Person::Sex::toIcon(const QString &sex) {
     return QString::fromUtf8("⚥");
 }
 
-QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex &parent, int row, int /*extraColumn*/, int role) const {
-    // TODO: do not hard code this
-    auto titles = this->index(row, 1, parent).data(role).toString();
-    auto givenNames = this->index(row, 2, parent).data(role).toString();
-    auto prefix = this->index(row, 3, parent).data(role).toString();
-    auto surname = this->index(row, 4, parent).data(role).toString();
-    return Names::construct_display_name(titles, givenNames, prefix, surname);
+QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex &parent, int row, int extraColumn, int role) const {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        if (extraColumn == 0) {
+            // TODO: do not hard code this
+            auto titles = this->index(row, 1, parent).data(role).toString();
+            auto givenNames = this->index(row, 2, parent).data(role).toString();
+            auto prefix = this->index(row, 3, parent).data(role).toString();
+            auto surname = this->index(row, 4, parent).data(role).toString();
+            return Names::construct_display_name(titles, givenNames, prefix, surname);
+        }
+    }
+    return {};
 }
 
 DisplayNameProxyModel::DisplayNameProxyModel(QObject *parent) : KExtraColumnsProxyModel(parent) {

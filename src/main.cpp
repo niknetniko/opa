@@ -20,14 +20,10 @@
 #include <QCommandLineParser>
 #include <QIcon>
 #include <QLoggingCategory>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QString>
 #include <QtLogging>
 #include <QTableView>
 #include <QSqlQueryModel>
-#include <QSqlTableModel>
 
 
 int main(int argc, char **argv)
