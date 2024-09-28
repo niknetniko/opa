@@ -50,7 +50,7 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     connect(this->removeAction, &QAction::triggered, nameTableView, &NamesTableView::removeSelectedName);
 }
 
-void PersonNameTab::onNameSelected(const QAbstractItemModel &model, const QItemSelection &selected) {
+void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) {
     if (selected.isEmpty()) {
         this->editAction->setEnabled(false);
         this->removeAction->setEnabled(false);
@@ -60,7 +60,9 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel &model, const QItemS
     this->editAction->setEnabled(true);
 
     // We do not allow removal of the main name.
-    auto primaryNameIndex = model.index(selected.indexes().first().row(), NamesTableModel::MAIN);
-    auto isPrimaryName = model.data(primaryNameIndex).toBool();
+    // The MAIN column is the second one.
+    // TODO: do not hardcode this.
+    auto primaryNameIndex = model->index(selected.indexes().first().row(), 1);
+    auto isPrimaryName = model->data(primaryNameIndex).toBool();
     this->removeAction->setEnabled(!isPrimaryName);
 }

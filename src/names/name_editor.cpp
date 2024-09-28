@@ -20,6 +20,7 @@
 #include "data/names.h"
 #include "data/data_manager.h"
 #include "utils/model_utils.h"
+#include "utils/formatted_identifier_delegate.h"
 
 
 NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent) : QDialog(parent) {
@@ -40,6 +41,14 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     form->origin->setModel(originCompleterModel);
     form->origin->setModelColumn(NameOriginTableModel::ORIGIN);
     form->origin->setItemDelegate(new QSqlRelationalDelegate(form->origin));
+
+    // Get the ID of the current name, if not new.
+    if (newRow) {
+        this->setWindowTitle(i18n("Nieuwe naam toevoegen"));
+    } else {
+        auto nameId = format_id(FormattedIdentifierDelegate::NAME, originCompleterModel->data(originCompleterModel->index(0, 0)));
+        this->setWindowTitle(i18n("%1 bewerken", nameId));
+    }
 
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.

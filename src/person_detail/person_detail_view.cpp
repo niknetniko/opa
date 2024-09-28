@@ -84,8 +84,8 @@ void PersonDetailView::populate() {
 //    action->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
 //    eventToolbar->addAction(action);
 //    evenTabContainerLayout->addWidget(eventToolbar);
-//    auto *tableView = new EventTableView(this->id, evenTabContainer);
-//    evenTabContainerLayout->addWidget(tableView);
+//    auto *treeView = new EventTableView(this->id, evenTabContainer);
+//    evenTabContainerLayout->addWidget(treeView);
 //    tabWidget->addTab(evenTabContainer, i18n("Events"));
 
 

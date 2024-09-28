@@ -62,33 +62,30 @@ NamesTableView::NamesTableView(IntegerPrimaryKey personId, QWidget *parent) : QW
     // TODO: fix this and make it proper.
     // while (model->canFetchMore()) { model->fetchMore(); }
 
-    tableView = new QTableView(this);
-    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tableView->verticalHeader()->setVisible(false);
-    tableView->sortByColumn(1, Qt::SortOrder::AscendingOrder);
-    tableView->horizontalHeader()->resizeSections(QHeaderView::Stretch);
-    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tableView->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    tableView->setSortingEnabled(true);
+    treeView = new QTreeView(this);
+    treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    treeView->setUniformRowHeights(true);
+    treeView->setRootIsDecorated(false);
+    treeView->setSortingEnabled(true);
     // We are done setting up, attach the model.
-    tableView->setModel(filterProxyModel);
-    tableView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(FormattedIdentifierDelegate::NAME));
+    treeView->setModel(filterProxyModel);
+    treeView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(FormattedIdentifierDelegate::NAME));
 
     // Wrap in a VBOX for layout reasons.
     auto *layout = new QVBoxLayout(this);
-    layout->addWidget(tableView);
+    layout->addWidget(treeView);
 
-    connect(tableView->selectionModel(),
+    connect(treeView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
             &NamesTableView::handleSelectedNewRow);
 
-    connect(tableView, &QTableView::doubleClicked, this, &NamesTableView::handleDoubleClick);
+    connect(treeView, &QTableView::doubleClicked, this, &NamesTableView::handleDoubleClick);
 }
 
 void NamesTableView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
-    Q_EMIT this->selectedName(*this->baseModel, selected);
+    Q_EMIT this->selectedName(this->treeView->selectionModel()->model(), selected);
 }
 
 void NamesTableView::handleNewName() {
@@ -116,7 +113,7 @@ void NamesTableView::handleNewName() {
 
 void NamesTableView::editSelectedName() {
     // Get the currently selected name.
-    auto selection = this->tableView->selectionModel();
+    auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
@@ -124,10 +121,8 @@ void NamesTableView::editSelectedName() {
     auto selectRow = selection->selectedRows().first();
 
     // The first column contains the primary key.
-    auto index = this->tableView->model()->index(selectRow.row(), 0);
-    auto theId = this->tableView->model()->data(index, Qt::EditRole).toLongLong();
-    qDebug() << "Initialising NamesEditor for name with ID " << theId << ", while index is " << index;
-    qDebug() << "  selected index in parent model is " << selectRow;
+    auto index = this->treeView->model()->index(selectRow.row(), 0);
+    auto theId = this->treeView->model()->data(index, Qt::EditRole).toLongLong();
     auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
     auto *editorWindow = new NamesEditor(theModel, false, this);
     editorWindow->show();
@@ -136,13 +131,13 @@ void NamesTableView::editSelectedName() {
 
 void NamesTableView::removeSelectedName() {
     // Get the currently selected name.
-    auto selection = this->tableView->selectionModel();
+    auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     auto selectRow = selection->selectedRows().first();
-    this->tableView->model()->removeRow(selectRow.row());
+    this->treeView->model()->removeRow(selectRow.row());
 }
 
 void NamesTableView::handleDoubleClick(const QModelIndex &clicked) {

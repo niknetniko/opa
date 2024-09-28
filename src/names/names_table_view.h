@@ -12,6 +12,7 @@
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QSqlTableModel>
+#include <QTreeView>
 #include <KRearrangeColumnsProxyModel>
 #include <QSqlRelationalTableModel>
 #include "database/schema.h"
@@ -56,7 +57,7 @@ public:
     explicit NamesTableView(IntegerPrimaryKey personId, QWidget *parent);
 
 private:
-    QTableView *tableView;
+    QTreeView *treeView;
     QAbstractItemModel *baseModel;
     IntegerPrimaryKey personId;
 
@@ -77,7 +78,7 @@ Q_SIGNALS:
      * @param selected
      * @param deselected
      */
-    void selectedName(const QAbstractItemModel &model, const QItemSelection &selected);
+    void selectedName(const QAbstractItemModel *model, const QItemSelection &selected);
 };
 
 #endif //OPA_NAMES_TABLE_VIEW_H

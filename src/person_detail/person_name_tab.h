@@ -16,7 +16,7 @@ public:
     explicit PersonNameTab(IntegerPrimaryKey person, QWidget* parent);
 
 public Q_SLOTS:
-    void onNameSelected(const QAbstractItemModel &model, const QItemSelection &selected);
+    void onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected);
 
 private:
     QAction* addAction;

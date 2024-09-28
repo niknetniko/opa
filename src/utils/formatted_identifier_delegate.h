@@ -7,6 +7,8 @@
 
 #include <QStyledItemDelegate>
 
+QString format_id(const QString& pattern, const QVariant &id);
+
 class FormattedIdentifierDelegate: public QStyledItemDelegate {
     Q_OBJECT
 public:
