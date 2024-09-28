@@ -9,7 +9,6 @@
 #include "person_detail_view.h"
 #include "ui_person_detail_view.h"
 #include "data/person.h"
-#include "event/event_table_view.h"
 #include "data/event.h"
 #include "database/schema.h"
 #include "names/names_overview_view.h"
@@ -84,8 +83,8 @@ void PersonDetailView::populate() {
 //    action->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
 //    eventToolbar->addAction(action);
 //    evenTabContainerLayout->addWidget(eventToolbar);
-//    auto *treeView = new EventTableView(this->id, evenTabContainer);
-//    evenTabContainerLayout->addWidget(treeView);
+//    auto *tableView = new EventTableView(this->id, evenTabContainer);
+//    evenTabContainerLayout->addWidget(tableView);
 //    tabWidget->addTab(evenTabContainer, i18n("Events"));
 
 

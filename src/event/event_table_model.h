@@ -8,7 +8,7 @@
 #include <QSqlQueryModel>
 
 /**
- * The data model for the PeopleTableView.
+ * The data model for the PeopleOverviewView.
  */
 class EventTableModel : public QSqlQueryModel {
     Q_OBJECT

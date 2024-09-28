@@ -50,37 +50,22 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
 
+    auto* baseModel = DataManager::getInstance(this)->namesModel();
+
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.
     // Additionally, we want to use all last names, not just the once from the current person.
-    auto* surnameCompleter = new QCompleter(DataManager::getInstance(this)->primaryNamesModel(this));
+    auto* surnameCompleter = new QCompleter(baseModel);
     surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-//    surnameCompleter->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
     surnameCompleter->setCompletionMode(QCompleter::PopupCompletion);
     form->surname->setCompleter(surnameCompleter);
 
-//    auto* surnameAutocompleteModel = new NamesTableModel(this);
-//    surnameAutocompleteModel->setSort(NamesTableModel::SURNAME, Qt::SortOrder::AscendingOrder);
-//    surnameAutocompleteModel->select();
-//    auto* surnameCompleter = new QCompleter(surnameAutocompleteModel, this);
-//    surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-//    surnameCompleter->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-//    surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
-//    surnameCompleter->setCompletionMode(QCompleter::PopupCompletion);
-//    form->surname->setCompleter(surnameCompleter);
-
-    // Set up autocomplete on the given names.
-    // This is very basic: it will not tokenize the names.
-//    auto* givenNamesAutocompleteModel = new NamesTableModel(this);
-//    givenNamesAutocompleteModel->setSort(NamesTableModel::GIVEN_NAMES, Qt::SortOrder::AscendingOrder);
-//    givenNamesAutocompleteModel->select();
-//    auto* givenNameCompleter = new QCompleter(givenNamesAutocompleteModel, this);
-//    givenNameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-//    givenNameCompleter->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-//    givenNameCompleter->setCompletionColumn(NamesTableModel::GIVEN_NAMES);
-//    givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
-//    form->givenNames->setCompleter(givenNameCompleter);
+    auto* givenNameCompleter = new QCompleter(baseModel);
+    givenNameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    givenNameCompleter->setCompletionColumn(NamesTableModel::GIVEN_NAMES);
+    givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
+    form->givenNames->setCompleter(surnameCompleter);
 
     auto isMain = this->model->data(this->model->index(0, NamesTableModel::MAIN)).toBool();
     if (isMain) {
@@ -102,7 +87,6 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
 
 void NamesEditor::accept() {
     // Attempt to submit the mapper changes.
-    // TODO: fix this somehow?
     if (this->mapper->submit()) {
         // We are done.
         QDialog::accept();

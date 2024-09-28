@@ -1,23 +1,21 @@
 //
 // Created by niko on 2/09/2022.
 //
-
-
-#include <KSharedConfig>
 #include <KConfigGroup>
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <KLocalizedString>
+#include <QSortFilterProxyModel>
+#include <QTreeView>
 
-#include "people_table_view.h"
-#include "people_table_model.h"
+#include "people_overview_view.h"
 #include "data/data_manager.h"
 #include "data/person.h"
 #include "utils/formatted_identifier_delegate.h"
 
-PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
+PeopleOverviewView::PeopleOverviewView(QWidget *parent): QWidget(parent) {
 
     auto *baseModel = DataManager::getInstance(this)->primaryNamesModel(this);
 
@@ -31,22 +29,23 @@ PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
 
     auto* searchBox = new QLineEdit(this);
     searchBox->setPlaceholderText(i18n("Zoeken..."));
+    searchBox->setClearButtonEnabled(true);
 
     // Allow searching...
     connect(searchBox, &QLineEdit::textEdited, filtered, &QSortFilterProxyModel::setFilterFixedString);
 
     tableView = new QTableView(this);
-    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    tableView->verticalHeader()->setVisible(false);
-    tableView->sortByColumn(DisplayNameModel::NAME, Qt::SortOrder::AscendingOrder);
-    tableView->horizontalHeader()->resizeSections(QHeaderView::Stretch);
-    tableView->setSortingEnabled(true);
-    // We are done setting up, attach the model.
     tableView->setModel(filtered);
+    tableView->setShowGrid(false);
+    tableView->setSelectionBehavior(QTableView::SelectRows);
+    tableView->setSelectionMode(QTableView::SelectionMode::SingleSelection);
+    tableView->setSortingEnabled(true);
+    tableView->verticalHeader()->hide();
+    tableView->horizontalHeader()->resizeSections(QHeaderView::Stretch);
     tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ID, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::NAME, QHeaderView::Stretch);
     tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ROOT, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setHighlightSections(false);
     tableView->setItemDelegateForColumn(DisplayNameModel::ID, new FormattedIdentifierDelegate(FormattedIdentifierDelegate::PERSON));
 
     // Wrap in a VBOX for layout reasons.
@@ -54,27 +53,13 @@ PeopleTableView::PeopleTableView(QWidget *parent): QWidget(parent) {
     layout->addWidget(searchBox);
     layout->addWidget(tableView);
 
-//    auto config = KSharedConfig::openStateConfig();
-//    KConfigGroup selectionGroup(config, i18n("selection"));
-//    if (selectionGroup.hasKey("current")) {
-//        auto row = selectionGroup.readEntry("current").toInt();
-//        handleSelectedPersonChanged(row);
-//    }
-
     connect(tableView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
-            &PeopleTableView::handleSelectedNewRow);
+            &PeopleOverviewView::handleSelectedNewRow);
 }
 
-void PeopleTableView::handleSelectedPersonChanged(IntegerPrimaryKey personId) {
-    int rowNumber = findRowIndex(personId);
-    auto index = tableView->model()->index(rowNumber, 0);
-    tableView->scrollTo(index);
-    tableView->selectRow(rowNumber);
-}
-
-void PeopleTableView::handleSelectedNewRow(const QItemSelection &selected) {
+void PeopleOverviewView::handleSelectedNewRow(const QItemSelection &selected) {
     if (selected.empty()) {
         return;
     }
@@ -82,20 +67,5 @@ void PeopleTableView::handleSelectedNewRow(const QItemSelection &selected) {
     // Get the ID of the person we want.
     auto personId = this->tableView->model()->index(selected.indexes().first().row(), DisplayNameModel::ID).data().toLongLong();
 
-//    auto config = KSharedConfig::openStateConfig();
-//    KConfigGroup selectionGroup(config, "selection");
-//    selectionGroup.writeEntry("current", personId);
     Q_EMIT handlePersonSelected(personId);
-}
-
-int PeopleTableView::findRowIndex(IntegerPrimaryKey personId) {
-    for (int i = 0; i < tableView->model()->rowCount(); ++i) {
-        auto rowIndex = tableView->model()->index(i, DisplayNameModel::ID);
-        auto data = tableView->model()->data(rowIndex);
-        if (data.toLongLong() == personId) {
-            return i;
-        }
-    }
-
-    return -1;
 }

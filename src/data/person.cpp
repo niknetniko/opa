@@ -30,6 +30,7 @@ QString Data::Person::Sex::toIcon(const QString &sex) {
 }
 
 QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex &parent, int row, int /*extraColumn*/, int role) const {
+    // TODO: do not hard code this
     auto titles = this->index(row, 1, parent).data(role).toString();
     auto givenNames = this->index(row, 2, parent).data(role).toString();
     auto prefix = this->index(row, 3, parent).data(role).toString();

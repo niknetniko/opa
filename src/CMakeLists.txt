@@ -6,8 +6,7 @@ target_sources(opa PRIVATE
         main/main_window.cpp
         database/database.cpp
         database/schema.h
-        main/people_table_model.cpp
-        main/people_table_view.cpp
+        main/people_overview_view.cpp
         data/person.cpp
         data/event.cpp
         event/event_table_model.cpp

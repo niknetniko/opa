@@ -8,7 +8,7 @@
 #include "main_window.h"
 
 #include "opadebug.h"
-#include "people_table_view.h"
+#include "people_overview_view.h"
 #include "person_detail/person_detail_view.h"
 
 // KF headers
@@ -30,12 +30,12 @@ MainWindow::MainWindow() : KXmlGuiWindow() {
     auto *dockWidget = new QDockWidget(tr("Personen"), this);
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
-    auto tableView = new PeopleTableView(this);
+    auto tableView = new PeopleOverviewView(this);
     dockWidget->setWidget(tableView);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     // Connect stuff.
-    connect(tableView, &PeopleTableView::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
+    connect(tableView, &PeopleOverviewView::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
 
     KActionCollection *actionCollection = this->actionCollection();
     KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);

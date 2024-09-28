@@ -1,8 +1,8 @@
-#ifndef OPA_PEOPLE_TABLE_VIEW_H
-#define OPA_PEOPLE_TABLE_VIEW_H
+#ifndef OPA_PEOPLE_OVERVIEW_VIEW_H
+#define OPA_PEOPLE_OVERVIEW_VIEW_H
 
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QTableView>
+#include <QWidget>
+#include <QTableView>
 #include "database/schema.h"
 
 /**
@@ -19,33 +19,24 @@
  * the act of selecting a person will not cause the globally selected person
  * to change. This is the job of a listener.
  */
-class PeopleTableView: public QWidget {
+class PeopleOverviewView: public QWidget {
     Q_OBJECT
 public:
-    explicit PeopleTableView(QWidget* parent);
+    explicit PeopleOverviewView(QWidget* parent);
 
-    ~PeopleTableView() override = default;
+    ~PeopleOverviewView() override = default;
 
 public Q_SLOTS:
-    void handleSelectedPersonChanged(IntegerPrimaryKey personId);
     void handleSelectedNewRow(const QItemSelection &selected);
 
 Q_SIGNALS:
     /**
      * Called when a new person is selected by the table view.
-     * @param personId
      */
     void handlePersonSelected(IntegerPrimaryKey personId);
 
 private:
     QTableView* tableView;
-
-    /**
-     * Find the row for a person ID.
-     * @param personId
-     * @return -1 if not found.
-     */
-    int findRowIndex(IntegerPrimaryKey personId);
 };
 
-#endif //OPA_PEOPLE_TABLE_VIEW_H
+#endif //OPA_PEOPLE_OVERVIEW_VIEW_H

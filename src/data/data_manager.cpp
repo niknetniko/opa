@@ -60,6 +60,7 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     auto query = QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root FROM people JOIN names on people.id = names.person_id WHERE (names.main = TRUE)");
     auto * baseModel = new QSqlQueryModel(parent);
 
+    // TODO: do not hardcode this
     baseModel->setQuery(query);
     baseModel->setHeaderData(0, Qt::Horizontal, i18n("Id"));
     baseModel->setHeaderData(1, Qt::Horizontal, i18n("Titels"));
