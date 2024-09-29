@@ -21,7 +21,6 @@
        <property name="font">
         <font>
          <pointsize>20</pointsize>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -32,6 +31,12 @@
      </item>
      <item>
       <widget class="QLabel" name="sexIcon">
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -40,7 +45,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -50,9 +55,6 @@
        </property>
       </spacer>
      </item>
-<!--     <item>-->
-<!--      <widget class="KIconButton" name="editButton"/>-->
-<!--     </item>-->
     </layout>
    </item>
    <item>
@@ -104,19 +106,12 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>-1</number>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-<!--   <class>KIconButton</class>-->
-   <extends>QPushButton</extends>
-<!--   <header>kiconbutton.h</header>-->
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
