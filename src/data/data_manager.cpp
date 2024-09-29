@@ -25,11 +25,23 @@ DataManager *DataManager::getInstance(QObject *parent) {
 
 DataManager::DataManager(QObject *parent) : QObject(parent) {
     this->baseNamesModel = new NamesTableModel(this);
-    this->baseNamesModel->select();
+    baseNamesModel->select();
+    // TODO: reduce the number of unnecessary signals here
+    // Connect the base model.
+    connect(baseNamesModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNamesTableChanged);
+    connect(baseNamesModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNamesTableChanged);
+    connect(baseNamesModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNamesTableChanged);
+    // Connect the other model.
+    auto *baseNamesRelationModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN_ID);
+    connect(baseNamesRelationModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNameOriginsTableChanged);
+    connect(baseNamesRelationModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNameOriginsTableChanged);
+    connect(baseNamesRelationModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNameOriginsTableChanged);
 
-    connect(this->baseNamesModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNamesTableChanged);
-    connect(this->baseNamesModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNamesTableChanged);
-    connect(this->baseNamesModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNamesTableChanged);
+    this->baseNameOriginModel = new NameOriginTableModel(this);
+    baseNameOriginModel->select();
+    connect(baseNameOriginModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNameOriginsTableChanged);
+    connect(baseNameOriginModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNameOriginsTableChanged);
+    connect(baseNameOriginModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNameOriginsTableChanged);
 }
 
 QSqlTableModel *DataManager::namesModel() const {
@@ -134,4 +146,13 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
     });
 
     return combinedModel;
+}
+
+void DataManager::onNameOriginsTableChanged() {
+    qDebug() << "Name origins table has changed....";
+    Q_EMIT this->dataChanged(this->baseNameOriginModel->tableName());
+}
+
+QSqlTableModel *DataManager::nameOriginsModel() const {
+    return this->baseNameOriginModel;
 }

@@ -25,5 +25,12 @@ NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(par
     this->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
     this->setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
     this->setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
-    this->setHeaderData(ORIGIN_ID, Qt::Horizontal, i18n("Origine"));
+    this->setHeaderData(ORIGIN_ID, Qt::Horizontal, i18n("Oorsprong"));
+}
+
+NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(parent) {
+    this->setTable(Schema::NameOrigins::TableName);
+
+    this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
+    this->setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
 }

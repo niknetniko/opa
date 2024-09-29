@@ -19,6 +19,7 @@
 #include "data/data_manager.h"
 #include "utils/model_utils.h"
 #include "utils/formatted_identifier_delegate.h"
+#include "utils/proxy_enabled_relational_delegate.h"
 
 
 NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent) : QDialog(parent) {
@@ -33,19 +34,18 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
 
     // Set up the name origin combobox.
-    auto *originCompleterModel = new NameOriginTableModel(this);
-    originCompleterModel->setSort(NameOriginTableModel::ORIGIN, Qt::SortOrder::AscendingOrder);
-    originCompleterModel->select();
-    form->origin->setModel(originCompleterModel);
-    form->origin->setModelColumn(NameOriginTableModel::ORIGIN);
-    form->origin->setItemDelegate(new QSqlRelationalDelegate(form->origin));
+    // TODO: extract this into another function maybe?
+    auto *rootModel = find_source_model_of_type<QSqlRelationalTableModel>(model);
+    QSqlTableModel *childModel = rootModel->relationModel(NamesTableModel::ORIGIN_ID);
+    form->origin->setEditable(true);
+    form->origin->setModel(childModel);
+    form->origin->setModelColumn(childModel->fieldIndex(rootModel->relation(NamesTableModel::ORIGIN_ID).displayColumn()));
 
     // Get the ID of the current name, if not new.
     if (newRow) {
         this->setWindowTitle(i18n("Nieuwe naam toevoegen"));
     } else {
-        auto nameId = format_id(FormattedIdentifierDelegate::NAME,
-                                originCompleterModel->data(originCompleterModel->index(0, 0)));
+        auto nameId = format_id(FormattedIdentifierDelegate::NAME,model->index(0, 0).data());
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
 
@@ -81,6 +81,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->origin, NamesTableModel::ORIGIN_ID);
     mapper->addMapping(form->primaryName, NamesTableModel::MAIN);
+    mapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     mapper->toFirst();
 }
 

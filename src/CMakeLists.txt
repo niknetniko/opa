@@ -21,6 +21,7 @@ target_sources(opa PRIVATE
         utils/formatted_identifier_delegate.cpp
         utils/model_utils.cpp
         person_detail/person_name_tab.cpp
+        utils/proxy_enabled_relational_delegate.cpp
 )
 
 ecm_qt_declare_logging_category(opa

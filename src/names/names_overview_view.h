@@ -25,18 +25,6 @@ namespace Names {
                                    const QString &surname);
 }
 
-class NameOriginTableModel: public QSqlTableModel {
-    Q_OBJECT
-
-public:
-    static const int ID = 0;
-    static const int ORIGIN = 1;
-
-    explicit NameOriginTableModel(QObject* parent = nullptr): QSqlTableModel(parent) {
-        this->setTable(Schema::NameOrigins::TableName);
-    };
-};
-
 /**
  * This view displays a list of names for one person.
  */

@@ -36,6 +36,7 @@ public:
     static DataManager *getInstance(QObject* parent);
 
     QSqlTableModel *namesModel() const;
+    QSqlTableModel *nameOriginsModel() const;
 
     /**
      * Get a model representing all names for a single person.
@@ -68,6 +69,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void onNamesTableChanged();
+    void onNameOriginsTableChanged();
 
 private:
     explicit DataManager(QObject *parent);
@@ -75,6 +77,7 @@ private:
     static DataManager *instance;
 
     QSqlRelationalTableModel * baseNamesModel;
+    QSqlTableModel * baseNameOriginModel;
 };
 
 #endif //OPA_DATA_MANAGER_H

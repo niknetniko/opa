@@ -5,13 +5,16 @@
 #ifndef OPA_DATA_NAMES_H
 #define OPA_DATA_NAMES_H
 
+#include <QSqlTableModel>
 #include <QSqlRelationalTableModel>
+
+#include "database/schema.h"
 
 /**
  * Base model for the names table.
  */
 class NamesTableModel : public QSqlRelationalTableModel {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     static const int ID = 0;
@@ -24,6 +27,16 @@ public:
     static const int ORIGIN_ID = 7;
 
     explicit NamesTableModel(QObject *parent = nullptr);
+};
+
+class NameOriginTableModel : public QSqlTableModel {
+Q_OBJECT
+
+public:
+    static const int ID = 0;
+    static const int ORIGIN = 1;
+
+    explicit NameOriginTableModel(QObject *parent = nullptr);
 };
 
 #endif //OPA_DATA_NAMES_H
