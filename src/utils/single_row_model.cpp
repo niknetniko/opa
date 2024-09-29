@@ -1,7 +1,6 @@
 //
 // Created by niko on 15/09/24.
 //
-#include <QSqlRelationalTableModel>
 #include "single_row_model.h"
 
 bool CellFilteredProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const {
@@ -10,13 +9,3 @@ bool CellFilteredProxyModel::filterAcceptsRow(int source_row, const QModelIndex 
 //    qDebug() << "  index data is now " << index.data(Qt::EditRole);
     return index.data(Qt::EditRole) == this->data;
 }
-
-bool CellFilteredProxyModel::submit() {
-    bool result = QSortFilterProxyModel::submit();
-    QSqlRelationalTableModel *sourceModel = qobject_cast<QSqlRelationalTableModel*>(this->sourceModel());
-    if (sourceModel) {
-        result &= sourceModel->submitAll();
-    }
-    return result;
-}
-

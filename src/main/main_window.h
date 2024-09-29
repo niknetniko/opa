@@ -58,7 +58,6 @@ private Q_SLOTS:
      */
     void openOrSelectPerson(IntegerPrimaryKey personId);
 
-    void updatePersonName(IntegerPrimaryKey personId, const QString& newName);
     void closeTab(int tabIndex);
 
 private:
@@ -68,6 +67,8 @@ private:
     QAction *m_switchAction;
 
     QTabWidget* tabWidget;
+
+    int findTabFor(IntegerPrimaryKey personId);
 };
 
 #endif // OPAWINDOW_H

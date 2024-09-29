@@ -19,8 +19,6 @@ PeopleOverviewView::PeopleOverviewView(QWidget *parent): QWidget(parent) {
 
     auto *baseModel = DataManager::getInstance(this)->primaryNamesModel(this);
 
-    qDebug() << "Base model has count: " << baseModel->rowCount();
-
     // Create a searchable model.
     auto filtered = new QSortFilterProxyModel(this);
     filtered->setSourceModel(baseModel);

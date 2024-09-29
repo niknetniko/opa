@@ -1,5 +1,4 @@
 #include <QSqlQuery>
-#include <QDebug>
 #include <QSqlError>
 #include <QSqlField>
 #include <QToolBar>
@@ -11,92 +10,51 @@
 #include "data/person.h"
 #include "data/event.h"
 #include "database/schema.h"
-#include "names/names_overview_view.h"
 #include "person_name_tab.h"
+#include "data/data_manager.h"
+#include "utils/formatted_identifier_delegate.h"
 
-PersonDetailView::PersonDetailView(long long id, QWidget *parent) :
-        QFrame(parent),
-        id(id),
-        ui(new Ui::PersonDetailView) {
+PersonDetailView::PersonDetailView(IntegerPrimaryKey personId, QWidget *parent) :
+        QFrame(parent) {
+    this->ui = new Ui::PersonDetailView();
     ui->setupUi(this);
-}
 
-void PersonDetailView::populateBirth() {
-//    QSqlQuery query;
-//    query.prepare(QString::fromUtf8("SELECT * FROM event WHERE person = :id AND type = 'birth'"));
-//    query.bindValue(QString::fromUtf8(":id"), id);
-//    if (!query.exec()) {
-//        qCritical() << "Could not get birth event..." << query.lastError();
-//    }
-//    if (query.first()) {
-//        auto eventRecord = query.record();
-//        auto birthdate = eventRecord.field(Data::Event::Table::DATE).value().toDate();
-//        auto formatted = QLocale().toString(birthdate,QLocale::LongFormat);
-//        ui->birth->setText(formatted);
-//
-//        // Calculate the age of the person.
-//        auto days = birthdate.daysTo(QDate::currentDate());
-//        auto years = days / 365;
-//        ui->death->setText(QString::number(years) + QString::fromUtf8(" dagen"));
-//    } else {
-        ui->birth->setText(QString::fromUtf8("?"));
-//    }
+    this->model = DataManager::getInstance(this)->personDetailsModel(this, personId);
+    this->populate();
+
+    // Create tab for names
+    auto *nameTab = new PersonNameTab(personId, ui->tabWidget);
+    ui->tabWidget->addTab(nameTab, i18n("Namen"));
+
+    // Connect the model to this view, so we update when the data is changed.
+    connect(this->model, &QAbstractProxyModel::dataChanged, this, &PersonDetailView::populate);
 }
 
 void PersonDetailView::populate() {
-    ui->id->setText(QString::fromUtf8("P%1").arg(this->id, 4, 10, QLatin1Char('0')));
+    assert(model->rowCount() == 1);
 
-    // Get the person from the database.
-    QSqlQuery query;
-    query.prepare(QString::fromUtf8("SELECT * FROM people JOIN names ON people.id = names.person_id WHERE people.id = :id"));
-    query.bindValue(QString::fromUtf8(":id"), id);
+    auto rawPersonId = model->index(0, PersonDetailModel::ID).data();
+    auto personId = format_id(FormattedIdentifierDelegate::PERSON, rawPersonId);
+    ui->id->setText(personId);
+    ui->displayName->setText(this->getDisplayName());
 
-    if (!query.exec()) {
-        qCritical() << "Error:" << query.lastError();
-    }
-
-    query.first();
-    this->record = query.record();
-
-    auto titles = record.field(Schema::Names::titles).value().toString();
-    auto given_names = record.field(Schema::Names::givenNames).value().toString();
-    auto prefix = record.field(Schema::Names::prefix).value().toString();
-    auto surname = record.field(Schema::Names::surname).value().toString();
-    auto name = Names::construct_display_name(titles, given_names, prefix, surname);
-    ui->displayName->setText(name);
-
-    auto sex = record.field(Data::Person::Table::SEX).value().toString();
+    auto sex = model->index(0, PersonDetailModel::SEX).data().toString();
     auto sexSymbol = Data::Person::Sex::toIcon(sex);
     auto sexDescription = Data::Person::Sex::toDisplay(sex);
     ui->sexIcon->setText(sexSymbol);
     ui->sexIcon->setToolTip(sexDescription);
 
-    auto *tabWidget = ui->tabWidget;
-
-    // Create tab for events
-//    auto *evenTabContainer = new QWidget();
-//    auto *evenTabContainerLayout = new QVBoxLayout(evenTabContainer);
-//    evenTabContainerLayout->setSpacing(0);
-//    auto *eventToolbar = new QToolBar(evenTabContainer);
-//    auto *action = new QAction(eventToolbar);
-//    action->setText(tr("Add Event"));
-//    action->setIcon(QIcon::fromTheme(QString::fromUtf8("list-add")));
-//    eventToolbar->addAction(action);
-//    evenTabContainerLayout->addWidget(eventToolbar);
-//    auto *tableView = new EventTableView(this->id, evenTabContainer);
-//    evenTabContainerLayout->addWidget(tableView);
-//    tabWidget->addTab(evenTabContainer, i18n("Events"));
-
-
-    // Create tab for names
-    auto *nameTab = new PersonNameTab(this->id, tabWidget);
-    tabWidget->addTab(nameTab, i18n("Namen"));
-
-    this->populateBirth();
-
-    Q_EMIT(this->personNameChanged(this->id, name));
+    Q_EMIT this->dataChanged(rawPersonId.toLongLong());
 }
 
 PersonDetailView::~PersonDetailView() {
     delete ui;
+}
+
+bool PersonDetailView::hasId(IntegerPrimaryKey id) {
+    return model->index(0, PersonDetailModel::ID).data() == id;
+}
+
+QString PersonDetailView::getDisplayName() {
+    return model->index(0, PersonDetailModel::DISPLAY_NAME).data().toString();
 }

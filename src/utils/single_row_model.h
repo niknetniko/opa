@@ -20,8 +20,6 @@ public:
                                                                               columnIndex(columnIndex), data(data) {};
 
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
-
-    bool submit() override;
 };
 
 #endif //OPA_SINGLE_ROW_MODEL_H

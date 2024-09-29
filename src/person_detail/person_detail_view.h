@@ -3,6 +3,10 @@
 
 #include <QFrame>
 #include <QSqlRecord>
+#include <QAbstractProxyModel>
+#include <QStyledItemDelegate>
+#include "database/schema.h"
+#include "utils/formatted_identifier_delegate.h"
 
 namespace Ui {
     class PersonDetailView;
@@ -12,21 +16,31 @@ class PersonDetailView : public QFrame {
 Q_OBJECT
 
 public:
-    const long long id;
-    explicit PersonDetailView(long long id, QWidget *parent = nullptr);
-    void populate();
+    explicit PersonDetailView(IntegerPrimaryKey id, QWidget *parent);
+
+    bool hasId(IntegerPrimaryKey id);
+
+    QString getDisplayName();
 
     ~PersonDetailView() override;
 
-Q_SIGNALS:
-    void personNameChanged(int personId, const QString& newName);
+public Q_SLOTS:
 
+    /**
+     * Populate the UI with the data from the field.
+     */
+    void populate();
+
+Q_SIGNALS:
+
+    /**
+     * Emitted when the UI has been re-populated.
+     */
+    void dataChanged(IntegerPrimaryKey id);
 
 private:
+    QAbstractProxyModel *model;
     Ui::PersonDetailView *ui;
-    QSqlRecord record;
-
-    void populateBirth();
 };
 
 #endif // PERSONDETAILVIEW_H

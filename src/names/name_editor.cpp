@@ -5,7 +5,6 @@
 #include <QDialog>
 #include <QQuickWidget>
 #include <QSqlQuery>
-#include <QDataWidgetMapper>
 #include <QMessageBox>
 #include <QSqlError>
 #include <QCompleter>
@@ -14,9 +13,8 @@
 #include <QItemEditorFactory>
 #include <QSqlRelationalDelegate>
 #include <KLocalizedString>
+
 #include "name_editor.h"
-#include "ui_name_editor.h"
-#include "names_overview_view.h"
 #include "data/names.h"
 #include "data/data_manager.h"
 #include "utils/model_utils.h"
@@ -27,7 +25,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     this->model = model;
     this->newRow = newRow;
 
-    auto *form = new Ui::NameEditorForm();
+    this->form = new Ui::NameEditorForm();
     form->setupUi(this);
 
     // Connect the buttons.
@@ -35,7 +33,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
 
     // Set up the name origin combobox.
-    auto* originCompleterModel = new NameOriginTableModel(this);
+    auto *originCompleterModel = new NameOriginTableModel(this);
     originCompleterModel->setSort(NameOriginTableModel::ORIGIN, Qt::SortOrder::AscendingOrder);
     originCompleterModel->select();
     form->origin->setModel(originCompleterModel);
@@ -46,22 +44,23 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     if (newRow) {
         this->setWindowTitle(i18n("Nieuwe naam toevoegen"));
     } else {
-        auto nameId = format_id(FormattedIdentifierDelegate::NAME, originCompleterModel->data(originCompleterModel->index(0, 0)));
+        auto nameId = format_id(FormattedIdentifierDelegate::NAME,
+                                originCompleterModel->data(originCompleterModel->index(0, 0)));
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
 
-    auto* baseModel = DataManager::getInstance(this)->namesModel();
+    auto *baseModel = DataManager::getInstance(this)->namesModel();
 
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.
     // Additionally, we want to use all last names, not just the once from the current person.
-    auto* surnameCompleter = new QCompleter(baseModel);
+    auto *surnameCompleter = new QCompleter(baseModel);
     surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
     surnameCompleter->setCompletionMode(QCompleter::PopupCompletion);
     form->surname->setCompleter(surnameCompleter);
 
-    auto* givenNameCompleter = new QCompleter(baseModel);
+    auto *givenNameCompleter = new QCompleter(baseModel);
     givenNameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     givenNameCompleter->setCompletionColumn(NamesTableModel::GIVEN_NAMES);
     givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
@@ -92,13 +91,14 @@ void NamesEditor::accept() {
         QDialog::accept();
     } else {
         // Find the original model.
-        auto* sqlModel = find_source_model_of_type<QSqlQueryModel>(this->model);
+        auto *sqlModel = find_source_model_of_type<QSqlQueryModel>(this->model);
         assert(sqlModel != nullptr);
         auto lastError = sqlModel->lastError();
         auto errorText = lastError.text();
         qWarning() << "Error was:";
         qWarning() << errorText;
-        QMessageBox::critical(this, i18n("Fout bij opslaan"), i18n("The changes could not be saved for some reason:\n") + errorText);
+        QMessageBox::critical(this, i18n("Fout bij opslaan"),
+                              i18n("The changes could not be saved for some reason:\n") + errorText);
 
         qDebug() << "Native error code is " << lastError.nativeErrorCode();
         qDebug() << "Last query is " << sqlModel->query().lastQuery();
@@ -113,4 +113,8 @@ void NamesEditor::reject() {
         this->model->removeRow(this->model->rowCount() - 1);
     }
     QDialog::reject();
+}
+
+NamesEditor::~NamesEditor() {
+    delete this->form;
 }

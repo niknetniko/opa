@@ -58,6 +58,11 @@ public:
      */
     QAbstractProxyModel *primaryNamesModel(QObject *parent);
 
+    /**
+     * Model for the details view of a person.
+     */
+     QAbstractProxyModel *personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
+
 Q_SIGNALS:
     void dataChanged(QString table);
 

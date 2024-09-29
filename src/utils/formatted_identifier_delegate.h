@@ -7,17 +7,18 @@
 
 #include <QStyledItemDelegate>
 
-QString format_id(const QString& pattern, const QVariant &id);
+QString format_id(const QString &pattern, const QVariant &id);
 
-class FormattedIdentifierDelegate: public QStyledItemDelegate {
-    Q_OBJECT
+class FormattedIdentifierDelegate : public QStyledItemDelegate {
+Q_OBJECT
+
 public:
     inline static const QString PERSON = QStringLiteral("P%1");
     inline static const QString NAME = QStringLiteral("N%1");
 
     using QStyledItemDelegate::QStyledItemDelegate;
 
-    FormattedIdentifierDelegate(QString pattern): pattern(pattern) {
+    FormattedIdentifierDelegate(QString pattern) : pattern(pattern) {
     }
 
     QString displayText(const QVariant &value, const QLocale &locale) const override;

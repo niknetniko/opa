@@ -5,6 +5,9 @@
 #include <KExtraColumnsProxyModel>
 #include <KLocalizedString>
 #include <QSqlQuery>
+#include <QSqlError>
+#include <QLibraryInfo>
+
 #include "data_manager.h"
 #include "names/names_overview_view.h"
 #include "utils/single_row_model.h"
@@ -40,14 +43,15 @@ QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, IntegerPr
 }
 
 void DataManager::onNamesTableChanged() {
-    qDebug() << "Names table has changed....";
-    Q_EMIT this->dataChanged(this->baseNamesModel->tableName());
-
     // Whe the data has changed, we need to reselect all names.
     // The reason being that the database itself can change rows with triggers.
     if (!this->baseNamesModel->isDirty()) {
+        // TODO: this causes another round of signals; could we move this to before?
         this->baseNamesModel->select();
     }
+
+    qDebug() << "Names table has changed....";
+    Q_EMIT this->dataChanged(this->baseNamesModel->tableName());
 }
 
 QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, IntegerPrimaryKey nameId) {
@@ -57,8 +61,9 @@ QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, IntegerPrimar
 }
 
 QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
-    auto query = QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root FROM people JOIN names on people.id = names.person_id WHERE (names.main = TRUE)");
-    auto * baseModel = new QSqlQueryModel(parent);
+    auto query = QStringLiteral(
+            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root FROM people JOIN names on people.id = names.person_id WHERE (names.main = TRUE)");
+    auto *baseModel = new QSqlQueryModel(parent);
 
     // TODO: do not hardcode this
     baseModel->setQuery(query);
@@ -70,20 +75,63 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     baseModel->setHeaderData(5, Qt::Horizontal, i18n("Wortel"));
 
     // We want to add a column, where the name is produced based on other columns.
-    auto combinedModel = new DisplayNameProxyModel(parent);
+    auto *combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
 
     // We want to re-arrange the columns and hide most of them.
-    auto rearrangedModel = new KRearrangeColumnsProxyModel(parent);
+    auto *rearrangedModel = new KRearrangeColumnsProxyModel(parent);
     rearrangedModel->setSourceModel(combinedModel);
     rearrangedModel->setSourceColumns(QVector<int>() << 0 << 6 << 5);
 
     // Connect the original model to changes.
-    connect(this, &DataManager::dataChanged, this, [=]( const QString &table ) {
+    connect(this, &DataManager::dataChanged, this, [baseModel, query](const QString &table) {
         if (table == Schema::People::TableName || table == Schema::Names::TableName) {
             baseModel->setQuery(query);
         }
     });
 
     return rearrangedModel;
+}
+
+QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPrimaryKey personId) {
+    auto rawQuery = QStringLiteral(
+            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex FROM people JOIN names on people.id = names.person_id WHERE names.main = TRUE AND people.id = :id");
+    QSqlQuery query;
+    query.prepare(rawQuery);
+    query.bindValue(QStringLiteral(":id"), personId);
+    query.exec();
+
+    auto *baseModel = new QSqlQueryModel(parent);
+    baseModel->setQuery(std::move(query));
+    baseModel->setHeaderData(PersonDetailModel::ID, Qt::Horizontal, i18n("Id"));
+    baseModel->setHeaderData(PersonDetailModel::TITLES, Qt::Horizontal, i18n("Titels"));
+    baseModel->setHeaderData(PersonDetailModel::GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
+    baseModel->setHeaderData(PersonDetailModel::PREFIXES, Qt::Horizontal, i18n("Voorvoegsels"));
+    baseModel->setHeaderData(PersonDetailModel::SURNAME, Qt::Horizontal, i18n("Achternaam"));
+    baseModel->setHeaderData(PersonDetailModel::ROOT, Qt::Horizontal, i18n("Wortel"));
+    baseModel->setHeaderData(PersonDetailModel::SEX, Qt::Horizontal, i18n("Geslacht"));
+
+    // We want to add a column, where the name is produced based on other columns.
+    auto *combinedModel = new DisplayNameProxyModel(parent);
+    combinedModel->setSourceModel(baseModel);
+
+    // Connect the original model to changes.
+    connect(this, &DataManager::dataChanged, baseModel, [=](const QString &table) {
+        if (table == Schema::People::TableName || table == Schema::Names::TableName) {
+            QSqlQuery newQuery;
+            newQuery.prepare(rawQuery);
+            newQuery.bindValue(QStringLiteral(":id"), personId);
+            newQuery.exec();
+            baseModel->setQuery(std::move(newQuery));
+        }
+    });
+
+    // Our QSqlQueryModel does not emit "data changed", since it is read-only.
+    // This is, however, very annoying, so we do it anyway.
+    connect(baseModel, &QAbstractItemModel::modelReset, [baseModel]() {
+        // TODO: should we properly pass an index here?
+        Q_EMIT baseModel->dataChanged(baseModel->index(0, 0), baseModel->index(0, 0));
+    });
+
+    return combinedModel;
 }

@@ -5,28 +5,28 @@
 
 QString Data::Person::Sex::toDisplay(const QString &sex) {
     if (sex == Person::Sex::MALE) {
-        return i18n("Male");
+        return i18n("Man");
     }
     if (sex == Person::Sex::FEMALE) {
-        return i18n("Female");
+        return i18n("Vrouw");
     }
     if (sex == Person::Sex::UNKNOWN) {
-        return i18n("Unknown");
+        return i18n("Onbekend");
     }
     return sex;
 }
 
 QString Data::Person::Sex::toIcon(const QString &sex) {
     if (sex == Person::Sex::MALE) {
-        return QString::fromUtf8("♂");
+        return QStringLiteral("♂");
     }
     if (sex == Person::Sex::FEMALE) {
-        return QString::fromUtf8("♀");
+        return QStringLiteral("♀");
     }
     if (sex == Person::Sex::UNKNOWN) {
-        return QString::fromUtf8("?");
+        return QStringLiteral("?");
     }
-    return QString::fromUtf8("⚥");
+    return QStringLiteral("⚥");
 }
 
 QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex &parent, int row, int extraColumn, int role) const {
