@@ -38,6 +38,8 @@ private:
     QAbstractItemModel *baseModel;
     IntegerPrimaryKey personId;
 
+    void moveSelectedNameToPosition(int from, int to);
+
 public Q_SLOTS:
     void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
     void handleDoubleClick(const QModelIndex& clicked);
@@ -54,12 +56,25 @@ public Q_SLOTS:
      * Remove the currently selected name.
      */
     void removeSelectedName();
+    /**
+     * Move the selected name down one row.
+     */
+    void moveSelectedNameDown();
+    /**
+     * Move the selected name up one row.
+     */
+    void moveSelectedNameUp();
 
 Q_SIGNALS:
     /**
      * Called when a person is selected by the user.
      */
     void selectedName(const QAbstractItemModel *model, const QItemSelection &selected);
+
+    /**
+     * Called when the sorting in the UI changes.
+     */
+    void sortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int sortIndex);
 };
 
 #endif //OPA_NAMES_OVERVIEW_VIEW_H

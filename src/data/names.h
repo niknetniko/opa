@@ -19,7 +19,7 @@ Q_OBJECT
 public:
     static const int ID = 0;
     static const int PERSON_ID = 1;
-    static const int MAIN = 2;
+    static const int SORT = 2;
     static const int TITLES = 3;
     static const int GIVEN_NAMES = 4;
     static const int PREFIX = 5;

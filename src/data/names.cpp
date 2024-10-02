@@ -20,12 +20,14 @@ NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(par
     // Set the correct headers.
     this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     this->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
-    this->setHeaderData(MAIN, Qt::Horizontal, i18n("Primair"));
+    this->setHeaderData(SORT, Qt::Horizontal, i18n("Volgorde"));
     this->setHeaderData(TITLES, Qt::Horizontal, i18n("Titels"));
     this->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
     this->setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
     this->setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
     this->setHeaderData(ORIGIN_ID, Qt::Horizontal, i18n("Oorsprong"));
+
+    this->setSort(SORT, Qt::SortOrder::AscendingOrder);
 }
 
 NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(parent) {

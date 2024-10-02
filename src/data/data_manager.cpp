@@ -31,17 +31,20 @@ DataManager::DataManager(QObject *parent) : QObject(parent) {
     connect(baseNamesModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNamesTableChanged);
     connect(baseNamesModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNamesTableChanged);
     connect(baseNamesModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNamesTableChanged);
+    connect(baseNamesModel, &QAbstractItemModel::modelReset, this, &DataManager::onNamesTableChanged);
     // Connect the other model.
     auto *baseNamesRelationModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN_ID);
     connect(baseNamesRelationModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNameOriginsTableChanged);
     connect(baseNamesRelationModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNameOriginsTableChanged);
     connect(baseNamesRelationModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNameOriginsTableChanged);
+    connect(baseNamesRelationModel, &QAbstractItemModel::modelReset, this, &DataManager::onNameOriginsTableChanged);
 
     this->baseNameOriginModel = new NameOriginTableModel(this);
     baseNameOriginModel->select();
     connect(baseNameOriginModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNameOriginsTableChanged);
     connect(baseNameOriginModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNameOriginsTableChanged);
     connect(baseNameOriginModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNameOriginsTableChanged);
+    connect(baseNameOriginModel, &QAbstractItemModel::modelReset, this, &DataManager::onNameOriginsTableChanged);
 }
 
 QSqlTableModel *DataManager::namesModel() const {
@@ -55,18 +58,12 @@ QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, IntegerPr
 }
 
 void DataManager::onNamesTableChanged() {
-    // Whe the data has changed, we need to reselect all names.
-    // The reason being that the database itself can change rows with triggers.
-    if (!this->baseNamesModel->isDirty()) {
-        // TODO: this causes another round of signals; could we move this to before?
-        this->baseNamesModel->select();
-    }
-
     qDebug() << "Names table has changed....";
     Q_EMIT this->dataChanged(this->baseNamesModel->tableName());
 }
 
 QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, IntegerPrimaryKey nameId) {
+    qDebug() << "Creating single model where the ID is " << nameId << " on column " << NamesTableModel::ID;
     auto *proxy = new CellFilteredProxyModel(parent, nameId, NamesTableModel::ID);
     proxy->setSourceModel(this->namesModel());
     return proxy;
@@ -74,7 +71,11 @@ QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, IntegerPrimar
 
 QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     auto query = QStringLiteral(
-            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root FROM people JOIN names on people.id = names.person_id WHERE (names.main = TRUE)");
+            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root "
+            "FROM people "
+            "JOIN names on people.id = names.person_id "
+            "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)"
+    );
     auto *baseModel = new QSqlQueryModel(parent);
 
     // These positions are hardcoded from the query above.
@@ -85,6 +86,7 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     baseModel->setHeaderData(3, Qt::Horizontal, i18n("Voorvoegsels"));
     baseModel->setHeaderData(4, Qt::Horizontal, i18n("Achternaam"));
     baseModel->setHeaderData(5, Qt::Horizontal, i18n("Wortel"));
+    qDebug() << "PRIMARY OK OK";
 
     // We want to add a column, where the name is produced based on other columns.
     auto *combinedModel = new DisplayNameProxyModel(parent);
@@ -107,11 +109,16 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
 
 QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
-            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex FROM people JOIN names on people.id = names.person_id WHERE names.main = TRUE AND people.id = :id");
+            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex "
+            "FROM people "
+            "JOIN names on people.id = names.person_id "
+            "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) AND people.id = :id"
+    );
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);
     query.exec();
+    qDebug() << "DETAILS OK";
 
     auto *baseModel = new QSqlQueryModel(parent);
     baseModel->setQuery(std::move(query));

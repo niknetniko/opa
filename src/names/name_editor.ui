@@ -83,13 +83,6 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="primaryName">
-        <property name="text">
-         <string>Primaire naam</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>

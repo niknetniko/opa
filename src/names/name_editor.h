@@ -11,6 +11,7 @@
 
 #include "names_overview_view.h"
 #include "ui_name_editor.h"
+#include "utils/proxy_enabled_relational_delegate.h"
 
 /**
  * Editor for names.

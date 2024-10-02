@@ -15,7 +15,7 @@ CREATE TABLE names
 (
     id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     person_id   INTEGER NOT NULL,
-    main        BOOLEAN NOT NULL,
+    sort        INTEGER NOT NULL,
     titles      TEXT,
     given_names TEXT,
     prefix      TEXT,
@@ -24,30 +24,6 @@ CREATE TABLE names
     FOREIGN KEY (person_id) REFERENCES people (id),
     FOREIGN KEY (origin_id) REFERENCES name_origins (id)
 );
-
--- Manage this in the database.
-CREATE TRIGGER ensure_single_primary_name_insert
-    BEFORE INSERT
-    ON names
-    WHEN NEW.main = TRUE
-BEGIN
-    UPDATE names
-    SET main = FALSE
-    WHERE person_id = NEW.person_id
-      AND main = TRUE;
-END;
-
-CREATE TRIGGER ensure_single_primary_name_update
-    BEFORE UPDATE
-    ON names
-    WHEN NEW.main = TRUE
-BEGIN
-    UPDATE names
-    SET main = FALSE
-    WHERE person_id = NEW.person_id
-      AND MAIN = TRUE
-      AND id != NEW.id;
-END;
 
 CREATE TABLE IF NOT EXISTS events
 (

@@ -37,6 +37,7 @@
                 qt6.qtbase
                 qt6.qtwayland
                 qt6.qtdeclarative
+                clazy
 
                 kdePackages.breeze-icons
                 kdePackages.breeze

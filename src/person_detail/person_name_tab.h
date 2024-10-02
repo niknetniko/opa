@@ -17,11 +17,14 @@ public:
 
 public Q_SLOTS:
     void onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected);
+    void onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex);
 
 private:
     QAction* addAction;
     QAction* removeAction;
     QAction* editAction;
+    QAction* upAction;
+    QAction* downAction;
 };
 
 #endif //OPA_PERSON_NAME_TAB_H

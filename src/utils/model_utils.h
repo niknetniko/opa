@@ -14,18 +14,24 @@
  * @return The model pointer or nullptr if there is none.
  */
 template<class T>
-const T *find_source_model_of_type(const QAbstractProxyModel *model) {
-    const QAbstractItemModel *potential_model;
-    // The first iteration is always possible.
-    do {
-        potential_model = model->sourceModel();
+const T *find_source_model_of_type(const QAbstractItemModel *model) {
+    // A special case: if this is the model we search, just return it.
+    const T *secondCast = qobject_cast<const T *>(model);
+    if (secondCast != nullptr) {
+        return secondCast;
+    }
+
+    // Else, start going down the path.
+    const QAbstractItemModel *potentialModel = model;
+    const QAbstractProxyModel *proxyModel;
+    while ((proxyModel = qobject_cast<const QAbstractProxyModel *>(potentialModel)) != nullptr) {
+        potentialModel = proxyModel->sourceModel();
         // If this is the type we search, stop now.
-        const T* second_cast = qobject_cast<const T*>(potential_model);
-        if (second_cast != nullptr) {
-            return second_cast;
+        secondCast = qobject_cast<const T *>(potentialModel);
+        if (secondCast != nullptr) {
+            return secondCast;
         }
-        // Else continue while we are in a proxy model.
-    } while (qobject_cast<const QAbstractProxyModel *>(model) != nullptr);
+    }
 
     // We have not found anything.
     return nullptr;

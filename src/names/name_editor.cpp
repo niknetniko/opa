@@ -66,11 +66,6 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
     form->givenNames->setCompleter(surnameCompleter);
 
-    auto isMain = this->model->data(this->model->index(0, NamesTableModel::MAIN)).toBool();
-    if (isMain) {
-        form->primaryName->setEnabled(false);
-    }
-
     // Map the data from the database to the form.
     this->mapper = new QDataWidgetMapper(this);
     mapper->setModel(this->model);
@@ -80,13 +75,20 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->origin, NamesTableModel::ORIGIN_ID);
-    mapper->addMapping(form->primaryName, NamesTableModel::MAIN);
     mapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     mapper->toFirst();
+
+    qDebug() << "Current index is now " << mapper->currentIndex();
+
+    connect(mapper, &QDataWidgetMapper::currentIndexChanged, this, [](int index) {
+        qDebug() << "DataMapper index changed to " << index;
+    });
 }
 
 void NamesEditor::accept() {
     // Attempt to submit the mapper changes.
+    qDebug() << "Current index is " << this->mapper->currentIndex();
+    qDebug() << "Is the current index valid? " << this->model->index(this->mapper->currentIndex(), 0).isValid();
     if (this->mapper->submit()) {
         // We are done.
         QDialog::accept();
@@ -96,8 +98,8 @@ void NamesEditor::accept() {
         assert(sqlModel != nullptr);
         auto lastError = sqlModel->lastError();
         auto errorText = lastError.text();
-        qWarning() << "Error was:";
-        qWarning() << errorText;
+        qWarning() << "Error was:" << errorText;
+        qDebug() << "Raw error: " << lastError;
         QMessageBox::critical(this, i18n("Fout bij opslaan"),
                               i18n("The changes could not be saved for some reason:\n") + errorText);
 

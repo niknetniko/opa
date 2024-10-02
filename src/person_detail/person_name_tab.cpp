@@ -30,6 +30,18 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     this->removeAction->setEnabled(false);
     nameToolbar->addAction(this->removeAction);
 
+    this->upAction = new QAction(nameToolbar);
+    this->upAction->setText(i18n("Omhoog"));
+    this->upAction->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
+    this->upAction->setEnabled(false);
+    nameToolbar->addAction(this->upAction);
+
+    this->downAction = new QAction(nameToolbar);
+    this->downAction->setText(i18n("Omlaag"));
+    this->downAction->setIcon(QIcon::fromTheme(QStringLiteral("go-down")));
+    this->downAction->setEnabled(false);
+    nameToolbar->addAction(this->downAction);
+
     // Create a table.
     auto *nameTableView = new NamesOverviewView(person, this);
 
@@ -44,25 +56,49 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     connect(this->addAction, &QAction::triggered, nameTableView, &NamesOverviewView::handleNewName);
     // Listen to when a name is selected, to enable or disable some buttons.
     connect(nameTableView, &NamesOverviewView::selectedName, this, &PersonNameTab::onNameSelected);
+    // Listen to when the sort changes and allow re-ordering or not.
+    connect(nameTableView, &NamesOverviewView::sortChanged, this, &PersonNameTab::onSortChanged);
     // Allow editing a name.
     connect(this->editAction, &QAction::triggered, nameTableView, &NamesOverviewView::editSelectedName);
     // Allow deleting a name.
     connect(this->removeAction, &QAction::triggered, nameTableView, &NamesOverviewView::removeSelectedName);
+
+    connect(this->upAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameUp);
+    connect(this->downAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameDown);
 }
 
 void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) {
     if (selected.isEmpty()) {
         this->editAction->setEnabled(false);
         this->removeAction->setEnabled(false);
+        this->downAction->setEnabled(false);
+        this->upAction->setEnabled(false);
         return;
     }
 
     this->editAction->setEnabled(true);
 
-    // We do not allow removal of the main name.
-    // The MAIN column is the second one.
-    // TODO: do not hardcode this.
-    auto primaryNameIndex = model->index(selected.indexes().first().row(), 1);
-    auto isPrimaryName = model->data(primaryNameIndex).toBool();
-    this->removeAction->setEnabled(!isPrimaryName);
+    int nameSort = model->index(selected.indexes().first().row(), 1).data().toInt();
+    int rowCount = model->rowCount();
+
+    // Do not allow removal of the main name.
+    this->removeAction->setEnabled(nameSort != 1);
+    // Do not allow moving the first name up.
+    this->upAction->setEnabled(nameSort > 1 && rowCount > 1);
+    // Do not allow moving the last name down.
+    this->downAction->setEnabled(nameSort < model->rowCount() && rowCount > 1);
+}
+
+void PersonNameTab::onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex) {
+    // Check if there is currently a selected item.
+    if (selected.isEmpty()) {
+        // Leave everything alone as it was.
+        // The relevant actions should already be disabled.
+        return;
+    }
+
+    bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
+    // Only allow up and down if the view is not sorted or sorted on the second column.
+    this->upAction->setEnabled(this->upAction->isEnabled() && allowUpAndDown);
+    this->downAction->setEnabled(this->downAction->isEnabled() && allowUpAndDown);
 }

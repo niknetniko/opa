@@ -26,7 +26,7 @@ namespace Schema {
         const QString prefix = QString::fromUtf8("prefix");
         const QString surname = QString::fromUtf8("surname");
         const QString origin = QString::fromUtf8("origin");
-        const QString main = QString::fromUtf8("main");
+        const QString sort = QString::fromUtf8("sort");
     }
 
     namespace NameOrigins {
