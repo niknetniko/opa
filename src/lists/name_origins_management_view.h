@@ -6,12 +6,23 @@
 #define OPA_NAME_ORIGINS_MANAGEMENT_VIEW_H
 
 #include <QWidget>
+#include <QSqlTableModel>
 
 class NameOriginsManagementWindow: public QWidget {
 Q_OBJECT
 
 public:
     explicit NameOriginsManagementWindow(QWidget *parent);
+
+public Q_SLOTS:
+
+    void addOrigin();
+    void removeOrigin();
+    void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+
+private:
+    QSqlTableModel* model;
+    QAction* removeAction;
 
 };
 

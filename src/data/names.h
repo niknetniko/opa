@@ -37,6 +37,8 @@ public:
     static const int ORIGIN = 1;
 
     explicit NameOriginTableModel(QObject *parent = nullptr);
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 };
 
 #endif //OPA_DATA_NAMES_H

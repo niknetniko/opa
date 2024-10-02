@@ -36,3 +36,11 @@ NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(par
     this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     this->setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
 }
+
+Qt::ItemFlags NameOriginTableModel::flags(const QModelIndex &index) const {
+    auto flags = QSqlTableModel::flags(index);
+    if (index.column() == NameOriginTableModel::ID) {
+        flags = flags & ~Qt::ItemIsEditable;
+    }
+    return flags;
+}
