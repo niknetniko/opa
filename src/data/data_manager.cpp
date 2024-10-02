@@ -86,7 +86,6 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     baseModel->setHeaderData(3, Qt::Horizontal, i18n("Voorvoegsels"));
     baseModel->setHeaderData(4, Qt::Horizontal, i18n("Achternaam"));
     baseModel->setHeaderData(5, Qt::Horizontal, i18n("Wortel"));
-    qDebug() << "PRIMARY OK OK";
 
     // We want to add a column, where the name is produced based on other columns.
     auto *combinedModel = new DisplayNameProxyModel(parent);

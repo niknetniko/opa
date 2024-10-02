@@ -6,6 +6,7 @@ set(QT_MIN_VERSION "6.0.0")
 set(KF_MIN_VERSION "6.3.0")
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_BUILD_TYPE Debug)
@@ -37,9 +38,6 @@ find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS
 )
 
 find_package(SQLite3)
-
-find_package (SQLite3)
-
 include_directories(${SQLite3_INCLUDE_DIRS})
 
 kde_enable_exceptions()

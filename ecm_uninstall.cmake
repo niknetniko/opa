@@ -7,10 +7,9 @@ string(REGEX REPLACE "\n" ";" files "${files}")
 foreach(file ${files})
     message(STATUS "Uninstalling $ENV{DESTDIR}${file}")
     if(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
-        exec_program(
-            "/nix/store/xjg2fzw513iig1cghd4mvcq5fh2cyv4y-cmake-3.24.0/bin/cmake" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
-            OUTPUT_VARIABLE rm_out
-            RETURN_VALUE rm_retval
+        execute_process(
+            COMMAND "/nix/store/yzi080r2c1zn2jzrhcfdv7dmr92yw07l-cmake-3.29.6/bin/cmake" -E remove "$ENV{DESTDIR}${file}"
+            RESULT_VARIABLE rm_retval
             )
         if(NOT "${rm_retval}" STREQUAL 0)
             message(FATAL_ERROR "Problem when removing $ENV{DESTDIR}${file}")

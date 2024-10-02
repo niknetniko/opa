@@ -1,8 +1,7 @@
-add_executable(opa main.cpp resources.qrc
-        names/name_editor.ui
-)
+add_executable(opa)
 
 target_sources(opa PRIVATE
+        main.cpp
         main/main_window.cpp
         database/database.cpp
         database/schema.h
@@ -22,6 +21,7 @@ target_sources(opa PRIVATE
         utils/model_utils.cpp
         person_detail/person_name_tab.cpp
         utils/proxy_enabled_relational_delegate.cpp
+        lists/name_origins_management_view.cpp
 )
 
 ecm_qt_declare_logging_category(opa
@@ -55,7 +55,9 @@ target_link_libraries(opa
         ${SQLite3_LIBRARIES}
 )
 
+qt_add_resources(opa resources.qrc)
+
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES org.example.opa.appdata.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
-install(FILES opaui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/opa)
+install(FILES opaui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/opa)

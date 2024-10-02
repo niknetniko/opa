@@ -15,11 +15,9 @@
 #include "data/person.h"
 #include "utils/formatted_identifier_delegate.h"
 
-PeopleOverviewView::PeopleOverviewView(QWidget *parent): QWidget(parent) {
+PeopleOverviewView::PeopleOverviewView(QWidget *parent) : QWidget(parent) {
 
     auto *baseModel = DataManager::getInstance(this)->primaryNamesModel(this);
-
-    qDebug() << "OK";
 
     // Create a searchable model.
     auto filtered = new QSortFilterProxyModel(this);
@@ -27,7 +25,7 @@ PeopleOverviewView::PeopleOverviewView(QWidget *parent): QWidget(parent) {
     filtered->setFilterKeyColumn(DisplayNameModel::NAME);
     filtered->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    auto* searchBox = new QLineEdit(this);
+    auto *searchBox = new QLineEdit(this);
     searchBox->setPlaceholderText(i18n("Zoeken..."));
     searchBox->setClearButtonEnabled(true);
 
@@ -46,10 +44,11 @@ PeopleOverviewView::PeopleOverviewView(QWidget *parent): QWidget(parent) {
     tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::NAME, QHeaderView::Stretch);
     tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ROOT, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setHighlightSections(false);
-    tableView->setItemDelegateForColumn(DisplayNameModel::ID, new FormattedIdentifierDelegate(FormattedIdentifierDelegate::PERSON));
+    tableView->setItemDelegateForColumn(DisplayNameModel::ID,
+                                        new FormattedIdentifierDelegate(FormattedIdentifierDelegate::PERSON));
 
     // Wrap in a VBOX for layout reasons.
-    auto* layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     layout->addWidget(searchBox);
     layout->addWidget(tableView);
 
@@ -65,7 +64,8 @@ void PeopleOverviewView::handleSelectedNewRow(const QItemSelection &selected) {
     }
 
     // Get the ID of the person we want.
-    auto personId = this->tableView->model()->index(selected.indexes().first().row(), DisplayNameModel::ID).data().toLongLong();
+    auto personId = this->tableView->model()->index(selected.indexes().first().row(),
+                                                    DisplayNameModel::ID).data().toLongLong();
 
     Q_EMIT handlePersonSelected(personId);
 }

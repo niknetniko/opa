@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
 
     // Do start-up
-    open_database(QString::fromUtf8("./test.db"));
+    open_database(QStringLiteral("./test.db"));
 
     auto *window = new MainWindow;
     window->show();

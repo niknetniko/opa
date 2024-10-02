@@ -10,6 +10,7 @@
 #include "opadebug.h"
 #include "people_overview_view.h"
 #include "person_detail/person_detail_view.h"
+#include "lists/name_origins_management_view.h"
 
 // KF headers
 #include <KActionCollection>
@@ -37,7 +38,13 @@ MainWindow::MainWindow() : KXmlGuiWindow() {
     // Connect stuff.
     connect(tableView, &PeopleOverviewView::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
 
+    // Menu actions.
+    auto *manageNameOrigins = new QAction(this);
+    manageNameOrigins->setText(i18n("Naamoorsprongen beheren"));
+    connect(manageNameOrigins, &QAction::triggered, this, &MainWindow::openNameOriginManager);
+
     KActionCollection *actionCollection = this->actionCollection();
+    actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins);
     KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);
     KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
     KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
@@ -120,4 +127,9 @@ int MainWindow::findTabFor(IntegerPrimaryKey personId) {
         }
     }
     return -1;
+}
+
+void MainWindow::openNameOriginManager() {
+    auto* window = new NameOriginsManagementWindow(this);
+    window->show();
 }
