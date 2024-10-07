@@ -18,6 +18,7 @@ public Q_SLOTS:
 
     void addOrigin();
     void removeOrigin();
+    void repairOrigins();
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:

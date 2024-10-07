@@ -36,10 +36,10 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     // Set up the name origin combobox.
     // TODO: extract this into another function maybe?
     auto *rootModel = find_source_model_of_type<QSqlRelationalTableModel>(model);
-    QSqlTableModel *childModel = rootModel->relationModel(NamesTableModel::ORIGIN_ID);
+    QSqlTableModel *childModel = rootModel->relationModel(NamesTableModel::ORIGIN);
     form->origin->setEditable(true);
     form->origin->setModel(childModel);
-    form->origin->setModelColumn(childModel->fieldIndex(rootModel->relation(NamesTableModel::ORIGIN_ID).displayColumn()));
+    form->origin->setModelColumn(childModel->fieldIndex(rootModel->relation(NamesTableModel::ORIGIN).displayColumn()));
 
     // Get the ID of the current name, if not new.
     if (newRow) {
@@ -74,7 +74,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     mapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
-    mapper->addMapping(form->origin, NamesTableModel::ORIGIN_ID);
+    mapper->addMapping(form->origin, NamesTableModel::ORIGIN);
     mapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     mapper->toFirst();
 

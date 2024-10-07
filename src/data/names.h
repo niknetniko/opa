@@ -24,7 +24,7 @@ public:
     static const int GIVEN_NAMES = 4;
     static const int PREFIX = 5;
     static const int SURNAME = 6;
-    static const int ORIGIN_ID = 7;
+    static const int ORIGIN = 7;
 
     explicit NamesTableModel(QObject *parent = nullptr);
 };

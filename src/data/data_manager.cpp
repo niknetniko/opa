@@ -25,6 +25,8 @@ DataManager *DataManager::getInstance(QObject *parent) {
 
 DataManager::DataManager(QObject *parent) : QObject(parent) {
     this->baseNamesModel = new NamesTableModel(this);
+    this->baseNameOriginModel = new NameOriginTableModel(this);
+
     baseNamesModel->select();
     // TODO: reduce the number of unnecessary signals here
     // Connect the base model.
@@ -32,19 +34,55 @@ DataManager::DataManager(QObject *parent) : QObject(parent) {
     connect(baseNamesModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNamesTableChanged);
     connect(baseNamesModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNamesTableChanged);
     connect(baseNamesModel, &QAbstractItemModel::modelReset, this, &DataManager::onNamesTableChanged);
-    // Connect the other model.
-    auto *baseNamesRelationModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN_ID);
-    connect(baseNamesRelationModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNameOriginsTableChanged);
-    connect(baseNamesRelationModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNameOriginsTableChanged);
-    connect(baseNamesRelationModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNameOriginsTableChanged);
-    connect(baseNamesRelationModel, &QAbstractItemModel::modelReset, this, &DataManager::onNameOriginsTableChanged);
 
-    this->baseNameOriginModel = new NameOriginTableModel(this);
+    // Connect the other model.
+    auto *baseNamesRelationModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN);
+    // This updater is triggered when the base origin model is updated.
+    auto relationalListener = [this]() {
+        // If we are already updating the origin table, e.g. from the other model,
+        // do not propagate this update any further to prevent loops.
+        if (updatingNameOrigin) {
+            qDebug() << "Already updating so skipping update of base model.";
+            return;
+        }
+
+        qDebug() << "Doing base model.";
+
+        updatingNameOrigin = true;
+        // Update the other model.
+        baseNameOriginModel->select();
+        this->onNameOriginsTableChanged();
+        // Done.
+        updatingNameOrigin = false;
+    };
+    connect(baseNamesRelationModel, &QAbstractItemModel::dataChanged, this, relationalListener);
+    connect(baseNamesRelationModel, &QAbstractItemModel::rowsInserted, this, relationalListener);
+    connect(baseNamesRelationModel, &QAbstractItemModel::rowsRemoved, this, relationalListener);
+    connect(baseNamesRelationModel, &QAbstractItemModel::modelReset, this, relationalListener);
+//    connect(this, &DataManager::dataChanged, baseNameOriginModel, baseModelUpdater);
+
     baseNameOriginModel->select();
-    connect(baseNameOriginModel, &QAbstractItemModel::dataChanged, this, &DataManager::onNameOriginsTableChanged);
-    connect(baseNameOriginModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onNameOriginsTableChanged);
-    connect(baseNameOriginModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onNameOriginsTableChanged);
-    connect(baseNameOriginModel, &QAbstractItemModel::modelReset, this, &DataManager::onNameOriginsTableChanged);
+    auto baseModelListener = [this, baseNamesRelationModel]() {
+        // If we are already updating the origin table, e.g. from the other model,
+        // do not propagate this update any further to prevent loops.
+        if (updatingNameOrigin) {
+            qDebug() << "Already updating so skipping update of relational model.";
+            return;
+        }
+
+        qDebug() << "Doing relational model.";
+
+        updatingNameOrigin = true;
+        // Update the other model.
+        baseNamesModel->select();
+        this->onNameOriginsTableChanged();
+        // Done.
+        updatingNameOrigin = false;
+    };
+    connect(baseNameOriginModel, &QAbstractItemModel::dataChanged, this, baseModelListener);
+    connect(baseNameOriginModel, &QAbstractItemModel::rowsInserted, this, baseModelListener);
+    connect(baseNameOriginModel, &QAbstractItemModel::rowsRemoved, this, baseModelListener);
+    connect(baseNameOriginModel, &QAbstractItemModel::modelReset, this, baseModelListener);
 }
 
 QSqlTableModel *DataManager::namesModel() const {

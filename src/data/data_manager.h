@@ -74,6 +74,8 @@ public Q_SLOTS:
 private:
     explicit DataManager(QObject *parent);
 
+    bool updatingNameOrigin = false;
+
     static DataManager *instance;
 
     QSqlRelationalTableModel * baseNamesModel;

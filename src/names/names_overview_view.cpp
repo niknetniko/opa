@@ -51,7 +51,7 @@ NamesOverviewView::NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent
                                                    NamesTableModel::GIVEN_NAMES,
                                                    NamesTableModel::PREFIX,
                                                    NamesTableModel::SURNAME,
-                                                   NamesTableModel::ORIGIN_ID
+                                                   NamesTableModel::ORIGIN
                                            });
 
     // We want to filter and sort.

@@ -8,7 +8,7 @@
 
 NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(parent) {
     this->setTable(Schema::Names::TableName);
-    this->setRelation(NamesTableModel::ORIGIN_ID,
+    this->setRelation(NamesTableModel::ORIGIN,
                       QSqlRelation(
                               Schema::NameOrigins::TableName,
                               Schema::NameOrigins::id,
@@ -25,7 +25,7 @@ NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(par
     this->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
     this->setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
     this->setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
-    this->setHeaderData(ORIGIN_ID, Qt::Horizontal, i18n("Oorsprong"));
+    this->setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
 
     this->setSort(SORT, Qt::SortOrder::AscendingOrder);
 }

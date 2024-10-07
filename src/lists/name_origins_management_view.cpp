@@ -9,11 +9,13 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QSqlRecord>
+#include <QMessageBox>
+#include <QProgressDialog>
 #include "name_origins_management_view.h"
 #include "data/data_manager.h"
 #include "data/names.h"
 
-NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent): QWidget(parent, Qt::Window) {
+NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     this->setWindowTitle(i18n("Beheer naamoorsprongen"));
 
     // Create a toolbar.
@@ -34,6 +36,7 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent): QWidg
     removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
     removeAction->setEnabled(false);
     nameToolbar->addAction(removeAction);
+    connect(removeAction, &QAction::triggered, this, &NameOriginsManagementWindow::removeOrigin);
 
     auto repairAction = new QAction(nameToolbar);
     repairAction->setText(i18n("Opschonen"));
@@ -41,13 +44,14 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent): QWidg
     repairAction->setIcon(QIcon::fromTheme(QStringLiteral("tools-wizard")));
     repairAction->setEnabled(true);
     nameToolbar->addAction(repairAction);
+    connect(repairAction, &QAction::triggered, this, &NameOriginsManagementWindow::repairOrigins);
 
     this->model = DataManager::getInstance(this)->nameOriginsModel();
     // We want to filter and sort.
     auto *filterProxyModel = new QSortFilterProxyModel(this);
     filterProxyModel->setSourceModel(model);
 
-    auto* tableView = new QTableView(this);
+    auto *tableView = new QTableView(this);
     tableView->setModel(filterProxyModel);
     tableView->setSortingEnabled(true);
     tableView->sortByColumn(NameOriginTableModel::ID, Qt::AscendingOrder);
@@ -93,10 +97,10 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
     qDebug() << "Checking name with id " << id << " for usage";
 
     // TODO: this is not very efficient
-    auto* nameModel = DataManager::getInstance(this)->namesModel();
+    auto *nameModel = DataManager::getInstance(this)->namesModel();
     bool isUsedByNames = false;
-    for(int r = 0; r < nameModel->rowCount(); ++r) {
-        auto usedOrigin = nameModel->index(r, NamesTableModel::ORIGIN_ID).data();
+    for (int r = 0; r < nameModel->rowCount(); ++r) {
+        auto usedOrigin = nameModel->index(r, NamesTableModel::ORIGIN).data();
         qDebug() << "Name at row " << r << " uses origin " << usedOrigin;
         if (usedOrigin == id) {
             isUsedByNames = true;
@@ -108,6 +112,119 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
 }
 
 void NameOriginsManagementWindow::removeOrigin() {
+}
 
+void NameOriginsManagementWindow::repairOrigins() {
+    QMessageBox messageBox(this);
+    messageBox.setIcon(QMessageBox::Question);
+    messageBox.setText(i18n("Naamoorsprongen opruimen?"));
+    messageBox.setInformativeText(
+            i18n("Dit zal dubbele oorsprongen samenvoegen en lege oorsprongen verwijderen. Wilt u doorgaan?"));
+    messageBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    messageBox.setDefaultButton(QMessageBox::Ok);
 
+    auto anameModel = DataManager::getInstance(this)->namesModel();
+    auto aindex = anameModel->index(0, NamesTableModel::ORIGIN).data();
+    auto aindex2 = anameModel->index(0, NamesTableModel::ORIGIN).data(Qt::EditRole);
+    qDebug() << "Data DISPLAY is " << aindex;
+    qDebug() << "Data EDIT is " << aindex2;
+
+    if (messageBox.exec() == QMessageBox::Cancel) {
+        return;
+    }
+
+    // This is a blocking operation but should not take that long.
+    QProgressDialog progress(i18n("Oorsprongen opschonen..."), QString(), 0, 4, this);
+    progress.setModal(true);
+    progress.setValue(0);
+
+    // Trim all origins.
+    for (int r = 0; r < this->model->rowCount(); ++r) {
+        auto index = this->model->index(r, NameOriginTableModel::ORIGIN);
+        auto trimmed = index.data().toString().simplified();
+        auto lowered = trimmed.toLower();
+        if (!lowered.isEmpty()) {
+            lowered[0] = lowered[0].toTitleCase();
+        }
+
+        qDebug() << "Trimmed origin " << lowered;
+        this->model->setData(index, lowered);
+    }
+    // Refresh the model for certainty.
+    // TODO: look at this again so this is not needed.
+    auto nameModel = DataManager::getInstance(this)->namesModel();
+    nameModel->select();
+
+    progress.setValue(1);
+
+    // Determine duplicates
+    QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
+    for (int r = 0; r < this->model->rowCount(); ++r) {
+        auto index = this->model->index(r, NameOriginTableModel::ID).data().toLongLong();
+        auto value = this->model->index(r, NameOriginTableModel::ORIGIN).data().toString();
+        valueToIds[value].append(index);
+    }
+    qDebug() << "Duplicates are  " << valueToIds;
+    progress.setValue(2);
+
+    // Find the rows we need to delete and remove pointers.
+    // Unfortunately, there is no way to update the ID?
+    // Find if there are empty origins.
+    for (int r = 0; r < nameModel->rowCount(); ++r) {
+        auto index = nameModel->index(r, NamesTableModel::ORIGIN);
+
+        qDebug() << "Considering name " << nameModel->index(r, NamesTableModel::ID).data();
+        qDebug() << "  data is " << index.data().toString();
+
+        // If the model is empty, stop it now.
+        if (!index.isValid() || index.data().toString().isEmpty()) {
+            qDebug() << "  has empty origin, so unset the table";
+            nameModel->setData(index, QString());
+            continue;
+        }
+
+        auto originInModel = index.data().toString();
+        auto idsForThisOrigin = valueToIds[originInModel];
+
+        // If there are no duplicates, we do not need to update anything.
+        if (idsForThisOrigin.length() == 1) {
+            qDebug() << "  has origin without duplicates";
+            continue;
+        }
+
+        // Update the name to point to the first origin.
+        // We assume they are ordered.
+        // TODO: is that actually the case?
+        qDebug() << "  has duplicated origin in " << idsForThisOrigin;
+        auto keepId = idsForThisOrigin.first();
+        qDebug() << "   will keep " << keepId;
+        nameModel->setData(index, keepId);
+    }
+    progress.setValue(2);
+
+    // Determine the list of removals.
+    QSet<IntegerPrimaryKey> toRemove;
+    for (auto i = valueToIds.begin(); i != valueToIds.end(); ++i) {
+        // Always add the empty origins.
+        if (i.key() == QString()) {
+            toRemove.unite(QSet(i.value().begin(), i.value().end()));
+            continue;
+        }
+        // There is only one, so this is OK.
+        if (i.value().length() == 1) {
+            continue;
+        }
+        toRemove.unite(QSet(std::next(i.value().begin()), i.value().end()));
+    }
+    progress.setValue(3);
+
+    // Finally, remove the rows that are in the set.
+    for (int r = this->model->rowCount() - 1; r >= 0; r--) {
+        auto id = this->model->index(r, NameOriginTableModel::ID).data().toLongLong();
+        if (toRemove.contains(id)) {
+            qDebug() << "Will remove row " << r << " with ID " << id;
+            this->model->removeRow(r);
+        }
+    }
+    progress.setValue(4);
 }
