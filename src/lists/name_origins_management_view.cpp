@@ -150,10 +150,11 @@ void NameOriginsManagementWindow::repairOrigins() {
         qDebug() << "Trimmed origin " << lowered;
         this->model->setData(index, lowered);
     }
+    this->model->submitAll();
     // Refresh the model for certainty.
     // TODO: look at this again so this is not needed.
     auto nameModel = DataManager::getInstance(this)->namesModel();
-    nameModel->select();
+//    nameModel->select();
 
     progress.setValue(1);
 
@@ -164,7 +165,7 @@ void NameOriginsManagementWindow::repairOrigins() {
         auto value = this->model->index(r, NameOriginTableModel::ORIGIN).data().toString();
         valueToIds[value].append(index);
     }
-    qDebug() << "Duplicates are  " << valueToIds;
+    qDebug() << "Values to ID is " << valueToIds;
     progress.setValue(2);
 
     // Find the rows we need to delete and remove pointers.
@@ -200,6 +201,9 @@ void NameOriginsManagementWindow::repairOrigins() {
         qDebug() << "   will keep " << keepId;
         nameModel->setData(index, keepId);
     }
+    // Why?
+    nameModel->submitAll();
+    nameModel->select();
     progress.setValue(2);
 
     // Determine the list of removals.
@@ -223,8 +227,10 @@ void NameOriginsManagementWindow::repairOrigins() {
         auto id = this->model->index(r, NameOriginTableModel::ID).data().toLongLong();
         if (toRemove.contains(id)) {
             qDebug() << "Will remove row " << r << " with ID " << id;
-            this->model->removeRow(r);
+            bool res = this->model->removeRow(r);
+            qDebug() << "Effect of removal is " << res;
         }
     }
+    this->model->submitAll();
     progress.setValue(4);
 }
