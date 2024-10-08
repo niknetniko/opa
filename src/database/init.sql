@@ -4,10 +4,10 @@ VALUES (true, 'male');
 INSERT INTO name_origins(id, origin)
 VALUES (0, 'unknown');
 INSERT INTO name_origins(id, origin)
-VALUES (1, 'patrilinear');
+VALUES (1, 'patrilineal');
 
 INSERT INTO names(person_id, sort, given_names, surname, origin_id)
-VALUES (1, 1, 'Niko', 'Strijbol', 0);
+VALUES (1, 1, 'Jos', 'Jozephson', 0);
 
 INSERT INTO people(root, sex)
 VALUES (true, 'male');
