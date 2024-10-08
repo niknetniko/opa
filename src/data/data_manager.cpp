@@ -25,7 +25,9 @@ DataManager *DataManager::getInstance(QObject *parent) {
 
 DataManager::DataManager(QObject *parent) : QObject(parent) {
     this->baseNamesModel = new NamesTableModel(this);
+    this->baseNamesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
     this->baseNameOriginModel = new NameOriginTableModel(this);
+    this->baseNameOriginModel->setEditStrategy(QSqlTableModel::OnFieldChange);
 
     baseNamesModel->select();
     // TODO: reduce the number of unnecessary signals here

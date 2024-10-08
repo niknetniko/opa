@@ -126,6 +126,15 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
 }
 
 void NameOriginsManagementWindow::removeOrigin() {
+    auto selection = this->tableView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    auto selectRow = selection->selection().first().indexes().first().row();
+    this->tableView->model()->removeRow(selectRow);
+    // TODO: why is this necessary? Changes should propagate I think...
+    this->model->select();
 }
 
 void NameOriginsManagementWindow::repairOrigins() {
