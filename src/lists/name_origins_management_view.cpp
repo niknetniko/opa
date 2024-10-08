@@ -255,5 +255,7 @@ void NameOriginsManagementWindow::repairOrigins() {
         }
     }
     this->model->submitAll();
+    // TODO: why is this necessary?
+    this->model->select();
     progress.setValue(4);
 }
