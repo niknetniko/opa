@@ -16,6 +16,7 @@
 #include <KActionCollection>
 #include <KConfigDialog>
 #include <QDockWidget>
+#include <KLocalizedString>
 
 
 MainWindow::MainWindow() : KXmlGuiWindow() {
