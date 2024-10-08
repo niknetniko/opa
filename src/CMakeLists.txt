@@ -1,7 +1,8 @@
-add_executable(opa)
+add_executable(opa main.cpp)
 
-target_sources(opa PRIVATE
-        main.cpp
+
+
+add_library(opa-lib STATIC
         main/main_window.cpp
         database/database.cpp
         database/schema.h
@@ -24,20 +25,23 @@ target_sources(opa PRIVATE
         lists/name_origins_management_view.cpp
 )
 
-ecm_qt_declare_logging_category(opa
+ecm_qt_declare_logging_category(opa-lib
         HEADER opadebug.h
         IDENTIFIER OPA
         CATEGORY_NAME "opa"
 )
-kconfig_add_kcfg_files(opa main/opaSettings.kcfgc)
+
+target_link_libraries(opa PRIVATE
+        opa-lib
+)
+
+kconfig_add_kcfg_files(opa-lib main/opaSettings.kcfgc)
 #ki18n_wrap_ui(opa
 #        main/settings.ui
 #        person_detail/person_detail_view.ui
 #        )
 
-
-
-target_link_libraries(opa
+target_link_libraries(opa-lib PUBLIC
         KF6::CoreAddons
         KF6::I18n
         KF6::XmlGui
@@ -55,7 +59,11 @@ target_link_libraries(opa
         ${SQLite3_LIBRARIES}
 )
 
-qt_add_resources(opa resources.qrc)
+qt_add_resources(opa-lib "opa-database"
+        PREFIX "/"
+        BASE "database"
+        FILES database/init.sql database/schema.sql
+)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

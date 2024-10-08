@@ -11,6 +11,7 @@
 #include <QFile>
 #include <qsqldriver.h>
 #include <sqlite3.h>
+#include <QFileInfo>
 
 const QString driver = QString::fromUtf8("QSQLITE");
 
@@ -44,57 +45,64 @@ void open_database(const QString &file) {
         abort();
     }
 
-    bool existing = QFile::exists(file);
+    // Support in-memory databases for tests.
+    bool existing;
+    if (file == QStringLiteral(":memory:")) {
+        existing = false;
+    } else {
+        existing = QFile::exists(file);
+        qDebug() << "Looking at file at " << QFileInfo(file).canonicalFilePath();
+    }
 
     // The main database connection.
     QSqlDatabase database = QSqlDatabase::addDatabase(driver);
     database.setDatabaseName(file);
 
     if (!database.open()) {
-        qDebug("Error occurred opening the database %s", qPrintable(file));
-        qDebug("%s.", qPrintable(database.lastError().text()));
+        qDebug() << "Error occurred opening the database " << file;
+        qDebug() << database.lastError().text();
         abort();
     }
 
     // Ensure we have foreign keys...
     QSqlQuery foreignKeys(database);
-    if (!foreignKeys.exec(QString::fromUtf8("PRAGMA foreign_keys = ON;"))) {
-        qWarning("Could not enable foreign keys: %s", qPrintable(foreignKeys.lastError().text()));
+    if (!foreignKeys.exec(QStringLiteral("PRAGMA foreign_keys = ON;"))) {
+        qWarning() << "Could not enable foreign keys: " << foreignKeys.lastError().text();
         abort();
     }
 
+    // If there is already a database, do nothing.
+    // TODO: handle migration somehow?
     if (existing) {
-        qWarning("Skipping initialization, as it exists already.");
+        qDebug() << "Skipping initialization, as it exists already.";
         return;
     }
 
-    QFile schema_file(QString::fromUtf8(":/schema.sql"));
+    // Initialize the database based on the schema.
+    QFile schema_file(QStringLiteral(":/schema.sql"));
     if (!schema_file.open(QFile::ReadOnly | QFile::Text)) {
-        qDebug("Error occurred opening database schema file");
+        qWarning() << "Error occurred opening database schema file";
         abort();
     }
     QTextStream schema_stream(&schema_file);
     QString schema = schema_stream.readAll();
 
-
     // Run the creation script if this is a new database.
-    // The script is conditional, so we don't actually need to check
-    // if the database is new at the moment.
-    qDebug("Running database creation script...");
+    qDebug() << "Running database creation script...";
     executeScriptOrAbort(schema, database);
 
-    QFile init_file(QString::fromUtf8(":/init.sql"));
+    // Initialize the data in the database.
+    QFile init_file(QStringLiteral(":/init.sql"));
     if (!init_file.open(QFile::ReadOnly | QFile::Text)) {
-        qDebug("Error occurred opening database init file");
+        qWarning() << "Error occurred opening database init file";
         abort();
     }
     QTextStream init_stream(&init_file);
     QString init = init_stream.readAll();
     executeScriptOrAbort(init, database);
-
-    QSqlDatabase db = QSqlDatabase::database();
-    QVariant v = db.driver()->handle();
-    // v.data() returns a pointer to the handle
-    sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
-    sqlite3_trace(handle, trace, NULL );
+//    QSqlDatabase db = QSqlDatabase::database();
+//    QVariant v = db.driver()->handle();
+//    // v.data() returns a pointer to the handle
+//    sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
+//    sqlite3_trace(handle, trace, NULL );
 }

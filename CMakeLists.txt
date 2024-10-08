@@ -6,7 +6,7 @@ set(QT_MIN_VERSION "6.0.0")
 set(KF_MIN_VERSION "6.3.0")
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOMOC ONc)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_BUILD_TYPE Debug)
@@ -18,6 +18,7 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 
+include(ECMAddTests)
 include(ECMInstallIcons)
 include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
@@ -44,6 +45,11 @@ kde_enable_exceptions()
 
 add_subdirectory(src)
 add_subdirectory(icons)
+
+if (BUILD_TESTING)
+    find_package(Qt6 ${QT_MIN_VERSION} NO_MODULE COMPONENTS Test)
+    add_subdirectory(autotests)
+endif()
 
 # Make it possible to use the po files fetched by the fetch-translations step
 ki18n_install(po)
