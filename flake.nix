@@ -41,18 +41,23 @@
           atlas
           gdb
         ];
+        opa = pkgs.stdenv.mkDerivation {
+          pname = "opa";
+          version = "0.1";
+          src = ./.;
+
+          buildInputs = build-inputs;
+          nativeBuildInputs = native-build-inputs;
+        };
       in
         {
           packages = rec {
-            opa = pkgs.stdenv.mkDerivation {
-              pname = "opa";
-              version = "0.1";
-              src = ./.;
-
-              buildInputs = build-inputs;
-              nativeBuildInputs = native-build-inputs;
-            };
             default = opa;
+          };
+          checks = rec {
+            ctests = opa.overrideAttrs (finalAttrs: previousAttrs: {
+              doCheck = true;
+            });
           };
           devShell = pkgs.mkShell {
               buildInputs = with pkgs; [
