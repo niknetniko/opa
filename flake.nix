@@ -14,12 +14,9 @@
         {
           devShell = pkgs.mkShell {
               buildInputs = with pkgs; [
-#                 glibc
                 clang-tools
                 clang
                 cmake
-#                 glib
-#                 gcc10
                 git
                 valgrind
                 extra-cmake-modules
@@ -32,13 +29,11 @@
                 kdePackages.appstream-qt
                 kdePackages.kirigami
                 kdePackages.kiconthemes
-#                 qt6.qtquickcontrols
                 qtcreator
                 qt6.qtbase
                 qt6.qtwayland
                 qt6.qtdeclarative
                 clazy
-
                 kdePackages.breeze-icons
                 kdePackages.breeze
                 kdePackages.kitemmodels
