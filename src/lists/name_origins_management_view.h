@@ -7,6 +7,7 @@
 
 #include <QWidget>
 #include <QSqlTableModel>
+#include <QTableView>
 
 class NameOriginsManagementWindow: public QWidget {
 Q_OBJECT
@@ -24,6 +25,7 @@ public Q_SLOTS:
 private:
     QSqlTableModel* model;
     QAction* removeAction;
+    QTableView* tableView;
 
 };
 

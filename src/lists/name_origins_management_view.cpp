@@ -5,7 +5,7 @@
 #include <KLocalizedString>
 #include <QToolBar>
 #include <QSortFilterProxyModel>
-#include <QTableView>
+#include <QSqlQuery>
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QSqlRecord>
@@ -51,7 +51,7 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWid
     auto *filterProxyModel = new QSortFilterProxyModel(this);
     filterProxyModel->setSourceModel(model);
 
-    auto *tableView = new QTableView(this);
+    tableView = new QTableView(this);
     tableView->setModel(filterProxyModel);
     tableView->setSortingEnabled(true);
     tableView->sortByColumn(NameOriginTableModel::ID, Qt::AscendingOrder);
@@ -82,6 +82,20 @@ void NameOriginsManagementWindow::addOrigin() {
     auto newRecord = this->model->record();
     newRecord.setGenerated(NameOriginTableModel::ID, false);
     this->model->insertRecord(-1, newRecord);
+    // The table might be sorted, so we need to select the row with the highest ID.
+    auto id = this->model->query().lastInsertId();
+    // Find the row with that ID.
+    for (int r = 0; r < this->tableView->model()->rowCount(); ++r) {
+        auto thisRow = this->tableView->model()->index(r, NameOriginTableModel::ID);
+        if (thisRow.data() == id) {
+            auto editableFieldIndex = this->tableView->model()->index(r, NameOriginTableModel::ORIGIN);
+            tableView->scrollTo(editableFieldIndex);
+            tableView->setFocus();
+            tableView->selectionModel()->select(editableFieldIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent);
+            tableView->edit(editableFieldIndex);
+            break;
+        }
+    }
 }
 
 void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
