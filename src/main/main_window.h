@@ -9,10 +9,10 @@
 
 #include <KXmlGuiWindow>
 
-#include "ui_settings.h"
 #include "opaSettings.h"
 #include "database/schema.h"
 
+namespace Ui { class Settings; }
 class opaView;
 
 /**
@@ -65,7 +65,7 @@ private Q_SLOTS:
 private:
     // this is the name of the root widget inside our Ui file
     // you can rename it in designer and then change it here
-    Ui::Settings m_settings;
+    Ui::Settings* m_settings;
     QAction *m_switchAction;
 
     QTabWidget* tabWidget;

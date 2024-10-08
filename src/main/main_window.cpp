@@ -3,6 +3,11 @@
 
     SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 */
+// KF headers
+#include <KActionCollection>
+#include <KConfigDialog>
+#include <QDockWidget>
+#include <KLocalizedString>
 
 // application headers
 #include "main_window.h"
@@ -11,13 +16,7 @@
 #include "people_overview_view.h"
 #include "person_detail/person_detail_view.h"
 #include "lists/name_origins_management_view.h"
-
-// KF headers
-#include <KActionCollection>
-#include <KConfigDialog>
-#include <QDockWidget>
-#include <KLocalizedString>
-
+#include "ui_settings.h"
 
 MainWindow::MainWindow() : KXmlGuiWindow() {
     // Attach the tab view.
@@ -74,7 +73,8 @@ void MainWindow::settingsConfigure() {
 
     auto *dialog = new KConfigDialog(this, QStringLiteral("settings"), opaSettings::self());
     auto *generalSettingsPage = new QWidget;
-    m_settings.setupUi(generalSettingsPage);
+    m_settings = new Ui::Settings();
+    m_settings->setupUi(generalSettingsPage);
     dialog->addPage(generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting"));
 //    connect(dialog, &KConfigDialog::settingsChanged, m_opaView, &opaView::handleSettingsChanged);
     dialog->setAttribute(Qt::WA_DeleteOnClose);

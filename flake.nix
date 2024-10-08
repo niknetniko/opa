@@ -10,8 +10,50 @@
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        build-inputs = with pkgs; [
+          kdePackages.kcoreaddons
+          kdePackages.kconfigwidgets
+          kdePackages.ki18n
+          kdePackages.kcrash
+          kdePackages.kdbusaddons
+          kdePackages.kxmlgui
+          kdePackages.appstream-qt
+          kdePackages.kirigami
+          kdePackages.kiconthemes
+          kdePackages.breeze-icons
+          kdePackages.breeze
+          kdePackages.kitemmodels
+          qt6.qtbase
+          qt6.qtwayland
+          qt6.qtdeclarative
+
+        ];
+        native-build-inputs = with pkgs; [
+          qt6.wrapQtAppsHook
+          clang-tools
+          clang
+          cmake
+          git
+          valgrind
+          extra-cmake-modules
+          qtcreator
+          clazy
+          atlas
+          gdb
+        ];
       in
         {
+          packages = rec {
+            opa = pkgs.stdenv.mkDerivation {
+              pname = "opa";
+              version = "0.1";
+              src = ./.;
+
+              buildInputs = build-inputs;
+              nativeBuildInputs = native-build-inputs;
+            };
+            default = opa;
+          };
           devShell = pkgs.mkShell {
               buildInputs = with pkgs; [
                 clang-tools

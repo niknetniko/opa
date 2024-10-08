@@ -1,7 +1,5 @@
 add_executable(opa main.cpp)
 
-
-
 add_library(opa-lib STATIC
         main/main_window.cpp
         database/database.cpp
