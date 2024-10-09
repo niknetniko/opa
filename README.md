@@ -2,9 +2,9 @@
 
 A genealogy program written in Qt (and using KDE frameworks).
 
-[!CAUTION]
-This is very early software and WIP. Do not expect anything to work, and certainly do not rely on the program for your data.
-It might delete everything at any point without undo.
+> [!CAUTION]
+> This is very early software and WIP. Do not expect anything to work, and certainly do not rely on the program for your data.
+> It might delete everything at any point without undo.
 
 To build it, use either the included Nix flake, or run:
 
