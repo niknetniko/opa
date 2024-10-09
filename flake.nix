@@ -54,9 +54,12 @@
           packages = rec {
             default = opa;
           };
+          # TODO: this crashes before tests are even run, so it probably doesn't build correctly.
           checks = rec {
             ctests = opa.overrideAttrs (finalAttrs: previousAttrs: {
               doCheck = true;
+              cmakeBuildType = "Debug";
+              checkFlags = "--debug";
             });
           };
           devShell = pkgs.mkShell {
