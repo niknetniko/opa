@@ -14,3 +14,15 @@ VALUES (true, 'male');
 
 INSERT INTO names(person_id, sort, given_names, surname, origin_id)
 VALUES (2, 1, 'Jan', 'Jaap', 1), (2, 2, 'Aap', 'Daap', 0);
+
+/* Insert some "known" event roles */
+/* TODO: how do we want to handle these? */
+/* TODO: once we have parents, should that be a role? Probably not I guess? */
+INSERT INTO event_roles (role)
+VALUES ('primary'), ('witness');
+
+INSERT INTO event_types(type)
+VALUES ('birth'), ('death'), ('baptism'), ('burial');
+
+
+
