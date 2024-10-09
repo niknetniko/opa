@@ -10,7 +10,6 @@ add_library(opa-lib STATIC
         event/event_table_model.cpp
         event/event_table_view.cpp
         person_detail/person_detail_view.cpp
-        utils/gramps_date.cpp
         names/names_overview_view.cpp
         names/name_editor.cpp
         utils/single_row_model.cpp
@@ -21,6 +20,7 @@ add_library(opa-lib STATIC
         person_detail/person_name_tab.cpp
         utils/proxy_enabled_relational_delegate.cpp
         lists/name_origins_management_view.cpp
+        utils/opa_date.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
