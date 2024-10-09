@@ -138,7 +138,7 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
 
     // Connect the original model to changes.
     connect(this, &DataManager::dataChanged, this, [baseModel, query](const QString &table) {
-        if (table == Schema::People::TableName || table == Schema::Names::TableName) {
+        if (table == Schema::PeopleTable || table == Schema::NamesTable) {
             baseModel->setQuery(query);
         }
     });
@@ -175,7 +175,7 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
 
     // Connect the original model to changes.
     connect(this, &DataManager::dataChanged, baseModel, [=](const QString &table) {
-        if (table == Schema::People::TableName || table == Schema::Names::TableName) {
+        if (table == Schema::PeopleTable || table == Schema::NamesTable) {
             QSqlQuery newQuery;
             newQuery.prepare(rawQuery);
             newQuery.bindValue(QStringLiteral(":id"), personId);

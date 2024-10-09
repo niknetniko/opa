@@ -31,9 +31,13 @@ private Q_SLOTS:
         qDebug() << tables;
         tables.sort();
         QStringList expected = {
-                Schema::NameOrigins::TableName,
-                Schema::Names::TableName,
-                Schema::People::TableName,
+                Schema::NameOriginsTable,
+                Schema::NamesTable,
+                Schema::PeopleTable,
+                Schema::EventRelationsTable,
+                Schema::EventRolesTable,
+                Schema::EventTypesTable,
+                Schema::EventsTable,
                 // Special SQLite tables...
                 QStringLiteral("sqlite_sequence")
         };

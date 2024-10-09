@@ -55,7 +55,7 @@ public:
     ~OpaDate() = default;
 
     OpaDate(const OpaDate &) = default;
-    OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, bool hasYear, bool hasMonth,
+    OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear, bool hasMonth,
             bool hasDay, const QString &text);
 
     OpaDate &operator=(const OpaDate &) = default;
@@ -67,6 +67,7 @@ public:
     bool hasDay() const;
 
     QDate prolepticRepresentation() const;
+    QDate prolepticRepresentationEnd() const;
 
     Quality quality() const;
 
@@ -74,12 +75,15 @@ public:
 
     QString toDatabaseRepresentation() const;
 
+    QString text() const;
+
     static OpaDate fromDatabaseRepresentation(const QString &text);
 
 private:
     Modifier dateModifier = NONE;
     Quality dateQuality = EXACT;
     QDate proleptic;
+    QDate endProleptic;
     bool year;
     bool month;
     bool day;

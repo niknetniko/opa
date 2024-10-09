@@ -9,47 +9,14 @@
 
 using IntegerPrimaryKey = qlonglong;
 
-// TODO: generate this with a script...
 namespace Schema {
-    namespace People {
-        const QString TableName = QString::fromUtf8("people");
-        const QString id = QString::fromUtf8("id");
-        const QString root = QString::fromUtf8("root");
-        const QString sex = QString::fromUtf8("sex");
-    }
-    namespace Names {
-        const QString TableName = QString::fromUtf8("names");
-        const QString id = QString::fromUtf8("id");
-        const QString personId = QString::fromUtf8("person_id");
-        const QString givenNames = QString::fromUtf8("given_names");
-        const QString titles = QString::fromUtf8("titles");
-        const QString prefix = QString::fromUtf8("prefix");
-        const QString surname = QString::fromUtf8("surname");
-        const QString origin = QString::fromUtf8("origin");
-        const QString sort = QString::fromUtf8("sort");
-    }
-
-    namespace NameOrigins {
-        const QString TableName = QStringLiteral("name_origins");
-        const QString id = QStringLiteral("id");
-        const QString origin = QStringLiteral("origin");
-    }
-
-    namespace Events {
-        const QString TableName = QString::fromUtf8("events");
-        const QString id = QString::fromUtf8("id");
-        const QString type = QString::fromUtf8("type");
-        const QString date = QString::fromUtf8("date");
-    }
-
-    namespace EventPeople {
-        const QString TableName = QString::fromUtf8("event_people");
-        const QString personId = QString::fromUtf8("person_id");
-        const QString eventId = QString::fromUtf8("event_id");
-        const QString role = QString::fromUtf8("role");
-    }
-
-    // TODO: other data...
+    const QString PeopleTable = QStringLiteral("people");
+    const QString NamesTable = QStringLiteral("names");
+    const QString NameOriginsTable = QStringLiteral("name_origins");
+    const QString EventsTable = QStringLiteral("events");
+    const QString EventRolesTable = QStringLiteral("event_roles");
+    const QString EventTypesTable = QStringLiteral("event_types");
+    const QString EventRelationsTable = QStringLiteral("event_relations");
 }
 
 #endif //OPA_SCHEMA_H

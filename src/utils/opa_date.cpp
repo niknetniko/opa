@@ -6,8 +6,8 @@
 #include <QJsonDocument>
 #include "opa_date.h"
 
-OpaDate::OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, bool hasYear, bool hasMonth,
-                 bool hasDay, const QString &text) : dateModifier(modifier), dateQuality(quality), proleptic(proleptic),
+OpaDate::OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear, bool hasMonth,
+                 bool hasDay, const QString &text) : dateModifier(modifier), dateQuality(quality), proleptic(proleptic), endProleptic(endProleptic),
                                                      year(hasYear), month(hasMonth), day(hasDay), userText(text) {}
 
 OpaDate::Quality OpaDate::quality() const {
@@ -40,6 +40,7 @@ QString OpaDate::toDatabaseRepresentation() const {
     result[QStringLiteral("dateModifier")] = QVariant::fromValue(this->dateModifier).toString();
     result[QStringLiteral("dateQuality")] = QVariant::fromValue(this->dateQuality).toString();
     result[QStringLiteral("proleptic")] = this->proleptic.toJulianDay();
+    result[QStringLiteral("prolepticEnd")] = this->endProleptic.toJulianDay();
     result[QStringLiteral("year")] = this->year;
     result[QStringLiteral("month")] = this->month;
     result[QStringLiteral("day")] = this->day;
@@ -56,11 +57,20 @@ OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
             QVariant(result[QStringLiteral("dateModifier")].toString()).value<Modifier>(),
             QVariant(result[QStringLiteral("dateQuality")].toString()).value<Quality>(),
             QDate::fromJulianDay(result[QStringLiteral("proleptic")].toInteger()),
+            QDate::fromJulianDay(result[QStringLiteral("prolepticEnd")].toInteger()),
             result[QStringLiteral("year")].toBool(),
             result[QStringLiteral("month")].toBool(),
             result[QStringLiteral("day")].toBool(),
             result[QStringLiteral("userText")].toString()
     );
+}
+
+QDate OpaDate::prolepticRepresentationEnd() const {
+    return endProleptic;
+}
+
+QString OpaDate::text() const {
+    return userText;
 }
 
 QDebug operator<<(QDebug dbg, const OpaDate &date) {

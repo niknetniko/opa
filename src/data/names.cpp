@@ -7,12 +7,12 @@
 #include "database/schema.h"
 
 NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(parent) {
-    this->setTable(Schema::Names::TableName);
+    this->setTable(Schema::NamesTable);
     this->setRelation(NamesTableModel::ORIGIN,
                       QSqlRelation(
-                              Schema::NameOrigins::TableName,
-                              Schema::NameOrigins::id,
-                              Schema::NameOrigins::origin
+                              Schema::NameOriginsTable,
+                              QStringLiteral("id"),
+                              QStringLiteral("origins")
                       )
     );
     this->setJoinMode(QSqlRelationalTableModel::JoinMode::LeftJoin);
@@ -31,7 +31,7 @@ NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(par
 }
 
 NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(parent) {
-    this->setTable(Schema::NameOrigins::TableName);
+    this->setTable(Schema::NameOriginsTable);
 
     this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     this->setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
