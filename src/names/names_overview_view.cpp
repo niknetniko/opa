@@ -87,7 +87,7 @@ NamesOverviewView::NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent
         this->handleSelectedNewRow(QItemSelection(), QItemSelection());
     });
 
-    connect(treeView, &QTableView::doubleClicked, this, &NamesOverviewView::handleDoubleClick);
+    connect(treeView, &QTreeView::doubleClicked, this, &NamesOverviewView::handleDoubleClick);
     connect(treeView->header(), &QHeaderView::sortIndicatorChanged, this, [this](int logicalIndex) {
         auto* model = this->treeView->selectionModel();
         Q_EMIT this->sortChanged(model->model(), model->selection(), logicalIndex);

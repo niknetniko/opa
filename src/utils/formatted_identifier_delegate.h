@@ -15,6 +15,7 @@ Q_OBJECT
 public:
     inline static const QString PERSON = QStringLiteral("P%1");
     inline static const QString NAME = QStringLiteral("N%1");
+    inline static const QString EVENT = QStringLiteral("E%1");
 
     using QStyledItemDelegate::QStyledItemDelegate;
 

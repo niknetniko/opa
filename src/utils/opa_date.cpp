@@ -73,6 +73,14 @@ QString OpaDate::text() const {
     return userText;
 }
 
+QString OpaDate::toDisplayText() const {
+    return QStringLiteral("This is a date...");
+}
+
+OpaDate OpaDate::fromDisplayText(const QString &text) {
+    return OpaDate();
+}
+
 QDebug operator<<(QDebug dbg, const OpaDate &date) {
     QDebugStateSaver const saver(dbg);
     dbg.nospace() << date.prolepticRepresentation();

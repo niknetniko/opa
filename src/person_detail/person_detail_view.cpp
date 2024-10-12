@@ -13,6 +13,7 @@
 #include "person_name_tab.h"
 #include "data/data_manager.h"
 #include "utils/formatted_identifier_delegate.h"
+#include "person_event_tab.h"
 
 PersonDetailView::PersonDetailView(IntegerPrimaryKey personId, QWidget *parent) :
         QFrame(parent) {
@@ -21,6 +22,10 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey personId, QWidget *parent) 
 
     this->model = DataManager::getInstance(this)->personDetailsModel(this, personId);
     this->populate();
+
+    // Create tab for events
+    auto *eventTab = new PersonEventTab(personId, ui->tabWidget);
+    ui->tabWidget->addTab(eventTab, i18n("Gebeurtenissen"));
 
     // Create tab for names
     auto *nameTab = new PersonNameTab(personId, ui->tabWidget);

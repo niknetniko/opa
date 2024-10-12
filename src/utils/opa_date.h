@@ -75,9 +75,12 @@ public:
 
     QString toDatabaseRepresentation() const;
 
+    QString toDisplayText() const;
+
     QString text() const;
 
     static OpaDate fromDatabaseRepresentation(const QString &text);
+    static OpaDate fromDisplayText(const QString &text);
 
 private:
     Modifier dateModifier = NONE;

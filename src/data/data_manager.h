@@ -33,10 +33,39 @@ Q_OBJECT
 
 public:
     // TODO: remove this once no longer needed.
-    static DataManager *getInstance(QObject* parent);
+    static DataManager *getInstance(QObject *parent);
 
+    /**
+     * A model for names. The origin is joined by default.
+     */
     QSqlTableModel *namesModel() const;
+
+    /**
+     * Simple name origin table.
+     */
     QSqlTableModel *nameOriginsModel() const;
+
+    /**
+     * Simple name origin table.
+     */
+    QSqlTableModel *eventRolesModel() const;
+
+    /**
+     * Simple name origin table.
+     */
+    QSqlTableModel *eventTypesModel() const;
+
+    /**
+     * Simple event relations table. Qt does currently not support loading foreign keys here, so they are not joined by default.
+     * TODO: test if this is actually a problem or not.
+     */
+    QSqlTableModel *eventRelationsModel() const;
+
+    /**
+     * Event table. The type is joined by default. The model also returns OpaDates for the date column.
+     * See that class for details on support for editing.
+     */
+    QSqlTableModel *eventsModel();
 
     /**
      * Get a model representing all names for a single person.
@@ -62,24 +91,32 @@ public:
     /**
      * Model for the details view of a person.
      */
-     QAbstractProxyModel *personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
+    QAbstractProxyModel *personDetailsModel(QObject *parent, IntegerPrimaryKey personId);
+
+    QAbstractProxyModel *eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
 
 Q_SIGNALS:
+
     void dataChanged(QString table);
 
 public Q_SLOTS:
-    void onNamesTableChanged();
-    void onNameOriginsTableChanged();
+
+    void onSqlModelChanged();
 
 private:
     explicit DataManager(QObject *parent);
 
     bool updatingNameOrigin = false;
+    bool updatingEventType = false;
 
     static DataManager *instance;
 
-    QSqlRelationalTableModel * baseNamesModel;
-    QSqlTableModel * baseNameOriginModel;
+    QSqlRelationalTableModel *baseNamesModel;
+    QSqlTableModel *baseNameOriginModel;
+    QSqlTableModel *baseEventRolesModel;
+    QSqlTableModel *baseEventTypesModel;
+    QSqlTableModel *baseEventRelationsModel;
+    QSqlRelationalTableModel *baseEventsModel;
 };
 
 #endif //OPA_DATA_MANAGER_H

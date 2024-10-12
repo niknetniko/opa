@@ -7,8 +7,6 @@ add_library(opa-lib STATIC
         main/people_overview_view.cpp
         data/person.cpp
         data/event.cpp
-        event/event_table_model.cpp
-        event/event_table_view.cpp
         person_detail/person_detail_view.cpp
         names/names_overview_view.cpp
         names/name_editor.cpp
@@ -21,6 +19,8 @@ add_library(opa-lib STATIC
         utils/proxy_enabled_relational_delegate.cpp
         lists/name_origins_management_view.cpp
         utils/opa_date.cpp
+        person_detail/person_event_overview_view.cpp
+        person_detail/person_event_tab.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

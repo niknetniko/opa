@@ -12,7 +12,7 @@ NamesTableModel::NamesTableModel(QObject *parent) : QSqlRelationalTableModel(par
                       QSqlRelation(
                               Schema::NameOriginsTable,
                               QStringLiteral("id"),
-                              QStringLiteral("origins")
+                              QStringLiteral("origin")
                       )
     );
     this->setJoinMode(QSqlRelationalTableModel::JoinMode::LeftJoin);

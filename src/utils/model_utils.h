@@ -37,4 +37,6 @@ const T *find_source_model_of_type(const QAbstractItemModel *model) {
     return nullptr;
 }
 
+const int ModelRole = Qt::UserRole + 20;
+
 #endif //OPA_MODEL_UTILS_H

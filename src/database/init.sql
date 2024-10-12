@@ -24,5 +24,9 @@ VALUES ('primary'), ('witness');
 INSERT INTO event_types(type)
 VALUES ('birth'), ('death'), ('baptism'), ('burial');
 
+INSERT INTO events (type_id, date, name)
+VALUES (1, NULL, 'test 1'), (2, NULL, 'test 2');
 
+INSERT INTO event_relations (event_id, person_id, role_id)
+VALUES (1, 1, 1), (2, 2, 2);
 
