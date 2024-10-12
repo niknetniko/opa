@@ -71,11 +71,15 @@ public:
 };
 
 namespace PersonEventsModel {
-    const int ID = 0;
-    const int DATE = 1;
-    const int NAME = 2;
-    const int TYPE = 3;
-    const int ROLE = 4;
+    const int ROLE = 0;
+    const int ID = 1;
+    const int DATE = 2;
+    const int NAME = 3;
+    const int TYPE = 4;
+};
+
+class PersonEventsTreeModel {
+
 };
 
 

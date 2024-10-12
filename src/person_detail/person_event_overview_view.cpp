@@ -21,12 +21,13 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
     treeView->setRootIsDecorated(false);
     treeView->setSortingEnabled(true);
     // Sort on default column.
-    treeView->sortByColumn(1, Qt::AscendingOrder);
+//    treeView->sortByColumn(1, Qt::AscendingOrder);
     // We are done setting up, attach the model.
     treeView->setModel(baseModel);
     treeView->setItemDelegateForColumn(PersonEventsModel::ID,
                                        new FormattedIdentifierDelegate(FormattedIdentifierDelegate::EVENT));
     treeView->header()->setSortIndicatorClearable(false);
+    treeView->expandAll();
 
     // Wrap in a VBOX for layout reasons.
     auto *layout = new QVBoxLayout(this);

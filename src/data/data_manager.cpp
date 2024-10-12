@@ -14,6 +14,7 @@
 #include "data/names.h"
 #include "person.h"
 #include "event.h"
+#include "utils/grouped_items_proxy_model.h"
 
 DataManager *DataManager::instance = nullptr;
 
@@ -277,12 +278,12 @@ QSqlTableModel *DataManager::eventsModel() {
 }
 
 void DataManager::onSqlModelChanged() {
-    QObject* sender = QObject::sender();
+    QObject *sender = QObject::sender();
     if (sender == nullptr) {
         return;
     }
 
-    auto sendingModel = qobject_cast<QSqlTableModel*>(sender);
+    auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
     assert(sendingModel != nullptr);
 
     Q_EMIT this->dataChanged(sendingModel->tableName());
@@ -290,18 +291,18 @@ void DataManager::onSqlModelChanged() {
 
 QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
-            "SELECT events.id, events.date, events.name, et.type, er.role "
+            "SELECT er.role, events.id, events.date, events.name, et.type "
             "FROM events "
             "LEFT JOIN event_types AS et ON events.type_id = et.id "
             "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
             "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-            "WHERE erel.person_id = :id"
+            "WHERE erel.person_id = :id "
+            "ORDER BY events.date ASC"
     );
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);
     query.exec();
-    qDebug() << "EVENTS OK";
 
     auto *baseModel = new QSqlQueryModel(parent);
     baseModel->setQuery(std::move(query));
@@ -311,11 +312,10 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     baseModel->setHeaderData(PersonEventsModel::TYPE, Qt::Horizontal, i18n("Type"));
     baseModel->setHeaderData(PersonEventsModel::ROLE, Qt::Horizontal, i18n("Rol"));
 
-    // TODO: re-arrange columns?
-    // TODO: build tree from this?
     // Connect the original model to changes.
     connect(this, &DataManager::dataChanged, baseModel, [=](const QString &table) {
-        if (table == Schema::EventsTable || table == Schema::EventTypesTable || table == Schema::EventRolesTable || table == Schema::EventRelationsTable) {
+        if (table == Schema::EventsTable || table == Schema::EventTypesTable || table == Schema::EventRolesTable ||
+            table == Schema::EventRelationsTable) {
             QSqlQuery newQuery;
             newQuery.prepare(rawQuery);
             newQuery.bindValue(QStringLiteral(":id"), personId);
@@ -324,8 +324,25 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
         }
     });
 
+    GroupedItemsProxyModel *proxy = new GroupedItemsProxyModel(parent);
+    proxy->setSourceModel(baseModel);
+    proxy->setGroups({PersonEventsModel::ROLE});
+    proxy->setGroupHeaderTitle(i18n("Rol"));
+
+    // Hide the original role column.
+    auto *hidden = new KRearrangeColumnsProxyModel(parent);
+    hidden->setSourceModel(proxy);
+    hidden->setSourceColumns({
+                                     PersonEventsModel::ROLE,
+                                     // These are all one further than we want.
+                                     PersonEventsModel::ID + 1,
+                                     PersonEventsModel::DATE + 1,
+                                     PersonEventsModel::NAME + 1,
+                                     PersonEventsModel::TYPE + 1
+                             });
+
     auto sortable = new QSortFilterProxyModel(parent);
-    sortable->setSourceModel(baseModel);
+    sortable->setSourceModel(hidden);
 
     return sortable;
 }
