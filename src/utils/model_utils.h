@@ -6,6 +6,7 @@
 #define OPA_MODEL_UTILS_H
 
 #include <qabstractproxymodel.h>
+#include <QIdentityProxyModel>
 
 /**
  * Find the first source model of a specific type.
@@ -38,5 +39,26 @@ const T *find_source_model_of_type(const QAbstractItemModel *model) {
 }
 
 const int ModelRole = Qt::UserRole + 20;
+
+/**
+ * Class the handle a column where an OpaDate is saved as JSON in some column.
+ * The model ignores empty strings or null values, but will error on other invalid values.
+ */
+class OpaDateModel : public QIdentityProxyModel {
+    Q_OBJECT
+
+public:
+    OpaDateModel(QObject* parent);
+
+    void setDateColumn(int column);
+    int dateColumn() const;
+
+    QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+
+private:
+    int theDateColumn;
+
+};
 
 #endif //OPA_MODEL_UTILS_H

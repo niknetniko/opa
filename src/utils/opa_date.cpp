@@ -4,10 +4,14 @@
 
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QStringBuilder>
+
 #include "opa_date.h"
 
-OpaDate::OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear, bool hasMonth,
-                 bool hasDay, const QString &text) : dateModifier(modifier), dateQuality(quality), proleptic(proleptic), endProleptic(endProleptic),
+OpaDate::OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear,
+                 bool hasMonth,
+                 bool hasDay, const QString &text) : dateModifier(modifier), dateQuality(quality), proleptic(proleptic),
+                                                     endProleptic(endProleptic),
                                                      year(hasYear), month(hasMonth), day(hasDay), userText(text) {}
 
 OpaDate::Quality OpaDate::quality() const {
@@ -40,7 +44,9 @@ QString OpaDate::toDatabaseRepresentation() const {
     result[QStringLiteral("dateModifier")] = QVariant::fromValue(this->dateModifier).toString();
     result[QStringLiteral("dateQuality")] = QVariant::fromValue(this->dateQuality).toString();
     result[QStringLiteral("proleptic")] = this->proleptic.toJulianDay();
-    result[QStringLiteral("prolepticEnd")] = this->endProleptic.toJulianDay();
+    if (endProleptic.isValid()) {
+        result[QStringLiteral("prolepticEnd")] = this->endProleptic.toJulianDay();
+    }
     result[QStringLiteral("year")] = this->year;
     result[QStringLiteral("month")] = this->month;
     result[QStringLiteral("day")] = this->day;
@@ -53,11 +59,24 @@ QString OpaDate::toDatabaseRepresentation() const {
 OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
     QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
     QJsonObject result = doc.object();
+
+    qDebug() << "Converting from JSON:" << result;
+    if (result.isEmpty()) {
+        return OpaDate();
+    }
+
+    QDate endDate;
+    if (result.contains(QStringLiteral("prolepticEnd"))) {
+        endDate = QDate::fromJulianDay(result[QStringLiteral("prolepticEnd")].toInteger());
+    } else {
+        endDate = QDate();
+    }
+
     return OpaDate(
             QVariant(result[QStringLiteral("dateModifier")].toString()).value<Modifier>(),
             QVariant(result[QStringLiteral("dateQuality")].toString()).value<Quality>(),
             QDate::fromJulianDay(result[QStringLiteral("proleptic")].toInteger()),
-            QDate::fromJulianDay(result[QStringLiteral("prolepticEnd")].toInteger()),
+            endDate,
             result[QStringLiteral("year")].toBool(),
             result[QStringLiteral("month")].toBool(),
             result[QStringLiteral("day")].toBool(),
@@ -74,7 +93,30 @@ QString OpaDate::text() const {
 }
 
 QString OpaDate::toDisplayText() const {
-    return QStringLiteral("This is a date...");
+    // TODO: copy Gramps' date handler system to get this to work better.
+    // TODO: support ranges (better or tout court)
+
+    if (!this->text().isEmpty()) {
+        return this->text();
+    }
+
+    QStringList result;
+    if (this->modifier() != NONE) {
+        // TODO: allow translating this...
+        auto mod = QVariant::fromValue(modifier()).toString().toLower();
+        result.append(mod);
+    }
+    if (this->quality() != EXACT) {
+        auto qual = QVariant::fromValue(quality()).toString().toLower();
+        result.append(qual);
+    }
+
+    // TODO: support not using certain parts of the format.
+    QLocale local;
+    auto format = local.dateFormat();
+    result.append(this->prolepticRepresentation().toString(format));
+
+    return result.join(QStringLiteral(" "));
 }
 
 OpaDate OpaDate::fromDisplayText(const QString &text) {

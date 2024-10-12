@@ -15,6 +15,7 @@
 #include "person.h"
 #include "event.h"
 #include "utils/grouped_items_proxy_model.h"
+#include "utils/model_utils.h"
 
 DataManager *DataManager::instance = nullptr;
 
@@ -324,8 +325,12 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
         }
     });
 
+    auto *dateModel = new OpaDateModel(parent);
+    dateModel->setSourceModel(baseModel);
+    dateModel->setDateColumn(PersonEventsModel::DATE);
+
     GroupedItemsProxyModel *proxy = new GroupedItemsProxyModel(parent);
-    proxy->setSourceModel(baseModel);
+    proxy->setSourceModel(dateModel);
     proxy->setGroups({PersonEventsModel::ROLE});
     proxy->setGroupHeaderTitle(i18n("Rol"));
 

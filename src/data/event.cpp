@@ -44,33 +44,3 @@ EventsModel::EventsModel(QObject *parent) : QSqlRelationalTableModel(parent) {
     this->setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
     this->setHeaderData(NAME, Qt::Horizontal, i18n("Naam"));
 }
-
-QVariant EventsModel::data(const QModelIndex &item, int role) const {
-    if (item.column() == DATE) {
-        auto rawData = QSqlRelationalTableModel::data(item, role).toString();
-        auto model = OpaDate::fromDatabaseRepresentation(rawData);
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            return model.toDisplayText();
-        } else if (role == ModelRole) {
-            return QVariant::fromValue(model);
-        }
-    }
-
-    return QSqlRelationalTableModel::data(item, role);
-}
-
-bool EventsModel::setData(const QModelIndex &item, const QVariant &value, int role) {
-    if (item.column() == DATE && (role == Qt::DisplayRole || role == Qt::EditRole || role == ModelRole)) {
-        OpaDate model;
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            model = OpaDate::fromDisplayText(value.toString());
-        } else {
-            assert(role == ModelRole);
-            model = value.value<OpaDate>();
-        }
-        auto databaseRepresentation = model.toDatabaseRepresentation();
-        return QSqlRelationalTableModel::setData(item, databaseRepresentation, role);
-    }
-
-    return QSqlRelationalTableModel::setData(item, value, role);
-}

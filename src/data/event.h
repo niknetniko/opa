@@ -65,9 +65,6 @@ public:
     static const int NAME = 3;
 
     EventsModel(QObject *parent);
-
-    QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole) override;
 };
 
 namespace PersonEventsModel {
@@ -76,10 +73,6 @@ namespace PersonEventsModel {
     const int DATE = 2;
     const int NAME = 3;
     const int TYPE = 4;
-};
-
-class PersonEventsTreeModel {
-
 };
 
 
