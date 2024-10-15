@@ -60,7 +60,6 @@ OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
     QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
     QJsonObject result = doc.object();
 
-    qDebug() << "Converting from JSON:" << result;
     if (result.isEmpty()) {
         return OpaDate();
     }
@@ -107,8 +106,8 @@ QString OpaDate::toDisplayText() const {
         result.append(mod);
     }
     if (this->quality() != EXACT) {
-        auto qual = QVariant::fromValue(quality()).toString().toLower();
-        result.append(qual);
+        auto theQuality = QVariant::fromValue(quality()).toString().toLower();
+        result.append(theQuality);
     }
 
     // TODO: support not using certain parts of the format.
