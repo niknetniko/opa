@@ -107,6 +107,10 @@ DataManager::DataManager(QObject *parent) : QObject(parent) {
     baseEventTypesModel->select();
     this->baseEventsModel = new EventsModel(this);
     baseEventsModel->select();
+    connect(baseEventsModel, &QAbstractItemModel::dataChanged, this, &DataManager::onSqlModelChanged);
+    connect(baseEventsModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onSqlModelChanged);
+    connect(baseEventsModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSqlModelChanged);
+    connect(baseEventsModel, &QAbstractItemModel::modelReset, this, &DataManager::onSqlModelChanged);
 
     // Connect the other model.
     auto *baseEventTypeRelationalModel = baseEventsModel->relationModel(EventsModel::TYPE);
@@ -287,12 +291,14 @@ void DataManager::onSqlModelChanged() {
     auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
     assert(sendingModel != nullptr);
 
+    qDebug() << "Updated tables, source: " << sendingModel->tableName();
+
     Q_EMIT this->dataChanged(sendingModel->tableName());
 }
 
 QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
-            "SELECT er.role, events.id, events.date, events.name, et.type "
+            "SELECT er.role, et.type, events.date, events.name, events.id "
             "FROM events "
             "LEFT JOIN event_types AS et ON events.type_id = et.id "
             "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
@@ -310,7 +316,7 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     baseModel->setHeaderData(PersonEventsModel::ID, Qt::Horizontal, i18n("Id"));
     baseModel->setHeaderData(PersonEventsModel::DATE, Qt::Horizontal, i18n("Datum"));
     baseModel->setHeaderData(PersonEventsModel::NAME, Qt::Horizontal, i18n("Omschrijving"));
-    baseModel->setHeaderData(PersonEventsModel::TYPE, Qt::Horizontal, i18n("Type"));
+    baseModel->setHeaderData(PersonEventsModel::TYPE, Qt::Horizontal, i18n("Soort"));
     baseModel->setHeaderData(PersonEventsModel::ROLE, Qt::Horizontal, i18n("Rol"));
 
     // Connect the original model to changes.
@@ -340,10 +346,10 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     hidden->setSourceColumns({
                                      PersonEventsModel::ROLE,
                                      // These are all one further than we want.
-                                     PersonEventsModel::ID + 1,
+                                     PersonEventsModel::TYPE + 1,
                                      PersonEventsModel::DATE + 1,
                                      PersonEventsModel::NAME + 1,
-                                     PersonEventsModel::TYPE + 1
+                                     PersonEventsModel::ID + 1
                              });
 
     auto sortable = new QSortFilterProxyModel(parent);

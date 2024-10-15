@@ -50,11 +50,6 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWid
 }
 
 void PersonEventTab::onEventSelected(const QAbstractItemModel *model, const QItemSelection &selected) {
-    if (selected.isEmpty()) {
-        this->editAction->setEnabled(false);
-        this->removeAction->setEnabled(false);
-        return;
-    }
-
-    this->editAction->setEnabled(true);
+    this->editAction->setEnabled(!selected.isEmpty());
+    this->removeAction->setEnabled(!selected.isEmpty());
 }

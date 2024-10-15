@@ -69,10 +69,10 @@ public:
 
 namespace PersonEventsModel {
     const int ROLE = 0;
-    const int ID = 1;
+    const int TYPE = 1;
     const int DATE = 2;
     const int NAME = 3;
-    const int TYPE = 4;
+    const int ID = 4;
 };
 
 

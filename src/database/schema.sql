@@ -14,15 +14,13 @@ CREATE TABLE name_origins
 CREATE TABLE names
 (
     id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    person_id   INTEGER NOT NULL,
+    person_id   INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
     sort        INTEGER NOT NULL,
     titles      TEXT,
     given_names TEXT,
     prefix      TEXT,
     surname     TEXT,
-    origin_id   INTEGER NULL DEFAULT NULL,
-    FOREIGN KEY (person_id) REFERENCES people (id),
-    FOREIGN KEY (origin_id) REFERENCES name_origins (id)
+    origin_id   INTEGER NULL DEFAULT NULL REFERENCES name_origins (id) ON DELETE SET DEFAULT
 );
 
 CREATE TABLE event_types
@@ -40,19 +38,15 @@ CREATE TABLE event_roles
 CREATE TABLE events
 (
     id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    type_id INTEGER NOT NULL,
+    type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
     date    TEXT,
-    name    TEXT,
-    FOREIGN KEY (type_id) REFERENCES event_types (id)
+    name    TEXT
 );
 
 CREATE TABLE event_relations
 (
-    event_id  INTEGER NOT NULL,
-    person_id INTEGER NOT NULL,
-    role_id   INTEGER NOT NULL,
-    PRIMARY KEY (event_id, person_id, role_id),
-    FOREIGN KEY (event_id) REFERENCES events (id),
-    FOREIGN KEY (person_id) REFERENCES people (id),
-    FOREIGN KEY (role_id) REFERENCES event_roles (id)
+    event_id  INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
+    role_id   INTEGER NOT NULL REFERENCES event_roles (id) ON DELETE RESTRICT,
+    PRIMARY KEY (event_id, person_id, role_id)
 );

@@ -18,15 +18,15 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setUniformRowHeights(true);
-    treeView->setRootIsDecorated(false);
-    treeView->setSortingEnabled(true);
-    // Sort on default column.
-//    treeView->sortByColumn(1, Qt::AscendingOrder);
-    // We are done setting up, attach the model.
+    treeView->setRootIsDecorated(true);
+
     treeView->setModel(baseModel);
     treeView->setItemDelegateForColumn(PersonEventsModel::ID,
                                        new FormattedIdentifierDelegate(FormattedIdentifierDelegate::EVENT));
     treeView->header()->setSortIndicatorClearable(false);
+    treeView->header()->setSectionResizeMode(PersonEventsModel::TYPE, QHeaderView::ResizeToContents);
+    treeView->header()->setSectionResizeMode(PersonEventsModel::ID, QHeaderView::ResizeToContents);
+    treeView->header()->setSectionResizeMode(PersonEventsModel::DATE, QHeaderView::ResizeToContents);
     treeView->expandAll();
 
     // Wrap in a VBOX for layout reasons.
@@ -62,6 +62,45 @@ void EventsOverviewView::editSelectedEvent() {
 }
 
 void EventsOverviewView::removeSelectedEvent() {
+    // TODO: for now, we remove the event completely.
+    //   However, ze also want an unlink button probably?
+    //   TODO: add confirmation for this?
 
+    auto selection = this->treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        qDebug() << "There is no selection, so not deleting anything.";
+        return;
+    }
+
+    // There will be a indirection, since the tree model is
+
+    qDebug() << "Selection itself is " << selection;
+
+    auto selectRow = selection->selectedIndexes().first();
+    qDebug() << "Selection index is" << selectRow;
+    qDebug() << "Selection row is" << selectRow.row();
+    qDebug() << "Selection data is" << selectRow.data();
+    qDebug() << "Row count on model is" << treeView->model()->rowCount();
+    qDebug() << "Column count on model is " << treeView->model()->columnCount();
+    auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+
+    qDebug() << "Will delete event with ID " << eventId;
+
+    // Find the row in the original model.
+    auto eventsModel = DataManager::getInstance(this)->eventsModel();
+    for (int r = 0; r < eventsModel->rowCount(); ++r) {
+        auto eventModelId = eventsModel->index(r, EventsModel::ID).data();
+        qDebug() << "Considering event with ID " << eventModelId << "for deletion.";
+        if (eventModelId == eventId) {
+            if (eventsModel->removeRow(r)) {
+                qDebug() << "   Deleted the event with ID " << eventId;
+            } else {
+                qDebug() << "   Found event but could not delete with ID " << eventId;
+            }
+            break;
+        }
+    }
+
+    // TODO: why is this needed?
+    eventsModel->select();
 }
-
