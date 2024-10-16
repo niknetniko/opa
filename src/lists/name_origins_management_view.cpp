@@ -18,7 +18,6 @@
 NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     this->setWindowTitle(i18n("Beheer naamoorsprongen"));
 
-    // Create a toolbar.
     auto *nameToolbar = new QToolBar(this);
     nameToolbar->setOrientation(Qt::Vertical);
     nameToolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -106,23 +105,15 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
 
     // TODO: change this to be able to use the ID instead of the actual name.
     // Get the ID of the current selected row.
-    auto id = this->model->index(selected.indexes().first().row(), NameOriginTableModel::ORIGIN).data();
+    auto id = this->model->index(selected.indexes().first().row(), NameOriginTableModel::ID).data();
 
     qDebug() << "Checking name with id " << id << " for usage";
 
     // TODO: this is not very efficient
     auto *nameModel = DataManager::get().namesModel();
-    bool isUsedByNames = false;
-    for (int r = 0; r < nameModel->rowCount(); ++r) {
-        auto usedOrigin = nameModel->index(r, NamesTableModel::ORIGIN).data();
-        qDebug() << "Name at row " << r << " uses origin " << usedOrigin;
-        if (usedOrigin == id) {
-            isUsedByNames = true;
-            break;
-        }
-    }
 
-    this->removeAction->setEnabled(!isUsedByNames);
+    auto usage = nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
+    this->removeAction->setEnabled(usage.isEmpty());
 }
 
 void NameOriginsManagementWindow::removeOrigin() {
@@ -133,7 +124,7 @@ void NameOriginsManagementWindow::removeOrigin() {
 
     auto selectRow = selection->selection().first().indexes().first().row();
     this->tableView->model()->removeRow(selectRow);
-    // TODO: why is this necessary? Changes should propagate I think...
+    // Refresh the data since we deleted a row.
     this->model->select();
 }
 
@@ -145,12 +136,6 @@ void NameOriginsManagementWindow::repairOrigins() {
             i18n("Dit zal dubbele oorsprongen samenvoegen en lege oorsprongen verwijderen. Wilt u doorgaan?"));
     messageBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     messageBox.setDefaultButton(QMessageBox::Ok);
-
-    auto anameModel = DataManager::get().namesModel();
-    auto aindex = anameModel->index(0, NamesTableModel::ORIGIN).data();
-    auto aindex2 = anameModel->index(0, NamesTableModel::ORIGIN).data(Qt::EditRole);
-    qDebug() << "Data DISPLAY is " << aindex;
-    qDebug() << "Data EDIT is " << aindex2;
 
     if (messageBox.exec() == QMessageBox::Cancel) {
         return;
@@ -173,42 +158,38 @@ void NameOriginsManagementWindow::repairOrigins() {
         qDebug() << "Trimmed origin " << lowered;
         this->model->setData(index, lowered);
     }
-    this->model->submitAll();
-    // Refresh the model for certainty.
-    // TODO: look at this again so this is not needed.
-    auto nameModel = DataManager::get().namesModel();
-//    nameModel->select();
-
     progress.setValue(1);
 
     // Determine duplicates
     QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
+    QHash<IntegerPrimaryKey, QString> idToValue;
     for (int r = 0; r < this->model->rowCount(); ++r) {
         auto index = this->model->index(r, NameOriginTableModel::ID).data().toLongLong();
         auto value = this->model->index(r, NameOriginTableModel::ORIGIN).data().toString();
         valueToIds[value].append(index);
+        idToValue[index] = value;
     }
     qDebug() << "Values to ID is " << valueToIds;
     progress.setValue(2);
 
-    // Find the rows we need to delete and remove pointers.
-    // Unfortunately, there is no way to update the ID?
-    // Find if there are empty origins.
+    auto nameModel = DataManager::get().namesModel();
+
     for (int r = 0; r < nameModel->rowCount(); ++r) {
-        auto index = nameModel->index(r, NamesTableModel::ORIGIN);
+        auto index = nameModel->index(r, NamesTableModel::ORIGIN_ID);
 
         qDebug() << "Considering name " << nameModel->index(r, NamesTableModel::ID).data();
-        qDebug() << "  data is " << index.data().toString();
+        qDebug() << "  data is " << index.data();
 
         // If the model is empty, stop it now.
-        if (!index.isValid() || index.data().toString().isEmpty()) {
+        if (!index.isValid() || index.data().isNull()) {
             qDebug() << "  has empty origin, so unset the table";
             nameModel->setData(index, QString());
             continue;
         }
 
-        auto originInModel = index.data().toString();
-        auto idsForThisOrigin = valueToIds[originInModel];
+        auto originInModel = index.data().toLongLong();
+        auto value = idToValue[originInModel];
+        auto idsForThisOrigin = valueToIds[value];
 
         // If there are no duplicates, we do not need to update anything.
         if (idsForThisOrigin.length() == 1) {
@@ -217,16 +198,12 @@ void NameOriginsManagementWindow::repairOrigins() {
         }
 
         // Update the name to point to the first origin.
-        // We assume they are ordered.
-        // TODO: is that actually the case?
         qDebug() << "  has duplicated origin in " << idsForThisOrigin;
         auto keepId = idsForThisOrigin.first();
         qDebug() << "   will keep " << keepId;
         nameModel->setData(index, keepId);
     }
-    // Why?
-    nameModel->submitAll();
-    nameModel->select();
+
     progress.setValue(2);
 
     // Determine the list of removals.
@@ -254,8 +231,7 @@ void NameOriginsManagementWindow::repairOrigins() {
             qDebug() << "Effect of removal is " << res;
         }
     }
-    this->model->submitAll();
-    // TODO: why is this necessary?
+
     this->model->select();
     progress.setValue(4);
 }
