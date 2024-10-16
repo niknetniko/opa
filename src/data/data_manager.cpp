@@ -19,15 +19,11 @@
 std::optional<DataManager> DataManager::instance = std::nullopt;
 
 DataManager::DataManager(QObject *parent) : QObject(parent) {
-    baseNameOriginModel = new NameOriginTableModel(this);
-    baseNameOriginModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-    baseNameOriginModel->select();
+    baseNameOriginModel = makeModel<NameOriginTableModel>();
     listenToModel(baseNameOriginModel);
     propagateToModel(baseNameOriginModel);
 
-    baseNamesModel = new NamesTableModel(this);
-    baseNamesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-    baseNamesModel->select();
+    baseNamesModel = makeModel<NamesTableModel>();
     listenToModel(baseNamesModel);
     propagateToModel(baseNamesModel, {baseNamesModel->tableName(), baseNameOriginModel->tableName()});
 
@@ -36,24 +32,20 @@ DataManager::DataManager(QObject *parent) : QObject(parent) {
     listenToModel(nameOriginsRelationalModel);
     propagateToModel(nameOriginsRelationalModel);
 
-    baseEventRolesModel = new EventRolesModel(this);
-    baseEventRolesModel->select();
+    baseEventRolesModel = makeModel<EventRolesModel>();
     listenToModel(baseEventRolesModel);
     propagateToModel(baseEventRolesModel);
 
-    baseEventRelationsModel = new EventRelationsModel(this);
-    baseEventRelationsModel->select();
+    baseEventRelationsModel = makeModel<EventRelationsModel>();
     listenToModel(baseEventRelationsModel);
     propagateToModel(baseEventRelationsModel);
 
 
-    baseEventTypesModel = new EventTypesModel(this);
-    baseEventTypesModel->select();
+    baseEventTypesModel = makeModel<EventTypesModel>();
     listenToModel(baseEventTypesModel);
     propagateToModel(baseEventTypesModel);
 
-    baseEventsModel = new EventsModel(this);
-    baseEventsModel->select();
+    baseEventsModel = makeModel<EventsModel>();
     listenToModel(baseEventsModel);
     propagateToModel(baseEventsModel, {baseEventsModel->tableName(), baseEventTypesModel->tableName()});
 
@@ -68,6 +60,7 @@ QSqlTableModel *DataManager::namesModel() const {
 }
 
 QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
+    qDebug() << "Creating model for names of" << personId;
     auto *proxy = new CellFilteredProxyModel(parent, personId, NamesTableModel::PERSON_ID);
     proxy->setSourceModel(this->namesModel());
     return proxy;
@@ -257,11 +250,11 @@ void DataManager::onSourceModelChanged() {
     // and propagate the signal to our own listeners.
     QString senderName = QString::fromUtf8(sender->metaObject()->className());
     qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName();
-    if (this->updatingFromDataManager == false) {
-        qDebug() << "Not updating yet" << senderName;
-        updatingFromDataManager = true;
+    if (this->updatingFromDataManagerSource == nullptr) {
+        qDebug() << "Not updating yet";
+        updatingFromDataManagerSource = sender;
         Q_EMIT this->dataChanged(sendingModel->tableName());
-        updatingFromDataManager = false;
+        updatingFromDataManagerSource = nullptr;
     } else {
         qDebug() << "Already updating in DataManager, so ignoring this signal." << senderName;
         // We are already updating from another model, so do not propagate this.
@@ -289,13 +282,26 @@ DataManager &DataManager::get() {
     return instance.value();
 }
 
+template<typename ModelType>
+ModelType *DataManager::makeModel() {
+    auto* model = new ModelType(this);
+    model->setEditStrategy(QSqlTableModel::OnFieldChange);
+    model->select();
+    return model;
+}
+
 template<class ModelType>
 void DataManager::propagateToModel(ModelType *model, QStringList tables, std::function<void(ModelType *)> updater) {
-    connect(this, &DataManager::dataChanged, model, [model, tables, updater](QString table){
-        qDebug() << "Propagating update of table" << table << "to models.";
+    auto name = model->metaObject()->className();
+    connect(this, &DataManager::dataChanged, model, [model, tables, updater, name, this](QString table){
+        qDebug() << "Propagating update of table" << table << "to model " << name;
         if (tables.contains(table)) {
-            qDebug() << "   Model is interested, triggering refresh of model.";
-            updater(model);
+            if (updatingFromDataManagerSource != model) {
+                qDebug() << "   Model is interested, triggering refresh of model.";
+                updater(model);
+            } else {
+                qDebug() << "   Model is interested, but is the source, skipping.";
+            }
         } else {
             qDebug() << "   Model is not interested, skipping.";
         }

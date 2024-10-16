@@ -119,12 +119,12 @@ private:
     static std::optional<DataManager> instance;
 
     /**
-     * This is set to true if the model updates are being sent from
+     * This is set to an address if the model updates are being sent from
      * the DataManager, otherwise it origines from the model itself.
-     * Its main use is preventing signal loops, so if set to true,
+     * Its main use is preventing signal loops, so if set to an address,
      * the updates will not propagate to the DataManager.
      */
-    bool updatingFromDataManager = false;
+    void* updatingFromDataManagerSource = nullptr;
 
     QSqlRelationalTableModel *baseNamesModel;
     QSqlTableModel *baseNameOriginModel;
@@ -175,6 +175,9 @@ private:
      */
     template <class ModelType>
     void propagateToModel(ModelType* model, QStringList tables, std::function<void(ModelType*)> updater);
+
+    template <typename ModelType>
+    ModelType* makeModel();
 };
 
 #endif //OPA_DATA_MANAGER_H
