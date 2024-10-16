@@ -49,7 +49,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
 
-    auto *baseModel = DataManager::getInstance(this)->namesModel();
+    auto *baseModel = DataManager::get().namesModel();
 
     // Set up autocomplete on the last name.
     // We want to sort this, so we need to create a new model.

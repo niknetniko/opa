@@ -8,6 +8,7 @@
 #include "main/main_window.h"
 #include "opadebug.h"
 #include "database/database.h"
+#include "data/data_manager.h"
 
 // KF headers
 #include <KCrash>
@@ -29,7 +30,7 @@
 int main(int argc, char **argv)
 {
     qSetMessagePattern(QString::fromUtf8("%{file}(%{line}): %{message}"));
-    QApplication const application(argc, argv);
+    QApplication application(argc, argv);
 
     KLocalizedString::setApplicationDomain("opa");
     KCrash::initialize();
@@ -56,11 +57,13 @@ int main(int argc, char **argv)
 
     KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
 
+    DataManager::initialize(&application);
+
     // Do start-up
     open_database(QStringLiteral("./test.db"));
 
-    auto *window = new MainWindow;
-    window->show();
+    MainWindow window;
+    window.show();
 
     return application.exec();
 }

@@ -20,7 +20,7 @@ public Q_SLOTS:
     void addOrigin();
     void removeOrigin();
     void repairOrigins();
-    void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void onSelectionChanged(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected);
 
 private:
     QSqlTableModel* model;

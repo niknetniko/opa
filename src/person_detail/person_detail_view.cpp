@@ -20,7 +20,7 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey personId, QWidget *parent) 
     this->ui = new Ui::PersonDetailView();
     ui->setupUi(this);
 
-    this->model = DataManager::getInstance(this)->personDetailsModel(this, personId);
+    this->model = DataManager::get().personDetailsModel(this, personId);
     this->populate();
 
     // Create tab for events

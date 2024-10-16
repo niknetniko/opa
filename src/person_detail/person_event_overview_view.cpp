@@ -10,9 +10,9 @@
 #include "utils/formatted_identifier_delegate.h"
 #include "data/event.h"
 
-EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *parent) {
+EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *parent): QWidget(parent) {
     this->personId = personId;
-    this->baseModel = DataManager::getInstance(this)->eventsModelForPerson(this, personId);
+    this->baseModel = DataManager::get().eventsModelForPerson(this, personId);
 
     treeView = new QTreeView(this);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -45,7 +45,7 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
     connect(treeView, &QTreeView::doubleClicked, this, &EventsOverviewView::handleDoubleClick);
 }
 
-void EventsOverviewView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected) {
+void EventsOverviewView::handleSelectedNewRow(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected) {
     Q_EMIT this->selectedEvent(this->treeView->selectionModel()->model(), selected);
 }
 
@@ -87,7 +87,7 @@ void EventsOverviewView::removeSelectedEvent() {
     qDebug() << "Will delete event with ID " << eventId;
 
     // Find the row in the original model.
-    auto eventsModel = DataManager::getInstance(this)->eventsModel();
+    auto eventsModel = DataManager::get().eventsModel();
     for (int r = 0; r < eventsModel->rowCount(); ++r) {
         auto eventModelId = eventsModel->index(r, EventsModel::ID).data();
         qDebug() << "Considering event with ID " << eventModelId << "for deletion.";

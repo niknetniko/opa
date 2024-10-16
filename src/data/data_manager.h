@@ -5,6 +5,8 @@
 #ifndef OPA_DATA_MANAGER_H
 #define OPA_DATA_MANAGER_H
 
+#include <optional>
+
 #include <QObject>
 #include <QAbstractItemModel>
 #include <QAbstractProxyModel>
@@ -32,8 +34,11 @@ class DataManager : public QObject {
 Q_OBJECT
 
 public:
-    // TODO: remove this once no longer needed.
-    static DataManager *getInstance(QObject *parent);
+    static  void initialize(QObject *parent);
+
+    static DataManager &get();
+
+    explicit DataManager(QObject *parent);
 
     /**
      * A model for names. The origin is joined by default.
@@ -97,19 +102,29 @@ public:
 
 Q_SIGNALS:
 
+    /**
+     * Called when a change has occurred in a certain model, and other models depending on data
+     * from this table should also update.
+     *
+     * @param table
+     */
     void dataChanged(QString table);
 
 public Q_SLOTS:
 
-    void onSqlModelChanged();
+    /** See listenToModel */
+    void onSourceModelChanged();
 
 private:
-    explicit DataManager(QObject *parent);
+    static std::optional<DataManager> instance;
 
-    bool updatingNameOrigin = false;
-    bool updatingEventType = false;
-
-    static DataManager *instance;
+    /**
+     * This is set to true if the model updates are being sent from
+     * the DataManager, otherwise it origines from the model itself.
+     * Its main use is preventing signal loops, so if set to true,
+     * the updates will not propagate to the DataManager.
+     */
+    bool updatingFromDataManager = false;
 
     QSqlRelationalTableModel *baseNamesModel;
     QSqlTableModel *baseNameOriginModel;
@@ -117,6 +132,49 @@ private:
     QSqlTableModel *baseEventTypesModel;
     QSqlTableModel *baseEventRelationsModel;
     QSqlRelationalTableModel *baseEventsModel;
+
+    /**
+     * Connect the given model to the DataManager. All updates in
+     * the model will trigger the update of the dataChanged signal.
+     *
+     * @param model The model to listen to for updates.
+     */
+    void listenToModel(QSqlTableModel* model);
+
+    /**
+     * Ensure the given model updates when the given tables are updated.
+     *
+     * To prevent signal loops or other issues, the original model should
+     * be connected to the DataManager using listenToModel.
+     *
+     * @param model The model to update. It will only listen to its own table.
+     */
+    void propagateToModel(QSqlTableModel* model);
+
+    /**
+     * Ensure the given model updates when the given tables are updated.
+     *
+     * To prevent signal loops or other issues, the original model should
+     * be connected to the DataManager using listenToModel.
+     *
+     * @param model The model to update.
+     * @param tables The tables to listen to.
+     */
+    void propagateToModel(QSqlTableModel* model, QStringList tables);
+
+    /**
+     * Ensure the given model updates when the given tables are updated.
+     *
+     * To prevent signal loops or other issues, the original model should
+     * be connected to the DataManager using listenToModel.
+     *
+     * @tparam ModelType The type of the model.
+     * @param model The model to update.
+     * @param tables The tables to listen to.
+     * @param updater Called when the model must update.
+     */
+    template <class ModelType>
+    void propagateToModel(ModelType* model, QStringList tables, std::function<void(ModelType*)> updater);
 };
 
 #endif //OPA_DATA_MANAGER_H

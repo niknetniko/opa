@@ -2,7 +2,6 @@
 // Created by niko on 25/09/24.
 //
 
-#include <KExtraColumnsProxyModel>
 #include <KLocalizedString>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -17,147 +16,51 @@
 #include "utils/grouped_items_proxy_model.h"
 #include "utils/model_utils.h"
 
-DataManager *DataManager::instance = nullptr;
-
-DataManager *DataManager::getInstance(QObject *parent) {
-    if (instance == nullptr) {
-        instance = new DataManager(parent);
-    }
-    return instance;
-}
+std::optional<DataManager> DataManager::instance = std::nullopt;
 
 DataManager::DataManager(QObject *parent) : QObject(parent) {
-    this->baseNamesModel = new NamesTableModel(this);
-    this->baseNamesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-    this->baseNameOriginModel = new NameOriginTableModel(this);
-    this->baseNameOriginModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-
-    baseNamesModel->select();
-    // TODO: reduce the number of unnecessary signals here
-    // Connect the base model.
-    connect(baseNamesModel, &QAbstractItemModel::dataChanged, this, &DataManager::onSqlModelChanged);
-    connect(baseNamesModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onSqlModelChanged);
-    connect(baseNamesModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSqlModelChanged);
-    connect(baseNamesModel, &QAbstractItemModel::modelReset, this, &DataManager::onSqlModelChanged);
-
-    // Connect the other model.
-    auto *baseNamesRelationModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN);
-    // This updater is triggered when the base origin model is updated.
-    auto relationalListener = [this]() {
-        // If we are already updating the origin table, e.g. from the other model,
-        // do not propagate this update any further to prevent loops.
-        if (updatingNameOrigin) {
-            qDebug() << "Already updating so skipping update of base model.";
-            return;
-        }
-
-        qDebug() << "Doing base model.";
-
-        updatingNameOrigin = true;
-        // Update the other model.
-        baseNameOriginModel->select();
-        Q_EMIT this->dataChanged(this->baseNameOriginModel->tableName());
-        // Done.
-        updatingNameOrigin = false;
-    };
-    connect(baseNamesRelationModel, &QAbstractItemModel::dataChanged, this, relationalListener);
-    connect(baseNamesRelationModel, &QAbstractItemModel::rowsInserted, this, relationalListener);
-    connect(baseNamesRelationModel, &QAbstractItemModel::rowsRemoved, this, relationalListener);
-    connect(baseNamesRelationModel, &QAbstractItemModel::modelReset, this, relationalListener);
-//    connect(this, &DataManager::dataChanged, baseNameOriginModel, baseModelUpdater);
-
+    baseNameOriginModel = new NameOriginTableModel(this);
+    baseNameOriginModel->setEditStrategy(QSqlTableModel::OnFieldChange);
     baseNameOriginModel->select();
-    auto baseModelListener = [this]() {
-        // If we are already updating the origin table, e.g. from the other model,
-        // do not propagate this update any further to prevent loops.
-        if (updatingNameOrigin) {
-            qDebug() << "Already updating so skipping update of relational model.";
-            return;
-        }
+    listenToModel(baseNameOriginModel);
+    propagateToModel(baseNameOriginModel);
 
-        qDebug() << "Doing relational model.";
+    baseNamesModel = new NamesTableModel(this);
+    baseNamesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+    baseNamesModel->select();
+    listenToModel(baseNamesModel);
+    propagateToModel(baseNamesModel, {baseNamesModel->tableName(), baseNameOriginModel->tableName()});
 
-        updatingNameOrigin = true;
-        // Update the other model.
-        baseNamesModel->select();
-        Q_EMIT this->dataChanged(this->baseNameOriginModel->tableName());
-        // Done.
-        updatingNameOrigin = false;
-    };
-    connect(baseNameOriginModel, &QAbstractItemModel::dataChanged, this, baseModelListener);
-    connect(baseNameOriginModel, &QAbstractItemModel::rowsInserted, this, baseModelListener);
-    connect(baseNameOriginModel, &QAbstractItemModel::rowsRemoved, this, baseModelListener);
-    connect(baseNameOriginModel, &QAbstractItemModel::modelReset, this, baseModelListener);
+    // We also need to connect the relation model for the name origins from the base table.
+    auto *nameOriginsRelationalModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN);
+    listenToModel(nameOriginsRelationalModel);
+    propagateToModel(nameOriginsRelationalModel);
 
-    this->baseEventRolesModel = new EventRolesModel(this);
-    this->baseEventRolesModel->select();
-    connect(baseEventRolesModel, &QAbstractItemModel::dataChanged, this, &DataManager::onSqlModelChanged);
-    connect(baseEventRolesModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onSqlModelChanged);
-    connect(baseEventRolesModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSqlModelChanged);
-    connect(baseEventRolesModel, &QAbstractItemModel::modelReset, this, &DataManager::onSqlModelChanged);
+    baseEventRolesModel = new EventRolesModel(this);
+    baseEventRolesModel->select();
+    listenToModel(baseEventRolesModel);
+    propagateToModel(baseEventRolesModel);
 
-    this->baseEventRelationsModel = new EventRelationsModel(this);
-    this->baseEventRelationsModel->select();
-    connect(baseEventRelationsModel, &QAbstractItemModel::dataChanged, this, &DataManager::onSqlModelChanged);
-    connect(baseEventRelationsModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onSqlModelChanged);
-    connect(baseEventRelationsModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSqlModelChanged);
-    connect(baseEventRelationsModel, &QAbstractItemModel::modelReset, this, &DataManager::onSqlModelChanged);
+    baseEventRelationsModel = new EventRelationsModel(this);
+    baseEventRelationsModel->select();
+    listenToModel(baseEventRelationsModel);
+    propagateToModel(baseEventRelationsModel);
 
-    this->baseEventTypesModel = new EventTypesModel(this);
+
+    baseEventTypesModel = new EventTypesModel(this);
     baseEventTypesModel->select();
-    this->baseEventsModel = new EventsModel(this);
+    listenToModel(baseEventTypesModel);
+    propagateToModel(baseEventTypesModel);
+
+    baseEventsModel = new EventsModel(this);
     baseEventsModel->select();
-    connect(baseEventsModel, &QAbstractItemModel::dataChanged, this, &DataManager::onSqlModelChanged);
-    connect(baseEventsModel, &QAbstractItemModel::rowsInserted, this, &DataManager::onSqlModelChanged);
-    connect(baseEventsModel, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSqlModelChanged);
-    connect(baseEventsModel, &QAbstractItemModel::modelReset, this, &DataManager::onSqlModelChanged);
+    listenToModel(baseEventsModel);
+    propagateToModel(baseEventsModel, {baseEventsModel->tableName(), baseEventTypesModel->tableName()});
 
-    // Connect the other model.
-    auto *baseEventTypeRelationalModel = baseEventsModel->relationModel(EventsModel::TYPE);
-    // This updater is triggered when the base origin model is updated.
-    auto eventTypeRelationalListener = [this]() {
-        // If we are already updating the origin table, e.g. from the other model,
-        // do not propagate this update any further to prevent loops.
-        if (updatingEventType) {
-            qDebug() << "Already updating so skipping update of base model.";
-            return;
-        }
-
-        qDebug() << "Doing base model.";
-
-        updatingEventType = true;
-        // Update the other model.
-        baseEventTypesModel->select();
-        Q_EMIT this->dataChanged(this->baseEventTypesModel->tableName());
-        // Done.
-        updatingEventType = false;
-    };
-    connect(baseEventTypeRelationalModel, &QAbstractItemModel::dataChanged, this, eventTypeRelationalListener);
-    connect(baseEventTypeRelationalModel, &QAbstractItemModel::rowsInserted, this, eventTypeRelationalListener);
-    connect(baseEventTypeRelationalModel, &QAbstractItemModel::rowsRemoved, this, eventTypeRelationalListener);
-    connect(baseEventTypeRelationalModel, &QAbstractItemModel::modelReset, this, eventTypeRelationalListener);
-
-    auto baseEventModelListener = [this]() {
-        // If we are already updating the origin table, e.g. from the other model,
-        // do not propagate this update any further to prevent loops.
-        if (updatingEventType) {
-            qDebug() << "Already updating so skipping update of relational model.";
-            return;
-        }
-
-        qDebug() << "Doing relational model.";
-
-        updatingEventType = true;
-        // Update the other model.
-        baseEventsModel->select();
-        Q_EMIT this->dataChanged(this->baseEventTypesModel->tableName());
-        // Done.
-        updatingEventType = false;
-    };
-    connect(baseEventTypesModel, &QAbstractItemModel::dataChanged, this, baseEventModelListener);
-    connect(baseEventTypesModel, &QAbstractItemModel::rowsInserted, this, baseEventModelListener);
-    connect(baseEventTypesModel, &QAbstractItemModel::rowsRemoved, this, baseEventModelListener);
-    connect(baseEventTypesModel, &QAbstractItemModel::modelReset, this, baseEventModelListener);
+    // We also need to connect the relation model for the event types from the base table.
+    auto *eventTypesRelationalModel = baseEventsModel->relationModel(EventsModel::TYPE);
+    listenToModel(eventTypesRelationalModel);
+    propagateToModel(eventTypesRelationalModel);
 }
 
 QSqlTableModel *DataManager::namesModel() const {
@@ -204,11 +107,8 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     rearrangedModel->setSourceModel(combinedModel);
     rearrangedModel->setSourceColumns(QVector<int>() << 0 << 6 << 5);
 
-    // Connect the original model to changes.
-    connect(this, &DataManager::dataChanged, this, [baseModel, query](const QString &table) {
-        if (table == Schema::PeopleTable || table == Schema::NamesTable) {
-            baseModel->setQuery(query);
-        }
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [query](auto* model) {
+        model->setQuery(query);
     });
 
     return rearrangedModel;
@@ -241,15 +141,12 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
     auto *combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
 
-    // Connect the original model to changes.
-    connect(this, &DataManager::dataChanged, baseModel, [=](const QString &table) {
-        if (table == Schema::PeopleTable || table == Schema::NamesTable) {
-            QSqlQuery newQuery;
-            newQuery.prepare(rawQuery);
-            newQuery.bindValue(QStringLiteral(":id"), personId);
-            newQuery.exec();
-            baseModel->setQuery(std::move(newQuery));
-        }
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [rawQuery, personId](auto* model) {
+        QSqlQuery newQuery;
+        newQuery.prepare(rawQuery);
+        newQuery.bindValue(QStringLiteral(":id"), personId);
+        newQuery.exec();
+        model->setQuery(std::move(newQuery));
     });
 
     // Our QSqlQueryModel does not emit "data changed", since it is read-only.
@@ -282,20 +179,6 @@ QSqlTableModel *DataManager::eventsModel() {
     return this->baseEventsModel;
 }
 
-void DataManager::onSqlModelChanged() {
-    QObject *sender = QObject::sender();
-    if (sender == nullptr) {
-        return;
-    }
-
-    auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
-    assert(sendingModel != nullptr);
-
-    qDebug() << "Updated tables, source: " << sendingModel->tableName();
-
-    Q_EMIT this->dataChanged(sendingModel->tableName());
-}
-
 QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
             "SELECT er.role, et.type, events.date, events.name, events.id "
@@ -320,15 +203,12 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     baseModel->setHeaderData(PersonEventsModel::ROLE, Qt::Horizontal, i18n("Rol"));
 
     // Connect the original model to changes.
-    connect(this, &DataManager::dataChanged, baseModel, [=](const QString &table) {
-        if (table == Schema::EventsTable || table == Schema::EventTypesTable || table == Schema::EventRolesTable ||
-            table == Schema::EventRelationsTable) {
-            QSqlQuery newQuery;
-            newQuery.prepare(rawQuery);
-            newQuery.bindValue(QStringLiteral(":id"), personId);
-            newQuery.exec();
-            baseModel->setQuery(std::move(newQuery));
-        }
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable}, [rawQuery, personId](auto* model) {
+        QSqlQuery newQuery;
+        newQuery.prepare(rawQuery);
+        newQuery.bindValue(QStringLiteral(":id"), personId);
+        newQuery.exec();
+        model->setQuery(std::move(newQuery));
     });
 
     auto *dateModel = new OpaDateModel(parent);
@@ -356,4 +236,68 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     sortable->setSourceModel(hidden);
 
     return sortable;
+}
+
+void DataManager::listenToModel(QSqlTableModel *model) {
+    connect(model, &QAbstractItemModel::dataChanged, this, &DataManager::onSourceModelChanged);
+    connect(model, &QAbstractItemModel::rowsInserted, this, &DataManager::onSourceModelChanged);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSourceModelChanged);
+    connect(model, &QAbstractItemModel::modelReset, this, &DataManager::onSourceModelChanged);
+}
+
+void DataManager::onSourceModelChanged() {
+    QObject *sender = QObject::sender();
+    assert(sender != nullptr);
+
+    auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
+    assert(sendingModel != nullptr);
+
+    // This is called as a slot by signals on the original models.
+    // When this is called the first time, we will set the variable to true,
+    // and propagate the signal to our own listeners.
+    QString senderName = QString::fromUtf8(sender->metaObject()->className());
+    qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName();
+    if (this->updatingFromDataManager == false) {
+        qDebug() << "Not updating yet" << senderName;
+        updatingFromDataManager = true;
+        Q_EMIT this->dataChanged(sendingModel->tableName());
+        updatingFromDataManager = false;
+    } else {
+        qDebug() << "Already updating in DataManager, so ignoring this signal." << senderName;
+        // We are already updating from another model, so do not propagate this.
+        // Do nothing.
+    }
+}
+
+void DataManager::propagateToModel(QSqlTableModel *model, QStringList tables) {
+    this->propagateToModel<QSqlTableModel>(model, tables, [](QSqlTableModel* theModel) {
+        theModel->select();
+    });
+}
+
+void DataManager::propagateToModel(QSqlTableModel *model) {
+    this->propagateToModel(model, {model->tableName()});
+}
+
+void DataManager::initialize(QObject *parent) {
+    assert(!instance);
+    instance.emplace(parent);
+}
+
+DataManager &DataManager::get() {
+    assert(instance);
+    return instance.value();
+}
+
+template<class ModelType>
+void DataManager::propagateToModel(ModelType *model, QStringList tables, std::function<void(ModelType *)> updater) {
+    connect(this, &DataManager::dataChanged, model, [model, tables, updater](QString table){
+        qDebug() << "Propagating update of table" << table << "to models.";
+        if (tables.contains(table)) {
+            qDebug() << "   Model is interested, triggering refresh of model.";
+            updater(model);
+        } else {
+            qDebug() << "   Model is not interested, skipping.";
+        }
+    });
 }

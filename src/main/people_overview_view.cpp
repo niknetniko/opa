@@ -17,7 +17,7 @@
 
 PeopleOverviewView::PeopleOverviewView(QWidget *parent) : QWidget(parent) {
 
-    auto *baseModel = DataManager::getInstance(this)->primaryNamesModel(this);
+    auto *baseModel = DataManager::get().primaryNamesModel(this);
 
     // Create a searchable model.
     auto filtered = new QSortFilterProxyModel(this);

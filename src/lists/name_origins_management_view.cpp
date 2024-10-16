@@ -46,7 +46,7 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWid
     nameToolbar->addAction(repairAction);
     connect(repairAction, &QAction::triggered, this, &NameOriginsManagementWindow::repairOrigins);
 
-    this->model = DataManager::getInstance(this)->nameOriginsModel();
+    this->model = DataManager::get().nameOriginsModel();
     // We want to filter and sort.
     auto *filterProxyModel = new QSortFilterProxyModel(this);
     filterProxyModel->setSourceModel(model);
@@ -98,7 +98,7 @@ void NameOriginsManagementWindow::addOrigin() {
     }
 }
 
-void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
+void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected) {
     if (selected.isEmpty()) {
         this->removeAction->setEnabled(false);
         return;
@@ -111,7 +111,7 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
     qDebug() << "Checking name with id " << id << " for usage";
 
     // TODO: this is not very efficient
-    auto *nameModel = DataManager::getInstance(this)->namesModel();
+    auto *nameModel = DataManager::get().namesModel();
     bool isUsedByNames = false;
     for (int r = 0; r < nameModel->rowCount(); ++r) {
         auto usedOrigin = nameModel->index(r, NamesTableModel::ORIGIN).data();
@@ -146,7 +146,7 @@ void NameOriginsManagementWindow::repairOrigins() {
     messageBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     messageBox.setDefaultButton(QMessageBox::Ok);
 
-    auto anameModel = DataManager::getInstance(this)->namesModel();
+    auto anameModel = DataManager::get().namesModel();
     auto aindex = anameModel->index(0, NamesTableModel::ORIGIN).data();
     auto aindex2 = anameModel->index(0, NamesTableModel::ORIGIN).data(Qt::EditRole);
     qDebug() << "Data DISPLAY is " << aindex;
@@ -176,7 +176,7 @@ void NameOriginsManagementWindow::repairOrigins() {
     this->model->submitAll();
     // Refresh the model for certainty.
     // TODO: look at this again so this is not needed.
-    auto nameModel = DataManager::getInstance(this)->namesModel();
+    auto nameModel = DataManager::get().namesModel();
 //    nameModel->select();
 
     progress.setValue(1);

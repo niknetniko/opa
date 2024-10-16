@@ -39,7 +39,7 @@ QString Names::construct_display_name(const QString &titles, const QString &give
 
 NamesOverviewView::NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
     this->personId = personId;
-    this->baseModel = DataManager::getInstance(this)->namesModelForPerson(this, personId);
+    this->baseModel = DataManager::get().namesModelForPerson(this, personId);
 
     // We only show certain columns here.
     auto *selectedColumnsModel = new KRearrangeColumnsProxyModel(this);
@@ -121,7 +121,7 @@ void NamesOverviewView::handleNewName() {
     }
 
     auto theId = lastInsertedId.toLongLong();
-    auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
+    auto *theModel = DataManager::get().singleNameModel(this, theId);
 
     // Show the dialog for the other data.
     auto *editorWindow = new NamesEditor(theModel, true, this);
@@ -142,7 +142,7 @@ void NamesOverviewView::editSelectedName() {
     // TODO: do not hardcode this.
     auto index = this->treeView->model()->index(selectRow.row(), 0);
     auto theId = this->treeView->model()->data(index, Qt::EditRole).toLongLong();
-    auto *theModel = DataManager::getInstance(this)->singleNameModel(this, theId);
+    auto *theModel = DataManager::get().singleNameModel(this, theId);
     auto *editorWindow = new NamesEditor(theModel, false, this);
     editorWindow->show();
     editorWindow->adjustSize();
