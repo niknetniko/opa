@@ -14,6 +14,9 @@
 #include <QSqlRelationalTableModel>
 #include "database/schema.h"
 
+template<class M>
+concept QSqlTableModelConcept = std::is_base_of<QSqlTableModel, M>::value;
+
 /**
  * The centralized point to get models for data access from the database.
  *
@@ -176,7 +179,7 @@ private:
     template <class ModelType>
     void propagateToModel(ModelType* model, QStringList tables, std::function<void(ModelType*)> updater);
 
-    template <typename ModelType>
+    template <QSqlTableModelConcept ModelType>
     ModelType* makeModel();
 };
 

@@ -57,10 +57,11 @@ int main(int argc, char **argv)
 
     KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
 
-    DataManager::initialize(&application);
-
-    // Do start-up
+    // Set up the SQLite database file.
     open_database(QStringLiteral("./test.db"));
+
+    // Initialize the model manager.
+    DataManager::initialize(&application);
 
     MainWindow window;
     window.show();

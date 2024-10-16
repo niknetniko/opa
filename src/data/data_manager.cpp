@@ -60,7 +60,6 @@ QSqlTableModel *DataManager::namesModel() const {
 }
 
 QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
-    qDebug() << "Creating model for names of" << personId;
     auto *proxy = new CellFilteredProxyModel(parent, personId, NamesTableModel::PERSON_ID);
     proxy->setSourceModel(this->namesModel());
     return proxy;
@@ -282,11 +281,17 @@ DataManager &DataManager::get() {
     return instance.value();
 }
 
-template<typename ModelType>
+template<QSqlTableModelConcept ModelType>
 ModelType *DataManager::makeModel() {
     auto* model = new ModelType(this);
     model->setEditStrategy(QSqlTableModel::OnFieldChange);
-    model->select();
+    if (!model->select()) {
+        qWarning() << "Problem while getting data for model" << model->metaObject()->className();
+        auto lastError = model->lastError();
+        auto errorText = lastError.text();
+        qWarning() << "Error was:" << errorText;
+        qDebug() << "Raw error: " << lastError;
+    }
     return model;
 }
 
