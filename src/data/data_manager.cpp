@@ -299,16 +299,16 @@ template<class ModelType>
 void DataManager::propagateToModel(ModelType *model, QStringList tables, std::function<void(ModelType *)> updater) {
     auto name = model->metaObject()->className();
     connect(this, &DataManager::dataChanged, model, [model, tables, updater, name, this](QString table){
-        qDebug() << "Propagating update of table" << table << "to model " << name;
+//        qDebug() << "Propagating update of table" << table << "to model " << name;
         if (tables.contains(table)) {
             if (updatingFromDataManagerSource != model) {
-                qDebug() << "   Model is interested, triggering refresh of model.";
+//                qDebug() << "   Model is interested, triggering refresh of model.";
                 updater(model);
             } else {
-                qDebug() << "   Model is interested, but is the source, skipping.";
+//                qDebug() << "   Model is interested, but is the source, skipping.";
             }
         } else {
-            qDebug() << "   Model is not interested, skipping.";
+//            qDebug() << "   Model is not interested, skipping.";
         }
     });
 }
