@@ -103,15 +103,12 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
         return;
     }
 
-    // TODO: change this to be able to use the ID instead of the actual name.
     // Get the ID of the current selected row.
     auto id = this->model->index(selected.indexes().first().row(), NameOriginTableModel::ID).data();
 
     qDebug() << "Checking name with id " << id << " for usage";
 
-    // TODO: this is not very efficient
     auto *nameModel = DataManager::get().namesModel();
-
     auto usage = nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
     this->removeAction->setEnabled(usage.isEmpty());
 }
