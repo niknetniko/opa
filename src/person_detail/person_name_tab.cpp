@@ -67,7 +67,7 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     connect(this->downAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameDown);
 }
 
-void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) {
+void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) const {
     if (selected.isEmpty()) {
         this->editAction->setEnabled(false);
         this->removeAction->setEnabled(false);
@@ -78,8 +78,8 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemS
 
     this->editAction->setEnabled(true);
 
-    int nameSort = model->index(selected.indexes().first().row(), 1).data().toInt();
-    int rowCount = model->rowCount();
+    const int nameSort = model->index(selected.indexes().first().row(), 1).data().toInt();
+    const int rowCount = model->rowCount();
 
     // Do not allow removal of the main name.
     this->removeAction->setEnabled(nameSort != 1);
@@ -89,7 +89,7 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemS
     this->downAction->setEnabled(nameSort < model->rowCount() && rowCount > 1);
 }
 
-void PersonNameTab::onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex) {
+void PersonNameTab::onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, const int logicalIndex) const {
     // Check if there is currently a selected item.
     if (selected.isEmpty()) {
         // Leave everything alone as it was.
@@ -97,7 +97,7 @@ void PersonNameTab::onSortChanged(const QAbstractItemModel *model, const QItemSe
         return;
     }
 
-    bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
+    const bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
     // Only allow up and down if the view is not sorted or sorted on the second column.
     this->upAction->setEnabled(this->upAction->isEnabled() && allowUpAndDown);
     this->downAction->setEnabled(this->downAction->isEnabled() && allowUpAndDown);

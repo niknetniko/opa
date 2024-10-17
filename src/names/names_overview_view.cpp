@@ -5,9 +5,7 @@
 #include <QSqlQuery>
 #include <QDebug>
 #include <QSqlError>
-#include <QSqlTableModel>
 #include <QHeaderView>
-#include <QVBoxLayout>
 #include <QMessageBox>
 
 #include "names_overview_view.h"
@@ -37,7 +35,7 @@ QString Names::construct_display_name(const QString &titles, const QString &give
     return nameParts.join(QStringLiteral(" "));
 }
 
-NamesOverviewView::NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
+NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
     this->personId = personId;
     this->baseModel = DataManager::get().namesModelForPerson(this, personId);
 
@@ -131,12 +129,12 @@ void NamesOverviewView::handleNewName() {
 
 void NamesOverviewView::editSelectedName() {
     // Get the currently selected name.
-    auto selection = this->treeView->selectionModel();
+    const auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
-    auto selectRow = selection->selectedRows().first();
+    const auto selectRow = selection->selectedRows().first();
 
     // The first column contains the primary key.
     // TODO: do not hardcode this.
@@ -148,7 +146,7 @@ void NamesOverviewView::editSelectedName() {
     editorWindow->adjustSize();
 }
 
-void NamesOverviewView::removeSelectedName() {
+void NamesOverviewView::removeSelectedName() const {
     // Get the currently selected name.
     auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {

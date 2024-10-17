@@ -13,9 +13,9 @@
 #include "main_window.h"
 
 #include "opadebug.h"
+#include "lists/name_origins_management_view.h"
 #include "people_overview_view.h"
 #include "person_detail/person_detail_view.h"
-#include "lists/name_origins_management_view.h"
 #include "ui_settings.h"
 
 MainWindow::MainWindow() : KXmlGuiWindow() {
@@ -43,7 +43,7 @@ MainWindow::MainWindow() : KXmlGuiWindow() {
     manageNameOrigins->setText(i18n("Naamoorsprongen beheren"));
     connect(manageNameOrigins, &QAction::triggered, this, &MainWindow::openNameOriginManager);
 
-    KActionCollection *actionCollection = this->actionCollection();
+    KActionCollection *actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins);
     KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);
     KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
@@ -108,8 +108,8 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
         if (tabIndex < 0) {
             return; // Do nothing as the tab no longer exists for some reason.
         }
-        auto *detailView = qobject_cast<PersonDetailView *>(tabWidget->widget(tabIndex));
-        tabWidget->setTabText(tabIndex, detailView->getDisplayName());
+        auto *theDetailView = qobject_cast<PersonDetailView *>(tabWidget->widget(tabIndex));
+        tabWidget->setTabText(tabIndex, theDetailView->getDisplayName());
     });
 }
 

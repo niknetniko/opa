@@ -6,6 +6,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QLibraryInfo>
+#include <QMetaMethod>
 
 #include "data_manager.h"
 #include "names/names_overview_view.h"
@@ -20,52 +21,24 @@ std::optional<DataManager> DataManager::instance = std::nullopt;
 
 DataManager::DataManager(QObject *parent) : QObject(parent) {
     baseNameOriginModel = makeModel<NameOriginTableModel>();
-    listenToModel(baseNameOriginModel);
-    propagateToModel(baseNameOriginModel);
-
-    baseNamesModel = makeModel<NamesTableModel>();
-    listenToModel(baseNamesModel);
-    propagateToModel(baseNamesModel, {baseNamesModel->tableName(), baseNameOriginModel->tableName()});
-
-    // We also need to connect the relation model for the name origins from the base table.
-    auto *nameOriginsRelationalModel = baseNamesModel->relationModel(NamesTableModel::ORIGIN);
-    listenToModel(nameOriginsRelationalModel);
-    propagateToModel(nameOriginsRelationalModel);
-
+    baseNamesModel = makeModel<NamesTableModel>(baseNameOriginModel);
     baseEventRolesModel = makeModel<EventRolesModel>();
-    listenToModel(baseEventRolesModel);
-    propagateToModel(baseEventRolesModel);
-
-    baseEventRelationsModel = makeModel<EventRelationsModel>();
-    listenToModel(baseEventRelationsModel);
-    propagateToModel(baseEventRelationsModel);
-
-
+    baseEventRelationsModel = makeModel<EventRelationsModel>(baseEventRolesModel);
     baseEventTypesModel = makeModel<EventTypesModel>();
-    listenToModel(baseEventTypesModel);
-    propagateToModel(baseEventTypesModel);
-
-    baseEventsModel = makeModel<EventsModel>();
-    listenToModel(baseEventsModel);
-    propagateToModel(baseEventsModel, {baseEventsModel->tableName(), baseEventTypesModel->tableName()});
-
-    // We also need to connect the relation model for the event types from the base table.
-    auto *eventTypesRelationalModel = baseEventsModel->relationModel(EventsModel::TYPE);
-    listenToModel(eventTypesRelationalModel);
-    propagateToModel(eventTypesRelationalModel);
+    baseEventsModel = makeModel<EventsModel>(baseEventTypesModel);
 }
 
 QSqlTableModel *DataManager::namesModel() const {
     return this->baseNamesModel;
 }
 
-QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
+QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, const IntegerPrimaryKey personId) const {
     auto *proxy = new CellFilteredProxyModel(parent, personId, NamesTableModel::PERSON_ID);
     proxy->setSourceModel(this->namesModel());
     return proxy;
 }
 
-QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, IntegerPrimaryKey nameId) {
+QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, const IntegerPrimaryKey nameId) const {
     qDebug() << "Creating single model where the ID is " << nameId << " on column " << NamesTableModel::ID;
     auto *proxy = new CellFilteredProxyModel(parent, nameId, NamesTableModel::ID);
     proxy->setSourceModel(this->namesModel());
@@ -143,7 +116,7 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
 
     // Our QSqlQueryModel does not emit "data changed", since it is read-only.
     // This is, however, very annoying, so we do it anyway.
-    connect(baseModel, &QAbstractItemModel::modelReset, [baseModel]() {
+    connect(baseModel, &QAbstractItemModel::modelReset, [baseModel] {
         // TODO: should we properly pass an index here?
         Q_EMIT baseModel->dataChanged(baseModel->index(0, 0), baseModel->index(0, 0));
     });
@@ -167,7 +140,7 @@ QSqlTableModel *DataManager::eventRelationsModel() const {
     return this->baseEventRelationsModel;
 }
 
-QSqlTableModel *DataManager::eventsModel() {
+QSqlTableModel *DataManager::eventsModel() const {
     return this->baseEventsModel;
 }
 
@@ -224,13 +197,10 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
                                      PersonEventsModel::ID + 1
                              });
 
-    auto sortable = new QSortFilterProxyModel(parent);
-    sortable->setSourceModel(hidden);
-
-    return sortable;
+    return hidden;
 }
 
-void DataManager::listenToModel(QSqlTableModel *model) {
+void DataManager::listenToModel(const QSqlTableModel *model) {
     connect(model, &QAbstractItemModel::dataChanged, this, &DataManager::onSourceModelChanged);
     connect(model, &QAbstractItemModel::rowsInserted, this, &DataManager::onSourceModelChanged);
     connect(model, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSourceModelChanged);
@@ -241,21 +211,24 @@ void DataManager::onSourceModelChanged() {
     QObject *sender = QObject::sender();
     assert(sender != nullptr);
 
-    auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
+    const auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
     assert(sendingModel != nullptr);
+
+    const auto metaMethod = sender->metaObject()->method(senderSignalIndex());
 
     // This is called as a slot by signals on the original models.
     // When this is called the first time, we will set the variable to true,
     // and propagate the signal to our own listeners.
-    QString senderName = QString::fromUtf8(sender->metaObject()->className());
+    const auto senderName = QString::fromUtf8(sender->metaObject()->className());
     qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName();
+    qDebug() << "   by signal" << metaMethod.methodSignature();
     if (this->updatingFromDataManagerSource == nullptr) {
-        qDebug() << "Not updating yet";
+        qDebug() << "   Not updating yet";
         updatingFromDataManagerSource = sender;
         Q_EMIT this->dataChanged(sendingModel->tableName());
         updatingFromDataManagerSource = nullptr;
     } else {
-        qDebug() << "Already updating in DataManager, so ignoring this signal." << senderName;
+        qDebug() << "   Already updating in DataManager, so ignoring this signal.";
         // We are already updating from another model, so do not propagate this.
         // Do nothing.
     }
@@ -281,9 +254,9 @@ DataManager &DataManager::get() {
     return instance.value();
 }
 
-template<QSqlTableModelConcept ModelType>
-ModelType *DataManager::makeModel() {
-    auto* model = new ModelType(this);
+template<QSqlTableModelConcept ModelType, typename... Args>
+ModelType *DataManager::makeModel(Args&&... args) {
+    auto* model = new ModelType(this, std::forward<Args>(args)...);
     model->setEditStrategy(QSqlTableModel::OnFieldChange);
     if (!model->select()) {
         qWarning() << "Problem while getting data for model" << model->metaObject()->className();
@@ -292,13 +265,17 @@ ModelType *DataManager::makeModel() {
         qWarning() << "Error was:" << errorText;
         qDebug() << "Raw error: " << lastError;
     }
+
+    // Link the model to the DataManager.
+    this->listenToModel(model);
+
     return model;
 }
 
 template<class ModelType>
 void DataManager::propagateToModel(ModelType *model, QStringList tables, std::function<void(ModelType *)> updater) {
     auto name = model->metaObject()->className();
-    connect(this, &DataManager::dataChanged, model, [model, tables, updater, name, this](QString table){
+    connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString &table){
 //        qDebug() << "Propagating update of table" << table << "to model " << name;
         if (tables.contains(table)) {
             if (updatingFromDataManagerSource != model) {

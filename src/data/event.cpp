@@ -7,40 +7,39 @@
 #include "utils/model_utils.h"
 
 EventRolesModel::EventRolesModel(QObject *parent) : QSqlTableModel(parent) {
-    this->setTable(Schema::EventRolesTable);
+    QSqlTableModel::setTable(Schema::EventRolesTable);
 
-    this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
-    this->setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
+    QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
+    QSqlTableModel::setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
 }
 
 EventTypesModel::EventTypesModel(QObject *parent) : QSqlTableModel(parent) {
-    this->setTable(Schema::EventTypesTable);
+    QSqlTableModel::setTable(Schema::EventTypesTable);
 
-    this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
-    this->setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
+    QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
+    QSqlTableModel::setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
 }
 
-EventRelationsModel::EventRelationsModel(QObject *parent) : QSqlTableModel(parent) {
-    this->setTable(Schema::EventRelationsTable);
+EventRelationsModel::EventRelationsModel(QObject *parent,
+                                         QSqlTableModel *rolesModel) : CustomSqlRelationalModel(parent) {
+    CustomSqlRelationalModel::setTable(Schema::EventRelationsTable);
 
-    this->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Gebeurtenis-id"));
-    this->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
-    this->setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
+    this->setRelation(ROLE_ID, rolesModel, EventRolesModel::ROLE, EventRolesModel::ID);
+
+    CustomSqlRelationalModel::setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Gebeurtenis-id"));
+    CustomSqlRelationalModel::setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
+    CustomSqlRelationalModel::setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
+    CustomSqlRelationalModel::setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
 }
 
-EventsModel::EventsModel(QObject *parent) : QSqlRelationalTableModel(parent) {
-    this->setTable(Schema::EventsTable);
-    this->setRelation(EventsModel::TYPE,
-                      QSqlRelation(
-                              Schema::EventTypesTable,
-                              QStringLiteral("id"),
-                              QStringLiteral("type")
-                      )
-    );
-    this->setJoinMode(QSqlRelationalTableModel::JoinMode::LeftJoin);
+EventsModel::EventsModel(QObject *parent, QSqlTableModel *typesModel) : CustomSqlRelationalModel(parent) {
+    CustomSqlRelationalModel::setTable(Schema::EventsTable);
 
-    this->setHeaderData(ID, Qt::Horizontal, i18n("Id"));
-    this->setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
-    this->setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
-    this->setHeaderData(NAME, Qt::Horizontal, i18n("Naam"));
+    this->setRelation(TYPE_ID, typesModel, EventTypesModel::TYPE, EventTypesModel::ID);
+
+    CustomSqlRelationalModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
+    CustomSqlRelationalModel::setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Soort-id"));
+    CustomSqlRelationalModel::setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
+    CustomSqlRelationalModel::setHeaderData(NAME, Qt::Horizontal, i18n("Naam"));
+    CustomSqlRelationalModel::setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
 }

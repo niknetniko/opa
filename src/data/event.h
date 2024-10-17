@@ -7,73 +7,76 @@
 
 #include <QString>
 #include <QSqlTableModel>
-#include <QSqlRelationalTableModel>
+
+#include "utils/custom_sql_relational_model.h"
 
 namespace KnownEventRols {
-    const QString Primary = QStringLiteral("primary");
-    const QString Witness = QStringLiteral("witness");
+    const auto Primary = QStringLiteral("primary");
+    const auto Witness = QStringLiteral("witness");
 };
 
 namespace KnownEventTypes {
-    const QString BIRTH = QStringLiteral("birth");
-    const QString DEATH = QStringLiteral("death");
-    const QString MARRIAGE = QStringLiteral("marriage");
-    const QString DIVORCE = QStringLiteral("divorce");
-    const QString BAPTISM = QStringLiteral("baptism");
-    const QString CONFIRMATION = QStringLiteral("confirmation");
-    const QString FIRST_COMMUNION = QStringLiteral("first_communion");
-    const QString FUNERAL = QStringLiteral("funeral");
+    const auto BIRTH = QStringLiteral("birth");
+    const auto DEATH = QStringLiteral("death");
+    const auto MARRIAGE = QStringLiteral("marriage");
+    const auto DIVORCE = QStringLiteral("divorce");
+    const auto BAPTISM = QStringLiteral("baptism");
+    const auto CONFIRMATION = QStringLiteral("confirmation");
+    const auto FIRST_COMMUNION = QStringLiteral("first_communion");
+    const auto FUNERAL = QStringLiteral("funeral");
 }
 
 class EventRolesModel : public QSqlTableModel {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    static const int ID = 0;
-    static const int ROLE = 1;
+    static constexpr int ID = 0;
+    static constexpr int ROLE = 1;
 
-    EventRolesModel(QObject *parent);
+    explicit EventRolesModel(QObject *parent);
 };
 
 class EventTypesModel : public QSqlTableModel {
-Q_OBJECT
-
-public:
-    static const int ID = 0;
-    static const int TYPE = 1;
-
-    EventTypesModel(QObject *parent);
-};
-
-class EventRelationsModel : public QSqlTableModel {
-Q_OBJECT
-
-public:
-    static const int EVENT_ID = 0;
-    static const int PERSON_ID = 1;
-    static const int ROLE_ID = 2;
-
-    EventRelationsModel(QObject *parent);
-};
-
-class EventsModel : public QSqlRelationalTableModel {
     Q_OBJECT
-public:
-    static const int ID = 0;
-    static const int TYPE = 1;
-    static const int DATE = 2;
-    static const int NAME = 3;
 
-    EventsModel(QObject *parent);
+public:
+    static constexpr int ID = 0;
+    static constexpr int TYPE = 1;
+
+    explicit EventTypesModel(QObject *parent);
+};
+
+class EventRelationsModel : public CustomSqlRelationalModel {
+    Q_OBJECT
+
+public:
+    static constexpr int EVENT_ID = 0;
+    static constexpr int PERSON_ID = 1;
+    static constexpr int ROLE_ID = 2;
+    static constexpr int ROLE = 3;
+
+    explicit EventRelationsModel(QObject *parent, QSqlTableModel *rolesModel);
+};
+
+class EventsModel : public CustomSqlRelationalModel {
+    Q_OBJECT
+
+public:
+    static constexpr int ID = 0;
+    static constexpr int TYPE_ID = 1;
+    static constexpr int DATE = 2;
+    static constexpr int NAME = 3;
+    static constexpr int TYPE = 3;
+
+    explicit EventsModel(QObject *parent, QSqlTableModel *typesModel);
 };
 
 namespace PersonEventsModel {
-    const int ROLE = 0;
-    const int TYPE = 1;
-    const int DATE = 2;
-    const int NAME = 3;
-    const int ID = 4;
-};
-
+    constexpr int ROLE = 0;
+    constexpr int TYPE = 1;
+    constexpr int DATE = 2;
+    constexpr int NAME = 3;
+    constexpr int ID = 4;
+}
 
 #endif //OPA_EVENT_H

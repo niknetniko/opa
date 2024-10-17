@@ -7,45 +7,32 @@
 
 #include <QString>
 #include <KExtraColumnsProxyModel>
-#include "database/schema.h"
 
-namespace Data {
-    namespace Person {
-        const QString TABLE_NAME = QString::fromUtf8("person");
+namespace Data::Person {
+    namespace Table {
+        const auto ID = QStringLiteral("id");
+        const auto GIVEN_NAMES = QStringLiteral("given_names");
+        const auto NICK_NAME = QStringLiteral("nick_name");
+        const auto CALL_NAME = QStringLiteral("call_name");
+        const auto SUFFIX = QStringLiteral("suffix");
+        const auto SEX = QStringLiteral("sex");
+    };
 
-        namespace Table {
-            const QString ID = QString::fromUtf8("id");
-            const QString GIVEN_NAMES = QString::fromUtf8("given_names");
-            const QString NICK_NAME = QString::fromUtf8("nick_name");
-            const QString CALL_NAME = QString::fromUtf8("call_name");
-            const QString SUFFIX = QString::fromUtf8("suffix");
-            const QString SEX = QString::fromUtf8("sex");
-        };
+    namespace Sex {
+        const auto MALE = QStringLiteral("male");
+        const auto FEMALE = QStringLiteral("female");
+        const auto UNKNOWN = QStringLiteral("unknown");
 
-        namespace Sex {
-            const QString MALE = QStringLiteral("male");
-            const QString FEMALE = QStringLiteral("female");
-            const QString UNKNOWN = QStringLiteral("unknown");
+        QString toDisplay(const QString &sex);
 
-            QString toDisplay(const QString &sex);
-
-            QString toIcon(const QString &sex);
-        }
-
-        namespace Order {
-            const int ID = 0;
-            const int GIVEN_NAMES = 1;
-            const int NICK_NAME = 2;
-            const int CALL_NAME = 3;
-            const int SUFFIX = 4;
-        }
+        QString toIcon(const QString &sex);
     }
 }
 
 namespace DisplayNameModel {
-    const int ID = 0;
-    const int NAME = 1;
-    const int ROOT = 2;
+    constexpr int ID = 0;
+    constexpr int NAME = 1;
+    constexpr int ROOT = 2;
 }
 
 /**
@@ -63,14 +50,14 @@ public:
 };
 
 namespace PersonDetailModel {
-    const int ID = 0;
-    const int TITLES = 1;
-    const int GIVEN_NAMES = 2;
-    const int PREFIXES = 3;
-    const int SURNAME = 4;
-    const int ROOT = 5;
-    const int SEX = 6;
-    const int DISPLAY_NAME = 7;
+    constexpr int ID = 0;
+    constexpr int TITLES = 1;
+    constexpr int GIVEN_NAMES = 2;
+    constexpr int PREFIXES = 3;
+    constexpr int SURNAME = 4;
+    constexpr int ROOT = 5;
+    constexpr int SEX = 6;
+    constexpr int DISPLAY_NAME = 7;
 };
 
 #endif //OPA_PERSON_H

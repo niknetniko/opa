@@ -55,7 +55,7 @@ public Q_SLOTS:
     /**
      * Remove the currently selected name.
      */
-    void removeSelectedName();
+    void removeSelectedName() const;
     /**
      * Move the selected name down one row.
      */

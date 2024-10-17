@@ -16,8 +16,8 @@ public:
     explicit PersonNameTab(IntegerPrimaryKey person, QWidget* parent);
 
 public Q_SLOTS:
-    void onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected);
-    void onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex);
+    void onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) const;
+    void onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex) const;
 
 private:
     QAction* addAction;
