@@ -93,7 +93,7 @@ public Q_SLOTS:
 
 private:
     QVector<ForeignKey> _foreignKeys;
-    QVector<QHash<IntegerPrimaryKey, QVariant> > _foreignValues;
+    QVector<QHash<IntegerPrimaryKey, QPersistentModelIndex> > _foreignValues;
 
     int asExtraColumn(int column) const;
 };

@@ -63,7 +63,7 @@ void CustomSqlRelationalModel::setRelation(const int foreignKeyColumn, QSqlTable
     this->_foreignKeys.append(ForeignKey(foreignKeyColumn, foreignModel, displayColumn, sourceModel));
 
     // Construct the dictionary of primary keys to values for easy access later.
-    this->_foreignValues.append(QHash<IntegerPrimaryKey, QVariant>());
+    this->_foreignValues.append(QHash<IntegerPrimaryKey, QPersistentModelIndex>());
     Q_ASSERT(this->_foreignKeys.count() == this->_foreignValues.count());
     this->constructForeignCache(extraColumn);
 
@@ -98,7 +98,7 @@ QVariant CustomSqlRelationalModel::data(const QModelIndex &index, const int role
     if (const int extraColumn = asExtraColumn(index.column()); extraColumn >= 0) {
         const auto fkObject = this->_foreignKeys.at(extraColumn);
         const auto fkValue = this->index(index.row(), fkObject.foreignKeyColumn()).data(role).toLongLong();
-        return this->_foreignValues.at(extraColumn)[fkValue];
+        return this->_foreignValues.at(extraColumn)[fkValue].data(role);
     }
 
     return QSqlTableModel::data(index, role);
@@ -146,7 +146,7 @@ void CustomSqlRelationalModel::constructForeignCache(const int extraColumn) {
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
         auto pk = foreignModel->index(r, fk.primaryKeyColumn()).data();
         const auto value = foreignModel->index(r, fk.displayColumn()).data();
-        this->_foreignValues[extraColumn][pk.toLongLong()] = value;
+        this->_foreignValues[extraColumn][pk.toLongLong()] = QPersistentModelIndex(foreignModel->index(r, fk.displayColumn()));
     }
 
     // The data changed, so notify that extra column has been updated.
