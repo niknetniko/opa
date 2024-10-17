@@ -1,27 +1,49 @@
 add_executable(opa main.cpp)
 
 add_library(opa-lib STATIC
+        main/main_window.h
         main/main_window.cpp
+        database/database.h
         database/database.cpp
         database/schema.h
+        main/people_overview_view.h
         main/people_overview_view.cpp
+        data/person.h
         data/person.cpp
+        data/event.h
         data/event.cpp
+        person_detail/person_detail_view.h
         person_detail/person_detail_view.cpp
+        names/names_overview_view.h
         names/names_overview_view.cpp
+        names/name_editor.h
         names/name_editor.cpp
+        utils/single_row_model.h
         utils/single_row_model.cpp
+        data/data_manager.h
         data/data_manager.cpp
+        data/names.h
         data/names.cpp
+        utils/formatted_identifier_delegate.h
         utils/formatted_identifier_delegate.cpp
+        utils/model_utils.h
         utils/model_utils.cpp
+        person_detail/person_name_tab.h
         person_detail/person_name_tab.cpp
+        utils/proxy_enabled_relational_delegate.h
         utils/proxy_enabled_relational_delegate.cpp
+        lists/name_origins_management_view.h
         lists/name_origins_management_view.cpp
+        utils/opa_date.h
         utils/opa_date.cpp
+        person_detail/person_event_overview_view.h
         person_detail/person_event_overview_view.cpp
+        person_detail/person_event_tab.h
         person_detail/person_event_tab.cpp
+        utils/grouped_items_proxy_model.h
         utils/grouped_items_proxy_model.cpp
+        utils/custom_sql_relational_model.h
+        utils/custom_sql_relational_model.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
