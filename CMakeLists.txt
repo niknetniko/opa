@@ -27,7 +27,7 @@ find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets S
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS
     ConfigWidgets
     CoreAddons
-    Crash
+#    Crash
     DBusAddons
     DocTools
     I18n

@@ -18,9 +18,9 @@
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
 
-MainWindow::MainWindow() : KXmlGuiWindow() {
+MainWindow::MainWindow() {
     // Attach the tab view.
-    this->tabWidget = new QTabWidget(this);
+    auto *tabWidget = new QTabWidget();
     tabWidget->setTabsClosable(true);
     tabWidget->setMovable(true);
     tabWidget->addTab(new QLabel(tr("Niets"), this), tr("Test"));
@@ -38,7 +38,6 @@ MainWindow::MainWindow() : KXmlGuiWindow() {
     // Connect stuff.
     connect(tableView, &PeopleOverviewView::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
 
-    // Menu actions.
     auto *manageNameOrigins = new QAction(this);
     manageNameOrigins->setText(i18n("Naamoorsprongen beheren"));
     connect(manageNameOrigins, &QAction::triggered, this, &MainWindow::openNameOriginManager);
@@ -76,31 +75,30 @@ void MainWindow::settingsConfigure() {
     m_settings = new Ui::Settings();
     m_settings->setupUi(generalSettingsPage);
     dialog->addPage(generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting"));
-//    connect(dialog, &KConfigDialog::settingsChanged, m_opaView, &opaView::handleSettingsChanged);
+    //    connect(dialog, &KConfigDialog::settingsChanged, m_opaView, &opaView::handleSettingsChanged);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
 
 
 void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
-
     qDebug() << "Selecting person... " << personId;
 
     // First, check if we already have a tab for the person in question.
     auto existingTab = this->findTabFor(personId);
     if (existingTab >= 0) {
         qDebug() << "Existing tab found... " << personId;
-        this->tabWidget->setCurrentIndex(existingTab);
+        qobject_cast<QTabWidget *>(centralWidget())->setCurrentIndex(existingTab);
         return;
     }
 
     qDebug() << "No existing tab found... " << personId;
 
     auto *detailView = new PersonDetailView(personId, this);
-    auto addedIndex = tabWidget->addTab(detailView, detailView->getDisplayName());
+    auto addedIndex = qobject_cast<QTabWidget *>(centralWidget())->addTab(detailView, detailView->getDisplayName());
 
     // Go to the tab.
-    tabWidget->setCurrentIndex(addedIndex);
+    qobject_cast<QTabWidget *>(centralWidget())->setCurrentIndex(addedIndex);
 
     // Connect to the detail view to update the name of the person when needed.
     connect(detailView, &PersonDetailView::dataChanged, detailView, [this](IntegerPrimaryKey id) {
@@ -108,18 +106,19 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
         if (tabIndex < 0) {
             return; // Do nothing as the tab no longer exists for some reason.
         }
-        auto *theDetailView = qobject_cast<PersonDetailView *>(tabWidget->widget(tabIndex));
-        tabWidget->setTabText(tabIndex, theDetailView->getDisplayName());
+        auto *theDetailView = qobject_cast<PersonDetailView *>(
+            qobject_cast<QTabWidget *>(centralWidget())->widget(tabIndex));
+        qobject_cast<QTabWidget *>(centralWidget())->setTabText(tabIndex, theDetailView->getDisplayName());
     });
 }
 
 void MainWindow::closeTab(int tabIndex) {
-    this->tabWidget->removeTab(tabIndex);
+    qobject_cast<QTabWidget *>(centralWidget())->removeTab(tabIndex);
 }
 
 int MainWindow::findTabFor(IntegerPrimaryKey personId) {
-    for (int i = 0; i < tabWidget->count(); i++) {
-        QWidget *tab = tabWidget->widget(i);
+    for (int i = 0; i < qobject_cast<QTabWidget *>(centralWidget())->count(); i++) {
+        QWidget *tab = qobject_cast<QTabWidget *>(centralWidget())->widget(i);
         // The tab widget should be a "PersonDetailView"
         if (auto *details = dynamic_cast<PersonDetailView *>(tab)) {
             if (details->hasId(personId)) {
@@ -131,6 +130,6 @@ int MainWindow::findTabFor(IntegerPrimaryKey personId) {
 }
 
 void MainWindow::openNameOriginManager() {
-    auto* window = new NameOriginsManagementWindow(this);
+    auto *window = new NameOriginsManagementWindow(this);
     window->show();
 }

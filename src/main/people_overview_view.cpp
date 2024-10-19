@@ -16,7 +16,6 @@
 #include "utils/formatted_identifier_delegate.h"
 
 PeopleOverviewView::PeopleOverviewView(QWidget *parent) : QWidget(parent) {
-
     auto *baseModel = DataManager::get().primaryNamesModel(this);
 
     // Create a searchable model.
@@ -45,7 +44,8 @@ PeopleOverviewView::PeopleOverviewView(QWidget *parent) : QWidget(parent) {
     tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ROOT, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setHighlightSections(false);
     tableView->setItemDelegateForColumn(DisplayNameModel::ID,
-                                        new FormattedIdentifierDelegate(FormattedIdentifierDelegate::PERSON));
+                                        new FormattedIdentifierDelegate(
+                                            tableView, FormattedIdentifierDelegate::PERSON));
 
     // Wrap in a VBOX for layout reasons.
     auto *layout = new QVBoxLayout(this);

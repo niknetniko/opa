@@ -11,7 +11,7 @@
 #include "data/data_manager.h"
 
 // KF headers
-#include <KCrash>
+// #include <KCrash>
 #include <KDBusService>
 #include <KAboutData>
 #include <KLocalizedString>
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     QApplication application(argc, argv);
 
     KLocalizedString::setApplicationDomain("opa");
-    KCrash::initialize();
+    // KCrash::initialize();
 
     KAboutData aboutData( QStringLiteral("opa"),
                           i18n("opa"),
@@ -63,8 +63,8 @@ int main(int argc, char **argv)
     // Initialize the model manager.
     DataManager::initialize(&application);
 
-    MainWindow window;
-    window.show();
+    auto window = new MainWindow;
+    window->show();
 
     return application.exec();
 }

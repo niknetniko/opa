@@ -69,7 +69,7 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     treeView->sortByColumn(1, Qt::AscendingOrder);
     // We are done setting up, attach the model.
     treeView->setModel(filterProxyModel);
-    treeView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(FormattedIdentifierDelegate::NAME));
+    treeView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME));
     treeView->header()->setSortIndicatorClearable(false);
 
     // Wrap in a VBOX for layout reasons.

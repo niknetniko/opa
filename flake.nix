@@ -26,7 +26,6 @@
           qt6.qtbase
           qt6.qtwayland
           qt6.qtdeclarative
-
         ];
         native-build-inputs = with pkgs; [
           qt6.wrapQtAppsHook

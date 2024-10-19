@@ -60,7 +60,7 @@
 
 */
 class GroupedItemsProxyModel : public QIdentityProxyModel {
-Q_OBJECT
+    Q_OBJECT
 
     Q_PROPERTY(int groupMatchRole READ groupMatchRole WRITE setGroupMatchRole)
     Q_PROPERTY(bool groupColumnVisible READ groupColumnVisible WRITE setGroupColumnVisible)
@@ -77,7 +77,7 @@ public:
     explicit GroupedItemsProxyModel(QObject *parent = Q_NULLPTR, QAbstractItemModel *sourceModel = Q_NULLPTR,
                                     const QVector<int> &groupColumns = QVector<int>());
 
-    ~GroupedItemsProxyModel();
+    ~GroupedItemsProxyModel() override;
 
     // QAbstractItemModel interface
     void setSourceModel(QAbstractItemModel *newSourceModel) Q_DECL_OVERRIDE;
@@ -92,7 +92,7 @@ public:
 
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-    QVariant data(const QModelIndex &index, int role = Qt::EditRole) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
     QMap<int, QVariant> itemData(const QModelIndex &index) const Q_DECL_OVERRIDE;
 
@@ -110,27 +110,26 @@ public:
     // GroupedItemProxyModel interface
 
     /*! \property groupMatchRole Which data role to use for matching group data. Default is \c Qt::EditRole. \sa setGroupMatchRole() */
-    inline int groupMatchRole() const { return m_groupMatchRole; }
+    int groupMatchRole() const { return m_groupMatchRole; }
 
-    /*! \property groupColumnVisible Show the extra grouping column (eg. to allow sorting on it). Default is \c{true}. \sa setGroupColumnVisible() */
-    inline int groupColumnVisible() const { return m_groupColumnVisible; }
+    /*! \property groupColumnVisible Show the extra grouping column (e.g. to allow sorting on it). Default is \c{true}. \sa setGroupColumnVisible() */
+    int groupColumnVisible() const { return m_groupColumnVisible; }
 
     /*! \property groupColumnIsProxy Proxy data from source column to the extra grouping column (if shown). This includes display data. Default is \c{false}. \sa setGroupColumnIsProxy() */
-    inline int groupColumnIsProxy() const { return m_groupColumnIsProxy; }
+    int groupColumnIsProxy() const { return m_groupColumnIsProxy; }
 
     /*! \property groupColumnProxySrc Which column to use for proxy data. A value of \{-1} (default) means to use the grouping column. \sa setGroupColumnProxySrc(), groupColumnIsProxy() */
-    inline int groupColumnProxySrc() const { return m_groupColumnProxySrc; }
+    int groupColumnProxySrc() const { return m_groupColumnProxySrc; }
 
     /*! \property groupRowSelectable Allow selecting the grouping row. Default is \c{false} \sa setGroupRowSelectable() */
-    inline int groupRowSelectable() const { return m_groupRowSelectable; }
+    int groupRowSelectable() const { return m_groupRowSelectable; }
 
     /*! \property groupHeaderTitle Title of grouping column. Default is \c "Group". Set an empty string to hide title. \sa setGroupHeaderTitle() */
-    inline QString groupHeaderTitle() const { return m_root->data(Qt::DisplayRole).toString(); }
+    QString groupHeaderTitle() const { return m_root->data(Qt::DisplayRole).toString(); }
 
 public Q_SLOTS:
-
     /*! Add a new grouping based on \a column. \sa removeGroup() */
-    inline void addGroup(int column) { addGroups(QVector<int>() << column); }
+    void addGroup(int column) { addGroups(QVector<int>() << column); }
 
     /*! Add multiple groupings based on \a columns. The groups are appended to any existing group(s). \sa clearGroups() */
     virtual void addGroups(const QVector<int> &columns);
@@ -161,34 +160,33 @@ public Q_SLOTS:
     virtual void setGroupHeaderTitle(const QString &title, const QString &tooltip = QString());
 
 protected:
-    class GroupedProxyItem;  // forward
+    class GroupedProxyItem; // forward
 
-    virtual uint extraColumns() const { return (!m_groups.isEmpty() && groupColumnVisible() ? 1 : 0); }
+    virtual uint extraColumns() const { return !m_groups.isEmpty() && groupColumnVisible() ? 1 : 0; }
 
-    virtual QModelIndex indexForItem(GroupedProxyItem *item, const int col = 0) const;
+    virtual QModelIndex indexForItem(GroupedProxyItem *item, int col = 0) const;
 
-    virtual GroupedProxyItem *itemForIndex(const QModelIndex &index, const bool rootDefault = false) const;
+    virtual GroupedProxyItem *itemForIndex(const QModelIndex &index, bool rootDefault = false) const;
 
     virtual GroupedProxyItem *
-    findGroupItem(const int group, const QVariant &value, GroupedProxyItem *parent = NULL) const;
+    findGroupItem(int group, const QVariant &value, GroupedProxyItem *parent = nullptr) const;
 
     virtual QModelIndex sourceIndexForProxy(GroupedProxyItem *item) const;
 
     virtual bool isProxyColumn(const QModelIndex &index) const {
-        return (index.isValid() && extraColumns() && index.column() == 0 && groupColumnIsProxy());
+        return index.isValid() && extraColumns() && index.column() == 0 && groupColumnIsProxy();
     }
 
-    int totalRowCount(GroupedProxyItem *parent = NULL) const;
+    int totalRowCount(const GroupedProxyItem *parent = nullptr) const;
 
-    GroupedProxyItem *itemForRow(int row, GroupedProxyItem *parent = NULL) const;
+    GroupedProxyItem *itemForRow(int row, GroupedProxyItem *parent = nullptr) const;
 
 protected Q_SLOTS:
-
-    virtual GroupedProxyItem *placeSourceRow(const int row);
+    virtual GroupedProxyItem *placeSourceRow(int row);
 
     virtual void removeItem(GroupedProxyItem *item);
 
-    virtual void removeUnusedGroups(GroupedProxyItem *parent = NULL);
+    virtual void removeUnusedGroups(GroupedProxyItem *parent = nullptr);
 
     virtual void reloadSourceModel();
 
@@ -223,16 +221,15 @@ private:
 
     bool reloadSuspended() const { return m_reloadSuspended; }
 
-    bool m_reloadSuspended;
-
+    bool m_reloadSuspended = false;
 
 protected:
     class GroupedProxyItem {
     public:
-        explicit GroupedProxyItem(const QModelIndex &srcIndex, const bool isSrcItem = false,
-                                  GroupedProxyItem *parent = NULL);
+        explicit GroupedProxyItem(const QModelIndex &srcIndex, bool isSrcItem = false,
+                                  GroupedProxyItem *parent = nullptr);
 
-        explicit GroupedProxyItem(GroupedProxyItem *parent = NULL);
+        explicit GroupedProxyItem(GroupedProxyItem *parent = nullptr);
 
         virtual ~GroupedProxyItem();
 
@@ -246,7 +243,7 @@ protected:
 
         QVector<GroupedProxyItem *> children() const { return m_childItems; }
 
-        GroupedProxyItem *child(const int row) const { return m_childItems.value(row, NULL); }
+        GroupedProxyItem *child(const int row) const { return m_childItems.value(row, nullptr); }
 
         int childRow(GroupedProxyItem *child) const { return m_childItems.indexOf(child); }
 
@@ -260,7 +257,7 @@ protected:
 
         void clear();
 
-        GroupedProxyItem *addChild(const QModelIndex &srcIndex, const bool isSrcItem = true);
+        GroupedProxyItem *addChild(const QModelIndex &srcIndex, bool isSrcItem = true);
 
         void removeChild(GroupedProxyItem *item);
 
@@ -276,9 +273,7 @@ protected:
         QMap<int, QVariant> m_itemData;
         QPersistentModelIndex m_sourceIndex;
         bool m_isSourceItem;
-    };  // GroupedProxyItem
-    \
-
-};  // GroupedItemsProxyModel
+    }; // GroupedProxyItem
+}; // GroupedItemsProxyModel
 
 #endif // GROUPEDITEMSPROXYMODEL_H

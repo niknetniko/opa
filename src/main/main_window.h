@@ -68,8 +68,6 @@ private:
     Ui::Settings* m_settings;
     QAction *m_switchAction;
 
-    QTabWidget* tabWidget;
-
     int findTabFor(IntegerPrimaryKey personId);
 };
 

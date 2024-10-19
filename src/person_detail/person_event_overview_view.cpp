@@ -22,7 +22,7 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
 
     treeView->setModel(baseModel);
     treeView->setItemDelegateForColumn(PersonEventsModel::ID,
-                                       new FormattedIdentifierDelegate(FormattedIdentifierDelegate::EVENT));
+                                       new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT));
     treeView->header()->setSortIndicatorClearable(false);
     treeView->header()->setSectionResizeMode(PersonEventsModel::TYPE, QHeaderView::ResizeToContents);
     treeView->header()->setSectionResizeMode(PersonEventsModel::ID, QHeaderView::ResizeToContents);

@@ -13,14 +13,11 @@ class FormattedIdentifierDelegate : public QStyledItemDelegate {
 Q_OBJECT
 
 public:
-    inline static const QString PERSON = QStringLiteral("P%1");
-    inline static const QString NAME = QStringLiteral("N%1");
-    inline static const QString EVENT = QStringLiteral("E%1");
+    inline static const auto PERSON = QStringLiteral("P%1");
+    inline static const auto NAME = QStringLiteral("N%1");
+    inline static const auto EVENT = QStringLiteral("E%1");
 
-    using QStyledItemDelegate::QStyledItemDelegate;
-
-    FormattedIdentifierDelegate(QString pattern) : pattern(pattern) {
-    }
+    FormattedIdentifierDelegate(QObject *parent, const QString &pattern);
 
     QString displayText(const QVariant &value, const QLocale &locale) const override;
 

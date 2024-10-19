@@ -2,13 +2,13 @@
 // Created by niko on 29/09/24.
 //
 
-#include <QSqlRelationalTableModel>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QSqlRecord>
-#include <QSqlError>
-#include <QSqlQuery>
+
 #include "proxy_enabled_relational_delegate.h"
+
+#include "custom_sql_relational_model.h"
 #include "model_utils.h"
 
 QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
@@ -16,25 +16,25 @@ QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleO
     const QAbstractProxyModel *proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
     if (proxyModel == nullptr) {
         // Nothing to do for us.
-        return QSqlRelationalDelegate::createEditor(parent, option, index);
+        return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    auto *sourceModel = find_source_model_of_type<QSqlRelationalTableModel>(proxyModel);
+    auto *sourceModel = find_source_model_of_type<CustomSqlRelationalModel>(proxyModel);
     if (sourceModel == nullptr) {
         // Nothing to do for us.
-        return QSqlRelationalDelegate::createEditor(parent, option, index);
+        return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
     QSqlTableModel *childModel = sourceModel->relationModel(index.column());
     if (childModel == nullptr) {
         // Nothing to do for us.
-        return QSqlRelationalDelegate::createEditor(parent, option, index);
+        return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
     auto *comboBox = new QComboBox(parent);
     comboBox->setEditable(true);
     comboBox->setModel(childModel);
-    comboBox->setModelColumn(childModel->fieldIndex(sourceModel->relation(index.column()).displayColumn()));
+    comboBox->setModelColumn(sourceModel->relation(index.column()).displayColumn());
     comboBox->installEventFilter(const_cast<SuperSqlRelationalDelegate *>(this));
 
     return comboBox;
@@ -49,35 +49,38 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
     const QAbstractProxyModel *proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
     if (proxyModel == nullptr) {
         // Nothing to do for us.
-        QSqlRelationalDelegate::setModelData(editor, model, index);
+        QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
 
-    auto *sourceModel = find_source_model_of_type<QSqlRelationalTableModel>(proxyModel);
-    if (sourceModel == nullptr) {
+    auto *sqlModel = find_source_model_of_type<CustomSqlRelationalModel>(proxyModel);
+    if (sqlModel == nullptr) {
         // Nothing to do for us.
-        QSqlRelationalDelegate::setModelData(editor, model, index);
+        QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
-    auto *sqlModel = const_cast<QSqlRelationalTableModel *>(sourceModel);
 
     QSqlTableModel *childModel = sqlModel->relationModel(index.column());
     if (childModel == nullptr) {
         // Nothing to do for us.
-        QSqlRelationalDelegate::setModelData(editor, model, index);
+        QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
 
-    QComboBox *combo = qobject_cast<QComboBox *>(editor);
+    auto combo = qobject_cast<QComboBox *>(editor);
     if (combo == nullptr) {
         // Nothing to do for us.
-        QSqlRelationalDelegate::setModelData(editor, model, index);
+        QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
-
     int currentItem = combo->currentIndex();
-    int childColIndex = childModel->fieldIndex(sqlModel->relation(index.column()).displayColumn());
-    int childEditIndex = childModel->fieldIndex(sqlModel->relation(index.column()).indexColumn());
+    // Column that is displayed in the combobox.
+    int childColIndex = sqlModel->relation(index.column()).displayColumn();
+    // Column with the primary key of the combobox.
+    int childEditIndex = sqlModel->relation(index.column()).primaryKeyColumn();
+
+    // The insertion should have been done, probably?
+
     auto currentText = combo->lineEdit()->text();
     auto itemText = childModel->index(currentItem, childColIndex).data(Qt::DisplayRole);
 

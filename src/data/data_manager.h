@@ -36,11 +36,9 @@ class DataManager : public QObject {
     Q_OBJECT
 
 public:
-    static void initialize(QObject *parent);
+    static void initialize(QObject* parent);
 
     static DataManager &get();
-
-    explicit DataManager(QObject *parent);
 
     QSqlTableModel *namesModel() const;
 
@@ -96,7 +94,9 @@ public Q_SLOTS:
     void onSourceModelChanged();
 
 private:
-    static std::optional<DataManager> instance;
+    static DataManager* instance;
+
+    explicit DataManager(QObject *parent);
 
     /**
      * This is set to an address if the model updates are being sent from

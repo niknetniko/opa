@@ -17,9 +17,9 @@
 #include "utils/grouped_items_proxy_model.h"
 #include "utils/model_utils.h"
 
-std::optional<DataManager> DataManager::instance = std::nullopt;
+DataManager* DataManager::instance = nullptr;
 
-DataManager::DataManager(QObject *parent) : QObject(parent) {
+DataManager::DataManager(QObject *parent): QObject(parent) {
     baseNameOriginModel = makeModel<NameOriginTableModel>();
     baseNamesModel = makeModel<NamesTableModel>(baseNameOriginModel);
     baseEventRolesModel = makeModel<EventRolesModel>();
@@ -245,13 +245,12 @@ void DataManager::propagateToModel(QSqlTableModel *model) {
 }
 
 void DataManager::initialize(QObject *parent) {
-    assert(!instance);
-    instance.emplace(parent);
+    assert(instance == nullptr);
+    instance = new DataManager(parent);
 }
 
 DataManager &DataManager::get() {
-    assert(instance);
-    return instance.value();
+    return *instance;
 }
 
 template<QSqlTableModelConcept ModelType, typename... Args>

@@ -5,8 +5,12 @@
 #include "formatted_identifier_delegate.h"
 #include "database/schema.h"
 
-QString format_id(const QString& pattern, const QVariant &id) {
+QString format_id(const QString &pattern, const QVariant &id) {
     return pattern.arg(id.toLongLong(), 4, 10, QLatin1Char('0'));
+}
+
+FormattedIdentifierDelegate::FormattedIdentifierDelegate(QObject *parent, const QString &pattern): QStyledItemDelegate(
+    parent), pattern(pattern) {
 }
 
 QString FormattedIdentifierDelegate::displayText(const QVariant &value, const QLocale &locale) const {
