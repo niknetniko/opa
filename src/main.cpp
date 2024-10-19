@@ -11,7 +11,7 @@
 #include "data/data_manager.h"
 
 // KF headers
-// #include <KCrash>
+#include <KCrash>
 #include <KDBusService>
 #include <KAboutData>
 #include <KLocalizedString>
@@ -24,7 +24,6 @@
 #include <QString>
 #include <QtLogging>
 #include <QTableView>
-#include <QSqlQueryModel>
 
 
 int main(int argc, char **argv)
@@ -33,7 +32,7 @@ int main(int argc, char **argv)
     QApplication application(argc, argv);
 
     KLocalizedString::setApplicationDomain("opa");
-    // KCrash::initialize();
+    KCrash::initialize();
 
     KAboutData aboutData( QStringLiteral("opa"),
                           i18n("opa"),

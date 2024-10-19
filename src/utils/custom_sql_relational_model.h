@@ -96,6 +96,8 @@ private:
     QVector<QHash<IntegerPrimaryKey, QPersistentModelIndex> > _foreignValues;
 
     int asExtraColumn(int column) const;
+
+    QPair<const ForeignKey &, int> getFkFromForeignKeyColumn(int column) const;
 };
 
 #endif //CUSTOM_SQL_RELATIONAL_MODEL_H

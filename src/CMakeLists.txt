@@ -68,7 +68,7 @@ target_link_libraries(opa-lib PUBLIC
         KF6::XmlGui
         KF6::ConfigWidgets
         KF6::DBusAddons
-#        KF6::Crash
+        KF6::Crash
         KF6::IconThemes
         KF6::ItemModels
         Qt6::Widgets

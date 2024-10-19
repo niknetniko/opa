@@ -4,16 +4,17 @@
 
 #include <QComboBox>
 #include <QLineEdit>
-#include <QSqlRecord>
 
 #include "proxy_enabled_relational_delegate.h"
+
+#include <QSqlError>
 
 #include "custom_sql_relational_model.h"
 #include "model_utils.h"
 
 QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                                   const QModelIndex &index) const {
-    const QAbstractProxyModel *proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
+    auto proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
     if (proxyModel == nullptr) {
         // Nothing to do for us.
         return QStyledItemDelegate::createEditor(parent, option, index);
@@ -46,21 +47,24 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         return;
     }
 
-    const QAbstractProxyModel *proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
+    auto proxyModel = qobject_cast<const QAbstractProxyModel *>(model);
     if (proxyModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
 
-    auto *sqlModel = find_source_model_of_type<CustomSqlRelationalModel>(proxyModel);
+    auto *sqlModel = const_cast<CustomSqlRelationalModel *>(find_source_model_of_type<
+        CustomSqlRelationalModel>(proxyModel));
+    auto sqlIndex = map_to_source_model(proxyModel, index);
+    qDebug() << "For SQL model, index " << index << "->" << sqlIndex;
     if (sqlModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
 
-    QSqlTableModel *childModel = sqlModel->relationModel(index.column());
+    QSqlTableModel *childModel = sqlModel->relationModel(sqlIndex.column());
     if (childModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
@@ -74,36 +78,23 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         return;
     }
     int currentItem = combo->currentIndex();
-    // Column that is displayed in the combobox.
-    int childColIndex = sqlModel->relation(index.column()).displayColumn();
-    // Column with the primary key of the combobox.
-    int childEditIndex = sqlModel->relation(index.column()).primaryKeyColumn();
 
-    // The insertion should have been done, probably?
-
-    auto currentText = combo->lineEdit()->text();
-    auto itemText = childModel->index(currentItem, childColIndex).data(Qt::DisplayRole);
-
-    // If the current text does not match the item's text, we must insert a new item instead.
-    // TODO: how to handle errors here?
-    if (currentText != itemText) {
-        auto newRecord = childModel->record();
-        newRecord.setGenerated(childEditIndex, true);
-        newRecord.setValue(childColIndex, currentText);
-        currentItem = childModel->rowCount();
-        // TODO: how to handle errors here?
-        if (!childModel->insertRecord(currentItem, newRecord)) {
-            return;
-        }
-        // TODO: why is this not automatic, and how to handle errors?
-        childModel->submitAll();
-        childModel->select();
+    // When the user enters new data, ensure it is committed to the database.
+    if (!childModel->submitAll()) {
+        qWarning() << "Could not add new data for child model in delegate!";
+        qWarning() << childModel->lastError();
+        return;
     }
 
-    model->setData(index,
-                   childModel->index(currentItem, childColIndex).data(Qt::DisplayRole),
-                   Qt::DisplayRole);
-    model->setData(index,
-                   childModel->index(currentItem, childEditIndex).data(Qt::EditRole),
-                   Qt::EditRole);
+    // Column with the primary key of the combobox.
+    int childEditIndex = sqlModel->relation(sqlIndex.column()).primaryKeyColumn();
+
+    // Both are the same, so update the foreign key column instead.
+    int fkColumn = sqlModel->relation(sqlIndex.column()).foreignKeyColumn();
+    // Index for the fk in the parent model.
+    auto fkIndex = sqlModel->index(sqlIndex.row(), fkColumn);
+    // Index for the pk in the foreign model.
+    auto pkIndex = childModel->index(currentItem, childEditIndex);
+    sqlModel->setData(fkIndex, pkIndex.data(Qt::DisplayRole), Qt::DisplayRole);
+    sqlModel->setData(fkIndex, pkIndex.data(Qt::EditRole), Qt::EditRole);
 }

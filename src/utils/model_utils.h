@@ -38,7 +38,26 @@ const T *find_source_model_of_type(const QAbstractItemModel *model) {
     return nullptr;
 }
 
-const int ModelRole = Qt::UserRole + 20;
+/**
+ * Convert indices to source models until there are no more proxy models.
+ *
+ * @param model The proxy model to find the source index of.
+ * @param index The index to convert to a source.
+ *
+ * @return The converted model index.
+ */
+inline QModelIndex map_to_source_model(const QAbstractProxyModel *model, const QModelIndex &index) {
+    Q_ASSERT(model->checkIndex(index));
+    QModelIndex converted = model->mapToSource(index);
+    while ((model = qobject_cast<const QAbstractProxyModel *>(model->sourceModel())) != nullptr) {
+        converted = model->mapToSource(converted);
+    }
+
+    // We have not found anything.
+    return converted;
+}
+
+constexpr int ModelRole = Qt::UserRole + 20;
 
 /**
  * Class the handle a column where an OpaDate is saved as JSON in some column.
@@ -48,17 +67,18 @@ class OpaDateModel : public QIdentityProxyModel {
     Q_OBJECT
 
 public:
-    OpaDateModel(QObject* parent);
+    explicit OpaDateModel(QObject *parent);
 
     void setDateColumn(int column);
+
     int dateColumn() const;
 
     QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const override;
+
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 private:
     int theDateColumn;
-
 };
 
 #endif //OPA_MODEL_UTILS_H
