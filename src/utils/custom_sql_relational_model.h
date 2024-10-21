@@ -56,7 +56,8 @@ private:
  *
  * The implementation of this model is based on both QSqlRelationalTableModel and KExtraColumnsProxyModel.
  *
- * Notably, the additional columns are not
+ * Note that the extra columns are not addressable by name at the moment.
+ * Additionally, the extra columns are not editable and are not present in any SqlRecord.
  */
 class CustomSqlRelationalModel : public QSqlTableModel {
     Q_OBJECT
@@ -66,10 +67,43 @@ public:
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    /**
+     * Get the foreign key relation for a column.
+     *
+     * If the column is not the result of a foreign relation, an invalid relation
+     * will be returned.
+     *
+     * @param column The absolute index of the extra column.
+     * @return The relation, valid or invalid depending on the column.
+     */
     ForeignKey relation(int column) const;
 
+    /**
+     * Get the foreign model for a column.
+     *
+     * If the column is not the result of a foreign relation, null will be returned.
+     *
+     * @param column The absolute index of the extra column.
+     * @return A pointer to the model or null if none.
+     */
     QSqlTableModel *relationModel(int column) const;
 
+
+    /**
+     * Set the relation for a certain column.
+     *
+     * This indicates that foreignKeyColumn contains a foreign key to the given foreign model.
+     * The foreignKeyColumn refers to the sourceModel column in the foreign model.
+     * An additional column with the displayColumn (in the foreign model) will be added to this model.
+     *
+     * You must ensure that the foreign table model lives at least as long as this model, but this model
+     * does not formally take ownership of the foreign model.
+     *
+     * @param foreignKeyColumn The column in this model that refers to the foreign table.
+     * @param foreignModel The model for the foreign table.
+     * @param displayColumn The column in the foreign table to add as an extra column to this model.
+     * @param sourceModel The column in the foreign table the foreignKeyColumn refers to.
+     */
     void setRelation(int foreignKeyColumn, QSqlTableModel *foreignModel,
                      int displayColumn, int sourceModel);
 

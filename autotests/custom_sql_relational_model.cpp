@@ -15,7 +15,6 @@
 #include "utils/custom_sql_relational_model.h"
 
 
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
@@ -38,7 +37,9 @@ private Q_SLOTS:
     void init() {
         QSqlQuery query;
         QVERIFY(query.exec(u"CREATE TABLE names (id INTEGER PRIMARY KEY, name TEXT)"_s));
-        QVERIFY(query.exec(u"CREATE TABLE people (id INTEGER PRIMARY KEY, name_id INTEGER REFERENCES names(id), age INTEGER)"_s));
+        QVERIFY(
+            query.exec(
+                u"CREATE TABLE people (id INTEGER PRIMARY KEY, name_id INTEGER REFERENCES names(id), age INTEGER)"_s));
         QVERIFY(query.exec(u"INSERT INTO names (name) VALUES ('Alice'), ('Bob'), ('Chad')"_s));
         QVERIFY(query.exec(u"INSERT INTO people (name_id, age) VALUES (1, 30), (2, 25)"_s));
     }
@@ -148,7 +149,7 @@ private Q_SLOTS:
         // Check the actual table.
         QSqlQueryModel rawModel;
         rawModel.setQuery(u"SELECT COUNT(*) AS co FROM people"_s);
-        QVERIFY2(!rawModel.lastError().isValid(),rawModel.lastError().text().toLocal8Bit().data());
+        QVERIFY2(!rawModel.lastError().isValid(), rawModel.lastError().text().toLocal8Bit().data());
         QCOMPARE(rawModel.record(0).value(u"co"_s).toInt(), 3);
     }
 
@@ -172,7 +173,7 @@ private Q_SLOTS:
 
         auto alice = nameModel.record(0);
         alice.setValue(u"name"_s, u"Annelies"_s);
-        QVERIFY2(nameModel.setRecord(0, alice),nameModel.lastError().text().toLocal8Bit().data());
+        QVERIFY2(nameModel.setRecord(0, alice), nameModel.lastError().text().toLocal8Bit().data());
         QVERIFY(nameModel.submitAll());
         QVERIFY(spy.count() >= 1);
 
@@ -180,6 +181,31 @@ private Q_SLOTS:
         QCOMPARE(model.index(0, 1).data().toLongLong(), 1);
         QCOMPARE(model.index(0, 2).data().toLongLong(), 30);
         QCOMPARE(model.index(0, 3).data(), u"Annelies"_s);
+    }
+
+    void testChangeInForeignKeyChangesExtraColumn() {
+        QSqlTableModel nameModel;
+        nameModel.setTable(u"names"_s);
+        QVERIFY(nameModel.select());
+
+        CustomSqlRelationalModel model;
+        model.setTable(u"people"_s);
+        model.setRelation(1, &nameModel, 1, 0);
+        QVERIFY(model.select());
+        QCOMPARE(model.rowCount(), 2);
+
+        // Verify the starting situation.
+        QCOMPARE(model.index(0, 1).data(), 1);
+        QCOMPARE(model.index(0, 3).data(), u"Alice"_s);
+
+        // Change the foreign key to another name.
+        auto person = model.record(0);
+        person.setValue(u"name_id"_s, 2);
+        QVERIFY2(model.setRecord(0, person), model.lastError().text().toLocal8Bit().data());
+
+        // Check that the values are updated.
+        QCOMPARE(model.index(0, 1).data(), 2);
+        QCOMPARE(model.index(0, 3).data(), u"Bob"_s);
     }
 };
 
