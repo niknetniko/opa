@@ -19,11 +19,16 @@ void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
     auto commands = script.split(QString::fromUtf8(";"));
     for (auto &command: commands) {
         command.replace(QString::fromUtf8("\n"), QString::fromUtf8(" "));
-        if (command.trimmed().isEmpty()) {
-            qDebug("Skipping command %s...", qPrintable(command));
+        command = command.trimmed();
+        if (command.isEmpty()) {
+            qDebug() << "Skipping command" << command;
             continue;
         }
-        qDebug("Executing %s", qPrintable(command));
+        if (command.startsWith(QStringLiteral("--"))) {
+            qDebug() << "Skipping comment" << command;
+            continue;
+        }
+        qDebug() << "Executing" << command;
         QSqlQuery theQuery(database);
         theQuery.prepare(command);
         if (!theQuery.exec()) {

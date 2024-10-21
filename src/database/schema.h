@@ -10,13 +10,13 @@
 using IntegerPrimaryKey = qlonglong;
 
 namespace Schema {
-    const QString PeopleTable = QStringLiteral("people");
-    const QString NamesTable = QStringLiteral("names");
-    const QString NameOriginsTable = QStringLiteral("name_origins");
-    const QString EventsTable = QStringLiteral("events");
-    const QString EventRolesTable = QStringLiteral("event_roles");
-    const QString EventTypesTable = QStringLiteral("event_types");
-    const QString EventRelationsTable = QStringLiteral("event_relations");
+    const auto PeopleTable = QStringLiteral("people");
+    const auto NamesTable = QStringLiteral("names");
+    const auto NameOriginsTable = QStringLiteral("name_origins");
+    const auto EventsTable = QStringLiteral("events");
+    const auto EventRolesTable = QStringLiteral("event_roles");
+    const auto EventTypesTable = QStringLiteral("event_types");
+    const auto EventRelationsTable = QStringLiteral("event_relations");
 }
 
 #endif //OPA_SCHEMA_H
