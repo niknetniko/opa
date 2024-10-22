@@ -12,8 +12,14 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include "name_origins_management_view.h"
+
+#include <QSqlError>
+
 #include "data/data_manager.h"
 #include "data/names.h"
+#include "utils/builtin_model.h"
+#include "utils/edit_proxy_model.h"
+#include "utils/model_utils.h"
 
 NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     this->setWindowTitle(i18n("Beheer naamoorsprongen"));
@@ -46,9 +52,20 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWid
     connect(repairAction, &QAction::triggered, this, &NameOriginsManagementWindow::repairOrigins);
 
     this->model = DataManager::get().nameOriginsModel();
+
+    // Show an icon for the built-in rows.
+    auto builtinIconModel = new BuiltinModel(this);
+    builtinIconModel->setSourceModel(model);
+    builtinIconModel->setColumns(NameOriginTableModel::BUILTIN, NameOriginTableModel::ORIGIN);
+
+    // Make only the ID column not editable.
+    auto editableModel = new EditProxyModel(this);
+    editableModel->setSourceModel(builtinIconModel);
+    editableModel->addReadOnlyColumns({NameOriginTableModel::ID});
+
     // We want to filter and sort.
-    auto *filterProxyModel = new QSortFilterProxyModel(this);
-    filterProxyModel->setSourceModel(model);
+    auto filterProxyModel = new QSortFilterProxyModel(this);
+    filterProxyModel->setSourceModel(editableModel);
 
     tableView = new QTableView(this);
     tableView->setModel(filterProxyModel);
@@ -80,21 +97,27 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWid
 void NameOriginsManagementWindow::addOrigin() {
     auto newRecord = this->model->record();
     newRecord.setGenerated(NameOriginTableModel::ID, false);
-    this->model->insertRecord(-1, newRecord);
+    newRecord.setGenerated(NameOriginTableModel::BUILTIN, false);
+    if (!this->model->insertRecord(-1, newRecord)) {
+        qWarning() << "Could not insert new name origin!";
+        qDebug() << model->lastError();
+        return;
+    }
     // The table might be sorted, so we need to select the row with the highest ID.
     auto id = this->model->query().lastInsertId();
-    // Find the row with that ID.
-    for (int r = 0; r < this->tableView->model()->rowCount(); ++r) {
-        auto thisRow = this->tableView->model()->index(r, NameOriginTableModel::ID);
-        if (thisRow.data() == id) {
-            auto editableFieldIndex = this->tableView->model()->index(r, NameOriginTableModel::ORIGIN);
-            tableView->scrollTo(editableFieldIndex);
-            tableView->setFocus();
-            tableView->selectionModel()->select(editableFieldIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent);
-            tableView->edit(editableFieldIndex);
-            break;
-        }
+
+    auto searchIndex = this->tableView->model()->index(0, 0);
+    auto newlyInserted = this->tableView->model()->match(searchIndex, Qt::DisplayRole, id);
+
+    if (newlyInserted.isEmpty()) {
+        qWarning() << "Could not find new origin for some reason";
+        return;
     }
+
+    tableView->scrollTo(newlyInserted.first());
+    tableView->setFocus();
+    tableView->selectionModel()->select(newlyInserted.first(), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent);
+    tableView->edit(newlyInserted.first());
 }
 
 void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected) {
@@ -103,8 +126,16 @@ void NameOriginsManagementWindow::onSelectionChanged(const QItemSelection &selec
         return;
     }
 
+    auto selectedIndex = selected.indexes().first();
+    auto rootIndex = map_to_source_model(selectedIndex);
+
+    if (this->model->index(rootIndex.row(), NameOriginTableModel::BUILTIN).data().toBool()) {
+        this->removeAction->setEnabled(false);
+        return;
+    }
+
     // Get the ID of the current selected row.
-    auto id = this->model->index(selected.indexes().first().row(), NameOriginTableModel::ID).data();
+    auto id = this->model->index(rootIndex.row(), NameOriginTableModel::ID).data();
 
     qDebug() << "Checking name with id " << id << " for usage";
 
@@ -119,9 +150,10 @@ void NameOriginsManagementWindow::removeOrigin() {
         return;
     }
 
-    auto selectRow = selection->selection().first().indexes().first().row();
-    this->tableView->model()->removeRow(selectRow);
-    // Refresh the data since we deleted a row.
+    auto selectedIndex = selection->selection().first().indexes().first();
+    auto rootIndex = map_to_source_model(selectedIndex);
+
+    this->model->removeRow(rootIndex.row());
     this->model->select();
 }
 

@@ -54,15 +54,15 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         return;
     }
 
-    auto *sqlModel = const_cast<CustomSqlRelationalModel *>(find_source_model_of_type<
-        CustomSqlRelationalModel>(proxyModel));
-    auto sqlIndex = map_to_source_model(proxyModel, index);
-    qDebug() << "For SQL model, index " << index << "->" << sqlIndex;
+    auto sqlModel = const_cast<CustomSqlRelationalModel *>(find_source_model_of_type<CustomSqlRelationalModel>(proxyModel));
     if (sqlModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
+    auto sqlIndex = map_to_source_model(index);
+    Q_ASSERT(sqlModel->checkIndex(sqlIndex));
+    qDebug() << "For SQL model, index is" << index << "->" << sqlIndex;
 
     QSqlTableModel *childModel = sqlModel->relationModel(sqlIndex.column());
     if (childModel == nullptr) {

@@ -44,6 +44,10 @@ add_library(opa-lib STATIC
         utils/grouped_items_proxy_model.cpp
         utils/custom_sql_relational_model.h
         utils/custom_sql_relational_model.cpp
+        utils/edit_proxy_model.h
+        utils/edit_proxy_model.cpp
+        utils/builtin_model.cpp
+        utils/builtin_model.h
 )
 
 ecm_qt_declare_logging_category(opa-lib

@@ -41,13 +41,19 @@ const T *find_source_model_of_type(const QAbstractItemModel *model) {
 /**
  * Convert indices to source models until there are no more proxy models.
  *
- * @param model The proxy model to find the source index of.
+ * This will use the model attached to the given index.
+ *
  * @param index The index to convert to a source.
  *
  * @return The converted model index.
  */
-inline QModelIndex map_to_source_model(const QAbstractProxyModel *model, const QModelIndex &index) {
-    Q_ASSERT(model->checkIndex(index));
+inline QModelIndex map_to_source_model(const QModelIndex &index) {
+    auto model = qobject_cast<const QAbstractProxyModel *>(index.model());
+    if (model == nullptr) {
+        // There is no proxy model in the index.
+        return index;
+    }
+
     QModelIndex converted = model->mapToSource(index);
     while ((model = qobject_cast<const QAbstractProxyModel *>(model->sourceModel())) != nullptr) {
         converted = model->mapToSource(converted);

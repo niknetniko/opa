@@ -6,7 +6,7 @@
 #include "names.h"
 #include "database/schema.h"
 
-NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel* originsModel) : CustomSqlRelationalModel(parent) {
+NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel *originsModel) : CustomSqlRelationalModel(parent) {
     CustomSqlRelationalModel::setTable(Schema::NamesTable);
     setRelation(ORIGIN_ID, originsModel, NameOriginTableModel::ORIGIN, NameOriginTableModel::ID);
 
@@ -24,17 +24,21 @@ NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel* originsModel) 
     CustomSqlRelationalModel::setSort(SORT, Qt::SortOrder::AscendingOrder);
 }
 
+QString NameOrigins::toDisplayString(const QString &databaseValue) {
+    // Attempt to get the value as enum.
+    auto result = QMetaEnum::fromType<Values>().keyToValue(databaseValue.toUtf8().data());
+    if (result == -1) {
+        // This is not a built-in type, so do nothing with it.
+        return databaseValue;
+    }
+    auto enumValue = static_cast<Values>(result);
+    return nameOriginToString[enumValue].toString();
+}
+
 NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(parent) {
     QSqlTableModel::setTable(Schema::NameOriginsTable);
 
     QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     QSqlTableModel::setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
-}
-
-Qt::ItemFlags NameOriginTableModel::flags(const QModelIndex &index) const {
-    auto flags = QSqlTableModel::flags(index);
-    if (index.column() == ID) {
-        flags = flags & ~Qt::ItemIsEditable;
-    }
-    return flags;
+    QSqlTableModel::setHeaderData(BUILTIN, Qt::Horizontal, i18n("Ingebouwd"));
 }
