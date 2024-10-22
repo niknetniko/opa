@@ -18,6 +18,7 @@
 #include "data/data_manager.h"
 #include "data/names.h"
 #include "utils/builtin_model.h"
+#include "utils/builtin_text_translating_delegate.h"
 #include "utils/edit_proxy_model.h"
 #include "utils/model_utils.h"
 
@@ -78,6 +79,10 @@ NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : QWid
     tableView->horizontalHeader()->setSectionResizeMode(NameOriginTableModel::ID, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(NameOriginTableModel::ORIGIN, QHeaderView::Stretch);
     tableView->horizontalHeader()->setHighlightSections(false);
+
+    auto originTranslator = new BuiltinTextTranslatingDelegate(tableView);
+    originTranslator->setTranslator(&NameOrigins::toDisplayString);
+    tableView->setItemDelegateForColumn(NameOriginTableModel::ORIGIN, originTranslator);
 
     connect(tableView->selectionModel(),
             &QItemSelectionModel::selectionChanged,

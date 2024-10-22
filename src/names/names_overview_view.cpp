@@ -14,6 +14,7 @@
 #include "utils/single_row_model.h"
 #include "data/names.h"
 #include "data/data_manager.h"
+#include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
 
@@ -71,6 +72,9 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     treeView->setModel(filterProxyModel);
     treeView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME));
     treeView->header()->setSortIndicatorClearable(false);
+    auto originTranslator = new BuiltinTextTranslatingDelegate(treeView);
+    originTranslator->setTranslator(&NameOrigins::toDisplayString);
+    treeView->setItemDelegateForColumn(6, originTranslator);
 
     // Wrap in a VBOX for layout reasons.
     auto *layout = new QVBoxLayout(this);

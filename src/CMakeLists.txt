@@ -48,6 +48,8 @@ add_library(opa-lib STATIC
         utils/edit_proxy_model.cpp
         utils/builtin_model.cpp
         utils/builtin_model.h
+        utils/builtin_text_translating_delegate.h
+        utils/builtin_text_translating_delegate.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
