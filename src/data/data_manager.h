@@ -1,15 +1,10 @@
-//
-// Created by niko on 25/09/24.
-//
+#pragma once
 
-#ifndef OPA_DATA_MANAGER_H
-#define OPA_DATA_MANAGER_H
-
-#include <optional>
-
-#include <QObject>
+// ReSharper disable once CppUnusedIncludeDirective
 #include <QAbstractProxyModel>
+#include <QObject>
 #include <QSqlRelationalTableModel>
+
 #include "database/schema.h"
 #include "utils/custom_sql_relational_model.h"
 
@@ -18,25 +13,12 @@ concept QSqlTableModelConcept = std::is_base_of_v<QSqlTableModel, M>;
 
 /**
  * The centralized point to get models for data access from the database.
- *
- * Unless otherwise noted, the models you get from this class will automatically update if the underlying
- * data changes. This is mostly not the case for write models.
- *
- * You can also listen to the signal yourself and update things depending on the passed data.
- *
- * When getting a model, you need to pass in the parent; this will allow Qt to manage garbage collection.
- * If you pass in a parent that lives too shortly, the model will be removed too soon. Similarly, passing a parent that
- * lives too long will keep around the object too long.
- *
- * Some basic models are considered to be application-wide, so you do not have to pass in a parent.
- *
- * Unless otherwise noted, the model is not "loaded" with data, so call select() yourself.
  */
 class DataManager : public QObject {
     Q_OBJECT
 
 public:
-    static void initialize(QObject* parent);
+    static void initialize(QObject *parent);
 
     static DataManager &get();
 
@@ -55,6 +37,7 @@ public:
     /**
      * Get a model representing all names for a single person.
      *
+     * @param parent The parent for the returned model.
      * @param personId The ID of the person to filter on.
      */
     QAbstractProxyModel *namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) const;
@@ -62,6 +45,7 @@ public:
     /**
      * Model for a single name.
      *
+     * @param parent The parent for the returned model.
      * @param nameId The ID of the name.
      */
     QAbstractProxyModel *singleNameModel(QObject *parent, IntegerPrimaryKey nameId) const;
@@ -94,7 +78,7 @@ public Q_SLOTS:
     void onSourceModelChanged();
 
 private:
-    static DataManager* instance;
+    static DataManager *instance;
 
     explicit DataManager(QObject *parent);
 
@@ -141,7 +125,7 @@ private:
      * @param model The model to update.
      * @param tables The tables to listen to.
      */
-    void propagateToModel(QSqlTableModel *model, QStringList tables);
+    void propagateToModel(QSqlTableModel *model, const QStringList &tables);
 
     /**
      * Ensure the given model updates when the given tables are updated.
@@ -160,5 +144,3 @@ private:
     template<QSqlTableModelConcept ModelType, typename... Args>
     ModelType *makeModel(Args &&... args);
 };
-
-#endif //OPA_DATA_MANAGER_H

@@ -1,12 +1,6 @@
-//
-// Created by niko on 9/10/24.
-//
-
-#ifndef OPA_OPADATE_H
-#define OPA_OPADATE_H
+#pragma once
 
 #include <QDate>
-
 
 /**
  * Represents dates in Opa.
@@ -31,7 +25,8 @@
  * TODO: support generating human-readable text from this
  */
 class OpaDate {
-Q_GADGET
+    Q_GADGET
+
 public:
     enum Modifier {
         NONE,
@@ -55,7 +50,9 @@ public:
     ~OpaDate() = default;
 
     OpaDate(const OpaDate &) = default;
-    OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear, bool hasMonth,
+
+    OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear,
+            bool hasMonth,
             bool hasDay, const QString &text);
 
     OpaDate &operator=(const OpaDate &) = default;
@@ -67,6 +64,7 @@ public:
     bool hasDay() const;
 
     QDate prolepticRepresentation() const;
+
     QDate prolepticRepresentationEnd() const;
 
     Quality quality() const;
@@ -80,6 +78,7 @@ public:
     QString text() const;
 
     static OpaDate fromDatabaseRepresentation(const QString &text);
+
     static OpaDate fromDisplayText(const QString &text);
 
 private:
@@ -96,6 +95,3 @@ private:
 Q_DECLARE_METATYPE(OpaDate);
 
 QDebug operator<<(QDebug dbg, const OpaDate &date);
-
-
-#endif //OPA_OPADATE_H

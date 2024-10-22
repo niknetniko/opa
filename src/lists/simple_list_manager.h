@@ -1,9 +1,4 @@
-//
-// Created by niko on 22/10/24.
-//
-
-#ifndef SIMPLE_LIST_MANAGER_H
-#define SIMPLE_LIST_MANAGER_H
+#pragma once
 
 #include <QSqlTableModel>
 #include <QTableView>
@@ -18,12 +13,24 @@ public:
     explicit SimpleListManagementWindow(QWidget *parent);
 
 public Q_SLOTS:
+    /**
+     * Adds an item to the underlying model and prepares it for editing.
+     */
     void addItem() const;
 
+    /**
+     * Remove an item from the underlying model.
+     */
     void removeItem() const;
 
+    /**
+     * Run the repair procedure on the items in the model.
+     */
     void repairItems();
 
+    /**
+     * Called when the selection is changed in the view.
+     */
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 protected:
@@ -35,8 +42,9 @@ protected:
 
     void setModel(QSqlTableModel *model);
 
-    static void removeReferencesFromModel(const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-                                          const QHash<IntegerPrimaryKey, QString> &idToValue, QSqlTableModel* foreignModel, int foreignKeyColumn);
+    static void removeReferencesFromModel(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
+                                          const QHash<IntegerPrimaryKey, QString> &idToValue,
+                                          QSqlTableModel *foreignModel, int foreignKeyColumn);
 
     virtual bool repairConfirmation() = 0;
 
@@ -54,5 +62,3 @@ private:
     QTableView *tableView = nullptr;
     QSqlTableModel *model = nullptr;
 };
-
-#endif //SIMPLE_LIST_MANAGER_H

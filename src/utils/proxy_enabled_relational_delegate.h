@@ -1,9 +1,4 @@
-//
-// Created by niko on 29/09/24.
-//
-
-#ifndef OPA_PROXY_ENABLED_RELATIONAL_DELEGATE_H
-#define OPA_PROXY_ENABLED_RELATIONAL_DELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -19,13 +14,9 @@ class SuperSqlRelationalDelegate : public QStyledItemDelegate {
     Q_OBJECT
 
 public:
-    explicit SuperSqlRelationalDelegate(QObject *parent) : QStyledItemDelegate(parent) {
-    };
+    explicit SuperSqlRelationalDelegate(QObject *parent);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 };
-
-
-#endif //OPA_PROXY_ENABLED_RELATIONAL_DELEGATE_H

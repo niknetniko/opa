@@ -1,8 +1,8 @@
-#ifndef OPA_PEOPLE_OVERVIEW_VIEW_H
-#define OPA_PEOPLE_OVERVIEW_VIEW_H
+#pragma once
 
-#include <QWidget>
 #include <QTableView>
+#include <QWidget>
+
 #include "database/schema.h"
 
 /**
@@ -19,10 +19,11 @@
  * the act of selecting a person will not cause the globally selected person
  * to change. This is the job of a listener.
  */
-class PeopleOverviewView: public QWidget {
+class PeopleOverviewView : public QWidget {
     Q_OBJECT
+
 public:
-    explicit PeopleOverviewView(QWidget* parent);
+    explicit PeopleOverviewView(QWidget *parent);
 
     ~PeopleOverviewView() override = default;
 
@@ -36,7 +37,5 @@ Q_SIGNALS:
     void handlePersonSelected(IntegerPrimaryKey personId);
 
 private:
-    QTableView* tableView;
+    QTableView *tableView;
 };
-
-#endif //OPA_PEOPLE_OVERVIEW_VIEW_H

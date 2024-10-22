@@ -1,10 +1,8 @@
-#ifndef PERSONDETAILVIEW_H
-#define PERSONDETAILVIEW_H
+#pragma once
 
-#include <QFrame>
-#include <QSqlRecord>
 #include <QAbstractProxyModel>
-#include <QStyledItemDelegate>
+#include <QSqlRecord>
+
 #include "database/schema.h"
 #include "utils/formatted_identifier_delegate.h"
 
@@ -13,26 +11,24 @@ namespace Ui {
 }
 
 class PersonDetailView : public QFrame {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit PersonDetailView(IntegerPrimaryKey id, QWidget *parent);
 
-    bool hasId(IntegerPrimaryKey id);
+    bool hasId(IntegerPrimaryKey id) const;
 
-    QString getDisplayName();
+    QString getDisplayName() const;
 
     ~PersonDetailView() override;
 
 public Q_SLOTS:
-
     /**
      * Populate the UI with the data from the field.
      */
     void populate();
 
 Q_SIGNALS:
-
     /**
      * Emitted when the UI has been re-populated.
      */
@@ -42,5 +38,3 @@ private:
     QAbstractProxyModel *model;
     Ui::PersonDetailView *ui;
 };
-
-#endif // PERSONDETAILVIEW_H

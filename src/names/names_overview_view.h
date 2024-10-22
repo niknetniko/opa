@@ -1,20 +1,9 @@
-//
-// Created by niko on 8/02/24.
-//
+#pragma once
 
-#ifndef OPA_NAMES_OVERVIEW_VIEW_H
-#define OPA_NAMES_OVERVIEW_VIEW_H
-
-#include <QString>
-#include <QAbstractItemModel>
-#include <QSqlRecord>
-#include <QSqlQueryModel>
-#include <QSortFilterProxyModel>
-#include <QTableView>
-#include <QSqlTableModel>
-#include <QTreeView>
-#include <KRearrangeColumnsProxyModel>
 #include <QSqlRelationalTableModel>
+#include <QString>
+#include <QTreeView>
+
 #include "database/schema.h"
 
 
@@ -29,7 +18,8 @@ namespace Names {
  * This view displays a list of names for one person.
  */
 class NamesOverviewView : public QWidget {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     explicit NamesOverviewView(IntegerPrimaryKey personId, QWidget *parent);
 
@@ -42,24 +32,29 @@ private:
 
 public Q_SLOTS:
     void handleSelectedNewRow(const QItemSelection &selected, const QItemSelection &deselected);
-    void handleDoubleClick(const QModelIndex& clicked);
+
+    void handleDoubleClick(const QModelIndex &clicked);
 
     /**
      * Initiate adding a new name.
      */
     void handleNewName();
+
     /**
      * Initiate editing the currently selected name.
      */
     void editSelectedName();
+
     /**
      * Remove the currently selected name.
      */
     void removeSelectedName() const;
+
     /**
      * Move the selected name down one row.
      */
     void moveSelectedNameDown();
+
     /**
      * Move the selected name up one row.
      */
@@ -76,5 +71,3 @@ Q_SIGNALS:
      */
     void sortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int sortIndex);
 };
-
-#endif //OPA_NAMES_OVERVIEW_VIEW_H

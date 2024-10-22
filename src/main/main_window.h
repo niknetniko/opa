@@ -1,11 +1,4 @@
-/*
-    SPDX-FileCopyrightText: 2022 Niko Strijbol <strijbol.niko@gmail.com>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-
-#ifndef OPAWINDOW_H
-#define OPAWINDOW_H
+#pragma once
 
 #include <KXmlGuiWindow>
 
@@ -26,39 +19,20 @@ class opaView;
  *
  * This class serves as the main window for opa.  It handles the
  * menus, toolbars and status bars.
- *
- * @short Main window class
- * @author Niko Strijbol <strijbol.niko@gmail.com>
- * @version 0.1
  */
 class MainWindow : public KXmlGuiWindow {
     Q_OBJECT
 
 public:
-    /**
-     * Default Constructor
-     */
     MainWindow();
 
-    /**
-     * Default Destructor
-     */
     ~MainWindow() override;
 
 private Q_SLOTS:
-    /**
-     * Create a new window
-     */
     void fileNew();
 
-    /**
-     * Open the settings dialog
-     */
     void settingsConfigure();
 
-    /**
-     * Open or select a person.
-     */
     void openOrSelectPerson(IntegerPrimaryKey personId);
 
     void closeTab(int tabIndex);
@@ -77,5 +51,3 @@ private:
 
     int findTabFor(IntegerPrimaryKey personId);
 };
-
-#endif // OPAWINDOW_H

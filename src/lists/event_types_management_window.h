@@ -1,9 +1,5 @@
-//
-// Created by niko on 22/10/24.
-//
+#pragma once
 
-#ifndef EVENT_TYPES_MANAGEMENT_WINDOW_H
-#define EVENT_TYPES_MANAGEMENT_WINDOW_H
 #include "simple_list_manager.h"
 
 class EventTypesManagementWindow : public SimpleListManagementWindow {
@@ -12,8 +8,8 @@ class EventTypesManagementWindow : public SimpleListManagementWindow {
 public:
     explicit EventTypesManagementWindow(QWidget *parent);
 
-    public Q_SLOTS:
-        bool repairConfirmation() override;
+public Q_SLOTS:
+    bool repairConfirmation() override;
 
 
     void removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
@@ -21,5 +17,3 @@ public:
 
     bool isUsed(const QVariant &id) override;
 };
-
-#endif //EVENT_TYPES_MANAGEMENT_WINDOW_H

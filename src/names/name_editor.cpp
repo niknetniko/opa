@@ -1,24 +1,17 @@
-//
-// Created by niko on 8/02/24.
-//
-
-#include <QDialog>
-#include <QQuickWidget>
-#include <QSqlQuery>
-#include <QMessageBox>
-#include <QSqlError>
-#include <QCompleter>
-#include <QString>
-#include <QDialogButtonBox>
-#include <QItemEditorFactory>
-#include <QSqlRelationalDelegate>
 #include <KLocalizedString>
+#include <QCompleter>
+#include <QDialog>
+#include <QMessageBox>
+#include <QQuickWidget>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QString>
 
 #include "name_editor.h"
-#include "data/names.h"
 #include "data/data_manager.h"
-#include "utils/model_utils.h"
+#include "data/names.h"
 #include "utils/formatted_identifier_delegate.h"
+#include "utils/model_utils.h"
 #include "utils/proxy_enabled_relational_delegate.h"
 
 
@@ -45,7 +38,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     if (newRow) {
         this->setWindowTitle(i18n("Nieuwe naam toevoegen"));
     } else {
-        auto nameId = format_id(FormattedIdentifierDelegate::NAME,model->index(0, 0).data());
+        auto nameId = format_id(FormattedIdentifierDelegate::NAME, model->index(0, 0).data());
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
 

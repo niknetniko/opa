@@ -1,7 +1,7 @@
 #include <KLocalizedString>
-#include <QSqlQuery>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QSqlQuery>
 
 #include "event_types_management_window.h"
 #include "data/data_manager.h"

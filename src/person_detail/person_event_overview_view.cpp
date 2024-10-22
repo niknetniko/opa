@@ -1,14 +1,10 @@
-//
-// Created by niko on 12/10/24.
-//
-
 #include <QHeaderView>
 #include <QVBoxLayout>
 
 #include "person_event_overview_view.h"
 #include "data/data_manager.h"
-#include "utils/formatted_identifier_delegate.h"
 #include "data/event.h"
+#include "utils/formatted_identifier_delegate.h"
 
 EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *parent): QWidget(parent) {
     this->personId = personId;
@@ -45,7 +41,8 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
     connect(treeView, &QTreeView::doubleClicked, this, &EventsOverviewView::handleDoubleClick);
 }
 
-void EventsOverviewView::handleSelectedNewRow(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected) {
+void EventsOverviewView::handleSelectedNewRow(const QItemSelection &selected,
+                                              [[maybe_unused]] const QItemSelection &deselected) {
     Q_EMIT this->selectedEvent(this->treeView->selectionModel()->model(), selected);
 }
 
@@ -58,7 +55,6 @@ void EventsOverviewView::handleNewEvent() {
 }
 
 void EventsOverviewView::editSelectedEvent() {
-
 }
 
 void EventsOverviewView::removeSelectedEvent() {

@@ -1,9 +1,5 @@
-//
-// Created by niko on 9/10/24.
-//
-
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QStringBuilder>
 
 #include "opa_date.h"
@@ -12,7 +8,8 @@ OpaDate::OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, con
                  bool hasMonth,
                  bool hasDay, const QString &text) : dateModifier(modifier), dateQuality(quality), proleptic(proleptic),
                                                      endProleptic(endProleptic),
-                                                     year(hasYear), month(hasMonth), day(hasDay), userText(text) {}
+                                                     year(hasYear), month(hasMonth), day(hasDay), userText(text) {
+}
 
 OpaDate::Quality OpaDate::quality() const {
     return this->dateQuality;
@@ -72,14 +69,14 @@ OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
     }
 
     return OpaDate(
-            QVariant(result[QStringLiteral("dateModifier")].toString()).value<Modifier>(),
-            QVariant(result[QStringLiteral("dateQuality")].toString()).value<Quality>(),
-            QDate::fromJulianDay(result[QStringLiteral("proleptic")].toInteger()),
-            endDate,
-            result[QStringLiteral("year")].toBool(),
-            result[QStringLiteral("month")].toBool(),
-            result[QStringLiteral("day")].toBool(),
-            result[QStringLiteral("userText")].toString()
+        QVariant(result[QStringLiteral("dateModifier")].toString()).value<Modifier>(),
+        QVariant(result[QStringLiteral("dateQuality")].toString()).value<Quality>(),
+        QDate::fromJulianDay(result[QStringLiteral("proleptic")].toInteger()),
+        endDate,
+        result[QStringLiteral("year")].toBool(),
+        result[QStringLiteral("month")].toBool(),
+        result[QStringLiteral("day")].toBool(),
+        result[QStringLiteral("userText")].toString()
     );
 }
 

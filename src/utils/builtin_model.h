@@ -1,9 +1,5 @@
-//
-// Created by niko on 22/10/24.
-//
+#pragma once
 
-#ifndef BUILTIN_DECORATION_MODEL_H
-#define BUILTIN_DECORATION_MODEL_H
 #include <KRearrangeColumnsProxyModel>
 #include <QIdentityProxyModel>
 
@@ -16,11 +12,11 @@
  * - Hide the built-in column.
  * - Make built-in rows read-only.
  */
-class BuiltinModel: public KRearrangeColumnsProxyModel {
+class BuiltinModel : public KRearrangeColumnsProxyModel {
     Q_OBJECT
 
 public:
-    explicit BuiltinModel(QObject* parent = nullptr);
+    explicit BuiltinModel(QObject *parent = nullptr);
 
     void setColumns(int builtinColumn, int decoratedColumn);
 
@@ -36,5 +32,3 @@ private:
 
     void syncColumns();
 };
-
-#endif //BUILTIN_DECORATION_MODEL_H

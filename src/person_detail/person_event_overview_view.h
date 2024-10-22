@@ -1,19 +1,15 @@
-//
-// Created by niko on 12/10/24.
-//
+#pragma once
 
-#ifndef OPA_PERSON_EVENT_OVERVIEW_VIEW_H
-#define OPA_PERSON_EVENT_OVERVIEW_VIEW_H
-
-#include <QWidget>
 #include <QTreeView>
+#include <QWidget>
+
 #include "database/schema.h"
 
 /**
  * Display a list of events for a single person.
  */
 class EventsOverviewView : public QWidget {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit EventsOverviewView(IntegerPrimaryKey personId, QWidget *parent);
@@ -24,7 +20,6 @@ private:
     IntegerPrimaryKey personId;
 
 public Q_SLOTS:
-
     void handleSelectedNewRow(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected);
 
     void handleDoubleClick(const QModelIndex &clicked);
@@ -45,11 +40,8 @@ public Q_SLOTS:
     void removeSelectedEvent();
 
 Q_SIGNALS:
-
     /**
      * Called when an event is selected by the user.
      */
     void selectedEvent(const QAbstractItemModel *model, const QItemSelection &selected);
 };
-
-#endif //OPA_PERSON_EVENT_OVERVIEW_VIEW_H

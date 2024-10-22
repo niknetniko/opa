@@ -1,16 +1,13 @@
-//
-// Created by niko on 29/09/24.
-//
-
 #include <QComboBox>
 #include <QLineEdit>
-
-#include "proxy_enabled_relational_delegate.h"
-
 #include <QSqlError>
 
+#include "proxy_enabled_relational_delegate.h"
 #include "custom_sql_relational_model.h"
 #include "model_utils.h"
+
+SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject *parent): QStyledItemDelegate(parent) {
+}
 
 QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                                   const QModelIndex &index) const {
@@ -54,7 +51,8 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         return;
     }
 
-    auto sqlModel = const_cast<CustomSqlRelationalModel *>(find_source_model_of_type<CustomSqlRelationalModel>(proxyModel));
+    auto sqlModel = const_cast<CustomSqlRelationalModel *>(find_source_model_of_type<
+        CustomSqlRelationalModel>(proxyModel));
     if (sqlModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);

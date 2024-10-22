@@ -1,11 +1,7 @@
-//
-// Created by niko on 2/10/24.
-//
-
 #include <KLocalizedString>
-#include <QSqlQuery>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QSqlQuery>
 
 #include "event_roles_management_window.h"
 #include "data/data_manager.h"

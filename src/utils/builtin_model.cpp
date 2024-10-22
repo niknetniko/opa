@@ -1,12 +1,8 @@
-//
-// Created by niko on 22/10/24.
-//
-
 #include "builtin_model.h"
 
 #include <QIcon>
 
-BuiltinModel::BuiltinModel(QObject* parent): KRearrangeColumnsProxyModel(parent) {
+BuiltinModel::BuiltinModel(QObject *parent): KRearrangeColumnsProxyModel(parent) {
 }
 
 void BuiltinModel::setColumns(int builtinColumn, int decoratedColumn) {

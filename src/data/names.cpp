@@ -1,7 +1,3 @@
-//
-// Created by niko on 25/09/24.
-//
-
 #include "names.h"
 #include "database/schema.h"
 

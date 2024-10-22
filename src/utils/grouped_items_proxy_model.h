@@ -25,8 +25,7 @@
 	A copy of the GNU General Public License is available at <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GROUPEDITEMSPROXYMODEL_H
-#define GROUPEDITEMSPROXYMODEL_H
+#pragma once
 
 #include <QIdentityProxyModel>
 #include <QSize>
@@ -275,5 +274,3 @@ protected:
         bool m_isSourceItem;
     }; // GroupedProxyItem
 }; // GroupedItemsProxyModel
-
-#endif // GROUPEDITEMSPROXYMODEL_H

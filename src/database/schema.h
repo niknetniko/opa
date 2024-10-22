@@ -1,9 +1,4 @@
-//
-// Created by niko on 6/02/24.
-//
-
-#ifndef OPA_SCHEMA_H
-#define OPA_SCHEMA_H
+#pragma once
 
 #include <QString>
 
@@ -18,5 +13,3 @@ namespace Schema {
     const auto EventTypesTable = QStringLiteral("event_types");
     const auto EventRelationsTable = QStringLiteral("event_relations");
 }
-
-#endif //OPA_SCHEMA_H

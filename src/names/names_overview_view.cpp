@@ -1,22 +1,22 @@
-//
-// Created by niko on 8/02/24.
-//
+#include "names_overview_view.h"
 
-#include <QSqlQuery>
+#include <KRearrangeColumnsProxyModel>
 #include <QDebug>
-#include <QSqlError>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <QTreeView>
 
-#include "names_overview_view.h"
+#include "data/data_manager.h"
+#include "data/names.h"
 #include "database/schema.h"
 #include "names/name_editor.h"
-#include "utils/single_row_model.h"
-#include "data/names.h"
-#include "data/data_manager.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
+#include "utils/single_row_model.h"
 
 QString Names::construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
                                       const QString &surname) {
@@ -44,14 +44,14 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     auto *selectedColumnsModel = new KRearrangeColumnsProxyModel(this);
     selectedColumnsModel->setSourceModel(baseModel);
     selectedColumnsModel->setSourceColumns({
-                                                   NamesTableModel::ID,
-                                                   NamesTableModel::SORT,
-                                                   NamesTableModel::TITLES,
-                                                   NamesTableModel::GIVEN_NAMES,
-                                                   NamesTableModel::PREFIX,
-                                                   NamesTableModel::SURNAME,
-                                                   NamesTableModel::ORIGIN
-                                           });
+        NamesTableModel::ID,
+        NamesTableModel::SORT,
+        NamesTableModel::TITLES,
+        NamesTableModel::GIVEN_NAMES,
+        NamesTableModel::PREFIX,
+        NamesTableModel::SURNAME,
+        NamesTableModel::ORIGIN
+    });
 
     // We want to filter and sort.
     auto *filterProxyModel = new QSortFilterProxyModel(this);
@@ -70,7 +70,8 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     treeView->sortByColumn(1, Qt::AscendingOrder);
     // We are done setting up, attach the model.
     treeView->setModel(filterProxyModel);
-    treeView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME));
+    treeView->setItemDelegateForColumn(NamesTableModel::ID,
+                                       new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME));
     treeView->header()->setSortIndicatorClearable(false);
     auto originTranslator = new BuiltinTextTranslatingDelegate(treeView);
     originTranslator->setTranslator(NameOrigins::toDisplayString);
@@ -91,7 +92,7 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
 
     connect(treeView, &QTreeView::doubleClicked, this, &NamesOverviewView::handleDoubleClick);
     connect(treeView->header(), &QHeaderView::sortIndicatorChanged, this, [this](int logicalIndex) {
-        auto* model = this->treeView->selectionModel();
+        auto *model = this->treeView->selectionModel();
         Q_EMIT this->sortChanged(model->model(), model->selection(), logicalIndex);
     });
 }
@@ -101,7 +102,7 @@ void NamesOverviewView::handleSelectedNewRow(const QItemSelection &selected, con
 }
 
 void NamesOverviewView::handleNewName() {
-    auto *nameModel = const_cast<QSqlTableModel*>(find_source_model_of_type<QSqlTableModel>(this->baseModel));
+    auto *nameModel = const_cast<QSqlTableModel *>(find_source_model_of_type<QSqlTableModel>(this->baseModel));
 
     auto newRecord = nameModel->record();
     newRecord.setGenerated(NamesTableModel::ID, false);
@@ -179,16 +180,16 @@ void NamesOverviewView::moveSelectedNameUp() {
 void NamesOverviewView::moveSelectedNameToPosition(int from, int to) {
     // Create an ordered list of the names except the current one.
     // We can assume the model is ordered, otherwise we would have not allowed modifying it.
-    auto* model = this->treeView->model();
+    auto *model = this->treeView->model();
 
     qDebug() << "There are " << model->rowCount() << " rows in the model...";
 
     QVector<int> vector(model->rowCount());
-    std::iota( std::begin(vector), std::end(vector), 1 );
+    std::iota(std::begin(vector), std::end(vector), 1);
     std::swap(vector[from], vector[to]);
 
     // We want to update this in one go; so get the root model.
-    auto* rootModel = const_cast<QSqlTableModel*>(find_source_model_of_type<QSqlTableModel>(model));
+    auto *rootModel = const_cast<QSqlTableModel *>(find_source_model_of_type<QSqlTableModel>(model));
     auto original = rootModel->editStrategy();
     rootModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
@@ -197,10 +198,10 @@ void NamesOverviewView::moveSelectedNameToPosition(int from, int to) {
         model->setData(model->index(row, 1), vector[row]);
     }
 
-    connect(rootModel, &QSqlTableModel::dataChanged, this, []() {
+    connect(rootModel, &QSqlTableModel::dataChanged, this, [] {
         qDebug() << "Data has been changed in the root model!";
     });
-    connect(rootModel, &QSqlTableModel::modelReset, this, []() {
+    connect(rootModel, &QSqlTableModel::modelReset, this, [] {
         qDebug() << "Reset in the the root model!";
     });
 
@@ -215,7 +216,8 @@ void NamesOverviewView::moveSelectedNameToPosition(int from, int to) {
     rootModel->setEditStrategy(original);
 
     // Fix the selection by choosing the new row.
-    treeView->selectionModel()->select(model->index(to, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    treeView->selectionModel()->select(model->index(to, 0),
+                                       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
 void NamesOverviewView::moveSelectedNameDown() {

@@ -1,20 +1,8 @@
-//
-// Created by niko on 25/09/24.
-//
+#pragma once
 
-#ifndef OPA_DATA_NAMES_H
-#define OPA_DATA_NAMES_H
-
-#include <QSqlTableModel>
-#include <KLazyLocalizedString>
-
-#include "database/schema.h"
 #include "utils/custom_sql_relational_model.h"
 #include "utils/model_utils.h"
 
-/**
- * Base model for the names table.
- */
 class NamesTableModel : public CustomSqlRelationalModel {
     Q_OBJECT
 
@@ -77,5 +65,3 @@ public:
 
     explicit NameOriginTableModel(QObject *parent = nullptr);
 };
-
-#endif //OPA_DATA_NAMES_H

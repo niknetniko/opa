@@ -1,14 +1,11 @@
-//
-// Created by niko on 2/09/2022.
-//
 #include <KConfigGroup>
+#include <KLocalizedString>
 #include <QDebug>
-#include <QVBoxLayout>
 #include <QHeaderView>
 #include <QLineEdit>
-#include <KLocalizedString>
 #include <QSortFilterProxyModel>
 #include <QTreeView>
+#include <QVBoxLayout>
 
 #include "people_overview_view.h"
 #include "data/data_manager.h"

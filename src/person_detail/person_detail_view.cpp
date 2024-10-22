@@ -1,34 +1,31 @@
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QSqlField>
-#include <QToolBar>
-#include <QDate>
 #include <KLocalizedString>
+#include <QDate>
+#include <QSqlQuery>
+#include <QToolBar>
 
 #include "person_detail_view.h"
-#include "ui_person_detail_view.h"
-#include "data/person.h"
-#include "data/event.h"
-#include "database/schema.h"
-#include "person_name_tab.h"
-#include "data/data_manager.h"
-#include "utils/formatted_identifier_delegate.h"
 #include "person_event_tab.h"
+#include "person_name_tab.h"
+#include "ui_person_detail_view.h"
+#include "data/data_manager.h"
+#include "data/event.h"
+#include "data/person.h"
+#include "database/schema.h"
+#include "utils/formatted_identifier_delegate.h"
 
-PersonDetailView::PersonDetailView(IntegerPrimaryKey personId, QWidget *parent) :
-        QFrame(parent) {
+PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget *parent) : QFrame(parent) {
     this->ui = new Ui::PersonDetailView();
     ui->setupUi(this);
 
-    this->model = DataManager::get().personDetailsModel(this, personId);
+    this->model = DataManager::get().personDetailsModel(this, id);
     this->populate();
 
     // Create tab for events
-    auto *eventTab = new PersonEventTab(personId, ui->tabWidget);
+    auto *eventTab = new PersonEventTab(id, ui->tabWidget);
     ui->tabWidget->addTab(eventTab, i18n("Gebeurtenissen"));
 
     // Create tab for names
-    auto *nameTab = new PersonNameTab(personId, ui->tabWidget);
+    auto *nameTab = new PersonNameTab(id, ui->tabWidget);
     ui->tabWidget->addTab(nameTab, i18n("Namen"));
 
     // Connect the model to this view, so we update when the data is changed.
@@ -56,10 +53,10 @@ PersonDetailView::~PersonDetailView() {
     delete ui;
 }
 
-bool PersonDetailView::hasId(IntegerPrimaryKey id) {
+bool PersonDetailView::hasId(IntegerPrimaryKey id) const {
     return model->index(0, PersonDetailModel::ID).data() == id;
 }
 
-QString PersonDetailView::getDisplayName() {
+QString PersonDetailView::getDisplayName() const {
     return model->index(0, PersonDetailModel::DISPLAY_NAME).data().toString();
 }

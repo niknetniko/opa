@@ -1,5 +1,6 @@
-#include <QString>
 #include <KLocalizedString>
+#include <QString>
+
 #include "person.h"
 #include "names/names_overview_view.h"
 

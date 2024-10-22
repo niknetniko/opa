@@ -1,9 +1,4 @@
-//
-// Created by niko on 22/10/24.
-//
-
-#ifndef BUILTIN_TEXT_TRANSLATING_DELEGATE_H
-#define BUILTIN_TEXT_TRANSLATING_DELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -20,5 +15,3 @@ public:
 private:
     std::function<QString(QString)> translator;
 };
-
-#endif //BUILTIN_TEXT_TRANSLATING_DELEGATE_H

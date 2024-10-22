@@ -1,23 +1,16 @@
-//
-// Created by niko on 8/02/24.
-//
-
-#ifndef OPA_NAME_EDITOR_H
-#define OPA_NAME_EDITOR_H
+#pragma once
 
 #include <QDataWidgetMapper>
 #include <QDialog>
-#include <QStyledItemDelegate>
 
 #include "names_overview_view.h"
 #include "ui_name_editor.h"
-#include "utils/proxy_enabled_relational_delegate.h"
 
 /**
  * Editor for names.
  */
 class NamesEditor : public QDialog {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent);
@@ -25,7 +18,6 @@ public:
     ~NamesEditor() override;
 
 public Q_SLOTS:
-
     void accept() override;
 
     void reject() override;
@@ -36,5 +28,3 @@ private:
     bool newRow;
     Ui::NameEditorForm *form;
 };
-
-#endif //OPA_NAME_EDITOR_H

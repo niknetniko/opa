@@ -1,15 +1,9 @@
-//
-// Created by niko on 7/04/2022.
-//
+#pragma once
 
-#ifndef OPA_DATABASE_H
-#define OPA_DATABASE_H
-
+// ReSharper disable once CppUnusedIncludeDirective
 #include <QString>
 
 /**
  * Open the database, or error.
  */
-void open_database(const QString& file);
-
-#endif //OPA_DATABASE_H
+void open_database(const QString &file);

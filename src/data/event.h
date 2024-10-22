@@ -1,13 +1,6 @@
-//
-// Created by niko on 3/09/22.
-//
+#pragma once
 
-#ifndef OPA_EVENT_H
-#define OPA_EVENT_H
-
-#include <KLazyLocalizedString>
 #include <QString>
-#include <QSqlTableModel>
 
 #include "utils/custom_sql_relational_model.h"
 #include "utils/model_utils.h"
@@ -114,5 +107,3 @@ namespace PersonEventsModel {
     constexpr int NAME = 3;
     constexpr int ID = 4;
 }
-
-#endif //OPA_EVENT_H

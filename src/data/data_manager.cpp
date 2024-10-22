@@ -1,21 +1,20 @@
-//
-// Created by niko on 25/09/24.
-//
-
 #include <KLocalizedString>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QLibraryInfo>
-#include <QMetaMethod>
+// ReSharper disable once CppUnusedIncludeDirective
+#include <QSqlError>
+#include <QSqlQuery>
 
 #include "data_manager.h"
-#include "names/names_overview_view.h"
-#include "utils/single_row_model.h"
-#include "data/names.h"
-#include "person.h"
+
+#include <KRearrangeColumnsProxyModel>
+
 #include "event.h"
+#include "person.h"
+#include "data/names.h"
+#include "names/names_overview_view.h"
 #include "utils/grouped_items_proxy_model.h"
 #include "utils/model_utils.h"
+#include "utils/single_row_model.h"
 
 DataManager *DataManager::instance = nullptr;
 
@@ -182,7 +181,7 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     dateModel->setSourceModel(baseModel);
     dateModel->setDateColumn(PersonEventsModel::DATE);
 
-    GroupedItemsProxyModel *proxy = new GroupedItemsProxyModel(parent);
+    auto proxy = new GroupedItemsProxyModel(parent);
     proxy->setSourceModel(dateModel);
     proxy->setGroups({PersonEventsModel::ROLE});
     proxy->setGroupHeaderTitle(i18n("Rol"));
@@ -236,7 +235,7 @@ void DataManager::onSourceModelChanged() {
     }
 }
 
-void DataManager::propagateToModel(QSqlTableModel *model, QStringList tables) {
+void DataManager::propagateToModel(QSqlTableModel *model, const QStringList &tables) {
     this->propagateToModel<QSqlTableModel>(model, tables, [](QSqlTableModel *theModel) {
         theModel->select();
     });

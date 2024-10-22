@@ -1,9 +1,4 @@
-//
-// Created by niko on 17/10/24.
-//
-
-#ifndef CUSTOM_SQL_RELATIONAL_MODEL_H
-#define CUSTOM_SQL_RELATIONAL_MODEL_H
+#pragma once
 
 #include <QSqlTableModel>
 
@@ -133,5 +128,3 @@ private:
 
     QPair<const ForeignKey &, int> getFkFromForeignKeyColumn(int column) const;
 };
-
-#endif //CUSTOM_SQL_RELATIONAL_MODEL_H

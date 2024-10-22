@@ -1,6 +1,5 @@
 #include "simple_list_manager.h"
 
-#include <QToolBar>
 #include <KLocalizedString>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -9,6 +8,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QToolBar>
 
 #include "database/schema.h"
 #include "utils/builtin_model.h"

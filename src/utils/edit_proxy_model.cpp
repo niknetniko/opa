@@ -1,7 +1,3 @@
-//
-// Created by niko on 22/10/24.
-//
-
 #include "edit_proxy_model.h"
 
 EditProxyModel::EditProxyModel(QObject *parent): QIdentityProxyModel(parent) {

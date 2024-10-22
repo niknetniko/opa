@@ -1,7 +1,3 @@
-//
-// Created by niko on 22/10/24.
-//
-
 #include "builtin_text_translating_delegate.h"
 
 BuiltinTextTranslatingDelegate::BuiltinTextTranslatingDelegate(QObject *parent): QStyledItemDelegate(parent) {

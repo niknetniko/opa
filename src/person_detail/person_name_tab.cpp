@@ -2,12 +2,13 @@
 // Created by niko on 28/09/24.
 //
 
-#include <QVBoxLayout>
-#include <QToolBar>
 #include <KLocalizedString>
+#include <QToolBar>
+#include <QVBoxLayout>
+
 #include "person_name_tab.h"
-#include "names/names_overview_view.h"
 #include "data/names.h"
+#include "names/names_overview_view.h"
 
 PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidget(parent) {
     // Create a toolbar.
@@ -89,7 +90,8 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemS
     this->downAction->setEnabled(nameSort < model->rowCount() && rowCount > 1);
 }
 
-void PersonNameTab::onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, const int logicalIndex) const {
+void PersonNameTab::onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected,
+                                  const int logicalIndex) const {
     // Check if there is currently a selected item.
     if (selected.isEmpty()) {
         // Leave everything alone as it was.

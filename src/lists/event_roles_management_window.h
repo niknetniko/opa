@@ -1,9 +1,4 @@
-//
-// Created by niko on 2/10/24.
-//
-
-#ifndef OPA_EVENT_ROLES_MANAGEMENT_VIEW_H
-#define OPA_EVENT_ROLES_MANAGEMENT_VIEW_H
+#pragma once
 
 #include "simple_list_manager.h"
 
@@ -22,5 +17,3 @@ public Q_SLOTS:
 
     bool isUsed(const QVariant &id) override;
 };
-
-#endif //OPA_EVENT_ROLES_MANAGEMENT_VIEW_H

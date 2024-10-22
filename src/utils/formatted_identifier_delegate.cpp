@@ -1,7 +1,3 @@
-//
-// Created by niko on 25/09/24.
-//
-
 #include "formatted_identifier_delegate.h"
 #include "database/schema.h"
 

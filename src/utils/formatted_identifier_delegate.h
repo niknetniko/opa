@@ -1,16 +1,11 @@
-//
-// Created by niko on 25/09/24.
-//
-
-#ifndef OPA_FORMATTED_IDENTIFIER_DELEGATE_H
-#define OPA_FORMATTED_IDENTIFIER_DELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
 QString format_id(const QString &pattern, const QVariant &id);
 
 class FormattedIdentifierDelegate : public QStyledItemDelegate {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     inline static const auto PERSON = QStringLiteral("P%1");
@@ -23,7 +18,4 @@ public:
 
 private:
     QString pattern;
-
 };
-
-#endif //OPA_FORMATTED_IDENTIFIER_DELEGATE_H

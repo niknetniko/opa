@@ -1,12 +1,7 @@
-//
-// Created by niko on 3/09/22.
-//
+#pragma once
 
-#ifndef OPA_PERSON_H
-#define OPA_PERSON_H
-
-#include <QString>
 #include <KExtraColumnsProxyModel>
+#include <QString>
 
 namespace Data::Person {
     namespace Table {
@@ -16,7 +11,7 @@ namespace Data::Person {
         const auto CALL_NAME = QStringLiteral("call_name");
         const auto SUFFIX = QStringLiteral("suffix");
         const auto SEX = QStringLiteral("sex");
-    };
+    }
 
     namespace Sex {
         const auto MALE = QStringLiteral("male");
@@ -38,10 +33,10 @@ namespace DisplayNameModel {
 /**
  * Not for direct use.
  *
- * This class adds an additional column to provide a display name.
+ * This class adds a column to provide a display name.
  */
 class DisplayNameProxyModel : public KExtraColumnsProxyModel {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit DisplayNameProxyModel(QObject *parent = nullptr);
@@ -59,5 +54,3 @@ namespace PersonDetailModel {
     constexpr int SEX = 6;
     constexpr int DISPLAY_NAME = 7;
 };
-
-#endif //OPA_PERSON_H

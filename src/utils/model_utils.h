@@ -1,9 +1,4 @@
-//
-// Created by niko on 28/09/24.
-//
-
-#ifndef OPA_MODEL_UTILS_H
-#define OPA_MODEL_UTILS_H
+#pragma once
 
 #include <KLazyLocalizedString>
 #include <qabstractproxymodel.h>
@@ -81,7 +76,7 @@ public:
 
     int dateColumn() const;
 
-    QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
@@ -89,7 +84,7 @@ private:
     int theDateColumn;
 };
 
-template <typename E>
+template<typename E>
 QString genericToDisplayString(const QString &databaseValue, QHash<E, KLazyLocalizedString> mapping) {
     // Attempt to get the value as enum.
     auto result = QMetaEnum::fromType<E>().keyToValue(databaseValue.toUtf8().data());
@@ -100,5 +95,3 @@ QString genericToDisplayString(const QString &databaseValue, QHash<E, KLazyLocal
     auto enumValue = static_cast<E>(result);
     return mapping[enumValue].toString();
 }
-
-#endif //OPA_MODEL_UTILS_H

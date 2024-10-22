@@ -1,10 +1,9 @@
 #include "name_origins_management_window.h"
 
 #include <KLocalizedString>
-#include <QSqlQuery>
-#include <QSqlRecord>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QSqlQuery>
 
 #include "data/data_manager.h"
 #include "data/names.h"

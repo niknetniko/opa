@@ -1,24 +1,18 @@
-//
-// Created by niko on 7/04/2022.
-//
-
 #include "database.h"
 
-#include <QSqlDatabase>
 #include <QDebug>
+#include <QFileInfo>
+#include <qsqldriver.h>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QFile>
-#include <qsqldriver.h>
 #include <sqlite3.h>
-#include <QFileInfo>
 
-const QString driver = QString::fromUtf8("QSQLITE");
+const auto driver = QStringLiteral("QSQLITE");
 
 void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
-    auto commands = script.split(QString::fromUtf8(";"));
+    auto commands = script.split(QStringLiteral(";"));
     for (auto &command: commands) {
-        command.replace(QString::fromUtf8("\n"), QString::fromUtf8(" "));
+        command.replace(QStringLiteral("\n"), QStringLiteral(" "));
         command = command.trimmed();
         if (command.isEmpty()) {
             qDebug() << "Skipping command" << command;
@@ -37,11 +31,6 @@ void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
             abort();
         }
     }
-}
-
-static void trace( void* /*arg*/, const char* query )
-{
-    qDebug() << "SQLite:" << QString::fromUtf8( query );
 }
 
 void open_database(const QString &file) {
@@ -105,9 +94,4 @@ void open_database(const QString &file) {
     QTextStream init_stream(&init_file);
     QString init = init_stream.readAll();
     executeScriptOrAbort(init, database);
-//    QSqlDatabase db = QSqlDatabase::database();
-//    QVariant v = db.driver()->handle();
-//    // v.data() returns a pointer to the handle
-//    sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
-//    sqlite3_trace(handle, trace, NULL );
 }
