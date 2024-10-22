@@ -23,3 +23,9 @@ ecm_add_test(
         LINK_LIBRARIES opa-lib Qt::Test
         TEST_NAME custom_sql_relational_model_test
 )
+
+ecm_add_test(
+        builtin_model.cpp
+        LINK_LIBRARIES opa-lib Qt::Test
+        TEST_NAME builtin_model_test
+)

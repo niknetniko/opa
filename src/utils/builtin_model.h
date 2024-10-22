@@ -20,7 +20,7 @@ class BuiltinModel: public KRearrangeColumnsProxyModel {
     Q_OBJECT
 
 public:
-    explicit BuiltinModel(QObject* parent);
+    explicit BuiltinModel(QObject* parent = nullptr);
 
     void setColumns(int builtinColumn, int decoratedColumn);
 

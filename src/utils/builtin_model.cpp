@@ -32,6 +32,10 @@ QVariant BuiltinModel::data(const QModelIndex &index, int role) const {
 Qt::ItemFlags BuiltinModel::flags(const QModelIndex &index) const {
     auto flags = QIdentityProxyModel::flags(index);
 
+    if (!index.isValid()) {
+        return flags;
+    }
+
     auto sourceIndex = mapToSource(index);
     auto builtinIndex = sourceModel()->index(sourceIndex.row(), this->builtinColumn);
     Q_ASSERT(sourceModel()->checkIndex(builtinIndex, CheckIndexOption::IndexIsValid));
