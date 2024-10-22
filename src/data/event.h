@@ -5,25 +5,31 @@
 #ifndef OPA_EVENT_H
 #define OPA_EVENT_H
 
+#include <KLazyLocalizedString>
 #include <QString>
 #include <QSqlTableModel>
 
 #include "utils/custom_sql_relational_model.h"
+#include "utils/model_utils.h"
 
-namespace KnownEventRols {
-    const auto Primary = QStringLiteral("primary");
-    const auto Witness = QStringLiteral("witness");
-};
+namespace EventRoles {
+    Q_NAMESPACE
 
-namespace KnownEventTypes {
-    const auto BIRTH = QStringLiteral("birth");
-    const auto DEATH = QStringLiteral("death");
-    const auto MARRIAGE = QStringLiteral("marriage");
-    const auto DIVORCE = QStringLiteral("divorce");
-    const auto BAPTISM = QStringLiteral("baptism");
-    const auto CONFIRMATION = QStringLiteral("confirmation");
-    const auto FIRST_COMMUNION = QStringLiteral("first_communion");
-    const auto FUNERAL = QStringLiteral("funeral");
+    enum Values {
+        Primary,
+        Witness
+    };
+
+    Q_ENUM_NS(Values)
+
+    static const QHash<Values, KLazyLocalizedString> nameOriginToString = {
+        {Primary, kli18n("Primary")},
+        {Witness, kli18n("Witness")}
+    };
+
+    static const std::function toDisplayString = [](const QString &databaseValue) {
+        return genericToDisplayString<Values>(databaseValue, nameOriginToString);
+    };
 }
 
 class EventRolesModel : public QSqlTableModel {
@@ -32,9 +38,38 @@ class EventRolesModel : public QSqlTableModel {
 public:
     static constexpr int ID = 0;
     static constexpr int ROLE = 1;
+    static constexpr int BUILTIN = 2;
 
     explicit EventRolesModel(QObject *parent);
 };
+
+namespace EventTypes {
+    Q_NAMESPACE
+
+    enum Values {
+        Birth,
+        Death,
+        Marriage,
+        Divorce,
+        Baptism,
+        Funeral
+    };
+
+    Q_ENUM_NS(Values)
+
+    static const QHash<Values, KLazyLocalizedString> nameOriginToString = {
+        {Birth, kli18n("Birth")},
+        {Death, kli18n("Death")},
+        {Marriage, kli18n("Marriage")},
+        {Divorce, kli18n("Divorce")},
+        {Baptism, kli18n("Baptism")},
+        {Funeral, kli18n("Funeral")}
+    };
+
+    static const std::function toDisplayString = [](const QString &databaseValue) {
+        return genericToDisplayString<Values>(databaseValue, nameOriginToString);
+    };
+}
 
 class EventTypesModel : public QSqlTableModel {
     Q_OBJECT

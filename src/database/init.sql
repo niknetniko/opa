@@ -19,15 +19,17 @@ INSERT INTO names(person_id, sort, given_names, surname, origin_id)
 VALUES (2, 1, 'Jan', 'Jaap', 2),
        (2, 2, 'Aap', 'Daap', 1);
 
-INSERT INTO event_roles (role)
-VALUES ('primary'),
-       ('witness');
+INSERT INTO event_roles (role, builtin)
+VALUES ('Primary', true),
+       ('Witness', true);
 
-INSERT INTO event_types(type)
-VALUES ('birth'),
-       ('death'),
-       ('baptism'),
-       ('burial');
+INSERT INTO event_types(type, builtin)
+VALUES ('Birth', true),
+       ('Death', true),
+       ('Marriage', true),
+       ('Divorce', true),
+       ('Baptism', true),
+       ('Funeral', true);
 
 INSERT INTO events (type_id, date, name)
 VALUES (1, NULL, 'test 1'),

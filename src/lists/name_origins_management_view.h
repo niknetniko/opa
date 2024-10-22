@@ -9,24 +9,21 @@
 #include <QSqlTableModel>
 #include <QTableView>
 
-class NameOriginsManagementWindow: public QWidget {
-Q_OBJECT
+#include "simple_list_manager.h"
+
+class NameOriginsManagementWindow : public SimpleListManagementWindow {
+    Q_OBJECT
 
 public:
     explicit NameOriginsManagementWindow(QWidget *parent);
 
-public Q_SLOTS:
-
-    void addOrigin();
-    void removeOrigin();
-    void repairOrigins();
-    void onSelectionChanged(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected);
-
-private:
-    QSqlTableModel* model;
-    QAction* removeAction;
-    QTableView* tableView;
-
+protected:
+    QString addItemDescription() override;
+    bool repairConfirmation() override;
+    QString removeItemDescription() override;
+    bool removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds, const QHash<IntegerPrimaryKey, QString> &idToValue) override;
+    QString repairItemDescription() override;
+    bool isUsed(const QVariant &id) override;
 };
 
 #endif //OPA_NAME_ORIGINS_MANAGEMENT_VIEW_H

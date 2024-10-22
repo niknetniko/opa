@@ -14,9 +14,11 @@
 
 #include "opadebug.h"
 #include "lists/name_origins_management_view.h"
+#include "lists/event_roles_management_view.h"
 #include "people_overview_view.h"
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
+
 
 MainWindow::MainWindow() {
     // Attach the tab view.
@@ -42,8 +44,13 @@ MainWindow::MainWindow() {
     manageNameOrigins->setText(i18n("Naamoorsprongen beheren"));
     connect(manageNameOrigins, &QAction::triggered, this, &MainWindow::openNameOriginManager);
 
+    auto *manageEventOrigins = new QAction(this);
+    manageEventOrigins->setText(i18n("Rollen voor gebeurtenissen beheren"));
+    connect(manageEventOrigins, &QAction::triggered, this, &MainWindow::openEventRolesManager);
+
     KActionCollection *actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins);
+    actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventOrigins);
     KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);
     KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
     KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
@@ -131,5 +138,10 @@ int MainWindow::findTabFor(IntegerPrimaryKey personId) {
 
 void MainWindow::openNameOriginManager() {
     auto *window = new NameOriginsManagementWindow(this);
+    window->show();
+}
+
+void MainWindow::openEventRolesManager() {
+    auto *window = new EventRolesManagementWindow(this);
     window->show();
 }

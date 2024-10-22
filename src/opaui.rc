@@ -12,6 +12,7 @@
     <Menu name="manage">
       <text>Manage</text>
       <Action name="manage_name_origins"/>
+      <Action name="manage_event_roles"/>
     </Menu>
   </MenuBar>
 

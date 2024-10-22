@@ -2,7 +2,6 @@
 // Created by niko on 25/09/24.
 //
 
-#include <KLocalizedString>
 #include "names.h"
 #include "database/schema.h"
 
@@ -22,17 +21,6 @@ NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel *originsModel) 
     CustomSqlRelationalModel::setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
 
     CustomSqlRelationalModel::setSort(SORT, Qt::SortOrder::AscendingOrder);
-}
-
-QString NameOrigins::toDisplayString(const QString &databaseValue) {
-    // Attempt to get the value as enum.
-    auto result = QMetaEnum::fromType<Values>().keyToValue(databaseValue.toUtf8().data());
-    if (result == -1) {
-        // This is not a built-in type, so do nothing with it.
-        return databaseValue;
-    }
-    auto enumValue = static_cast<Values>(result);
-    return nameOriginToString[enumValue].toString();
 }
 
 NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(parent) {

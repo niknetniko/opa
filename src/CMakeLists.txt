@@ -50,6 +50,10 @@ add_library(opa-lib STATIC
         utils/builtin_model.h
         utils/builtin_text_translating_delegate.h
         utils/builtin_text_translating_delegate.cpp
+        lists/event_roles_management_view.h
+        lists/event_roles_management_view.cpp
+        lists/simple_list_manager.h
+        lists/simple_list_manager.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

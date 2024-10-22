@@ -61,6 +61,7 @@ private Q_SLOTS:
     void closeTab(int tabIndex);
 
     void openNameOriginManager();
+    void openEventRolesManager();
 
 private:
     // this is the name of the root widget inside our Ui file

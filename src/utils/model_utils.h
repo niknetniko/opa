@@ -5,8 +5,10 @@
 #ifndef OPA_MODEL_UTILS_H
 #define OPA_MODEL_UTILS_H
 
+#include <KLazyLocalizedString>
 #include <qabstractproxymodel.h>
 #include <QIdentityProxyModel>
+#include <QMetaEnum>
 
 /**
  * Find the first source model of a specific type.
@@ -86,5 +88,17 @@ public:
 private:
     int theDateColumn;
 };
+
+template <typename E>
+QString genericToDisplayString(const QString &databaseValue, QHash<E, KLazyLocalizedString> mapping) {
+    // Attempt to get the value as enum.
+    auto result = QMetaEnum::fromType<E>().keyToValue(databaseValue.toUtf8().data());
+    if (result == -1) {
+        // This is not a built-in type, so do nothing with it.
+        return databaseValue;
+    }
+    auto enumValue = static_cast<E>(result);
+    return mapping[enumValue].toString();
+}
 
 #endif //OPA_MODEL_UTILS_H

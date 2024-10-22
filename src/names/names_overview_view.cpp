@@ -73,7 +73,7 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     treeView->setItemDelegateForColumn(NamesTableModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME));
     treeView->header()->setSortIndicatorClearable(false);
     auto originTranslator = new BuiltinTextTranslatingDelegate(treeView);
-    originTranslator->setTranslator(&NameOrigins::toDisplayString);
+    originTranslator->setTranslator(NameOrigins::toDisplayString);
     treeView->setItemDelegateForColumn(6, originTranslator);
 
     // Wrap in a VBOX for layout reasons.

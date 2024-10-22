@@ -10,6 +10,7 @@
 
 #include "database/schema.h"
 #include "utils/custom_sql_relational_model.h"
+#include "utils/model_utils.h"
 
 /**
  * Base model for the names table.
@@ -30,21 +31,6 @@ public:
 
     explicit NamesTableModel(QObject *parent, QSqlTableModel *originsModel);
 };
-
-// namespace NameOrigins {
-//     // TODO: can this be done with less repetition?
-//     constexpr auto Unknown = kli18n("Unknown");
-//     constexpr auto Inherited = kli18n("Inherited");
-//     constexpr auto Patrilineal = kli18n("Patrilineal");
-//     constexpr auto Matrilineal = kli18n("Matrilineal");
-//     constexpr auto Taken = kli18n("Taken");
-//     constexpr auto Patronymic = kli18n("Patronymic");
-//     constexpr auto Matronymic = kli18n("Matronymic");
-//     constexpr auto Location = kli18n("Location");
-//     constexpr auto Occupation = kli18n("Occupation");
-//
-//     QString asDisplayString(const QString& databaseValue);
-// }
 
 namespace NameOrigins {
     Q_NAMESPACE
@@ -75,7 +61,9 @@ namespace NameOrigins {
         {Occupation, kli18n("Occupation")}
     };
 
-    QString toDisplayString(const QString &databaseValue);
+    static const std::function toDisplayString = [](const QString &databaseValue) {
+        return genericToDisplayString<Values>(databaseValue, nameOriginToString);
+    };
 };
 
 
