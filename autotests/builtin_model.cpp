@@ -12,10 +12,6 @@
 
 #include <QSqlTableModel>
 
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-
 using namespace Qt::Literals::StringLiterals;
 
 class TestBuiltinModel : public QObject {
@@ -114,5 +110,3 @@ private Q_SLOTS:
 QTEST_MAIN(TestBuiltinModel)
 
 #include "builtin_model.moc"
-
-#pragma clang diagnostic pop

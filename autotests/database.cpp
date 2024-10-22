@@ -1,26 +1,21 @@
-//
-// Created by niko on 8/10/24.
-//
-
+// ReSharper disable CppMemberFunctionMayBeStatic
 #include <QTest>
 #include <QSqlDatabase>
 #include "database/database.h"
 #include "database/schema.h"
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+using namespace Qt::Literals::StringLiterals;
 
 class TestDatabase : public QObject {
-Q_OBJECT
+    Q_OBJECT
 
 private Q_SLOTS:
-
     void databaseInitialization() {
         // Without this, we cannot test anything.
-        QVERIFY(QSqlDatabase::isDriverAvailable(QStringLiteral("QSQLITE")));
+        QVERIFY(QSqlDatabase::isDriverAvailable(u"QSQLITE"_s));
 
         // Open the database.
-        open_database(QStringLiteral(":memory:"));
+        open_database(u":memory:"_s);
 
         // Check that we have created the database.
         auto database = QSqlDatabase::database();
@@ -31,15 +26,15 @@ private Q_SLOTS:
         qDebug() << tables;
         tables.sort();
         QStringList expected = {
-                Schema::NameOriginsTable,
-                Schema::NamesTable,
-                Schema::PeopleTable,
-                Schema::EventRelationsTable,
-                Schema::EventRolesTable,
-                Schema::EventTypesTable,
-                Schema::EventsTable,
-                // Special SQLite tables...
-                QStringLiteral("sqlite_sequence")
+            Schema::NameOriginsTable,
+            Schema::NamesTable,
+            Schema::PeopleTable,
+            Schema::EventRelationsTable,
+            Schema::EventRolesTable,
+            Schema::EventTypesTable,
+            Schema::EventsTable,
+            // Special SQLite tables...
+            u"sqlite_sequence"_s
         };
         expected.sort();
         QCOMPARE(tables, expected);
@@ -51,5 +46,3 @@ private Q_SLOTS:
 QTEST_MAIN(TestDatabase)
 
 #include "database.moc"
-
-#pragma clang diagnostic pop

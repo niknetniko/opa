@@ -1,30 +1,25 @@
-//
-// Created by niko on 10/10/24.
-//
-
+// ReSharper disable CppMemberFunctionMayBeConst
 #include <QTest>
 #include <QSqlDatabase>
 #include "utils/opa_date.h"
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+using namespace Qt::Literals::StringLiterals;
 
 class TestOpaDate : public QObject {
-Q_OBJECT
+    Q_OBJECT
 
     const OpaDate date = OpaDate(
-            OpaDate::DURING,
-            OpaDate::EXACT,
-            QDate(2001, 7, 4),
-            QDate(),
-            true,
-            false,
-            true,
-            QStringLiteral("Hallo this is a test")
+        OpaDate::DURING,
+        OpaDate::EXACT,
+        QDate(2001, 7, 4),
+        QDate(),
+        true,
+        false,
+        true,
+        u"Hallo this is a test"_s
     );
 
-    const QString json = QStringLiteral(
-            "{\"dateModifier\":\"DURING\",\"dateQuality\":\"EXACT\",\"day\":true,\"month\":false,\"proleptic\":2452095,\"prolepticEnd\":-9223372036854775808,\"userText\":\"Hallo this is a test\",\"year\":true}");
+    const QString json = u"{\"dateModifier\":\"DURING\",\"dateQuality\":\"EXACT\",\"day\":true,\"month\":false,\"proleptic\":2452095,\"userText\":\"Hallo this is a test\",\"year\":true}"_s;
 
 private Q_SLOTS:
     void jsonEncoding() {
@@ -48,5 +43,3 @@ private Q_SLOTS:
 QTEST_MAIN(TestOpaDate)
 
 #include "opa_date.moc"
-
-#pragma clang diagnostic pop

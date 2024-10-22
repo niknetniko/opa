@@ -7,14 +7,9 @@
 #include <QSignalSpy>
 #include <QSqlError>
 #include <QSqlQuery>
-
-#include "utils/edit_proxy_model.h"
-
 #include <QSqlTableModel>
 
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+#include "utils/edit_proxy_model.h"
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -89,5 +84,3 @@ private Q_SLOTS:
 QTEST_MAIN(TestEditProxyModel)
 
 #include "edit_proxy_model.moc"
-
-#pragma clang diagnostic pop

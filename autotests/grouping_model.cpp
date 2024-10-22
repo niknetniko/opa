@@ -1,26 +1,21 @@
-//
-// Created by niko on 8/10/24.
-//
-
+// ReSharper disable CppMemberFunctionMayBeStatic
 #include <QTest>
 #include <QStandardItemModel>
 #include <QAbstractItemModelTester>
 #include "database/database.h"
 #include "utils/grouped_items_proxy_model.h"
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+using namespace Qt::Literals::StringLiterals;
 
 class TestGroupedItemsProxyModel : public QObject {
-Q_OBJECT
+    Q_OBJECT
 
 private Q_SLOTS:
-
     void modelTest() {
         auto rootModel = QStandardItemModel(6, 2);
         for (int row = 0; row < rootModel.rowCount(); ++row) {
-            QStandardItem *value = new QStandardItem(QStringLiteral("row %0, column %1").arg(row).arg(1));
-            QStandardItem *group = new QStandardItem(QStringLiteral("group %1").arg(row / 2));
+            auto value = new QStandardItem(u"row %0, column %1"_s.arg(row).arg(1));
+            auto group = new QStandardItem(u"group %1"_s.arg(row / 2));
             rootModel.setItem(row, 0, group);
             rootModel.setItem(row, 1, value);
         }
@@ -40,5 +35,3 @@ private Q_SLOTS:
 QTEST_MAIN(TestGroupedItemsProxyModel)
 
 #include "grouping_model.moc"
-
-#pragma clang diagnostic pop

@@ -14,10 +14,6 @@
 #include "database/database.h"
 #include "utils/custom_sql_relational_model.h"
 
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-
 using namespace Qt::Literals::StringLiterals;
 
 class TestCustomSqlRelationalModel : public QObject {
@@ -212,5 +208,3 @@ private Q_SLOTS:
 QTEST_MAIN(TestCustomSqlRelationalModel)
 
 #include "custom_sql_relational_model.moc"
-
-#pragma clang diagnostic pop
