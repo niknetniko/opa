@@ -152,14 +152,14 @@ void SimpleListManagementWindow::initializeLayout() {
 
     auto addAction = new QAction(toolbar);
     addAction->setText(i18n("Add"));
-    addAction->setToolTip(addItemDescription());
+    addAction->setToolTip(i18n("Add a new row to the table"));
     addAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
     toolbar->addAction(addAction);
     connect(addAction, &QAction::triggered, this, &SimpleListManagementWindow::addItem);
 
     removeAction = new QAction(toolbar);
     removeAction->setText(i18n("Delete"));
-    removeAction->setToolTip(removeItemDescription());
+    removeAction->setToolTip(i18n("Remove the selected row from the table"));
     removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
     removeAction->setEnabled(false);
     toolbar->addAction(removeAction);
@@ -167,7 +167,7 @@ void SimpleListManagementWindow::initializeLayout() {
 
     auto repairAction = new QAction(toolbar);
     repairAction->setText(i18n("Clean up"));
-    repairAction->setToolTip(repairItemDescription());
+    repairAction->setToolTip(i18n("Remove empty and duplicate rows."));
     repairAction->setIcon(QIcon::fromTheme(QStringLiteral("tools-wizard")));
     repairAction->setEnabled(true);
     toolbar->addAction(repairAction);
@@ -231,4 +231,36 @@ void SimpleListManagementWindow::setTranslator(const std::function<QString(QStri
 
 void SimpleListManagementWindow::setModel(QSqlTableModel *model) {
     this->model = model;
+}
+
+void SimpleListManagementWindow::removeReferencesFromModel(
+    const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
+    const QHash<IntegerPrimaryKey, QString> &idToValue, QSqlTableModel *foreignModel, int foreignKeyColumn) {
+    for (int r = 0; r < foreignModel->rowCount(); ++r) {
+        auto index = foreignModel->index(r, foreignKeyColumn);
+
+        // If the model is empty, stop it now.
+        if (!index.isValid() || index.data().isNull()) {
+            if (!foreignModel->setData(index, QString())) {
+                qWarning() << "Could not update data...";
+                qWarning() << foreignModel->lastError();
+            }
+            continue;
+        }
+
+        auto originInModel = index.data().toLongLong();
+        auto value = idToValue[originInModel];
+        auto idsForThisValue = valueToIds[value];
+
+        // If there are no duplicates, we do not need to update anything.
+        if (idsForThisValue.length() == 1) {
+            continue;
+        }
+
+        // Update the name to point to the first origin.
+        if (!foreignModel->setData(index, idsForThisValue.first())) {
+            qWarning() << "Could not update data...";
+            qWarning() << foreignModel->lastError();
+        }
+    }
 }

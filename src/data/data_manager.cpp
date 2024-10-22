@@ -17,7 +17,7 @@
 #include "utils/grouped_items_proxy_model.h"
 #include "utils/model_utils.h"
 
-DataManager* DataManager::instance = nullptr;
+DataManager *DataManager::instance = nullptr;
 
 DataManager::DataManager(QObject *parent): QObject(parent) {
     baseNameOriginModel = makeModel<NameOriginTableModel>();
@@ -47,10 +47,10 @@ QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, const Integer
 
 QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     auto query = QStringLiteral(
-            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root "
-            "FROM people "
-            "JOIN names on people.id = names.person_id "
-            "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)"
+        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root "
+        "FROM people "
+        "JOIN names on people.id = names.person_id "
+        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)"
     );
     auto *baseModel = new QSqlQueryModel(parent);
 
@@ -72,7 +72,7 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     rearrangedModel->setSourceModel(combinedModel);
     rearrangedModel->setSourceColumns(QVector<int>() << 0 << 6 << 5);
 
-    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [query](auto* model) {
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [query](auto *model) {
         model->setQuery(query);
     });
 
@@ -81,10 +81,10 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
 
 QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
-            "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex "
-            "FROM people "
-            "JOIN names on people.id = names.person_id "
-            "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) AND people.id = :id"
+        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex "
+        "FROM people "
+        "JOIN names on people.id = names.person_id "
+        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) AND people.id = :id"
     );
     QSqlQuery query;
     query.prepare(rawQuery);
@@ -106,13 +106,14 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
     auto *combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
 
-    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [rawQuery, personId](auto* model) {
-        QSqlQuery newQuery;
-        newQuery.prepare(rawQuery);
-        newQuery.bindValue(QStringLiteral(":id"), personId);
-        newQuery.exec();
-        model->setQuery(std::move(newQuery));
-    });
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable},
+                                     [rawQuery, personId](auto *model) {
+                                         QSqlQuery newQuery;
+                                         newQuery.prepare(rawQuery);
+                                         newQuery.bindValue(QStringLiteral(":id"), personId);
+                                         newQuery.exec();
+                                         model->setQuery(std::move(newQuery));
+                                     });
 
     // Our QSqlQueryModel does not emit "data changed", since it is read-only.
     // This is, however, very annoying, so we do it anyway.
@@ -146,13 +147,13 @@ QSqlTableModel *DataManager::eventsModel() const {
 
 QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
-            "SELECT er.role, et.type, events.date, events.name, events.id "
-            "FROM events "
-            "LEFT JOIN event_types AS et ON events.type_id = et.id "
-            "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-            "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-            "WHERE erel.person_id = :id "
-            "ORDER BY events.date ASC"
+        "SELECT er.role, et.type, events.date, events.name, events.id "
+        "FROM events "
+        "LEFT JOIN event_types AS et ON events.type_id = et.id "
+        "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        "WHERE erel.person_id = :id "
+        "ORDER BY events.date ASC"
     );
     QSqlQuery query;
     query.prepare(rawQuery);
@@ -168,13 +169,14 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     baseModel->setHeaderData(PersonEventsModel::ROLE, Qt::Horizontal, i18n("Rol"));
 
     // Connect the original model to changes.
-    propagateToModel<QSqlQueryModel>(baseModel, {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable}, [rawQuery, personId](auto* model) {
-        QSqlQuery newQuery;
-        newQuery.prepare(rawQuery);
-        newQuery.bindValue(QStringLiteral(":id"), personId);
-        newQuery.exec();
-        model->setQuery(std::move(newQuery));
-    });
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable},
+                                     [rawQuery, personId](auto *model) {
+                                         QSqlQuery newQuery;
+                                         newQuery.prepare(rawQuery);
+                                         newQuery.bindValue(QStringLiteral(":id"), personId);
+                                         newQuery.exec();
+                                         model->setQuery(std::move(newQuery));
+                                     });
 
     auto *dateModel = new OpaDateModel(parent);
     dateModel->setSourceModel(baseModel);
@@ -189,13 +191,13 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     auto *hidden = new KRearrangeColumnsProxyModel(parent);
     hidden->setSourceModel(proxy);
     hidden->setSourceColumns({
-                                     PersonEventsModel::ROLE,
-                                     // These are all one further than we want.
-                                     PersonEventsModel::TYPE + 1,
-                                     PersonEventsModel::DATE + 1,
-                                     PersonEventsModel::NAME + 1,
-                                     PersonEventsModel::ID + 1
-                             });
+        PersonEventsModel::ROLE,
+        // These are all one further than we want.
+        PersonEventsModel::TYPE + 1,
+        PersonEventsModel::DATE + 1,
+        PersonEventsModel::NAME + 1,
+        PersonEventsModel::ID + 1
+    });
 
     return hidden;
 }
@@ -220,22 +222,22 @@ void DataManager::onSourceModelChanged() {
     // When this is called the first time, we will set the variable to true,
     // and propagate the signal to our own listeners.
     const auto senderName = QString::fromUtf8(sender->metaObject()->className());
-    qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName();
-    qDebug() << "   by signal" << metaMethod.methodSignature();
+    qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName() << "by signal"
+            << metaMethod.methodSignature();
     if (this->updatingFromDataManagerSource == nullptr) {
-        qDebug() << "   Not updating yet";
+        // qDebug() << "   Not updating yet";
         updatingFromDataManagerSource = sender;
         Q_EMIT this->dataChanged(sendingModel->tableName());
         updatingFromDataManagerSource = nullptr;
     } else {
-        qDebug() << "   Already updating in DataManager, so ignoring this signal.";
+        // qDebug() << "   Already updating in DataManager, so ignoring this signal.";
         // We are already updating from another model, so do not propagate this.
         // Do nothing.
     }
 }
 
 void DataManager::propagateToModel(QSqlTableModel *model, QStringList tables) {
-    this->propagateToModel<QSqlTableModel>(model, tables, [](QSqlTableModel* theModel) {
+    this->propagateToModel<QSqlTableModel>(model, tables, [](QSqlTableModel *theModel) {
         theModel->select();
     });
 }
@@ -254,8 +256,8 @@ DataManager &DataManager::get() {
 }
 
 template<QSqlTableModelConcept ModelType, typename... Args>
-ModelType *DataManager::makeModel(Args&&... args) {
-    auto* model = new ModelType(this, std::forward<Args>(args)...);
+ModelType *DataManager::makeModel(Args &&... args) {
+    auto *model = new ModelType(this, std::forward<Args>(args)...);
     model->setEditStrategy(QSqlTableModel::OnFieldChange);
     if (!model->select()) {
         qWarning() << "Problem while getting data for model" << model->metaObject()->className();
@@ -274,17 +276,9 @@ ModelType *DataManager::makeModel(Args&&... args) {
 template<class ModelType>
 void DataManager::propagateToModel(ModelType *model, QStringList tables, std::function<void(ModelType *)> updater) {
     auto name = model->metaObject()->className();
-    connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString &table){
-//        qDebug() << "Propagating update of table" << table << "to model " << name;
-        if (tables.contains(table)) {
-            if (updatingFromDataManagerSource != model) {
-//                qDebug() << "   Model is interested, triggering refresh of model.";
-                updater(model);
-            } else {
-//                qDebug() << "   Model is interested, but is the source, skipping.";
-            }
-        } else {
-//            qDebug() << "   Model is not interested, skipping.";
+    connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString &table) {
+        if (tables.contains(table) && updatingFromDataManagerSource != model) {
+            updater(model);
         }
     });
 }

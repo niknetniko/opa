@@ -35,17 +35,14 @@ protected:
 
     void setModel(QSqlTableModel *model);
 
-    virtual QString addItemDescription() = 0;
-
-    virtual QString removeItemDescription() = 0;
-
-    virtual QString repairItemDescription() = 0;
+    static void removeReferencesFromModel(const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
+                                          const QHash<IntegerPrimaryKey, QString> &idToValue, QSqlTableModel* foreignModel, int foreignKeyColumn);
 
     virtual bool repairConfirmation() = 0;
 
     virtual bool isUsed(const QVariant &id) = 0;
 
-    virtual bool removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
+    virtual void removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
                                         const QHash<IntegerPrimaryKey, QString> &idToValue) = 0;
 
 private:

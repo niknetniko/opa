@@ -5,29 +5,22 @@
 #ifndef OPA_EVENT_ROLES_MANAGEMENT_VIEW_H
 #define OPA_EVENT_ROLES_MANAGEMENT_VIEW_H
 
-#include <QWidget>
-#include <QSqlTableModel>
-#include <QTableView>
+#include "simple_list_manager.h"
 
-class EventRolesManagementWindow : public QWidget {
+class EventRolesManagementWindow : public SimpleListManagementWindow {
     Q_OBJECT
 
 public:
     explicit EventRolesManagementWindow(QWidget *parent);
 
 public Q_SLOTS:
-    void addRole();
+    bool repairConfirmation() override;
 
-    void removeRole();
 
-    void repairRoles();
+    void removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
+                                const QHash<IntegerPrimaryKey, QString> &idToValue) override;
 
-    void onSelectionChanged(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected);
-
-private:
-    QSqlTableModel *model;
-    QAction *removeAction;
-    QTableView *tableView;
+    bool isUsed(const QVariant &id) override;
 };
 
 #endif //OPA_EVENT_ROLES_MANAGEMENT_VIEW_H
