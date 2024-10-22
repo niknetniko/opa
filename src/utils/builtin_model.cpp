@@ -41,7 +41,7 @@ Qt::ItemFlags BuiltinModel::flags(const QModelIndex &index) const {
     Q_ASSERT(sourceModel()->checkIndex(builtinIndex, CheckIndexOption::IndexIsValid));
 
     if (builtinIndex.data().toBool()) {
-        flags = flags & ~Qt::ItemIsEditable;
+        flags = flags.setFlag(Qt::ItemIsEditable, false);
     }
     return flags;
 }

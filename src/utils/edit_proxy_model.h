@@ -14,7 +14,7 @@ class EditProxyModel: public QIdentityProxyModel {
     Q_OBJECT
 
 public:
-    explicit EditProxyModel(QObject* parent);
+    explicit EditProxyModel(QObject* parent = nullptr);
 
     void addReadOnlyColumns(const QList<int> &columns);
 

@@ -29,3 +29,9 @@ ecm_add_test(
         LINK_LIBRARIES opa-lib Qt::Test
         TEST_NAME builtin_model_test
 )
+
+ecm_add_test(
+        edit_proxy_model.cpp
+        LINK_LIBRARIES opa-lib Qt::Test
+        TEST_NAME edit_proxy_model_test
+)

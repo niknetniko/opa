@@ -8,7 +8,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
-#include "utils/builtin_model.h"
+#include "utils/edit_proxy_model.h"
 
 #include <QSqlTableModel>
 
@@ -18,7 +18,7 @@
 
 using namespace Qt::Literals::StringLiterals;
 
-class TestBuiltinModel : public QObject {
+class TestEditProxyModel : public QObject {
     Q_OBJECT
 
 private Q_SLOTS:
@@ -53,40 +53,13 @@ private Q_SLOTS:
         QSqlTableModel model;
         model.setTable(u"test_table"_s);
         QVERIFY(model.select());
-        BuiltinModel builtinModel;
+        EditProxyModel builtinModel;
         builtinModel.setSourceModel(&model);
-        builtinModel.setColumns(2, 1);
+        builtinModel.addReadOnlyColumns({1, 2});
         auto tester = QAbstractItemModelTester(&builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
-    void testColumnIsHiddenAndShownAsIcon() {
-        QSqlTableModel model;
-        model.setTable(u"test_table"_s);
-        QVERIFY(model.select());
-
-        QCOMPARE(model.columnCount(), 3);
-        QCOMPARE(model.index(0, 0).data(), 1);
-        QCOMPARE(model.index(0, 1).data(), u"First"_s);
-        QCOMPARE(model.index(0, 2).data(), true);
-
-        QCOMPARE(model.index(0, 0).data(Qt::DecorationRole), QVariant());
-        QCOMPARE(model.index(0, 1).data(Qt::DecorationRole), QVariant());
-        QCOMPARE(model.index(0, 2).data(Qt::DecorationRole), QVariant());
-
-        BuiltinModel builtinModel;
-        builtinModel.setSourceModel(&model);
-        builtinModel.setColumns(2, 1);
-
-        QCOMPARE(builtinModel.columnCount(), 2);
-        QCOMPARE(builtinModel.index(0, 0).data(), 1);
-        QCOMPARE(builtinModel.index(0, 1).data(), u"First"_s);
-
-        QCOMPARE(builtinModel.index(0, 0).data(Qt::DecorationRole), QVariant());
-        QVERIFY(builtinModel.index(0, 1).data(Qt::DecorationRole).canConvert<QIcon>());
-        QCOMPARE(builtinModel.index(0, 1).data(Qt::DecorationRole).value<QIcon>().name(), u"lock"_s);
-    }
-
-    void testBuiltinItemsAreNotEditable() {
+    void testIndicatedColumnsAreReadOnly() {
         QSqlTableModel model;
         model.setTable(u"test_table"_s);
         QVERIFY(model.select());
@@ -99,20 +72,22 @@ private Q_SLOTS:
         QVERIFY(model.index(2, 1).flags().testFlag(Qt::ItemIsEditable));
         QVERIFY(model.index(2, 2).flags().testFlag(Qt::ItemIsEditable));
 
-        BuiltinModel builtinModel;
+        EditProxyModel builtinModel;
         builtinModel.setSourceModel(&model);
-        builtinModel.setColumns(2, 1);
+        builtinModel.addReadOnlyColumns({0, 2});
 
         QVERIFY(!builtinModel.index(0, 0).flags().testFlag(Qt::ItemIsEditable));
-        QVERIFY(!builtinModel.index(0, 1).flags().testFlag(Qt::ItemIsEditable));
+        QVERIFY(builtinModel.index(0, 1).flags().testFlag(Qt::ItemIsEditable));
+        QVERIFY(!builtinModel.index(0, 2).flags().testFlag(Qt::ItemIsEditable));
 
-        QVERIFY(builtinModel.index(2, 0).flags().testFlag(Qt::ItemIsEditable));
+        QVERIFY(!builtinModel.index(2, 0).flags().testFlag(Qt::ItemIsEditable));
         QVERIFY(builtinModel.index(2, 1).flags().testFlag(Qt::ItemIsEditable));
+        QVERIFY(!builtinModel.index(2, 2).flags().testFlag(Qt::ItemIsEditable));
     }
 };
 
-QTEST_MAIN(TestBuiltinModel)
+QTEST_MAIN(TestEditProxyModel)
 
-#include "builtin_model.moc"
+#include "edit_proxy_model.moc"
 
 #pragma clang diagnostic pop

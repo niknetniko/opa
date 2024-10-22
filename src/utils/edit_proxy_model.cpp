@@ -18,7 +18,7 @@ Qt::ItemFlags EditProxyModel::flags(const QModelIndex &index) const {
     }
 
     if (columns.contains(index.column())) {
-        flags = flags & ~Qt::ItemIsEditable;
+        flags = flags.setFlag(Qt::ItemIsEditable, false);
     }
     return flags;
 }
