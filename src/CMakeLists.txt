@@ -32,8 +32,8 @@ add_library(opa-lib STATIC
         person_detail/person_name_tab.cpp
         utils/proxy_enabled_relational_delegate.h
         utils/proxy_enabled_relational_delegate.cpp
-        lists/name_origins_management_view.h
-        lists/name_origins_management_view.cpp
+        lists/name_origins_management_window.h
+        lists/name_origins_management_window.cpp
         utils/opa_date.h
         utils/opa_date.cpp
         person_detail/person_event_overview_view.h
@@ -50,10 +50,12 @@ add_library(opa-lib STATIC
         utils/builtin_model.h
         utils/builtin_text_translating_delegate.h
         utils/builtin_text_translating_delegate.cpp
-        lists/event_roles_management_view.h
-        lists/event_roles_management_view.cpp
+        lists/event_roles_management_window.h
+        lists/event_roles_management_window.cpp
         lists/simple_list_manager.h
         lists/simple_list_manager.cpp
+        lists/event_types_management_window.h
+        lists/event_types_management_window.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

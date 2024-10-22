@@ -77,6 +77,7 @@ class EventTypesModel : public QSqlTableModel {
 public:
     static constexpr int ID = 0;
     static constexpr int TYPE = 1;
+    static constexpr int BUILTIN = 2;
 
     explicit EventTypesModel(QObject *parent);
 };

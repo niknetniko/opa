@@ -12,7 +12,10 @@
 #include "opaSettings.h"
 #include "database/schema.h"
 
-namespace Ui { class Settings; }
+namespace Ui {
+    class Settings;
+}
+
 class opaView;
 
 /**
@@ -28,9 +31,9 @@ class opaView;
  * @author Niko Strijbol <strijbol.niko@gmail.com>
  * @version 0.1
  */
-class MainWindow : public KXmlGuiWindow
-{
+class MainWindow : public KXmlGuiWindow {
     Q_OBJECT
+
 public:
     /**
      * Default Constructor
@@ -61,12 +64,15 @@ private Q_SLOTS:
     void closeTab(int tabIndex);
 
     void openNameOriginManager();
+
     void openEventRolesManager();
+
+    void openEventTypesManager();
 
 private:
     // this is the name of the root widget inside our Ui file
     // you can rename it in designer and then change it here
-    Ui::Settings* m_settings;
+    Ui::Settings *m_settings;
     QAction *m_switchAction;
 
     int findTabFor(IntegerPrimaryKey personId);

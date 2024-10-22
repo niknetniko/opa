@@ -1,4 +1,4 @@
-#include "name_origins_management_view.h"
+#include "name_origins_management_window.h"
 
 #include <KLocalizedString>
 #include <QSqlQuery>

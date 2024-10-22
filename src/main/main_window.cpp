@@ -13,11 +13,12 @@
 #include "main_window.h"
 
 #include "opadebug.h"
-#include "lists/name_origins_management_view.h"
-#include "lists/event_roles_management_view.h"
+#include "lists/name_origins_management_window.h"
+#include "lists/event_roles_management_window.h"
 #include "people_overview_view.h"
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
+#include "lists/event_types_management_window.h"
 
 
 MainWindow::MainWindow() {
@@ -41,16 +42,21 @@ MainWindow::MainWindow() {
     connect(tableView, &PeopleOverviewView::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
 
     auto *manageNameOrigins = new QAction(this);
-    manageNameOrigins->setText(i18n("Naamoorsprongen beheren"));
+    manageNameOrigins->setText(i18n("Manage name origins"));
     connect(manageNameOrigins, &QAction::triggered, this, &MainWindow::openNameOriginManager);
 
     auto *manageEventOrigins = new QAction(this);
-    manageEventOrigins->setText(i18n("Rollen voor gebeurtenissen beheren"));
+    manageEventOrigins->setText(i18n("Manage event roles"));
     connect(manageEventOrigins, &QAction::triggered, this, &MainWindow::openEventRolesManager);
+
+    auto *manageEventTypes = new QAction(this);
+    manageEventTypes->setText(i18n("Manage event types"));
+    connect(manageEventTypes, &QAction::triggered, this, &MainWindow::openEventTypesManager);
 
     KActionCollection *actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventOrigins);
+    actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes);
     KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);
     KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
     KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
@@ -143,5 +149,10 @@ void MainWindow::openNameOriginManager() {
 
 void MainWindow::openEventRolesManager() {
     auto *window = new EventRolesManagementWindow(this);
+    window->show();
+}
+
+void MainWindow::openEventTypesManager() {
+    auto *window = new EventTypesManagementWindow(this);
     window->show();
 }

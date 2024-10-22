@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 
-#include "event_roles_management_view.h"
+#include "event_roles_management_window.h"
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "utils/builtin_text_translating_delegate.h"
