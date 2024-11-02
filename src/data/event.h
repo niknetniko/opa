@@ -95,7 +95,7 @@ public:
     static constexpr int TYPE_ID = 1;
     static constexpr int DATE = 2;
     static constexpr int NAME = 3;
-    static constexpr int TYPE = 3;
+    static constexpr int TYPE = 4;
 
     explicit EventsModel(QObject *parent, QSqlTableModel *typesModel);
 };
@@ -106,4 +106,5 @@ namespace PersonEventsModel {
     constexpr int DATE = 2;
     constexpr int NAME = 3;
     constexpr int ID = 4;
+    constexpr int ROLE_ID = 5;
 }

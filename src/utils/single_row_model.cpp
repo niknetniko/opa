@@ -1,8 +1,19 @@
 #include "single_row_model.h"
 
-bool CellFilteredProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const {
-    auto index = this->sourceModel()->index(source_row, this->columnIndex, source_parent);
-    //    qDebug() << "For row " << source_row << ", selected index " << index << ", against " << this->data;
-    //    qDebug() << "  index data is now " << index.data(Qt::EditRole);
-    return index.data(Qt::EditRole) == this->data;
+CellFilteredProxyModel::CellFilteredProxyModel(QObject *parent): QSortFilterProxyModel(parent) {
+}
+
+void CellFilteredProxyModel::addFilter(int columnIndex, const QVariant &data) {
+    this->filters.append({.column = columnIndex, .data = data});
+}
+
+bool CellFilteredProxyModel::filterAcceptsRow(int source_row, const QModelIndex &sourceParent) const {
+    for (auto [columnIndex, data]: this->filters) {
+        auto index = this->sourceModel()->index(source_row, columnIndex, sourceParent);
+        if (index.data() != data) {
+            return false;
+        }
+    }
+
+    return true;
 }

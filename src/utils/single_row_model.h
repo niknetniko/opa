@@ -3,18 +3,22 @@
 #include <QSortFilterProxyModel>
 #include "database/schema.h"
 
+
+struct ColumnAndDataPair {
+    int column;
+    QVariant data;
+};
+
 class CellFilteredProxyModel : public QSortFilterProxyModel {
     Q_OBJECT
 
-private:
-    int columnIndex;
-
 public:
-    QVariant data;
+    explicit CellFilteredProxyModel(QObject *parent);
 
-    CellFilteredProxyModel(QObject *parent, QVariant data, int columnIndex = 0) : QSortFilterProxyModel(parent),
-        columnIndex(columnIndex), data(data) {
-    };
+    void addFilter(int columnIndex, const QVariant &data);
 
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool filterAcceptsRow(int source_row, const QModelIndex &sourceParent) const override;
+
+private:
+    QList<ColumnAndDataPair> filters;
 };

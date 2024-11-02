@@ -32,15 +32,16 @@ QSqlTableModel *DataManager::namesModel() const {
 }
 
 QAbstractProxyModel *DataManager::namesModelForPerson(QObject *parent, const IntegerPrimaryKey personId) const {
-    auto *proxy = new CellFilteredProxyModel(parent, personId, NamesTableModel::PERSON_ID);
+    auto *proxy = new CellFilteredProxyModel(parent);
     proxy->setSourceModel(this->namesModel());
+    proxy->addFilter(NamesTableModel::PERSON_ID, personId);
     return proxy;
 }
 
-QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, const IntegerPrimaryKey nameId) const {
-    qDebug() << "Creating single model where the ID is " << nameId << " on column " << NamesTableModel::ID;
-    auto *proxy = new CellFilteredProxyModel(parent, nameId, NamesTableModel::ID);
+QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, const QVariant &nameId) const {
+    auto *proxy = new CellFilteredProxyModel(parent);
     proxy->setSourceModel(this->namesModel());
+    proxy->addFilter(NamesTableModel::ID, nameId);
     return proxy;
 }
 
@@ -146,7 +147,7 @@ QSqlTableModel *DataManager::eventsModel() const {
 
 QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral(
-        "SELECT er.role, et.type, events.date, events.name, events.id "
+        "SELECT er.role, et.type, events.date, events.name, events.id, er.id "
         "FROM events "
         "LEFT JOIN event_types AS et ON events.type_id = et.id "
         "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
@@ -157,7 +158,11 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);
-    query.exec();
+    if (!query.exec()) {
+        qWarning() << "Failed to execute query" << query.lastQuery();
+        qWarning() << query.lastError();
+        abort();
+    }
 
     auto *baseModel = new QSqlQueryModel(parent);
     baseModel->setQuery(std::move(query));
@@ -166,6 +171,7 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     baseModel->setHeaderData(PersonEventsModel::NAME, Qt::Horizontal, i18n("Omschrijving"));
     baseModel->setHeaderData(PersonEventsModel::TYPE, Qt::Horizontal, i18n("Soort"));
     baseModel->setHeaderData(PersonEventsModel::ROLE, Qt::Horizontal, i18n("Rol"));
+    baseModel->setHeaderData(PersonEventsModel::ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
 
     // Connect the original model to changes.
     propagateToModel<QSqlQueryModel>(baseModel, {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable},
@@ -195,10 +201,28 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
         PersonEventsModel::TYPE + 1,
         PersonEventsModel::DATE + 1,
         PersonEventsModel::NAME + 1,
-        PersonEventsModel::ID + 1
+        PersonEventsModel::ID + 1,
+        PersonEventsModel::ROLE_ID + 1
     });
 
     return hidden;
+}
+
+QAbstractProxyModel *DataManager::singleEventModel(QObject *parent, const QVariant &eventId) const {
+    auto *proxy = new CellFilteredProxyModel(parent);
+    proxy->setSourceModel(this->eventsModel());
+    proxy->addFilter(EventsModel::ID, eventId);
+    return proxy;
+}
+
+QAbstractProxyModel *DataManager::singleEventRelationModel(QObject *parent, const QVariant &eventId,
+                                                           const QVariant &roleId, const QVariant &personId) const {
+    auto *proxy = new CellFilteredProxyModel(parent);
+    proxy->setSourceModel(this->eventRelationsModel());
+    proxy->addFilter(EventRelationsModel::EVENT_ID, eventId);
+    proxy->addFilter(EventRelationsModel::ROLE_ID, roleId);
+    proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
+    return proxy;
 }
 
 void DataManager::listenToModel(const QSqlTableModel *model) {

@@ -11,6 +11,7 @@ int OpaDateModel::dateColumn() const {
 void OpaDateModel::setDateColumn(int column) {
     // Verify that the columns exist.
     assert(0 <= column);
+    qDebug() << "Column count is" << this->columnCount();
     assert(column < this->columnCount());
     this->theDateColumn = column;
 }

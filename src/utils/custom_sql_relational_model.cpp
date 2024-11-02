@@ -6,6 +6,8 @@
 
 #include <QIdentityProxyModel>
 
+#include "model_utils.h"
+
 ForeignKey::ForeignKey(const int foreignKeyColumn, QSqlTableModel *foreignModel, const int displayColumn,
                        const int primaryKeyColumn): _displayColumn(displayColumn), _primaryKeyColumn(primaryKeyColumn),
                                                     _foreignKeyColumn(foreignKeyColumn), _foreignModel(foreignModel) {
@@ -55,7 +57,6 @@ ForeignKey CustomSqlRelationalModel::relation(const int column) const {
 
 QSqlTableModel *CustomSqlRelationalModel::relationModel(const int column) const {
     Q_ASSERT(0 <= column);
-    qDebug() << "Attempting to get relation model for column " << column;
     return relation(column).foreignModel();
 }
 
@@ -158,6 +159,14 @@ QPair<const ForeignKey &, int> CustomSqlRelationalModel::getFkFromForeignKeyColu
     }
 
     return {{}, -1};
+}
+
+void connectComboBox(const QAbstractItemModel *model, int relationColumn, QComboBox *comboBox) {
+    auto *rootModel = find_source_model_of_type<CustomSqlRelationalModel>(model);
+    QSqlTableModel *childModel = rootModel->relationModel(relationColumn);
+    comboBox->setEditable(true);
+    comboBox->setModel(childModel);
+    comboBox->setModelColumn(rootModel->relation(relationColumn).displayColumn());
 }
 
 void CustomSqlRelationalModel::constructForeignCache(const int extraColumn) {

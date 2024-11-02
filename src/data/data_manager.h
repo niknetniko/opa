@@ -48,7 +48,7 @@ public:
      * @param parent The parent for the returned model.
      * @param nameId The ID of the name.
      */
-    QAbstractProxyModel *singleNameModel(QObject *parent, IntegerPrimaryKey nameId) const;
+    QAbstractProxyModel *singleNameModel(QObject *parent, const QVariant &nameId) const;
 
     /**
      * Model showing only the primary names for each person.
@@ -63,6 +63,25 @@ public:
     QAbstractProxyModel *personDetailsModel(QObject *parent, IntegerPrimaryKey personId);
 
     QAbstractProxyModel *eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId);
+
+    /**
+      * Model for a single event.
+      *
+      * @param parent The parent for the returned model.
+      * @param eventId The ID of the event.
+      */
+    QAbstractProxyModel *singleEventModel(QObject *parent, const QVariant &eventId) const;
+
+    /**
+      * Model for a single event relation.
+      *
+      * @param parent The parent for the returned model.
+      * @param eventId The ID of the event.
+      * @param roleId The ID of the role.
+      * @param personId The ID of the person.
+      */
+    QAbstractProxyModel *singleEventRelationModel(QObject *parent, const QVariant &eventId, const QVariant &roleId,
+                                                  const QVariant &personId) const;
 
 Q_SIGNALS:
     /**

@@ -144,7 +144,7 @@ void NamesOverviewView::editSelectedName() {
     // The first column contains the primary key.
     // TODO: do not hardcode this.
     auto index = this->treeView->model()->index(selectRow.row(), 0);
-    auto theId = this->treeView->model()->data(index, Qt::EditRole).toLongLong();
+    auto theId = this->treeView->model()->data(index, Qt::EditRole);
     auto *theModel = DataManager::get().singleNameModel(this, theId);
     auto *editorWindow = new NamesEditor(theModel, false, this);
     editorWindow->show();

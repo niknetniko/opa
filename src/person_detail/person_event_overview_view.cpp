@@ -2,6 +2,9 @@
 #include <QVBoxLayout>
 
 #include "person_event_overview_view.h"
+
+#include <events/event_editor.h>
+
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "utils/formatted_identifier_delegate.h"
@@ -17,6 +20,7 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
     treeView->setRootIsDecorated(true);
 
     treeView->setModel(baseModel);
+    treeView->hideColumn(PersonEventsModel::ROLE_ID);
     treeView->setItemDelegateForColumn(PersonEventsModel::ID,
                                        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT));
     treeView->header()->setSortIndicatorClearable(false);
@@ -47,7 +51,7 @@ void EventsOverviewView::handleSelectedNewRow(const QItemSelection &selected,
 }
 
 void EventsOverviewView::handleDoubleClick(const QModelIndex &clicked) {
-    // Do nothing for now.
+    this->editSelectedEvent();
 }
 
 void EventsOverviewView::handleNewEvent() {
@@ -55,11 +59,28 @@ void EventsOverviewView::handleNewEvent() {
 }
 
 void EventsOverviewView::editSelectedEvent() {
+    // Get the currently selected name.
+    const auto selection = this->treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    const auto selectRow = selection->selectedRows().first();
+
+    auto eventId = this->treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+    auto eventRoleId = this->treeView->model()->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent()).data();
+
+    auto eventModel = DataManager::get().singleEventModel(this, eventId);
+    auto eventRelationModel = DataManager::get().singleEventRelationModel(this, eventId, eventRoleId, QVariant::fromValue(personId));
+
+    auto *editorWindow = new EventEditor(eventRelationModel, eventModel, false, this);
+    editorWindow->show();
+    editorWindow->adjustSize();
 }
 
 void EventsOverviewView::removeSelectedEvent() {
     // TODO: for now, we remove the event completely.
-    //   However, ze also want an unlink button probably?
+    //   However, we also want an unlink button probably?
     //   TODO: add confirmation for this?
 
     auto selection = this->treeView->selectionModel();
@@ -67,8 +88,6 @@ void EventsOverviewView::removeSelectedEvent() {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
     }
-
-    // There will be a indirection, since the tree model is
 
     qDebug() << "Selection itself is " << selection;
 
@@ -93,10 +112,8 @@ void EventsOverviewView::removeSelectedEvent() {
             } else {
                 qDebug() << "   Found event but could not delete with ID " << eventId;
             }
+            eventsModel->select();
             break;
         }
     }
-
-    // TODO: why is this needed?
-    eventsModel->select();
 }

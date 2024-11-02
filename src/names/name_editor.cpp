@@ -27,12 +27,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
 
     // Set up the name origin combobox.
-    // TODO: extract this into another function maybe?
-    auto *rootModel = find_source_model_of_type<CustomSqlRelationalModel>(model);
-    QSqlTableModel *childModel = rootModel->relationModel(NamesTableModel::ORIGIN);
-    form->origin->setEditable(true);
-    form->origin->setModel(childModel);
-    form->origin->setModelColumn(rootModel->relation(NamesTableModel::ORIGIN).displayColumn());
+    connectComboBox(model, NamesTableModel::ORIGIN, form->origin);
 
     // Get the ID of the current name, if not new.
     if (newRow) {
@@ -98,7 +93,6 @@ void NamesEditor::accept() {
 
         qDebug() << "Native error code is " << lastError.nativeErrorCode();
         qDebug() << "Last query is " << sqlModel->query().lastQuery();
-        return;
     }
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QComboBox>
 #include <QSqlTableModel>
 
 #include "database/schema.h"
@@ -128,3 +129,5 @@ private:
 
     QPair<const ForeignKey &, int> getFkFromForeignKeyColumn(int column) const;
 };
+
+void connectComboBox(const QAbstractItemModel* model, int relationColumn, QComboBox* comboBox);

@@ -56,6 +56,8 @@ add_library(opa-lib STATIC
         lists/simple_list_manager.cpp
         lists/event_types_management_window.h
         lists/event_types_management_window.cpp
+        events/event_editor.h
+        events/event_editor.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
