@@ -1,5 +1,4 @@
 #include <QHeaderView>
-#include <QVBoxLayout>
 
 #include "person_event_overview_view.h"
 
@@ -94,26 +93,17 @@ void EventsOverviewView::removeSelectedEvent() {
     auto selectRow = selection->selectedIndexes().first();
     qDebug() << "Selection index is" << selectRow;
     qDebug() << "Selection row is" << selectRow.row();
-    qDebug() << "Selection data is" << selectRow.data();
     qDebug() << "Row count on model is" << treeView->model()->rowCount();
     qDebug() << "Column count on model is " << treeView->model()->columnCount();
     auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
 
-    qDebug() << "Will delete event with ID " << eventId;
+    qDebug() << "Will delete event with ID " << eventId.toLongLong();
 
     // Find the row in the original model.
     auto eventsModel = DataManager::get().eventsModel();
-    for (int r = 0; r < eventsModel->rowCount(); ++r) {
-        auto eventModelId = eventsModel->index(r, EventsModel::ID).data();
-        qDebug() << "Considering event with ID " << eventModelId << "for deletion.";
-        if (eventModelId == eventId) {
-            if (eventsModel->removeRow(r)) {
-                qDebug() << "   Deleted the event with ID " << eventId;
-            } else {
-                qDebug() << "   Found event but could not delete with ID " << eventId;
-            }
-            eventsModel->select();
-            break;
-        }
+    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId);
+    if (!eventsModel->removeRow(result.first().row())) {
+        qWarning() << "Could not delete event" << eventId.toLongLong();
     }
+    eventsModel->select();
 }
