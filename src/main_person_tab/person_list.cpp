@@ -7,12 +7,12 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-#include "people_overview_view.h"
+#include "person_list.h"
 #include "data/data_manager.h"
 #include "data/person.h"
 #include "utils/formatted_identifier_delegate.h"
 
-PeopleOverviewView::PeopleOverviewView(QWidget *parent) : QWidget(parent) {
+PersonListWidget::PersonListWidget(QWidget *parent) : QWidget(parent) {
     auto *baseModel = DataManager::get().primaryNamesModel(this);
 
     // Create a searchable model.
@@ -52,10 +52,10 @@ PeopleOverviewView::PeopleOverviewView(QWidget *parent) : QWidget(parent) {
     connect(tableView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
-            &PeopleOverviewView::handleSelectedNewRow);
+            &PersonListWidget::handleSelectedNewRow);
 }
 
-void PeopleOverviewView::handleSelectedNewRow(const QItemSelection &selected) {
+void PersonListWidget::handleSelectedNewRow(const QItemSelection &selected) {
     if (selected.empty()) {
         return;
     }

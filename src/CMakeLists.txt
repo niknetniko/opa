@@ -6,8 +6,8 @@ add_library(opa-lib STATIC
         database/database.h
         database/database.cpp
         database/schema.h
-        main/people_overview_view.h
-        main/people_overview_view.cpp
+        main_person_tab/person_list.h
+        main_person_tab/person_list.cpp
         data/person.h
         data/person.cpp
         data/event.h

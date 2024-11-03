@@ -3,6 +3,7 @@
 #include <KLocalizedString>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLineEdit>
 #include <QProgressDialog>
 #include <QSortFilterProxyModel>
 #include <QSqlError>
@@ -213,10 +214,17 @@ void SimpleListManagementWindow::initializeLayout() {
         this->onSelectionChanged(QItemSelection(), QItemSelection());
     });
 
-    auto *layout = new QHBoxLayout(this);
-    layout->setSpacing(0);
-    layout->addWidget(tableView);
-    layout->addWidget(toolbar);
+    auto *searchBox = new QLineEdit(this);
+    searchBox->setPlaceholderText(i18n("Search..."));
+    searchBox->setClearButtonEnabled(true);
+    connect(searchBox, &QLineEdit::textEdited, filterProxyModel, &QSortFilterProxyModel::setFilterFixedString);
+    filterProxyModel->setFilterKeyColumn(displayColumn);
+    filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    auto gridLayout = new QGridLayout(this);
+    gridLayout->addWidget(searchBox, 0, 0);
+    gridLayout->addWidget(tableView, 1, 0);
+    gridLayout->addWidget(toolbar, 1, 1);
 }
 
 void SimpleListManagementWindow::setColumns(int idColumn, int displayColumn, int builtinColumn) {

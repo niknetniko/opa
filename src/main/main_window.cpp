@@ -12,13 +12,15 @@
 // application headers
 #include "main_window.h"
 
+#include <lists/event_types_management_window.h>
+#include <main_person_tab/person_list.h>
+
 #include "opadebug.h"
 #include "lists/name_origins_management_window.h"
 #include "lists/event_roles_management_window.h"
-#include "people_overview_view.h"
+#include "main_person_tab/person_list.h"
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
-#include "lists/event_types_management_window.h"
 
 
 MainWindow::MainWindow() {
@@ -34,12 +36,12 @@ MainWindow::MainWindow() {
     auto *dockWidget = new QDockWidget(tr("Personen"), this);
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
-    auto tableView = new PeopleOverviewView(this);
+    auto tableView = new PersonListWidget(this);
     dockWidget->setWidget(tableView);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     // Connect stuff.
-    connect(tableView, &PeopleOverviewView::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
+    connect(tableView, &PersonListWidget::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
 
     auto *manageNameOrigins = new QAction(this);
     manageNameOrigins->setText(i18n("Manage name origins"));
