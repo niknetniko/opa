@@ -37,7 +37,9 @@ public Q_SLOTS:
     /**
      * Remove the currently selected name.
      */
-    void removeSelectedEvent();
+    void removeSelectedEvent() const;
+
+    void unlinkSelectedEvent();
 
 Q_SIGNALS:
     /**

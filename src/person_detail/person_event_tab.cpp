@@ -24,10 +24,16 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWid
     nameToolbar->addAction(this->editAction);
 
     this->removeAction = new QAction(nameToolbar);
-    this->removeAction->setText(i18n("Naam verwijderen"));
+    this->removeAction->setText(i18n("Remove event"));
     this->removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
     this->removeAction->setEnabled(false);
     nameToolbar->addAction(this->removeAction);
+
+    this->unlinkAction = new QAction(nameToolbar);
+    this->unlinkAction->setText(i18n("Unlink event"));
+    this->unlinkAction->setIcon(QIcon::fromTheme(QStringLiteral("remove-link")));
+    this->unlinkAction->setEnabled(false);
+    nameToolbar->addAction(this->unlinkAction);
 
     // Create a table.
     auto *eventView = new EventsOverviewView(person, this);
@@ -38,18 +44,16 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWid
     nameTabContainerLayout->addWidget(nameToolbar);
     nameTabContainerLayout->addWidget(eventView);
 
-    // Connect the buttons and stuff.
-    // Allow adding new persons.
-    connect(this->addAction, &QAction::triggered, eventView, &EventsOverviewView::handleNewEvent);
-    // Listen to when a name is selected, to enable or disable some buttons.
+    connect(addAction, &QAction::triggered, eventView, &EventsOverviewView::handleNewEvent);
     connect(eventView, &EventsOverviewView::selectedEvent, this, &PersonEventTab::onEventSelected);
-    // Allow editing a name.
-    connect(this->editAction, &QAction::triggered, eventView, &EventsOverviewView::editSelectedEvent);
-    // Allow deleting a name.
-    connect(this->removeAction, &QAction::triggered, eventView, &EventsOverviewView::removeSelectedEvent);
+    connect(editAction, &QAction::triggered, eventView, &EventsOverviewView::editSelectedEvent);
+    connect(removeAction, &QAction::triggered, eventView, &EventsOverviewView::removeSelectedEvent);
+    connect(unlinkAction, &QAction::triggered, eventView, &EventsOverviewView::unlinkSelectedEvent);
 }
 
 void PersonEventTab::onEventSelected(const QAbstractItemModel *model, const QItemSelection &selected) {
+    // TODO: prevent something here?
     this->editAction->setEnabled(!selected.isEmpty());
     this->removeAction->setEnabled(!selected.isEmpty());
+    this->unlinkAction->setEnabled(!selected.isEmpty());
 }

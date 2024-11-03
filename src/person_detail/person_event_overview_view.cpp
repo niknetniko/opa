@@ -164,11 +164,7 @@ void EventsOverviewView::editSelectedEvent() {
     editorWindow->adjustSize();
 }
 
-void EventsOverviewView::removeSelectedEvent() {
-    // TODO: for now, we remove the event completely.
-    //   However, we also want an unlink button probably?
-    //   TODO: add confirmation for this?
-
+void EventsOverviewView::removeSelectedEvent() const {
     auto selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         qDebug() << "There is no selection, so not deleting anything.";
@@ -183,7 +179,6 @@ void EventsOverviewView::removeSelectedEvent() {
     // Look up where it is linked.
     auto relationModel = DataManager::get().eventRelationsModel();
     auto usedCount = relationModel->match(relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1).size();
-
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -206,9 +201,45 @@ void EventsOverviewView::removeSelectedEvent() {
 
     // Find the row in the original model.
     auto eventsModel = DataManager::get().eventsModel();
-    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId);
-    if (!eventsModel->removeRow(result.first().row())) {
+    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId).first();
+    if (!eventsModel->removeRow(result.row())) {
         qWarning() << "Could not delete event" << eventId.toLongLong();
     }
     eventsModel->select();
+}
+
+void EventsOverviewView::unlinkSelectedEvent() {
+    auto selection = this->treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        qDebug() << "There is no selection, so not deleting anything.";
+        return;
+    }
+
+    qDebug() << "Selection itself is " << selection;
+
+    auto selectRow = selection->selectedIndexes().first();
+    auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+    auto roleId = treeView->model()->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent()).data();
+
+    QMessageBox confirmationBox;
+    confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    confirmationBox.setText(i18n("Unlink this event?"));
+    confirmationBox.setInformativeText(i18n("This will remove the event from this person, but the event itself will not be deleted."));
+    confirmationBox.button(QMessageBox::Ok)->setText(i18n("Unlink event"));
+    confirmationBox.setIcon(QMessageBox::Question);
+    confirmationBox.setDefaultButton(QMessageBox::Ok);
+
+    if (confirmationBox.exec() != QMessageBox::Ok) {
+        return;
+    }
+
+    auto relationModel = DataManager::get().eventRelationsModel();
+    auto matchedModel = DataManager::get().singleEventRelationModel(this, eventId, roleId, personId);
+    auto originalRow = map_to_source_model(matchedModel->index(0, 0));
+    qDebug() << "Mapped to row in original model" << originalRow.row();
+
+    if (!relationModel->removeRow(originalRow.row())) {
+        qWarning() << "Could not unlink event" << eventId.toLongLong();
+    }
+    relationModel->select();
 }

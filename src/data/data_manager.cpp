@@ -174,7 +174,7 @@ QAbstractProxyModel *DataManager::eventsModelForPerson(QObject *parent, IntegerP
     baseModel->setHeaderData(PersonEventsModel::ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
 
     // Connect the original model to changes.
-    propagateToModel<QSqlQueryModel>(baseModel, {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable},
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable, Schema::EventRelationsTable},
                                      [rawQuery, personId](auto *model) {
                                          QSqlQuery newQuery;
                                          newQuery.prepare(rawQuery);

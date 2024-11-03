@@ -17,5 +17,6 @@ public Q_SLOTS:
 private:
     QAction *addAction;
     QAction *removeAction;
+    QAction *unlinkAction;
     QAction *editAction;
 };
