@@ -3,21 +3,71 @@
 #include <KLocalizedString>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QLineEdit>
 #include <QProgressDialog>
 #include <QSortFilterProxyModel>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QStatusBar>
 #include <QToolBar>
 
 #include "database/schema.h"
 #include "utils/builtin_model.h"
-#include "utils/builtin_text_translating_delegate.h"
 #include "utils/edit_proxy_model.h"
 #include "utils/model_utils.h"
 
-SimpleListManagementWindow::SimpleListManagementWindow(QWidget *parent): QWidget(parent, Qt::Window) {
+// class StatusTooltipModel : QIdentityProxyModel {
+//     Q_OBJECT
+//
+// public:
+//     explicit StatusTooltipModel(QWidget* parent): QIdentityProxyModel(parent) {
+//
+//     }
+//
+//     QVariant data(const QModelIndex &index, int role) const override {
+//         if (role == Qt::StatusTipRole && index.column() == displayColumn && index.isValid()) {
+//             auto isBuiltin = QIdentityProxyModel::index(index.row(), builtinColumn).data().toBool();
+//             auto id = QIdentityProxyModel::index(index.row(), idColumn).data();
+//
+//             auto rawData = QIdentityProxyModel::index(index.row(), displayColumn).data();
+//             auto value = translator->displayText(rawData, QLocale::system());
+//             return window->translatedItemDescription(value, isBuiltin);
+//         }
+//
+//         return QIdentityProxyModel::data(index, role);
+//     }
+//
+// private:
+//     int displayColumn;
+//     int builtinColumn;
+//     int idColumn;
+//     BuiltinTextTranslatingDelegate* translator;
+//     SimpleListManagementWindow* window;
+// };
+
+StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow *parent): QIdentityProxyModel(parent) {
+}
+
+QVariant StatusTooltipModel::data(const QModelIndex &index, int role) const {
+    Q_ASSERT(checkIndex(index, CheckIndexOption::IndexIsValid));
+
+    auto window = qobject_cast<SimpleListManagementWindow *>(this->parent());
+    if (index.isValid() && role == Qt::StatusTipRole && index.column() == window->displayColumn) {
+        auto isBuiltin = QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
+        auto id = QIdentityProxyModel::index(index.row(), window->idColumn).data();
+
+        auto rawData = QIdentityProxyModel::index(index.row(), window->displayColumn).data();
+        auto value = window->originTranslator->displayText(rawData, QLocale::system());
+        return window->translatedItemDescription(value, isBuiltin);
+    }
+
+    return QIdentityProxyModel::data(index, role);
+}
+
+SimpleListManagementWindow::SimpleListManagementWindow() {
+    setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void SimpleListManagementWindow::addItem() const {
@@ -135,20 +185,14 @@ void SimpleListManagementWindow::onSelectionChanged(const QItemSelection &select
 
     auto selectedIndex = selected.indexes().first();
     auto rootIndex = map_to_source_model(selectedIndex);
-
-    if (this->model->index(rootIndex.row(), builtinColumn).data().toBool()) {
-        this->removeAction->setEnabled(false);
-        return;
-    }
-
+    auto isBuiltin = this->model->index(rootIndex.row(), builtinColumn).data().toBool();
     auto id = this->model->index(rootIndex.row(), idColumn).data();
-
-    this->removeAction->setEnabled(!isUsed(id));
+    this->removeAction->setEnabled(!isBuiltin && !isUsed(id));
 }
 
 void SimpleListManagementWindow::initializeLayout() {
-    auto *toolbar = new QToolBar(this);
-    toolbar->setOrientation(Qt::Vertical);
+    auto *toolbar = addToolBar(i18n("Manage"));
+    // toolbar->setOrientation(Qt::Vertical);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     auto addAction = new QAction(toolbar);
@@ -174,21 +218,28 @@ void SimpleListManagementWindow::initializeLayout() {
     toolbar->addAction(repairAction);
     connect(repairAction, &QAction::triggered, this, &SimpleListManagementWindow::repairItems);
 
+    auto centralWidget = new QWidget();
+
+    // We want to have a tooltip.
+    auto tooltipModel = new StatusTooltipModel(this);
+    tooltipModel->setSourceModel(model);
+
     // Show an icon for the built-in rows.
-    auto builtinIconModel = new BuiltinModel(this);
-    builtinIconModel->setSourceModel(model);
+    auto builtinIconModel = new BuiltinModel(centralWidget);
+    builtinIconModel->setSourceModel(tooltipModel);
     builtinIconModel->setColumns(builtinColumn, displayColumn);
 
     // Make only the ID column not editable.
-    auto editableModel = new EditProxyModel(this);
+    auto editableModel = new EditProxyModel(centralWidget);
     editableModel->setSourceModel(builtinIconModel);
     editableModel->addReadOnlyColumns({idColumn});
 
     // We want to filter and sort.
-    auto filterProxyModel = new QSortFilterProxyModel(this);
+    auto filterProxyModel = new QSortFilterProxyModel(centralWidget);
     filterProxyModel->setSourceModel(editableModel);
 
-    tableView = new QTableView(this);
+    tableView = new QTableView(centralWidget);
+    tableView->setMouseTracking(true);
     tableView->setModel(filterProxyModel);
     tableView->setSortingEnabled(true);
     tableView->sortByColumn(idColumn, Qt::AscendingOrder);
@@ -200,7 +251,7 @@ void SimpleListManagementWindow::initializeLayout() {
     tableView->horizontalHeader()->setSectionResizeMode(displayColumn, QHeaderView::Stretch);
     tableView->horizontalHeader()->setHighlightSections(false);
 
-    auto originTranslator = new BuiltinTextTranslatingDelegate(tableView);
+    originTranslator = new BuiltinTextTranslatingDelegate(this);
     originTranslator->setTranslator(translator);
     tableView->setItemDelegateForColumn(displayColumn, originTranslator);
 
@@ -214,17 +265,28 @@ void SimpleListManagementWindow::initializeLayout() {
         this->onSelectionChanged(QItemSelection(), QItemSelection());
     });
 
-    auto *searchBox = new QLineEdit(this);
+    auto *searchBox = new QLineEdit(centralWidget);
     searchBox->setPlaceholderText(i18n("Search..."));
     searchBox->setClearButtonEnabled(true);
     connect(searchBox, &QLineEdit::textEdited, filterProxyModel, &QSortFilterProxyModel::setFilterFixedString);
     filterProxyModel->setFilterKeyColumn(displayColumn);
     filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    auto gridLayout = new QGridLayout(this);
-    gridLayout->addWidget(searchBox, 0, 0);
-    gridLayout->addWidget(tableView, 1, 0);
-    gridLayout->addWidget(toolbar, 1, 1);
+    auto gridLayout = new QVBoxLayout(centralWidget);
+    gridLayout->addWidget(searchBox, 0);
+    gridLayout->addWidget(tableView, 1);
+
+    setCentralWidget(centralWidget);
+
+    auto tableCount = new QLabel;
+    auto updater = [tableCount, this] {
+        tableCount->setText(translatedItemCount(tableView->model()->rowCount()));
+    };
+    connect(tableView->model(), &QAbstractItemModel::rowsInserted, this, updater);
+    connect(tableView->model(), &QAbstractItemModel::rowsRemoved, this, updater);
+    connect(tableView->model(), &QAbstractItemModel::modelReset, this, updater);
+    updater();
+    statusBar()->addWidget(tableCount);
 }
 
 void SimpleListManagementWindow::setColumns(int idColumn, int displayColumn, int builtinColumn) {
@@ -271,4 +333,15 @@ void SimpleListManagementWindow::removeReferencesFromModel(
             qWarning() << foreignModel->lastError();
         }
     }
+}
+
+QString SimpleListManagementWindow::translatedItemCount(int itemCount) const {
+    return i18np("%1 item", "%1 items", itemCount);
+}
+
+QString SimpleListManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+    if (isBuiltIn) {
+        return i18n("Built-in item '%1'", item);
+    }
+    return i18n("Item '%1'", item);
 }

@@ -9,7 +9,7 @@
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/model_utils.h"
 
-EventRolesManagementWindow::EventRolesManagementWindow(QWidget *parent) : SimpleListManagementWindow(parent) {
+EventRolesManagementWindow::EventRolesManagementWindow() {
     setWindowTitle(i18n("Manage event roles"));
 
     setModel(DataManager::get().eventRolesModel());
@@ -41,4 +41,15 @@ bool EventRolesManagementWindow::isUsed(const QVariant &id) {
     auto *relationModel = DataManager::get().eventRelationsModel();
     auto usage = relationModel->match(relationModel->index(0, EventRelationsModel::ROLE_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
+}
+
+QString EventRolesManagementWindow::translatedItemCount(int itemCount) const {
+    return i18np("%1 event role", "%1 event roles", itemCount);
+}
+
+QString EventRolesManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+    if (isBuiltIn) {
+        return i18n("Built-in event role '%1'", item);
+    }
+    return i18n("Event role '%1'", item);
 }

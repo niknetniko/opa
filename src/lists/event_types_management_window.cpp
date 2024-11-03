@@ -9,7 +9,7 @@
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/model_utils.h"
 
-EventTypesManagementWindow::EventTypesManagementWindow(QWidget *parent) : SimpleListManagementWindow(parent) {
+EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));
 
     setModel(DataManager::get().eventTypesModel());
@@ -40,4 +40,15 @@ bool EventTypesManagementWindow::isUsed(const QVariant &id) {
     auto *eventsModel = DataManager::get().eventsModel();
     auto usage = eventsModel->match(eventsModel->index(0, EventsModel::TYPE_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
+}
+
+QString EventTypesManagementWindow::translatedItemCount(int itemCount) const {
+    return i18np("%1 event type", "%1 event types", itemCount);
+}
+
+QString EventTypesManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+    if (isBuiltIn) {
+        return i18n("Built-in event type '%1'", item);
+    }
+    return i18n("Event type '%1'", item);
 }

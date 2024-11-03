@@ -10,7 +10,7 @@
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/model_utils.h"
 
-NameOriginsManagementWindow::NameOriginsManagementWindow(QWidget *parent) : SimpleListManagementWindow(parent) {
+NameOriginsManagementWindow::NameOriginsManagementWindow() {
     setWindowTitle(i18n("Manage name origins"));
 
     setModel(DataManager::get().nameOriginsModel());
@@ -42,4 +42,15 @@ bool NameOriginsManagementWindow::isUsed(const QVariant &id) {
     auto *nameModel = DataManager::get().namesModel();
     auto usage = nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
+}
+
+QString NameOriginsManagementWindow::translatedItemCount(int itemCount) const {
+    return i18np("%1 name origin", "%1 name origins", itemCount);
+}
+
+QString NameOriginsManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+    if (isBuiltIn) {
+        return i18n("Built-in name origin '%1'", item);
+    }
+    return i18n("Name origin '%1'", item);
 }

@@ -6,7 +6,7 @@ class NameOriginsManagementWindow : public SimpleListManagementWindow {
     Q_OBJECT
 
 public:
-    explicit NameOriginsManagementWindow(QWidget *parent);
+    explicit NameOriginsManagementWindow();
 
 protected:
     bool repairConfirmation() override;
@@ -15,4 +15,8 @@ protected:
                                 const QHash<IntegerPrimaryKey, QString> &idToValue) override;
 
     bool isUsed(const QVariant &id) override;
+
+    QString translatedItemCount(int itemCount) const override;
+
+    QString translatedItemDescription(const QString &item, bool isBuiltIn) const override;
 };

@@ -1,16 +1,32 @@
 #pragma once
 
+#include <QIdentityProxyModel>
+#include <QMainWindow>
 #include <QSqlTableModel>
 #include <QTableView>
 #include <QWidget>
+#include <utils/builtin_text_translating_delegate.h>
 
 #include "database/schema.h"
 
-class SimpleListManagementWindow : public QWidget {
+class SimpleListManagementWindow;
+
+class StatusTooltipModel : public QIdentityProxyModel {
     Q_OBJECT
 
 public:
-    explicit SimpleListManagementWindow(QWidget *parent);
+    explicit StatusTooltipModel(SimpleListManagementWindow *parent);
+
+    QVariant data(const QModelIndex &index, int role) const override;
+};
+
+class SimpleListManagementWindow : public QMainWindow {
+    Q_OBJECT
+
+public:
+    explicit SimpleListManagementWindow();
+
+    friend class StatusTooltipModel;
 
 public Q_SLOTS:
     /**
@@ -53,6 +69,10 @@ protected:
     virtual void removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
                                         const QHash<IntegerPrimaryKey, QString> &idToValue) = 0;
 
+    virtual QString translatedItemCount(int itemCount) const;
+
+    virtual QString translatedItemDescription(const QString &item, bool isBuiltIn) const;
+
 private:
     int idColumn = -1;
     int displayColumn = -1;
@@ -61,4 +81,5 @@ private:
     QAction *removeAction = nullptr;
     QTableView *tableView = nullptr;
     QSqlTableModel *model = nullptr;
+    BuiltinTextTranslatingDelegate *originTranslator = nullptr;
 };

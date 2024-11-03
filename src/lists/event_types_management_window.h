@@ -6,7 +6,7 @@ class EventTypesManagementWindow : public SimpleListManagementWindow {
     Q_OBJECT
 
 public:
-    explicit EventTypesManagementWindow(QWidget *parent);
+    explicit EventTypesManagementWindow();
 
 public Q_SLOTS:
     bool repairConfirmation() override;
@@ -16,4 +16,8 @@ public Q_SLOTS:
                                 const QHash<IntegerPrimaryKey, QString> &idToValue) override;
 
     bool isUsed(const QVariant &id) override;
+
+    QString translatedItemCount(int itemCount) const override;
+
+    QString translatedItemDescription(const QString &item, bool isBuiltIn) const override;
 };

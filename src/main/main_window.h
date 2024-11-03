@@ -43,6 +43,8 @@ private Q_SLOTS:
 
     void openEventTypesManager();
 
+    bool queryClose() override;
+
 private:
     // this is the name of the root widget inside our Ui file
     // you can rename it in designer and then change it here

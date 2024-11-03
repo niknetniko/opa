@@ -24,6 +24,8 @@
 
 
 MainWindow::MainWindow() {
+    setAttribute(Qt::WA_DeleteOnClose);
+
     // Attach the tab view.
     auto *tabWidget = new QTabWidget();
     tabWidget->setTabsClosable(true);
@@ -145,16 +147,21 @@ int MainWindow::findTabFor(IntegerPrimaryKey personId) {
 }
 
 void MainWindow::openNameOriginManager() {
-    auto *window = new NameOriginsManagementWindow(this);
+    auto *window = new NameOriginsManagementWindow;
     window->show();
 }
 
 void MainWindow::openEventRolesManager() {
-    auto *window = new EventRolesManagementWindow(this);
+    auto *window = new EventRolesManagementWindow;
     window->show();
 }
 
 void MainWindow::openEventTypesManager() {
-    auto *window = new EventTypesManagementWindow(this);
+    auto *window = new EventTypesManagementWindow;
     window->show();
+}
+
+bool MainWindow::queryClose() {
+    QApplication::closeAllWindows();
+    return KXmlGuiWindow::queryClose();
 }
