@@ -178,11 +178,29 @@ void EventsOverviewView::removeSelectedEvent() {
     qDebug() << "Selection itself is " << selection;
 
     auto selectRow = selection->selectedIndexes().first();
-    qDebug() << "Selection index is" << selectRow;
-    qDebug() << "Selection row is" << selectRow.row();
-    qDebug() << "Row count on model is" << treeView->model()->rowCount();
-    qDebug() << "Column count on model is " << treeView->model()->columnCount();
     auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+
+    // Look up where it is linked.
+    auto relationModel = DataManager::get().eventRelationsModel();
+    auto usedCount = relationModel->match(relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1).size();
+
+
+    QMessageBox confirmationBox;
+    confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    confirmationBox.setText(i18n("Delete this event?"));
+    confirmationBox.button(QMessageBox::Ok)->setText(i18n("Delete event"));
+    confirmationBox.setIcon(QMessageBox::Question);
+    if (usedCount == 1) {
+        confirmationBox.setInformativeText(i18n("This event is not linked to anybody else."));
+        confirmationBox.setDefaultButton(QMessageBox::Ok);
+    } else {
+        confirmationBox.setInformativeText(i18np("This event is linked to one other person", "This event is linked to %1 other people", usedCount));
+        confirmationBox.setDefaultButton(QMessageBox::Cancel);
+    }
+
+    if (confirmationBox.exec() != QMessageBox::Ok) {
+        return;
+    }
 
     qDebug() << "Will delete event with ID " << eventId.toLongLong();
 
