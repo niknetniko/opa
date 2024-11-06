@@ -29,16 +29,16 @@
         ];
         native-build-inputs = with pkgs; [
           qt6.wrapQtAppsHook
+          qt6.qtwayland
           clang-tools
           clang
           cmake
           git
           valgrind
           extra-cmake-modules
-          qtcreator
           clazy
           atlas
-          gdb
+          strace
         ];
         opa = pkgs.stdenv.mkDerivation {
           pname = "opa";
@@ -53,41 +53,17 @@
           packages = rec {
             default = opa;
           };
-          # TODO: this crashes before tests are even run, so it probably doesn't build correctly.
           checks = rec {
             ctests = opa.overrideAttrs (finalAttrs: previousAttrs: {
               doCheck = true;
               cmakeBuildType = "Debug";
-              checkFlags = "--debug";
+              QT_QPA_PLATFORM = "offscreen";
             });
           };
-          devShell = pkgs.mkShell {
-              buildInputs = with pkgs; [
-                clang-tools
-                clang
-                cmake
-                git
-                valgrind
-                extra-cmake-modules
-                kdePackages.kcoreaddons
-                kdePackages.kconfigwidgets
-                kdePackages.ki18n
-                kdePackages.kcrash
-                kdePackages.kdbusaddons
-                kdePackages.kxmlgui
-                kdePackages.appstream-qt
-                kdePackages.kirigami
-                kdePackages.kiconthemes
-                qtcreator
-                qt6.qtbase
-                qt6.qtwayland
-                qt6.qtdeclarative
-                clazy
-                kdePackages.breeze-icons
-                kdePackages.breeze
-                kdePackages.kitemmodels
-                atlas
-                gdb
+          devShells.default = pkgs.mkShell {
+              buildInputs = build-inputs ++ native-build-inputs ++ [
+                pkgs.qtcreator
+                pkgs.gdb
               ];
 
               shellHook = ''
