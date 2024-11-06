@@ -38,7 +38,6 @@
           extra-cmake-modules
           clazy
           atlas
-          strace
         ];
         opa = pkgs.stdenv.mkDerivation {
           pname = "opa";
