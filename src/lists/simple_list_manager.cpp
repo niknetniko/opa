@@ -18,35 +18,6 @@
 #include "utils/edit_proxy_model.h"
 #include "utils/model_utils.h"
 
-// class StatusTooltipModel : QIdentityProxyModel {
-//     Q_OBJECT
-//
-// public:
-//     explicit StatusTooltipModel(QWidget* parent): QIdentityProxyModel(parent) {
-//
-//     }
-//
-//     QVariant data(const QModelIndex &index, int role) const override {
-//         if (role == Qt::StatusTipRole && index.column() == displayColumn && index.isValid()) {
-//             auto isBuiltin = QIdentityProxyModel::index(index.row(), builtinColumn).data().toBool();
-//             auto id = QIdentityProxyModel::index(index.row(), idColumn).data();
-//
-//             auto rawData = QIdentityProxyModel::index(index.row(), displayColumn).data();
-//             auto value = translator->displayText(rawData, QLocale::system());
-//             return window->translatedItemDescription(value, isBuiltin);
-//         }
-//
-//         return QIdentityProxyModel::data(index, role);
-//     }
-//
-// private:
-//     int displayColumn;
-//     int builtinColumn;
-//     int idColumn;
-//     BuiltinTextTranslatingDelegate* translator;
-//     SimpleListManagementWindow* window;
-// };
-
 StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow *parent): QIdentityProxyModel(parent) {
 }
 
