@@ -26,7 +26,7 @@ add_library(opa-lib STATIC
         data/names.cpp
         utils/formatted_identifier_delegate.h
         utils/formatted_identifier_delegate.cpp
-        utils/model_utils.h
+        utils/model_utils_find_source_model_of_type.h
         utils/model_utils.cpp
         person_detail/person_name_tab.h
         person_detail/person_name_tab.cpp

@@ -235,7 +235,7 @@ void EventsOverviewView::unlinkSelectedEvent() {
 
     auto relationModel = DataManager::get().eventRelationsModel();
     auto matchedModel = DataManager::get().singleEventRelationModel(this, eventId, roleId, personId);
-    auto originalRow = map_to_source_model(matchedModel->index(0, 0));
+    auto originalRow = mapToSourceModel(matchedModel->index(0, 0));
     qDebug() << "Mapped to row in original model" << originalRow.row();
 
     if (!relationModel->removeRow(originalRow.row())) {

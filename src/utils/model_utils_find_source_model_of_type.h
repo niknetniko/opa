@@ -12,7 +12,7 @@
  * @return The model pointer or nullptr if there is none.
  */
 template<class T>
-const T *find_source_model_of_type(const QAbstractItemModel *model) {
+const T *findSourceModelOfType(const QAbstractItemModel *model) {
     // A special case: if this is the model we search, just return it.
     const T *secondCast = qobject_cast<const T *>(model);
     if (secondCast != nullptr) {
@@ -44,7 +44,7 @@ const T *find_source_model_of_type(const QAbstractItemModel *model) {
  *
  * @return The converted model index.
  */
-inline QModelIndex map_to_source_model(const QModelIndex &index) {
+inline QModelIndex mapToSourceModel(const QModelIndex &index) {
     auto model = qobject_cast<const QAbstractProxyModel *>(index.model());
     if (model == nullptr) {
         // There is no proxy model in the index.

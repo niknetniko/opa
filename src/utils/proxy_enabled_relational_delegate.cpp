@@ -4,7 +4,7 @@
 
 #include "proxy_enabled_relational_delegate.h"
 #include "custom_sql_relational_model.h"
-#include "model_utils.h"
+#include "model_utils_find_source_model_of_type.h"
 
 SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject *parent): QStyledItemDelegate(parent) {
 }
@@ -17,7 +17,7 @@ QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleO
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    auto *sourceModel = find_source_model_of_type<CustomSqlRelationalModel>(proxyModel);
+    auto *sourceModel = findSourceModelOfType<CustomSqlRelationalModel>(proxyModel);
     if (sourceModel == nullptr) {
         // Nothing to do for us.
         return QStyledItemDelegate::createEditor(parent, option, index);
@@ -51,14 +51,14 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         return;
     }
 
-    auto sqlModel = const_cast<CustomSqlRelationalModel *>(find_source_model_of_type<
+    auto sqlModel = const_cast<CustomSqlRelationalModel *>(findSourceModelOfType<
         CustomSqlRelationalModel>(proxyModel));
     if (sqlModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
-    auto sqlIndex = map_to_source_model(index);
+    auto sqlIndex = mapToSourceModel(index);
     Q_ASSERT(sqlModel->checkIndex(sqlIndex));
     qDebug() << "For SQL model, index is" << index << "->" << sqlIndex;
 

@@ -13,7 +13,7 @@
 #include "data/names.h"
 #include "names/names_overview_view.h"
 #include "utils/grouped_items_proxy_model.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
 
 DataManager *DataManager::instance = nullptr;

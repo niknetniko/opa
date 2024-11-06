@@ -11,7 +11,7 @@
 #include "data/data_manager.h"
 #include "data/names.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
 
 
@@ -82,7 +82,7 @@ void NamesEditor::accept() {
         QDialog::accept();
     } else {
         // Find the original model.
-        auto *sqlModel = find_source_model_of_type<QSqlQueryModel>(this->model);
+        auto *sqlModel = findSourceModelOfType<QSqlQueryModel>(this->model);
         assert(sqlModel != nullptr);
         auto lastError = sqlModel->lastError();
         auto errorText = lastError.text();

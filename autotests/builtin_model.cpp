@@ -1,16 +1,13 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include "utils/builtin_model.h"
-
-#include <QTest>
-#include <QStandardItemModel>
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlTableModel>
+#include <QStandardItemModel>
+#include <QTest>
 
 #include "utils/builtin_model.h"
-
-#include <QSqlTableModel>
 
 using namespace Qt::Literals::StringLiterals;
 

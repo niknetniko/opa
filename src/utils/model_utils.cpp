@@ -1,4 +1,4 @@
-#include "model_utils.h"
+#include "model_utils_find_source_model_of_type.h"
 #include "opa_date.h"
 
 OpaDateModel::OpaDateModel(QObject *parent) : QIdentityProxyModel(parent) {

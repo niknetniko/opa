@@ -6,7 +6,7 @@
  * Version of a QSqlRelationalDelegate that works with CustomSqlRelationalModel, with support for proxy models.
  * It also supports the following:
  *
- * - Supports working through proxy models, by using "find_source_model_of_type".
+ * - Supports working through proxy models, by using "findSourceModelOfType".
  * - If an item to set does not exist in the other table, it will be added, and then linked to the current table.
  *
  */

@@ -6,7 +6,7 @@
 #include <data/data_manager.h>
 #include <data/event.h>
 #include <utils/formatted_identifier_delegate.h>
-#include <utils/model_utils.h>
+#include <utils/model_utils_find_source_model_of_type.h>
 #include <utils/proxy_enabled_relational_delegate.h>
 
 class CustomSqlRelationalModel;
@@ -76,9 +76,9 @@ void EventEditor::accept() {
         QDialog::accept();
     } else {
         // Find the original model.
-        auto eventSqlModel = find_source_model_of_type<QSqlQueryModel>(this->eventModel);
+        auto eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
         assert(eventSqlModel != nullptr);
-        auto relationSqlModel = find_source_model_of_type<QSqlQueryModel>(this->eventRelationModel);
+        auto relationSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventRelationModel);
         assert(relationSqlModel != nullptr);
         auto eventError = eventSqlModel->lastError();
         auto relationError = relationSqlModel->lastError();

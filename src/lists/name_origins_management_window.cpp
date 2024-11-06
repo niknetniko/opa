@@ -8,7 +8,7 @@
 #include "data/data_manager.h"
 #include "data/names.h"
 #include "utils/builtin_text_translating_delegate.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 
 NameOriginsManagementWindow::NameOriginsManagementWindow() {
     setWindowTitle(i18n("Manage name origins"));

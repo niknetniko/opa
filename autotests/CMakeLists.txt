@@ -1,37 +1,36 @@
 enable_testing()
 
 ecm_add_test(
-        database.cpp
-        LINK_LIBRARIES opa-lib Qt::Test
-        TEST_NAME database_test
+    database.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
 )
 
 ecm_add_test(
-        opa_date.cpp
-        LINK_LIBRARIES opa-lib Qt::Test
-        TEST_NAME opa_date_test
+    opa_date.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
 )
 
 ecm_add_test(
-        grouping_model.cpp
-        LINK_LIBRARIES opa-lib Qt::Test
-        TEST_NAME grouped_items_proxy_model_test
+    grouping_model.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
 )
 
 ecm_add_test(
-        custom_sql_relational_model.cpp
-        LINK_LIBRARIES opa-lib Qt::Test
-        TEST_NAME custom_sql_relational_model_test
+    custom_sql_relational_model.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
 )
 
 ecm_add_test(
-        builtin_model.cpp
-        LINK_LIBRARIES opa-lib Qt::Test
-        TEST_NAME builtin_model_test
+    builtin_model.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
 )
 
 ecm_add_test(
-        edit_proxy_model.cpp
-        LINK_LIBRARIES opa-lib Qt::Test
-        TEST_NAME edit_proxy_model_test
+    edit_proxy_model.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
+)
+
+ecm_add_test(
+    model_utils_find_source_model_of_type.cpp
+    LINK_LIBRARIES opa-lib Qt::Test
 )

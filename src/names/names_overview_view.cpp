@@ -15,7 +15,7 @@
 #include "names/name_editor.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
 
 QString Names::construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
@@ -102,7 +102,7 @@ void NamesOverviewView::handleSelectedNewRow(const QItemSelection &selected, con
 }
 
 void NamesOverviewView::handleNewName() {
-    auto *nameModel = const_cast<QSqlTableModel *>(find_source_model_of_type<QSqlTableModel>(this->baseModel));
+    auto *nameModel = const_cast<QSqlTableModel *>(findSourceModelOfType<QSqlTableModel>(this->baseModel));
 
     auto newRecord = nameModel->record();
     newRecord.setGenerated(NamesTableModel::ID, false);
@@ -189,7 +189,7 @@ void NamesOverviewView::moveSelectedNameToPosition(int from, int to) {
     std::swap(vector[from], vector[to]);
 
     // We want to update this in one go; so get the root model.
-    auto *rootModel = const_cast<QSqlTableModel *>(find_source_model_of_type<QSqlTableModel>(model));
+    auto *rootModel = const_cast<QSqlTableModel *>(findSourceModelOfType<QSqlTableModel>(model));
     auto original = rootModel->editStrategy();
     rootModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 

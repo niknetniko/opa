@@ -6,7 +6,7 @@
 
 #include <QIdentityProxyModel>
 
-#include "model_utils.h"
+#include "model_utils_find_source_model_of_type.h"
 
 ForeignKey::ForeignKey(const int foreignKeyColumn, QSqlTableModel *foreignModel, const int displayColumn,
                        const int primaryKeyColumn): _displayColumn(displayColumn), _primaryKeyColumn(primaryKeyColumn),
@@ -162,7 +162,7 @@ QPair<const ForeignKey &, int> CustomSqlRelationalModel::getFkFromForeignKeyColu
 }
 
 void connectComboBox(const QAbstractItemModel *model, int relationColumn, QComboBox *comboBox) {
-    auto *rootModel = find_source_model_of_type<CustomSqlRelationalModel>(model);
+    auto *rootModel = findSourceModelOfType<CustomSqlRelationalModel>(model);
     QSqlTableModel *childModel = rootModel->relationModel(relationColumn);
     comboBox->setEditable(true);
     comboBox->setModel(childModel);

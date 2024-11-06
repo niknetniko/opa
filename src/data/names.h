@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/custom_sql_relational_model.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 
 class NamesTableModel : public CustomSqlRelationalModel {
     Q_OBJECT

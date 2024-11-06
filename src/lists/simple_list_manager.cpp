@@ -16,7 +16,7 @@
 #include "database/schema.h"
 #include "utils/builtin_model.h"
 #include "utils/edit_proxy_model.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 
 StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow *parent): QIdentityProxyModel(parent) {
 }
@@ -77,7 +77,7 @@ void SimpleListManagementWindow::removeItem() const {
     }
 
     auto selectedIndex = selection->selection().first().indexes().first();
-    auto rootIndex = map_to_source_model(selectedIndex);
+    auto rootIndex = mapToSourceModel(selectedIndex);
 
     this->model->removeRow(rootIndex.row());
     this->model->select();
@@ -155,7 +155,7 @@ void SimpleListManagementWindow::onSelectionChanged(const QItemSelection &select
     }
 
     auto selectedIndex = selected.indexes().first();
-    auto rootIndex = map_to_source_model(selectedIndex);
+    auto rootIndex = mapToSourceModel(selectedIndex);
     auto isBuiltin = this->model->index(rootIndex.row(), builtinColumn).data().toBool();
     auto id = this->model->index(rootIndex.row(), idColumn).data();
     this->removeAction->setEnabled(!isBuiltin && !isUsed(id));

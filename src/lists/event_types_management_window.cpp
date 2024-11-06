@@ -7,7 +7,7 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "utils/builtin_text_translating_delegate.h"
-#include "utils/model_utils.h"
+#include "utils/model_utils_find_source_model_of_type.h"
 
 EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));
