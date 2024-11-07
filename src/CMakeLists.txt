@@ -58,6 +58,7 @@ add_library(opa-lib STATIC
     lists/event_types_management_window.cpp
     events/event_editor.h
     events/event_editor.cpp
+    opadebug.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
