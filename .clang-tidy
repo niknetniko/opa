@@ -17,5 +17,5 @@ Checks: "*,
 "
 # TODO: enable headers at some point
 HeaderFilterRegex: ''
-WarningsAsErrors: ""
+WarningsAsErrors: "*"
 #FormatStyle: none

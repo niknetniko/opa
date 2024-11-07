@@ -58,6 +58,11 @@
               cmakeBuildType = "Debug";
               QT_QPA_PLATFORM = "offscreen";
             });
+            clang-tidy = opa.overrideAttrs (finalAttrs: previousAttrs: {
+              cmakeFlags = [
+                "-DCMAKE_CXX_CLANG_TIDY='clang-tidy'"
+              ];
+            });
           };
           devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
               buildInputs = build-inputs ++ native-build-inputs ++ [
