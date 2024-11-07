@@ -3,10 +3,18 @@
 
   inputs = {
     nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
-    utils.url = github:numtide/flake-utils;
+    systems.url = "github:nix-systems/x86_64-linux";
+    utils = {
+      url = github:numtide/flake-utils;
+      inputs.systems.follows = "systems";
+    };
+    nix-github-actions = {
+      url = github:nix-community/nix-github-actions;
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, utils }:
+  outputs = { self, nixpkgs, utils, nix-github-actions, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -82,5 +90,7 @@
               '';
           };
         }
-    );
+    ) // utils.lib.eachDefaultSystemPassThrough (system: {
+      githubActions = nix-github-actions.lib.mkGithubMatrix { inherit (self) checks; };
+    });
 }
