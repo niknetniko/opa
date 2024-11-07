@@ -1,7 +1,7 @@
 // ReSharper disable CppMemberFunctionMayBeConst
-#include <QTest>
-#include <QSqlDatabase>
 #include "utils/opa_date.h"
+#include <QSqlDatabase>
+#include <QTest>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -19,7 +19,8 @@ class TestOpaDate : public QObject {
         u"Hallo this is a test"_s
     );
 
-    const QString json = u"{\"dateModifier\":\"DURING\",\"dateQuality\":\"EXACT\",\"day\":true,\"month\":false,\"proleptic\":2452095,\"userText\":\"Hallo this is a test\",\"year\":true}"_s;
+    const QString json =
+        u"{\"dateModifier\":\"DURING\",\"dateQuality\":\"EXACT\",\"day\":true,\"month\":false,\"proleptic\":2452095,\"userText\":\"Hallo this is a test\",\"year\":true}"_s;
 
 private Q_SLOTS:
     void jsonEncoding() {

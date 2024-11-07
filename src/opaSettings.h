@@ -3,92 +3,74 @@
 #ifndef OPASETTINGS_H
 #define OPASETTINGS_H
 
-#include <kconfigskeleton.h>
 #include <QCoreApplication>
 #include <QDebug>
+#include <kconfigskeleton.h>
 
-class opaSettings : public KConfigSkeleton
-{
-  public:
-
+class opaSettings : public KConfigSkeleton {
+public:
     static opaSettings *self();
     ~opaSettings() override;
 
     /**
       Set color of the background
     */
-    static
-    void setColorBackground( const QColor & v )
-    {
-      if (!self()->isColorBackgroundImmutable())
-        self()->mColorBackground = v;
+    static void setColorBackground(const QColor &v) {
+        if (!self()->isColorBackgroundImmutable())
+            self()->mColorBackground = v;
     }
 
     /**
       Get color of the background
     */
-    static
-    QColor colorBackground()
-    {
-      return self()->mColorBackground;
+    static QColor colorBackground() {
+        return self()->mColorBackground;
     }
 
     /**
       Is color of the background Immutable
     */
-    static
-    bool isColorBackgroundImmutable()
-    {
-      return self()->isImmutable( QStringLiteral( "colorBackground" ) );
+    static bool isColorBackgroundImmutable() {
+        return self()->isImmutable(QStringLiteral("colorBackground"));
     }
 
     /**
       Set color of the foreground
     */
-    static
-    void setColorForeground( const QColor & v )
-    {
-      if (!self()->isColorForegroundImmutable())
-        self()->mColorForeground = v;
+    static void setColorForeground(const QColor &v) {
+        if (!self()->isColorForegroundImmutable())
+            self()->mColorForeground = v;
     }
 
     /**
       Get color of the foreground
     */
-    static
-    QColor colorForeground()
-    {
-      return self()->mColorForeground;
+    static QColor colorForeground() {
+        return self()->mColorForeground;
     }
 
     /**
       Is color of the foreground Immutable
     */
-    static
-    bool isColorForegroundImmutable()
-    {
-      return self()->isImmutable( QStringLiteral( "colorForeground" ) );
+    static bool isColorForegroundImmutable() {
+        return self()->isImmutable(QStringLiteral("colorForeground"));
     }
 
     /**
       Get age of the project
     */
-    static
-    int ageInDays()
-    {
-      return self()->mAgeInDays;
+    static int ageInDays() {
+        return self()->mAgeInDays;
     }
 
     /**
       Is age of the project Immutable
     */
-    static
-    bool isAgeInDaysImmutable()
-    {
-      return self()->isImmutable( QStringLiteral( "ageInDays" ) );
+    static bool isAgeInDaysImmutable() {
+        return self()->isImmutable(QStringLiteral("ageInDays"));
     }
 
-  protected:
+protected:
     opaSettings();
     friend class opaSettingsHelper;
 
@@ -98,8 +80,7 @@ class opaSettings : public KConfigSkeleton
     QColor mColorForeground;
     int mAgeInDays;
 
-  private:
+private:
 };
 
 #endif
-

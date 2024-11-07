@@ -4,4 +4,3 @@
 
 
 Q_LOGGING_CATEGORY(OPA, "opa", QtInfoMsg)
-

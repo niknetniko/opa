@@ -1,7 +1,7 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include <QTest>
-#include <QStandardItemModel>
 #include <QAbstractItemModelTester>
+#include <QStandardItemModel>
+#include <QTest>
 #include "database/database.h"
 #include "utils/grouped_items_proxy_model.h"
 
@@ -25,7 +25,8 @@ private Q_SLOTS:
         proxy.setGroups({0});
 
         // TODO: fix the bug and try again.
-        // auto tester = QAbstractItemModelTester(&proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        // auto tester = QAbstractItemModelTester(&proxy,
+        // QAbstractItemModelTester::FailureReportingMode::QtTest);
 
         QCOMPARE(proxy.columnCount(), rootModel.columnCount() + 1);
         proxy.setGroupColumnVisible(false);

@@ -3,13 +3,13 @@
 //
 
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include <QTest>
-#include <QStandardItemModel>
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QStandardItemModel>
+#include <QTest>
 
 #include "database/database.h"
 #include "utils/custom_sql_relational_model.h"
@@ -33,9 +33,9 @@ private Q_SLOTS:
     void init() {
         QSqlQuery query;
         QVERIFY(query.exec(u"CREATE TABLE names (id INTEGER PRIMARY KEY, name TEXT)"_s));
-        QVERIFY(
-            query.exec(
-                u"CREATE TABLE people (id INTEGER PRIMARY KEY, name_id INTEGER REFERENCES names(id), age INTEGER)"_s));
+        QVERIFY(query.exec(
+            u"CREATE TABLE people (id INTEGER PRIMARY KEY, name_id INTEGER REFERENCES names(id), age INTEGER)"_s
+        ));
         QVERIFY(query.exec(u"INSERT INTO names (name) VALUES ('Alice'), ('Bob'), ('Chad')"_s));
         QVERIFY(query.exec(u"INSERT INTO people (name_id, age) VALUES (1, 30), (2, 25)"_s));
     }
@@ -50,7 +50,9 @@ private Q_SLOTS:
         CustomSqlRelationalModel model;
         model.setTable(u"people"_s);
         QVERIFY(model.select());
-        auto tester = QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        auto tester = QAbstractItemModelTester(
+            &model, QAbstractItemModelTester::FailureReportingMode::QtTest
+        );
     }
 
     void testWithModelTesterWithForeignKeys() {
@@ -62,7 +64,9 @@ private Q_SLOTS:
         model.setTable(u"people"_s);
         model.setRelation(1, &nameModel, 1, 0);
         QVERIFY(model.select());
-        auto tester = QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        auto tester = QAbstractItemModelTester(
+            &model, QAbstractItemModelTester::FailureReportingMode::QtTest
+        );
     }
 
     void testDataWithoutForeignKeys() {

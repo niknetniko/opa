@@ -27,14 +27,12 @@ private Q_SLOTS:
 
     void init() {
         QSqlQuery query;
-        QVERIFY(
-            query.exec(
-                u"CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, builtin BOOLEAN NON NULL DEFAULT FALSE)"_s
-            ));
-        QVERIFY(
-            query.exec(
-                u"INSERT INTO test_table (name, builtin) VALUES ('First', true), ('Second', true), ('Third', false)"_s))
-        ;
+        QVERIFY(query.exec(
+            u"CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, builtin BOOLEAN NON NULL DEFAULT FALSE)"_s
+        ));
+        QVERIFY(query.exec(
+            u"INSERT INTO test_table (name, builtin) VALUES ('First', true), ('Second', true), ('Third', false)"_s
+        ));
     }
 
     void cleanup() {
@@ -49,7 +47,9 @@ private Q_SLOTS:
         BuiltinModel builtinModel;
         builtinModel.setSourceModel(&model);
         builtinModel.setColumns(2, 1);
-        auto tester = QAbstractItemModelTester(&builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        auto tester = QAbstractItemModelTester(
+            &builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest
+        );
     }
 
     void testColumnIsHiddenAndShownAsIcon() {

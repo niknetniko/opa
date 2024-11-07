@@ -1,7 +1,7 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include <QTest>
-#include <QSqlDatabase>
 #include "database/database.h"
+#include <QSqlDatabase>
+#include <QTest>
 #include "database/schema.h"
 
 using namespace Qt::Literals::StringLiterals;

@@ -1,13 +1,13 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 #include "utils/builtin_model.h"
 
-#include <QTest>
-#include <QStandardItemModel>
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlTableModel>
+#include <QStandardItemModel>
+#include <QTest>
 
 #include "utils/edit_proxy_model.h"
 
@@ -29,14 +29,12 @@ private Q_SLOTS:
 
     void init() {
         QSqlQuery query;
-        QVERIFY(
-            query.exec(
-                u"CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, builtin BOOLEAN NON NULL DEFAULT FALSE)"_s
-            ));
-        QVERIFY(
-            query.exec(
-                u"INSERT INTO test_table (name, builtin) VALUES ('First', true), ('Second', true), ('Third', false)"_s))
-        ;
+        QVERIFY(query.exec(
+            u"CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, builtin BOOLEAN NON NULL DEFAULT FALSE)"_s
+        ));
+        QVERIFY(query.exec(
+            u"INSERT INTO test_table (name, builtin) VALUES ('First', true), ('Second', true), ('Third', false)"_s
+        ));
     }
 
     void cleanup() {
@@ -51,7 +49,9 @@ private Q_SLOTS:
         EditProxyModel builtinModel;
         builtinModel.setSourceModel(&model);
         builtinModel.addReadOnlyColumns({1, 2});
-        auto tester = QAbstractItemModelTester(&builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        auto tester = QAbstractItemModelTester(
+            &builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest
+        );
     }
 
     void testIndicatedColumnsAreReadOnly() {

@@ -12,10 +12,10 @@
 #include <QTableView>
 #include <QtLogging>
 
-#include "opadebug.h"
 #include "data/data_manager.h"
 #include "database/database.h"
 #include "main/main_window.h"
+#include "opadebug.h"
 
 int main(int argc, char **argv) {
     qSetMessagePattern(QString::fromUtf8("%{file}(%{line}): %{message}"));
@@ -28,14 +28,18 @@ int main(int argc, char **argv) {
     KLocalizedString::setApplicationDomain("opa");
     KCrash::initialize();
 
-    KAboutData aboutData(QStringLiteral("opa"),
-                         i18n("opa"),
-                         QStringLiteral("0.1"),
-                         i18n("A Simple Application written with KDE Frameworks"),
-                         KAboutLicense::GPL,
-                         i18n("Copyright 2022, Niko Strijbol <strijbol.niko@gmail.com>"));
+    KAboutData aboutData(
+        QStringLiteral("opa"),
+        i18n("opa"),
+        QStringLiteral("0.1"),
+        i18n("A Simple Application written with KDE Frameworks"),
+        KAboutLicense::GPL,
+        i18n("Copyright 2022, Niko Strijbol <strijbol.niko@gmail.com>")
+    );
 
-    aboutData.addAuthor(i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("strijbol.niko@gmail.com"));
+    aboutData.addAuthor(
+        i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("strijbol.niko@gmail.com")
+    );
     aboutData.setOrganizationDomain("example.org");
     aboutData.setDesktopFileName(QStringLiteral("org.example.opa"));
 
