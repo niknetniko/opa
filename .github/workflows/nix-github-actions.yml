@@ -31,8 +31,8 @@ jobs:
       - uses: nixbuild/nix-quick-install-action@v27
       - uses: nix-community/cache-nix-action@v5
         with:
-          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix') }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-
+          primary-key: nix-${{ runner.os }}-${{ matrix.attr }}-${{ hashFiles('**/*.nix') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ matrix.attr }}-
           gc-max-store-size-linux: 1073741824
           purge: true
           purge-created: 0
