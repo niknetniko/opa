@@ -1,5 +1,5 @@
 {
-  description = "Experimental KDE genealogy program";
+  description = "Experimental Qt/KDE genealogy program";
 
   inputs = {
     nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
@@ -65,11 +65,13 @@
               doCheck = true;
               cmakeBuildType = "Debug";
               QT_QPA_PLATFORM = "offscreen";
+              dontInstall = true;
             });
             clang-tidy = opa.overrideAttrs (finalAttrs: previousAttrs: {
               cmakeFlags = [
                 "-DCMAKE_CXX_CLANG_TIDY='clang-tidy'"
               ];
+              dontInstall = true;
             });
           };
           devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
