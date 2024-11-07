@@ -62,17 +62,30 @@
           };
           checks = rec {
             ctests = opa.overrideAttrs (finalAttrs: previousAttrs: {
+              name = "opa-ctests";
               doCheck = true;
               cmakeBuildType = "Debug";
               QT_QPA_PLATFORM = "offscreen";
               dontInstall = true;
             });
             clang-tidy = opa.overrideAttrs (finalAttrs: previousAttrs: {
+              name = "opa-clang-tidy";
               cmakeFlags = [
                 "-DCMAKE_CXX_CLANG_TIDY='clang-tidy'"
               ];
               dontInstall = true;
             });
+            clang-format = pkgs.clangStdenv.mkDerivation {
+              name = "opa-clang-format";
+              src = ./.;
+              doCheck = true;
+              nativeBuildInputs = with pkgs; [clang-tools];
+              checkPhase = ''
+                clang-format --dry-run --Werror **/*.cpp **/*.h
+              '';
+              dontBuild = true;
+              dontInstall = true;
+            };
           };
           devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
               buildInputs = build-inputs ++ native-build-inputs ++ [
