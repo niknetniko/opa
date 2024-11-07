@@ -1,8 +1,8 @@
 #include <KLocalizedString>
 #include <QString>
 
-#include "person.h"
 #include "names/names_overview_view.h"
+#include "person.h"
 
 QString Data::Person::Sex::toDisplay(const QString &sex) {
     if (sex == MALE) {
@@ -30,7 +30,9 @@ QString Data::Person::Sex::toIcon(const QString &sex) {
     return QStringLiteral("⚥");
 }
 
-QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex &parent, int row, int extraColumn, int role) const {
+QVariant DisplayNameProxyModel::extraColumnData(
+    const QModelIndex &parent, int row, int extraColumn, int role
+) const {
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (extraColumn == 0) {
             const auto titles = this->index(row, 1, parent).data(role).toString();

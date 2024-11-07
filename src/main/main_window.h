@@ -3,8 +3,8 @@
 #include <KXmlGuiWindow>
 #include <QAction>
 
-#include "opaSettings.h"
 #include "database/schema.h"
+#include "opaSettings.h"
 
 namespace Ui {
     class Settings;

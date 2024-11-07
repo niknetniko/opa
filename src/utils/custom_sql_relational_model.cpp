@@ -8,9 +8,16 @@
 
 #include "model_utils_find_source_model_of_type.h"
 
-ForeignKey::ForeignKey(const int foreignKeyColumn, QSqlTableModel *foreignModel, const int displayColumn,
-                       const int primaryKeyColumn): _displayColumn(displayColumn), _primaryKeyColumn(primaryKeyColumn),
-                                                    _foreignKeyColumn(foreignKeyColumn), _foreignModel(foreignModel) {
+ForeignKey::ForeignKey(
+    const int foreignKeyColumn,
+    QSqlTableModel *foreignModel,
+    const int displayColumn,
+    const int primaryKeyColumn
+) :
+    _displayColumn(displayColumn),
+    _primaryKeyColumn(primaryKeyColumn),
+    _foreignKeyColumn(foreignKeyColumn),
+    _foreignModel(foreignModel) {
     Q_ASSERT(0 <= displayColumn);
     Q_ASSERT(displayColumn < foreignModel->columnCount());
     Q_ASSERT(0 <= primaryKeyColumn);
@@ -34,11 +41,11 @@ int ForeignKey::primaryKeyColumn() const {
 }
 
 bool ForeignKey::isValid() const {
-    return this->_displayColumn != -1 && this->_foreignModel != nullptr && this->_foreignKeyColumn != -1 &&
-           this->_primaryKeyColumn != -1;
+    return this->_displayColumn != -1 && this->_foreignModel != nullptr &&
+           this->_foreignKeyColumn != -1 && this->_primaryKeyColumn != -1;
 }
 
-CustomSqlRelationalModel::CustomSqlRelationalModel(QObject *parent): QSqlTableModel(parent) {
+CustomSqlRelationalModel::CustomSqlRelationalModel(QObject *parent) : QSqlTableModel(parent) {
 }
 
 int CustomSqlRelationalModel::columnCount(const QModelIndex &parent) const {
@@ -60,13 +67,18 @@ QSqlTableModel *CustomSqlRelationalModel::relationModel(const int column) const 
     return relation(column).foreignModel();
 }
 
-void CustomSqlRelationalModel::setRelation(const int foreignKeyColumn, QSqlTableModel *foreignModel,
-                                           const int displayColumn, const int sourceModel) {
+void CustomSqlRelationalModel::setRelation(
+    const int foreignKeyColumn,
+    QSqlTableModel *foreignModel,
+    const int displayColumn,
+    const int sourceModel
+) {
     Q_ASSERT(0 <= foreignKeyColumn);
     Q_ASSERT(foreignKeyColumn < QSqlTableModel::columnCount());
 
     const int extraColumn = this->_foreignKeys.count();
-    this->_foreignKeys.append(ForeignKey(foreignKeyColumn, foreignModel, displayColumn, sourceModel));
+    this->_foreignKeys.append(ForeignKey(foreignKeyColumn, foreignModel, displayColumn, sourceModel)
+    );
 
     // Construct the dictionary of primary keys to values for easy access later.
     this->_foreignValues.append(QHash<IntegerPrimaryKey, QPersistentModelIndex>());
@@ -88,11 +100,12 @@ void CustomSqlRelationalModel::setRelation(const int foreignKeyColumn, QSqlTable
     });
 }
 
-QModelIndex CustomSqlRelationalModel::index(const int row, const int column, const QModelIndex &parent) const {
+QModelIndex
+CustomSqlRelationalModel::index(const int row, const int column, const QModelIndex &parent) const {
     // Taken from KExtraColumnProxyModel
     if (const int extraCol = asExtraColumn(column); extraCol >= 0) {
-        // We store the internal pointer of the index for column 0 in the proxy index for extra columns.
-        // This will be useful in the parent method.
+        // We store the internal pointer of the index for column 0 in the proxy index for extra
+        // columns. This will be useful in the parent method.
         return createIndex(row, column, QSqlTableModel::index(row, 0, parent).internalPointer());
     }
     return QSqlTableModel::index(row, column, parent);
@@ -103,7 +116,8 @@ QVariant CustomSqlRelationalModel::data(const QModelIndex &index, const int role
 
     if (const int extraColumn = asExtraColumn(index.column()); extraColumn >= 0) {
         const auto fkObject = this->_foreignKeys.at(extraColumn);
-        const auto fkValue = this->index(index.row(), fkObject.foreignKeyColumn()).data(role).toLongLong();
+        const auto fkValue =
+            this->index(index.row(), fkObject.foreignKeyColumn()).data(role).toLongLong();
         return this->_foreignValues.at(extraColumn)[fkValue].data(role);
     }
 
@@ -118,7 +132,9 @@ QModelIndex CustomSqlRelationalModel::buddy(const QModelIndex &index) const {
     return QSqlTableModel::buddy(index);
 }
 
-bool CustomSqlRelationalModel::setData(const QModelIndex &index, const QVariant &value, const int role) {
+bool CustomSqlRelationalModel::setData(
+    const QModelIndex &index, const QVariant &value, const int role
+) {
     Q_ASSERT(checkIndex(index, QAbstractItemModel::CheckIndexOption::IndexIsValid));
 
     if (const int extraCol = asExtraColumn(index.column()); extraCol >= 0) {
@@ -126,9 +142,11 @@ bool CustomSqlRelationalModel::setData(const QModelIndex &index, const QVariant 
         return false;
     }
 
-    // If we are editing foreign keys, we also need to notify that the corresponding column has changed.
+    // If we are editing foreign keys, we also need to notify that the corresponding column has
+    // changed.
     bool result = QSqlTableModel::setData(index, value, role);
-    if (auto [fk, extraColumn] = this->getFkFromForeignKeyColumn(index.column()); result && fk.isValid()) {
+    if (auto [fk, extraColumn] = this->getFkFromForeignKeyColumn(index.column());
+        result && fk.isValid()) {
         auto changedIndex = this->index(index.row(), extraColumn, index.parent());
         Q_EMIT dataChanged(changedIndex, changedIndex, {role});
     }
@@ -151,7 +169,8 @@ int CustomSqlRelationalModel::asExtraColumn(const int column) const {
     return -1;
 }
 
-QPair<const ForeignKey &, int> CustomSqlRelationalModel::getFkFromForeignKeyColumn(int column) const {
+QPair<const ForeignKey &, int> CustomSqlRelationalModel::getFkFromForeignKeyColumn(int column
+) const {
     for (int i = 0; i < _foreignKeys.length(); ++i) {
         if (_foreignKeys[i].foreignKeyColumn() == column) {
             return {_foreignKeys[i], i};
@@ -177,8 +196,8 @@ void CustomSqlRelationalModel::constructForeignCache(const int extraColumn) {
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
         auto pk = foreignModel->index(r, fk.primaryKeyColumn()).data();
         const auto value = foreignModel->index(r, fk.displayColumn()).data();
-        this->_foreignValues[extraColumn][pk.toLongLong()] = QPersistentModelIndex(
-            foreignModel->index(r, fk.displayColumn()));
+        this->_foreignValues[extraColumn][pk.toLongLong()] =
+            QPersistentModelIndex(foreignModel->index(r, fk.displayColumn()));
     }
 
     // The data changed, so notify that extra column has been updated.

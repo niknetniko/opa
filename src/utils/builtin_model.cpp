@@ -2,7 +2,7 @@
 
 #include <QIcon>
 
-BuiltinModel::BuiltinModel(QObject *parent): KRearrangeColumnsProxyModel(parent) {
+BuiltinModel::BuiltinModel(QObject *parent) : KRearrangeColumnsProxyModel(parent) {
 }
 
 void BuiltinModel::setColumns(int builtinColumn, int decoratedColumn) {
@@ -18,7 +18,8 @@ QVariant BuiltinModel::data(const QModelIndex &index, int role) const {
     auto builtinIndex = sourceModel()->index(sourceIndex.row(), this->builtinColumn);
     Q_ASSERT(sourceModel()->checkIndex(builtinIndex, CheckIndexOption::IndexIsValid));
 
-    if (sourceIndex.column() == this->decoratedColumn && role == Qt::DecorationRole && builtinIndex.data().toBool()) {
+    if (sourceIndex.column() == this->decoratedColumn && role == Qt::DecorationRole &&
+        builtinIndex.data().toBool()) {
         return QIcon::fromTheme(QStringLiteral("lock"));
     }
 

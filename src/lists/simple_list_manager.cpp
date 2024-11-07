@@ -18,7 +18,8 @@
 #include "utils/edit_proxy_model.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 
-StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow *parent): QIdentityProxyModel(parent) {
+StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow *parent) :
+    QIdentityProxyModel(parent) {
 }
 
 QVariant StatusTooltipModel::data(const QModelIndex &index, int role) const {
@@ -26,7 +27,8 @@ QVariant StatusTooltipModel::data(const QModelIndex &index, int role) const {
 
     auto window = qobject_cast<SimpleListManagementWindow *>(this->parent());
     if (index.isValid() && role == Qt::StatusTipRole && index.column() == window->displayColumn) {
-        auto isBuiltin = QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
+        auto isBuiltin =
+            QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
         auto id = QIdentityProxyModel::index(index.row(), window->idColumn).data();
 
         auto rawData = QIdentityProxyModel::index(index.row(), window->displayColumn).data();
@@ -65,8 +67,9 @@ void SimpleListManagementWindow::addItem() const {
 
     tableView->scrollTo(insertedIndex);
     tableView->setFocus();
-    tableView->selectionModel()->select(insertedIndex,
-                                        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent);
+    tableView->selectionModel()->select(
+        insertedIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent
+    );
     tableView->edit(editIndex);
 }
 
@@ -105,7 +108,7 @@ void SimpleListManagementWindow::repairItems() {
     progress.setValue(1);
 
     // Determine duplicates
-    QHash<QString, QVector<IntegerPrimaryKey> > valueToIds;
+    QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
     QHash<IntegerPrimaryKey, QString> idToValue;
     for (int r = 0; r < this->model->rowCount(); ++r) {
         auto index = this->model->index(r, idColumn).data().toLongLong();
@@ -148,7 +151,9 @@ void SimpleListManagementWindow::repairItems() {
     progress.setValue(5);
 }
 
-void SimpleListManagementWindow::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
+void SimpleListManagementWindow::onSelectionChanged(
+    const QItemSelection &selected, const QItemSelection &deselected
+) {
     if (selected.isEmpty()) {
         this->removeAction->setEnabled(false);
         return;
@@ -226,10 +231,12 @@ void SimpleListManagementWindow::initializeLayout() {
     originTranslator->setTranslator(translator);
     tableView->setItemDelegateForColumn(displayColumn, originTranslator);
 
-    connect(tableView->selectionModel(),
-            &QItemSelectionModel::selectionChanged,
-            this,
-            &SimpleListManagementWindow::onSelectionChanged);
+    connect(
+        tableView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        &SimpleListManagementWindow::onSelectionChanged
+    );
 
     // Support models being reset.
     connect(tableView->model(), &QAbstractItemModel::modelReset, this, [this]() {
@@ -239,7 +246,12 @@ void SimpleListManagementWindow::initializeLayout() {
     auto *searchBox = new QLineEdit(centralWidget);
     searchBox->setPlaceholderText(i18n("Search..."));
     searchBox->setClearButtonEnabled(true);
-    connect(searchBox, &QLineEdit::textEdited, filterProxyModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(
+        searchBox,
+        &QLineEdit::textEdited,
+        filterProxyModel,
+        &QSortFilterProxyModel::setFilterFixedString
+    );
     filterProxyModel->setFilterKeyColumn(displayColumn);
     filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
@@ -275,8 +287,11 @@ void SimpleListManagementWindow::setModel(QSqlTableModel *model) {
 }
 
 void SimpleListManagementWindow::removeReferencesFromModel(
-    const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
-    const QHash<IntegerPrimaryKey, QString> &idToValue, QSqlTableModel *foreignModel, int foreignKeyColumn) {
+    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
+    const QHash<IntegerPrimaryKey, QString> &idToValue,
+    QSqlTableModel *foreignModel,
+    int foreignKeyColumn
+) {
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
         auto index = foreignModel->index(r, foreignKeyColumn);
 
@@ -310,7 +325,8 @@ QString SimpleListManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 item", "%1 items", itemCount);
 }
 
-QString SimpleListManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString
+SimpleListManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in item '%1'", item);
     }

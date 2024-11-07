@@ -2,10 +2,10 @@
 // Created by niko on 28/09/24.
 //
 
-#include <QVBoxLayout>
-#include <QToolBar>
-#include <KLocalizedString>
 #include "person_event_tab.h"
+#include <KLocalizedString>
+#include <QToolBar>
+#include <QVBoxLayout>
 #include "person_event_overview_view.h"
 
 PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWidget(parent) {
@@ -51,7 +51,9 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWid
     connect(unlinkAction, &QAction::triggered, eventView, &EventsOverviewView::unlinkSelectedEvent);
 }
 
-void PersonEventTab::onEventSelected(const QAbstractItemModel *model, const QItemSelection &selected) {
+void PersonEventTab::onEventSelected(
+    const QAbstractItemModel *model, const QItemSelection &selected
+) {
     // TODO: prevent something here?
     this->editAction->setEnabled(!selected.isEmpty());
     this->removeAction->setEnabled(!selected.isEmpty());

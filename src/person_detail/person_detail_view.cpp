@@ -3,14 +3,14 @@
 #include <QSqlQuery>
 #include <QToolBar>
 
-#include "person_detail_view.h"
-#include "person_event_tab.h"
-#include "person_name_tab.h"
-#include "ui_person_detail_view.h"
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "data/person.h"
 #include "database/schema.h"
+#include "person_detail_view.h"
+#include "person_event_tab.h"
+#include "person_name_tab.h"
+#include "ui_person_detail_view.h"
 #include "utils/formatted_identifier_delegate.h"
 
 PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget *parent) : QFrame(parent) {

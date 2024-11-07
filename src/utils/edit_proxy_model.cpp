@@ -1,6 +1,6 @@
 #include "edit_proxy_model.h"
 
-EditProxyModel::EditProxyModel(QObject *parent): QIdentityProxyModel(parent) {
+EditProxyModel::EditProxyModel(QObject *parent) : QIdentityProxyModel(parent) {
 }
 
 void EditProxyModel::addReadOnlyColumns(const QList<int> &columns) {

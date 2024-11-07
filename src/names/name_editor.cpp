@@ -7,15 +7,16 @@
 #include <QSqlQuery>
 #include <QString>
 
-#include "name_editor.h"
 #include "data/data_manager.h"
 #include "data/names.h"
+#include "name_editor.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
 
 
-NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent) : QDialog(parent) {
+NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent) :
+    QDialog(parent) {
     this->model = model;
     this->newRow = newRow;
 
@@ -23,8 +24,12 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
     form->setupUi(this);
 
     // Connect the buttons.
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept); // NOLINT(*-unused-return-value)
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
+    connect(
+        form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept
+    ); // NOLINT(*-unused-return-value)
+    connect(
+        form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject
+    ); // NOLINT(*-unused-return-value)
 
     // Set up the name origin combobox.
     connectComboBox(model, NamesTableModel::ORIGIN, form->origin);
@@ -76,7 +81,8 @@ NamesEditor::NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *paren
 void NamesEditor::accept() {
     // Attempt to submit the mapper changes.
     qDebug() << "Current index is " << this->mapper->currentIndex();
-    qDebug() << "Is the current index valid? " << this->model->index(this->mapper->currentIndex(), 0).isValid();
+    qDebug() << "Is the current index valid? "
+             << this->model->index(this->mapper->currentIndex(), 0).isValid();
     if (this->mapper->submit()) {
         // We are done.
         QDialog::accept();
@@ -88,8 +94,11 @@ void NamesEditor::accept() {
         auto errorText = lastError.text();
         qWarning() << "Error was:" << errorText;
         qDebug() << "Raw error: " << lastError;
-        QMessageBox::critical(this, i18n("Fout bij opslaan"),
-                              i18n("The changes could not be saved for some reason:\n") + errorText);
+        QMessageBox::critical(
+            this,
+            i18n("Fout bij opslaan"),
+            i18n("The changes could not be saved for some reason:\n") + errorText
+        );
 
         qDebug() << "Native error code is " << lastError.nativeErrorCode();
         qDebug() << "Last query is " << sqlModel->query().lastQuery();

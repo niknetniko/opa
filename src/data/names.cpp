@@ -1,7 +1,8 @@
 #include "names.h"
 #include "database/schema.h"
 
-NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel *originsModel) : CustomSqlRelationalModel(parent) {
+NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel *originsModel) :
+    CustomSqlRelationalModel(parent) {
     CustomSqlRelationalModel::setTable(Schema::NamesTable);
     setRelation(ORIGIN_ID, originsModel, NameOriginTableModel::ORIGIN, NameOriginTableModel::ID);
 

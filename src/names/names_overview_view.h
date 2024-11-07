@@ -10,9 +10,13 @@
 namespace Names {
     Q_NAMESPACE
 
-    QString construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
-                                   const QString &surname);
-}
+    QString construct_display_name(
+        const QString &titles,
+        const QString &givenNames,
+        const QString &prefix,
+        const QString &surname
+    );
+} // namespace Names
 
 /**
  * This view displays a list of names for one person.
@@ -69,5 +73,6 @@ Q_SIGNALS:
     /**
      * Called when the sorting in the UI changes.
      */
-    void sortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int sortIndex);
+    void
+    sortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int sortIndex);
 };

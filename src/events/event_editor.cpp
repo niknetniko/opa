@@ -11,8 +11,13 @@
 
 class CustomSqlRelationalModel;
 
-EventEditor::EventEditor(QAbstractItemModel *eventRelationModel, QAbstractItemModel *eventModel, bool newEvent,
-                         QWidget *parent): QDialog(parent) {
+EventEditor::EventEditor(
+    QAbstractItemModel *eventRelationModel,
+    QAbstractItemModel *eventModel,
+    bool newEvent,
+    QWidget *parent
+) :
+    QDialog(parent) {
     this->eventRelationModel = eventRelationModel;
     this->eventModel = eventModel;
     this->newEvent = newEvent;
@@ -21,8 +26,12 @@ EventEditor::EventEditor(QAbstractItemModel *eventRelationModel, QAbstractItemMo
     form->setupUi(this);
 
     // Connect the buttons.
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept); // NOLINT(*-unused-return-value)
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
+    connect(
+        form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept
+    ); // NOLINT(*-unused-return-value)
+    connect(
+        form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject
+    ); // NOLINT(*-unused-return-value)
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     qDebug() << "Events model count:" << eventModel->columnCount();
@@ -69,8 +78,8 @@ EventEditor::~EventEditor() {
 void EventEditor::accept() {
     // Attempt to submit the mapper changes.
     qDebug() << "Current event index is " << this->eventMapper->currentIndex();
-    qDebug() << "Is the current event index valid? " << this->eventModel->index(this->eventMapper->currentIndex(), 0).
-            isValid();
+    qDebug() << "Is the current event index valid? "
+             << this->eventModel->index(this->eventMapper->currentIndex(), 0).isValid();
     if (this->eventMapper->submit() && this->eventRelationMapper->submit()) {
         // We are done.
         QDialog::accept();
@@ -86,9 +95,12 @@ void EventEditor::accept() {
         qWarning() << "Event relation error was:" << relationError.text();
         qDebug() << "Raw event error: " << eventError.text();
         qDebug() << "Raw event relation error: " << relationError.text();
-        QMessageBox::critical(this, i18n("Fout bij opslaan"),
-                              i18n("The changes could not be saved for some reason:\n") + eventError.text() +
-                              relationError.text());
+        QMessageBox::critical(
+            this,
+            i18n("Fout bij opslaan"),
+            i18n("The changes could not be saved for some reason:\n") + eventError.text() +
+                relationError.text()
+        );
     }
 }
 

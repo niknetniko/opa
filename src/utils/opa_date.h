@@ -28,20 +28,11 @@ class OpaDate {
     Q_GADGET
 
 public:
-    enum Modifier {
-        NONE,
-        BEFORE,
-        AFTER,
-        DURING
-    };
+    enum Modifier { NONE, BEFORE, AFTER, DURING };
 
     Q_ENUM(Modifier);
 
-    enum Quality {
-        EXACT,
-        ESTIMATED,
-        CALCULATED
-    };
+    enum Quality { EXACT, ESTIMATED, CALCULATED };
 
     Q_ENUM(Quality);
 
@@ -51,9 +42,16 @@ public:
 
     OpaDate(const OpaDate &) = default;
 
-    OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear,
-            bool hasMonth,
-            bool hasDay, const QString &text);
+    OpaDate(
+        Modifier modifier,
+        Quality quality,
+        const QDate &proleptic,
+        const QDate &endProleptic,
+        bool hasYear,
+        bool hasMonth,
+        bool hasDay,
+        const QString &text
+    );
 
     OpaDate &operator=(const OpaDate &) = default;
 

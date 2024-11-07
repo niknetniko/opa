@@ -20,7 +20,9 @@ public:
      * @param displayColumn The column in the foreign model to use for display purposes.
      * @param primaryKeyColumn The column in the foreign model that contains the primary key.
      */
-    ForeignKey(int foreignKeyColumn, QSqlTableModel *foreignModel, int displayColumn, int primaryKeyColumn);
+    ForeignKey(
+        int foreignKeyColumn, QSqlTableModel *foreignModel, int displayColumn, int primaryKeyColumn
+    );
 
     QSqlTableModel *foreignModel() const;
 
@@ -50,7 +52,8 @@ private:
  * - The data from the foreign key is added as an additional table.
  * - The model gets the data for the foreign tables from an existing user-provided model.
  *
- * The implementation of this model is based on both QSqlRelationalTableModel and KExtraColumnsProxyModel.
+ * The implementation of this model is based on both QSqlRelationalTableModel and
+ * KExtraColumnsProxyModel.
  *
  * Note that the extra columns are not addressable by name at the moment.
  * Additionally, the extra columns are not editable and are not present in any SqlRecord.
@@ -90,20 +93,23 @@ public:
      *
      * This indicates that foreignKeyColumn contains a foreign key to the given foreign model.
      * The foreignKeyColumn refers to the sourceModel column in the foreign model.
-     * An additional column with the displayColumn (in the foreign model) will be added to this model.
+     * An additional column with the displayColumn (in the foreign model) will be added to this
+     * model.
      *
-     * You must ensure that the foreign table model lives at least as long as this model, but this model
-     * does not formally take ownership of the foreign model.
+     * You must ensure that the foreign table model lives at least as long as this model, but this
+     * model does not formally take ownership of the foreign model.
      *
      * @param foreignKeyColumn The column in this model that refers to the foreign table.
      * @param foreignModel The model for the foreign table.
      * @param displayColumn The column in the foreign table to add as an extra column to this model.
      * @param sourceModel The column in the foreign table the foreignKeyColumn refers to.
      */
-    void setRelation(int foreignKeyColumn, QSqlTableModel *foreignModel,
-                     int displayColumn, int sourceModel);
+    void setRelation(
+        int foreignKeyColumn, QSqlTableModel *foreignModel, int displayColumn, int sourceModel
+    );
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex
+    index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -123,11 +129,11 @@ public Q_SLOTS:
 
 private:
     QVector<ForeignKey> _foreignKeys;
-    QVector<QHash<IntegerPrimaryKey, QPersistentModelIndex> > _foreignValues;
+    QVector<QHash<IntegerPrimaryKey, QPersistentModelIndex>> _foreignValues;
 
     int asExtraColumn(int column) const;
 
     QPair<const ForeignKey &, int> getFkFromForeignKeyColumn(int column) const;
 };
 
-void connectComboBox(const QAbstractItemModel* model, int relationColumn, QComboBox* comboBox);
+void connectComboBox(const QAbstractItemModel *model, int relationColumn, QComboBox *comboBox);

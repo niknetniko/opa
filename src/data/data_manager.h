@@ -65,23 +65,24 @@ public:
     QAbstractProxyModel *eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId);
 
     /**
-      * Model for a single event.
-      *
-      * @param parent The parent for the returned model.
-      * @param eventId The ID of the event.
-      */
+     * Model for a single event.
+     *
+     * @param parent The parent for the returned model.
+     * @param eventId The ID of the event.
+     */
     QAbstractProxyModel *singleEventModel(QObject *parent, const QVariant &eventId) const;
 
     /**
-      * Model for a single event relation.
-      *
-      * @param parent The parent for the returned model.
-      * @param eventId The ID of the event.
-      * @param roleId The ID of the role.
-      * @param personId The ID of the person.
-      */
-    QAbstractProxyModel *singleEventRelationModel(QObject *parent, const QVariant &eventId, const QVariant &roleId,
-                                                  const QVariant &personId) const;
+     * Model for a single event relation.
+     *
+     * @param parent The parent for the returned model.
+     * @param eventId The ID of the event.
+     * @param roleId The ID of the role.
+     * @param personId The ID of the person.
+     */
+    QAbstractProxyModel *singleEventRelationModel(
+        QObject *parent, const QVariant &eventId, const QVariant &roleId, const QVariant &personId
+    ) const;
 
 Q_SIGNALS:
     /**
@@ -158,8 +159,10 @@ private:
      * @param updater Called when the model must update.
      */
     template<class ModelType>
-    void propagateToModel(ModelType *model, QStringList tables, std::function<void(ModelType *)> updater);
+    void propagateToModel(
+        ModelType *model, QStringList tables, std::function<void(ModelType *)> updater
+    );
 
     template<QSqlTableModelConcept ModelType, typename... Args>
-    ModelType *makeModel(Args &&... args);
+    ModelType *makeModel(Args &&...args);
 };

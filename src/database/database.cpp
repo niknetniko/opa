@@ -2,9 +2,9 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <qsqldriver.h>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <qsqldriver.h>
 #include <sqlite3.h>
 
 const auto driver = QStringLiteral("QSQLITE");

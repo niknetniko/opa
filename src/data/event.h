@@ -8,22 +8,18 @@
 namespace EventRoles {
     Q_NAMESPACE
 
-    enum Values {
-        Primary,
-        Witness
-    };
+    enum Values { Primary, Witness };
 
     Q_ENUM_NS(Values)
 
     static const QHash<Values, KLazyLocalizedString> nameOriginToString = {
-        {Primary, kli18n("Primary")},
-        {Witness, kli18n("Witness")}
+        {Primary, kli18n("Primary")}, {Witness, kli18n("Witness")}
     };
 
     static const std::function toDisplayString = [](const QString &databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
-}
+} // namespace EventRoles
 
 class EventRolesModel : public QSqlTableModel {
     Q_OBJECT
@@ -39,14 +35,7 @@ public:
 namespace EventTypes {
     Q_NAMESPACE
 
-    enum Values {
-        Birth,
-        Death,
-        Marriage,
-        Divorce,
-        Baptism,
-        Funeral
-    };
+    enum Values { Birth, Death, Marriage, Divorce, Baptism, Funeral };
 
     Q_ENUM_NS(Values)
 
@@ -62,7 +51,7 @@ namespace EventTypes {
     static const std::function toDisplayString = [](const QString &databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
-}
+} // namespace EventTypes
 
 class EventTypesModel : public QSqlTableModel {
     Q_OBJECT
@@ -107,4 +96,4 @@ namespace PersonEventsModel {
     constexpr int NAME = 3;
     constexpr int ID = 4;
     constexpr int ROLE_ID = 5;
-}
+} // namespace PersonEventsModel

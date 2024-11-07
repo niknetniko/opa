@@ -3,9 +3,9 @@
 #include <QProgressDialog>
 #include <QSqlQuery>
 
-#include "event_roles_management_window.h"
 #include "data/data_manager.h"
 #include "data/event.h"
+#include "event_roles_management_window.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 
@@ -24,14 +24,17 @@ bool EventRolesManagementWindow::repairConfirmation() {
     messageBox.setIcon(QMessageBox::Question);
     messageBox.setText(i18n("Clean up event roles?"));
     messageBox.setInformativeText(
-        i18n("This will merge duplicate and remove empty event roles. Do you want to continue?"));
+        i18n("This will merge duplicate and remove empty event roles. Do you want to continue?")
+    );
     messageBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     messageBox.setDefaultButton(QMessageBox::Ok);
     return messageBox.exec() == QMessageBox::Ok;
 }
 
-void EventRolesManagementWindow::removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
-                                                        const QHash<IntegerPrimaryKey, QString> &idToValue) {
+void EventRolesManagementWindow::removeMarkedReferences(
+    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
+    const QHash<IntegerPrimaryKey, QString> &idToValue
+) {
     auto relationModel = DataManager::get().eventRelationsModel();
 
     removeReferencesFromModel(valueToIds, idToValue, relationModel, EventRelationsModel::ROLE_ID);
@@ -39,7 +42,9 @@ void EventRolesManagementWindow::removeMarkedReferences(const QHash<QString, QVe
 
 bool EventRolesManagementWindow::isUsed(const QVariant &id) {
     auto *relationModel = DataManager::get().eventRelationsModel();
-    auto usage = relationModel->match(relationModel->index(0, EventRelationsModel::ROLE_ID), Qt::DisplayRole, id);
+    auto usage = relationModel->match(
+        relationModel->index(0, EventRelationsModel::ROLE_ID), Qt::DisplayRole, id
+    );
     return !usage.isEmpty();
 }
 
@@ -47,7 +52,8 @@ QString EventRolesManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 event role", "%1 event roles", itemCount);
 }
 
-QString EventRolesManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString
+EventRolesManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in event role '%1'", item);
     }

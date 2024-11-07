@@ -4,11 +4,24 @@
 
 #include "opa_date.h"
 
-OpaDate::OpaDate(Modifier modifier, Quality quality, const QDate &proleptic, const QDate &endProleptic, bool hasYear,
-                 bool hasMonth,
-                 bool hasDay, const QString &text) : dateModifier(modifier), dateQuality(quality), proleptic(proleptic),
-                                                     endProleptic(endProleptic),
-                                                     year(hasYear), month(hasMonth), day(hasDay), userText(text) {
+OpaDate::OpaDate(
+    Modifier modifier,
+    Quality quality,
+    const QDate &proleptic,
+    const QDate &endProleptic,
+    bool hasYear,
+    bool hasMonth,
+    bool hasDay,
+    const QString &text
+) :
+    dateModifier(modifier),
+    dateQuality(quality),
+    proleptic(proleptic),
+    endProleptic(endProleptic),
+    year(hasYear),
+    month(hasMonth),
+    day(hasDay),
+    userText(text) {
 }
 
 OpaDate::Quality OpaDate::quality() const {

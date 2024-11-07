@@ -20,7 +20,9 @@ private:
     IntegerPrimaryKey personId;
 
 public Q_SLOTS:
-    void handleSelectedNewRow(const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected);
+    void handleSelectedNewRow(
+        const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected
+    );
 
     void handleDoubleClick(const QModelIndex &clicked);
 

@@ -2,15 +2,17 @@
 #include <QLineEdit>
 #include <QSqlError>
 
-#include "proxy_enabled_relational_delegate.h"
 #include "custom_sql_relational_model.h"
 #include "model_utils_find_source_model_of_type.h"
+#include "proxy_enabled_relational_delegate.h"
 
-SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject *parent): QStyledItemDelegate(parent) {
+SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject *parent) :
+    QStyledItemDelegate(parent) {
 }
 
-QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                                                  const QModelIndex &index) const {
+QWidget *SuperSqlRelationalDelegate::createEditor(
+    QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index
+) const {
     auto proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
     if (proxyModel == nullptr) {
         // Nothing to do for us.
@@ -38,8 +40,9 @@ QWidget *SuperSqlRelationalDelegate::createEditor(QWidget *parent, const QStyleO
     return comboBox;
 }
 
-void
-SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
+void SuperSqlRelationalDelegate::setModelData(
+    QWidget *editor, QAbstractItemModel *model, const QModelIndex &index
+) const {
     if (!index.isValid()) {
         return;
     }
@@ -51,8 +54,9 @@ SuperSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         return;
     }
 
-    auto sqlModel = const_cast<CustomSqlRelationalModel *>(findSourceModelOfType<
-        CustomSqlRelationalModel>(proxyModel));
+    auto sqlModel = const_cast<CustomSqlRelationalModel *>(
+        findSourceModelOfType<CustomSqlRelationalModel>(proxyModel)
+    );
     if (sqlModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);

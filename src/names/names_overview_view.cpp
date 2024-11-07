@@ -18,8 +18,9 @@
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
 
-QString Names::construct_display_name(const QString &titles, const QString &givenNames, const QString &prefix,
-                                      const QString &surname) {
+QString Names::construct_display_name(
+    const QString &titles, const QString &givenNames, const QString &prefix, const QString &surname
+) {
     QStringList nameParts;
     if (!titles.isEmpty()) {
         nameParts.append(titles);
@@ -36,22 +37,23 @@ QString Names::construct_display_name(const QString &titles, const QString &give
     return nameParts.join(QStringLiteral(" "));
 }
 
-NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *parent) : QWidget(parent) {
+NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *parent) :
+    QWidget(parent) {
     this->personId = personId;
     this->baseModel = DataManager::get().namesModelForPerson(this, personId);
 
     // We only show certain columns here.
     auto *selectedColumnsModel = new KRearrangeColumnsProxyModel(this);
     selectedColumnsModel->setSourceModel(baseModel);
-    selectedColumnsModel->setSourceColumns({
-        NamesTableModel::ID,
-        NamesTableModel::SORT,
-        NamesTableModel::TITLES,
-        NamesTableModel::GIVEN_NAMES,
-        NamesTableModel::PREFIX,
-        NamesTableModel::SURNAME,
-        NamesTableModel::ORIGIN
-    });
+    selectedColumnsModel->setSourceColumns(
+        {NamesTableModel::ID,
+         NamesTableModel::SORT,
+         NamesTableModel::TITLES,
+         NamesTableModel::GIVEN_NAMES,
+         NamesTableModel::PREFIX,
+         NamesTableModel::SURNAME,
+         NamesTableModel::ORIGIN}
+    );
 
     // We want to filter and sort.
     auto *filterProxyModel = new QSortFilterProxyModel(this);
@@ -70,8 +72,10 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     treeView->sortByColumn(1, Qt::AscendingOrder);
     // We are done setting up, attach the model.
     treeView->setModel(filterProxyModel);
-    treeView->setItemDelegateForColumn(NamesTableModel::ID,
-                                       new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME));
+    treeView->setItemDelegateForColumn(
+        NamesTableModel::ID,
+        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME)
+    );
     treeView->header()->setSortIndicatorClearable(false);
     auto originTranslator = new BuiltinTextTranslatingDelegate(treeView);
     originTranslator->setTranslator(NameOrigins::toDisplayString);
@@ -81,10 +85,12 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     auto *layout = new QVBoxLayout(this);
     layout->addWidget(treeView);
 
-    connect(treeView->selectionModel(),
-            &QItemSelectionModel::selectionChanged,
-            this,
-            &NamesOverviewView::handleSelectedNewRow);
+    connect(
+        treeView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        &NamesOverviewView::handleSelectedNewRow
+    );
     // Support models being reset.
     connect(treeView->model(), &QAbstractItemModel::modelReset, this, [this]() {
         this->handleSelectedNewRow(QItemSelection(), QItemSelection());
@@ -97,19 +103,23 @@ NamesOverviewView::NamesOverviewView(const IntegerPrimaryKey personId, QWidget *
     });
 }
 
-void NamesOverviewView::handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
+void NamesOverviewView::
+    handleSelectedNewRow(const QItemSelection &selected, const QItemSelection & /*deselected*/) {
     Q_EMIT this->selectedName(this->treeView->selectionModel()->model(), selected);
 }
 
 void NamesOverviewView::handleNewName() {
-    auto *nameModel = const_cast<QSqlTableModel *>(findSourceModelOfType<QSqlTableModel>(this->baseModel));
+    auto *nameModel =
+        const_cast<QSqlTableModel *>(findSourceModelOfType<QSqlTableModel>(this->baseModel));
 
     auto newRecord = nameModel->record();
     newRecord.setGenerated(NamesTableModel::ID, false);
     newRecord.setValue(NamesTableModel::PERSON_ID, this->personId);
     newRecord.setValue(NamesTableModel::SORT, treeView->model()->rowCount() + 1);
     if (!nameModel->insertRecord(-1, newRecord)) {
-        QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
+        QMessageBox::warning(
+            this, tr("Could not insert name"), tr("Problem inserting new name into database.")
+        );
         qDebug() << "Could not get last inserted ID for some reason:";
         qDebug() << nameModel->lastError();
         return;
@@ -117,7 +127,9 @@ void NamesOverviewView::handleNewName() {
 
     auto lastInsertedId = nameModel->query().lastInsertId();
     if (!lastInsertedId.isValid()) {
-        QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
+        QMessageBox::warning(
+            this, tr("Could not insert name"), tr("Problem inserting new name into database.")
+        );
         qDebug() << "Could not get last inserted ID for some reason:";
         qDebug() << nameModel->lastError();
         return;
@@ -216,8 +228,9 @@ void NamesOverviewView::moveSelectedNameToPosition(int from, int to) {
     rootModel->setEditStrategy(original);
 
     // Fix the selection by choosing the new row.
-    treeView->selectionModel()->select(model->index(to, 0),
-                                       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    treeView->selectionModel()->select(
+        model->index(to, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows
+    );
 }
 
 void NamesOverviewView::moveSelectedNameDown() {

@@ -12,4 +12,4 @@ namespace Schema {
     const auto EventRolesTable = QStringLiteral("event_roles");
     const auto EventTypesTable = QStringLiteral("event_types");
     const auto EventRelationsTable = QStringLiteral("event_relations");
-}
+} // namespace Schema

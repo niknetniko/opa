@@ -12,8 +12,10 @@ public Q_SLOTS:
     bool repairConfirmation() override;
 
 
-    void removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
-                                const QHash<IntegerPrimaryKey, QString> &idToValue) override;
+    void removeMarkedReferences(
+        const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
+        const QHash<IntegerPrimaryKey, QString> &idToValue
+    ) override;
 
     bool isUsed(const QVariant &id) override;
 

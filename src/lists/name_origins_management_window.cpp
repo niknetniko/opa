@@ -25,22 +25,26 @@ bool NameOriginsManagementWindow::repairConfirmation() {
     messageBox.setIcon(QMessageBox::Question);
     messageBox.setText(i18n("Clean up name origins?"));
     messageBox.setInformativeText(
-        i18n("This will merge duplicate and remove empty name origins. Do you want to continue?"));
+        i18n("This will merge duplicate and remove empty name origins. Do you want to continue?")
+    );
     messageBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     messageBox.setDefaultButton(QMessageBox::Ok);
 
     return messageBox.exec() == QMessageBox::Ok;
 }
 
-void NameOriginsManagementWindow::removeMarkedReferences(const QHash<QString, QVector<IntegerPrimaryKey> > &valueToIds,
-                                                         const QHash<IntegerPrimaryKey, QString> &idToValue) {
+void NameOriginsManagementWindow::removeMarkedReferences(
+    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
+    const QHash<IntegerPrimaryKey, QString> &idToValue
+) {
     auto nameModel = DataManager::get().namesModel();
     removeReferencesFromModel(valueToIds, idToValue, nameModel, NamesTableModel::ORIGIN_ID);
 }
 
 bool NameOriginsManagementWindow::isUsed(const QVariant &id) {
     auto *nameModel = DataManager::get().namesModel();
-    auto usage = nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
+    auto usage =
+        nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
 }
 
@@ -48,7 +52,8 @@ QString NameOriginsManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 name origin", "%1 name origins", itemCount);
 }
 
-QString NameOriginsManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString
+NameOriginsManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in name origin '%1'", item);
     }

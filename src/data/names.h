@@ -52,7 +52,7 @@ namespace NameOrigins {
     static const std::function toDisplayString = [](const QString &databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
-};
+}; // namespace NameOrigins
 
 
 class NameOriginTableModel : public QSqlTableModel {

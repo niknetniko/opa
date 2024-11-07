@@ -14,7 +14,9 @@ public:
 public Q_SLOTS:
     void onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected) const;
 
-    void onSortChanged(const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex) const;
+    void onSortChanged(
+        const QAbstractItemModel *model, const QItemSelection &selected, int logicalIndex
+    ) const;
 
 private:
     QAction *addAction;

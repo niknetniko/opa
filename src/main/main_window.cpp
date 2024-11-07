@@ -3,14 +3,14 @@
 #include <KLocalizedString>
 #include <QDockWidget>
 
-#include "main_window.h"
-#include "opadebug.h"
-#include "ui_settings.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
 #include "main_person_tab/person_list.h"
+#include "main_window.h"
+#include "opadebug.h"
 #include "person_detail/person_detail_view.h"
+#include "ui_settings.h"
 
 MainWindow::MainWindow() {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -32,7 +32,9 @@ MainWindow::MainWindow() {
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     // Connect stuff.
-    connect(tableView, &PersonListWidget::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
+    connect(
+        tableView, &PersonListWidget::handlePersonSelected, this, &MainWindow::openOrSelectPerson
+    );
 
     auto *manageNameOrigins = new QAction(this);
     manageNameOrigins->setText(i18n("Manage name origins"));
@@ -51,7 +53,9 @@ MainWindow::MainWindow() {
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventOrigins);
     actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes);
     KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);
-    KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
+    KStandardAction::quit(
+        QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection
+    );
     KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
 
     setupGUI();
@@ -68,7 +72,7 @@ void MainWindow::settingsConfigure() {
     //
     // compare the names of the widgets in the .ui file
     // to the names of the variables in the .kcfg file
-    //avoid to have 2 dialogs shown
+    // avoid to have 2 dialogs shown
     if (KConfigDialog::showDialog(QStringLiteral("settings"))) {
         return;
     }
@@ -77,8 +81,11 @@ void MainWindow::settingsConfigure() {
     auto *generalSettingsPage = new QWidget;
     m_settings = new Ui::Settings();
     m_settings->setupUi(generalSettingsPage);
-    dialog->addPage(generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting"));
-    //    connect(dialog, &KConfigDialog::settingsChanged, m_opaView, &opaView::handleSettingsChanged);
+    dialog->addPage(
+        generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting")
+    );
+    //    connect(dialog, &KConfigDialog::settingsChanged, m_opaView,
+    //    &opaView::handleSettingsChanged);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
@@ -98,7 +105,8 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
     qDebug() << "No existing tab found... " << personId;
 
     auto *detailView = new PersonDetailView(personId, this);
-    auto addedIndex = qobject_cast<QTabWidget *>(centralWidget())->addTab(detailView, detailView->getDisplayName());
+    auto addedIndex = qobject_cast<QTabWidget *>(centralWidget())
+                          ->addTab(detailView, detailView->getDisplayName());
 
     // Go to the tab.
     qobject_cast<QTabWidget *>(centralWidget())->setCurrentIndex(addedIndex);
@@ -110,8 +118,10 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
             return; // Do nothing as the tab no longer exists for some reason.
         }
         auto *theDetailView = qobject_cast<PersonDetailView *>(
-            qobject_cast<QTabWidget *>(centralWidget())->widget(tabIndex));
-        qobject_cast<QTabWidget *>(centralWidget())->setTabText(tabIndex, theDetailView->getDisplayName());
+            qobject_cast<QTabWidget *>(centralWidget())->widget(tabIndex)
+        );
+        qobject_cast<QTabWidget *>(centralWidget())
+            ->setTabText(tabIndex, theDetailView->getDisplayName());
     });
 }
 

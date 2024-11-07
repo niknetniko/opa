@@ -6,7 +6,8 @@
 /**
  * Model with support for built-in columns.
  *
- * The model will apply a few common things that are needed for working with tables with built-in stuff:
+ * The model will apply a few common things that are needed for working with tables with built-in
+ * stuff:
  *
  * - Show an icon on the main column for built-in rows.
  * - Hide the built-in column.

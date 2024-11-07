@@ -1,9 +1,9 @@
 #pragma once
 
 #include <KLazyLocalizedString>
-#include <qabstractproxymodel.h>
 #include <QIdentityProxyModel>
 #include <QMetaEnum>
+#include <qabstractproxymodel.h>
 
 /**
  * Find the first source model of a specific type.
@@ -85,7 +85,8 @@ private:
 };
 
 template<typename E>
-QString genericToDisplayString(const QString &databaseValue, QHash<E, KLazyLocalizedString> mapping) {
+QString
+genericToDisplayString(const QString &databaseValue, QHash<E, KLazyLocalizedString> mapping) {
     // Attempt to get the value as enum.
     auto result = QMetaEnum::fromType<E>().keyToValue(databaseValue.toUtf8().data());
     if (result == -1) {
