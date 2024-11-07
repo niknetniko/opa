@@ -2,14 +2,14 @@
   description = "Experimental Qt/KDE genealogy program";
 
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/x86_64-linux";
     utils = {
-      url = github:numtide/flake-utils;
+      url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
     };
     nix-github-actions = {
-      url = github:nix-community/nix-github-actions;
+      url = "github:nix-community/nix-github-actions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix = {
@@ -18,8 +18,17 @@
     };
   };
 
-  outputs = { self, nixpkgs, utils, nix-github-actions, treefmt-nix, ... }:
-    utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      utils,
+      nix-github-actions,
+      treefmt-nix,
+      ...
+    }:
+    utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         build-inputs = with pkgs; [
@@ -61,47 +70,55 @@
         };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
-        {
-          packages = rec {
-            default = opa;
-          };
-          checks = rec {
-            ctests = opa.overrideAttrs (finalAttrs: previousAttrs: {
+      {
+        packages = rec {
+          default = opa;
+        };
+        checks = rec {
+          ctests = opa.overrideAttrs (
+            finalAttrs: previousAttrs: {
               name = "opa-ctests";
               doCheck = true;
               cmakeBuildType = "Debug";
               QT_QPA_PLATFORM = "offscreen";
               dontInstall = true;
-            });
-            clang-tidy = opa.overrideAttrs (finalAttrs: previousAttrs: {
+            }
+          );
+          clang-tidy = opa.overrideAttrs (
+            finalAttrs: previousAttrs: {
               name = "opa-clang-tidy";
               cmakeFlags = [
                 "-DCMAKE_CXX_CLANG_TIDY='clang-tidy'"
               ];
               dontInstall = true;
-            });
-            formatting = treefmtEval.config.build.check self;
-          };
-          devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
-              buildInputs = build-inputs ++ native-build-inputs ++ [
-                pkgs.qtcreator
-                pkgs.gdb
-                pkgs.lldb
-                # run-clang-tidy is not included in the normal clang?
-                # https://github.com/NixOS/nixpkgs/issues/33386
-                # TODO: whut
-                pkgs.llvmPackages.clang-unwrapped.python
-                pkgs.gersemi
-              ];
-              shellHook = ''
-                export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
-                export KF5KIconThemes_DIR=${pkgs.kdePackages.kiconthemes}
-                export QML_DIR=${pkgs.qt6.qtdeclarative}
-              '';
-          };
-          formatter = treefmtEval.config.build.wrapper;
-        }
-    ) // utils.lib.eachDefaultSystemPassThrough (system: {
+            }
+          );
+          formatting = treefmtEval.config.build.check self;
+        };
+        devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
+          buildInputs =
+            build-inputs
+            ++ native-build-inputs
+            ++ [
+              pkgs.qtcreator
+              pkgs.gdb
+              pkgs.lldb
+              # run-clang-tidy is not included in the normal clang?
+              # https://github.com/NixOS/nixpkgs/issues/33386
+              # TODO: whut
+              pkgs.llvmPackages.clang-unwrapped.python
+              pkgs.gersemi
+            ];
+          shellHook = ''
+            export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
+            export KF5KIconThemes_DIR=${pkgs.kdePackages.kiconthemes}
+            export QML_DIR=${pkgs.qt6.qtdeclarative}
+          '';
+        };
+        formatter = treefmtEval.config.build.wrapper;
+      }
+    )
+    // utils.lib.eachDefaultSystemPassThrough (system: {
       githubActions = nix-github-actions.lib.mkGithubMatrix { inherit (self) checks; };
     });
 }
