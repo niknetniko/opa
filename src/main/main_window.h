@@ -1,6 +1,7 @@
 #pragma once
 
 #include <KXmlGuiWindow>
+#include <QAction>
 
 #include "opaSettings.h"
 #include "database/schema.h"
@@ -26,7 +27,7 @@ class MainWindow : public KXmlGuiWindow {
 public:
     MainWindow();
 
-    ~MainWindow() override;
+    ~MainWindow() override = default;
 
 private Q_SLOTS:
     void fileNew();

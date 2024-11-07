@@ -64,6 +64,10 @@
                 pkgs.qtcreator
                 pkgs.gdb
                 pkgs.lldb
+                # run-clang-tidy is not included in the normal clang?
+                # https://github.com/NixOS/nixpkgs/issues/33386
+                # TODO: whut
+                pkgs.llvmPackages.clang-unwrapped.python
               ];
 
               shellHook = ''

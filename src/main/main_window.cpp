@@ -1,27 +1,16 @@
-/*
-    SPDX-FileCopyrightText: 2022 Niko Strijbol <strijbol.niko@gmail.com>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-// KF headers
 #include <KActionCollection>
 #include <KConfigDialog>
-#include <QDockWidget>
 #include <KLocalizedString>
+#include <QDockWidget>
 
-// application headers
 #include "main_window.h"
-
-#include <lists/event_types_management_window.h>
-#include <main_person_tab/person_list.h>
-
 #include "opadebug.h"
-#include "lists/name_origins_management_window.h"
+#include "ui_settings.h"
 #include "lists/event_roles_management_window.h"
+#include "lists/event_types_management_window.h"
+#include "lists/name_origins_management_window.h"
 #include "main_person_tab/person_list.h"
 #include "person_detail/person_detail_view.h"
-#include "ui_settings.h"
-
 
 MainWindow::MainWindow() {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -66,9 +55,6 @@ MainWindow::MainWindow() {
     KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
 
     setupGUI();
-}
-
-MainWindow::~MainWindow() {
 }
 
 void MainWindow::fileNew() {
