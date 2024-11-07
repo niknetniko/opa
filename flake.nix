@@ -11,6 +11,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         build-inputs = with pkgs; [
+          llvmPackages.openmp
           kdePackages.kcoreaddons
           kdePackages.kconfigwidgets
           kdePackages.ki18n
@@ -31,7 +32,6 @@
           qt6.wrapQtAppsHook
           qt6.qtwayland
           clang-tools
-          clang
           cmake
           git
           valgrind
@@ -39,7 +39,7 @@
           clazy
           atlas
         ];
-        opa = pkgs.stdenv.mkDerivation {
+        opa = pkgs.clangStdenv.mkDerivation {
           pname = "opa";
           version = "0.1";
           src = ./.;
@@ -59,10 +59,11 @@
               QT_QPA_PLATFORM = "offscreen";
             });
           };
-          devShells.default = pkgs.mkShell {
+          devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
               buildInputs = build-inputs ++ native-build-inputs ++ [
                 pkgs.qtcreator
                 pkgs.gdb
+                pkgs.lldb
               ];
 
               shellHook = ''
