@@ -12,9 +12,13 @@
       url = github:nix-community/nix-github-actions;
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, utils, nix-github-actions, ... }:
+  outputs = { self, nixpkgs, utils, nix-github-actions, treefmt-nix, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -55,6 +59,7 @@
           buildInputs = build-inputs;
           nativeBuildInputs = native-build-inputs;
         };
+        treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
         {
           packages = rec {
@@ -75,19 +80,7 @@
               ];
               dontInstall = true;
             });
-            clang-format = pkgs.clangStdenv.mkDerivation {
-              name = "opa-clang-format";
-              src = ./.;
-              doCheck = true;
-              nativeBuildInputs = with pkgs; [clang-tools];
-              checkPhase = ''
-                clang-format --dry-run --Werror **/*.cpp **/*.h
-              '';
-              buildCommand = ''
-                touch $out
-              '';
-              dontInstall = true;
-            };
+            formatting = treefmtEval.config.build.check self;
           };
           devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
               buildInputs = build-inputs ++ native-build-inputs ++ [
@@ -98,14 +91,15 @@
                 # https://github.com/NixOS/nixpkgs/issues/33386
                 # TODO: whut
                 pkgs.llvmPackages.clang-unwrapped.python
+                pkgs.gersemi
               ];
-
               shellHook = ''
                 export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
                 export KF5KIconThemes_DIR=${pkgs.kdePackages.kiconthemes}
                 export QML_DIR=${pkgs.qt6.qtdeclarative}
               '';
           };
+          formatter = treefmtEval.config.build.wrapper;
         }
     ) // utils.lib.eachDefaultSystemPassThrough (system: {
       githubActions = nix-github-actions.lib.mkGithubMatrix { inherit (self) checks; };
