@@ -83,7 +83,9 @@
               checkPhase = ''
                 clang-format --dry-run --Werror **/*.cpp **/*.h
               '';
-              dontBuild = true;
+              buildCommand = ''
+                touch $out
+              '';
               dontInstall = true;
             };
           };
