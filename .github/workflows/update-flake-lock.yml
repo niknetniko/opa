@@ -1,0 +1,17 @@
+name: Update flake.lock
+on:
+  workflow_dispatch: # allows manual triggering
+  schedule:
+    - cron: '0 0 * * 0' # runs weekly on Sunday at 00:00
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nixbuild/nix-quick-install-action@v27
+      - uses: DeterminateSystems/update-flake-lock@main
+        with:
+          pr-title: "Bump flake.lock"
+          pr-labels: |
+            dependencies
