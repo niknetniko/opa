@@ -304,7 +304,7 @@ template<class ModelType>
 void DataManager::propagateToModel(
     ModelType* model, QStringList tables, std::function<void(ModelType*)> updater // NOLINT(*-unnecessary-value-param)
 ) {
-    auto name = model->metaObject()->className();
+    // auto name = model->metaObject()->className();
     connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString& table) {
         if (tables.contains(table) && updatingFromDataManagerSource != model) {
             updater(model);
