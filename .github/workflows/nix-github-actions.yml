@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/flake-checker-action@v4 # This action
-      - uses: nixbuild/nix-quick-install-action@v27
+      - uses: nixbuild/nix-quick-install-action@v29
       - uses: nix-community/cache-nix-action@v5
         with:
           primary-key: nix-${{ runner.os }}-build-${{ hashFiles('**/*.nix') }}
@@ -28,7 +28,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-      - uses: nixbuild/nix-quick-install-action@v27
+      - uses: nixbuild/nix-quick-install-action@v29
       - id: set-matrix
         name: Generate Nix Matrix
         run: |
@@ -45,7 +45,7 @@ jobs:
       matrix: ${{fromJSON(needs.nix-matrix.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v4
-      - uses: nixbuild/nix-quick-install-action@v27
+      - uses: nixbuild/nix-quick-install-action@v29
       - uses: nix-community/cache-nix-action@v5
         with:
           primary-key: nix-${{ runner.os }}-${{ matrix.attr }}-${{ hashFiles('**/*.nix') }}
