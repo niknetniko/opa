@@ -13,11 +13,11 @@ class CellFilteredProxyModel : public QSortFilterProxyModel {
     Q_OBJECT
 
 public:
-    explicit CellFilteredProxyModel(QObject *parent);
+    explicit CellFilteredProxyModel(QObject* parent);
 
-    void addFilter(int columnIndex, const QVariant &data);
+    void addFilter(int columnIndex, const QVariant& data);
 
-    bool filterAcceptsRow(int source_row, const QModelIndex &sourceParent) const override;
+    [[nodiscard]] bool filterAcceptsRow(int source_row, const QModelIndex& sourceParent) const override;
 
 private:
     QList<ColumnAndDataPair> filters;

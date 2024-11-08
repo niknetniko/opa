@@ -34,17 +34,15 @@ bool NameOriginsManagementWindow::repairConfirmation() {
 }
 
 void NameOriginsManagementWindow::removeMarkedReferences(
-    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-    const QHash<IntegerPrimaryKey, QString> &idToValue
+    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
 ) {
-    auto nameModel = DataManager::get().namesModel();
+    auto* nameModel = DataManager::get().namesModel();
     removeReferencesFromModel(valueToIds, idToValue, nameModel, NamesTableModel::ORIGIN_ID);
 }
 
-bool NameOriginsManagementWindow::isUsed(const QVariant &id) {
-    auto *nameModel = DataManager::get().namesModel();
-    auto usage =
-        nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
+bool NameOriginsManagementWindow::isUsed(const QVariant& id) {
+    auto* nameModel = DataManager::get().namesModel();
+    auto usage = nameModel->match(nameModel->index(0, NamesTableModel::ORIGIN_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
 }
 
@@ -52,8 +50,7 @@ QString NameOriginsManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 name origin", "%1 name origins", itemCount);
 }
 
-QString
-NameOriginsManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString NameOriginsManagementWindow::translatedItemDescription(const QString& item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in name origin '%1'", item);
     }

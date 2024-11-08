@@ -6,57 +6,53 @@
 #include "model_utils_find_source_model_of_type.h"
 #include "proxy_enabled_relational_delegate.h"
 
-SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject *parent) :
-    QStyledItemDelegate(parent) {
+SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject* parent) : QStyledItemDelegate(parent) {
 }
 
-QWidget *SuperSqlRelationalDelegate::createEditor(
-    QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index
+QWidget* SuperSqlRelationalDelegate::createEditor(
+    QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index
 ) const {
-    auto proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model());
+    const auto* proxyModel = qobject_cast<const QAbstractProxyModel*>(index.model());
     if (proxyModel == nullptr) {
         // Nothing to do for us.
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    auto *sourceModel = findSourceModelOfType<CustomSqlRelationalModel>(proxyModel);
+    const auto* sourceModel = findSourceModelOfType<CustomSqlRelationalModel>(proxyModel);
     if (sourceModel == nullptr) {
         // Nothing to do for us.
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    QSqlTableModel *childModel = sourceModel->relationModel(index.column());
+    QSqlTableModel* childModel = sourceModel->relationModel(index.column());
     if (childModel == nullptr) {
         // Nothing to do for us.
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    auto *comboBox = new QComboBox(parent);
+    auto* comboBox = new QComboBox(parent);
     comboBox->setEditable(true);
     comboBox->setModel(childModel);
     comboBox->setModelColumn(sourceModel->relation(index.column()).displayColumn());
-    comboBox->installEventFilter(const_cast<SuperSqlRelationalDelegate *>(this));
+    comboBox->installEventFilter(const_cast<SuperSqlRelationalDelegate*>(this));
 
     return comboBox;
 }
 
-void SuperSqlRelationalDelegate::setModelData(
-    QWidget *editor, QAbstractItemModel *model, const QModelIndex &index
-) const {
+void SuperSqlRelationalDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index)
+    const {
     if (!index.isValid()) {
         return;
     }
 
-    auto proxyModel = qobject_cast<const QAbstractProxyModel *>(model);
+    const auto* proxyModel = qobject_cast<const QAbstractProxyModel*>(model);
     if (proxyModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
 
-    auto sqlModel = const_cast<CustomSqlRelationalModel *>(
-        findSourceModelOfType<CustomSqlRelationalModel>(proxyModel)
-    );
+    auto* sqlModel = const_cast<CustomSqlRelationalModel*>(findSourceModelOfType<CustomSqlRelationalModel>(proxyModel));
     if (sqlModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
@@ -66,20 +62,20 @@ void SuperSqlRelationalDelegate::setModelData(
     Q_ASSERT(sqlModel->checkIndex(sqlIndex));
     qDebug() << "For SQL model, index is" << index << "->" << sqlIndex;
 
-    QSqlTableModel *childModel = sqlModel->relationModel(sqlIndex.column());
+    QSqlTableModel* childModel = sqlModel->relationModel(sqlIndex.column());
     if (childModel == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
 
-    auto combo = qobject_cast<QComboBox *>(editor);
+    auto* combo = qobject_cast<QComboBox*>(editor);
     if (combo == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
-    int currentItem = combo->currentIndex();
+    const int currentItem = combo->currentIndex();
 
     // When the user enters new data, ensure it is committed to the database.
     if (!childModel->submitAll()) {
@@ -89,10 +85,10 @@ void SuperSqlRelationalDelegate::setModelData(
     }
 
     // Column with the primary key of the combobox.
-    int childEditIndex = sqlModel->relation(sqlIndex.column()).primaryKeyColumn();
+    const int childEditIndex = sqlModel->relation(sqlIndex.column()).primaryKeyColumn();
 
     // Both are the same, so update the foreign key column instead.
-    int fkColumn = sqlModel->relation(sqlIndex.column()).foreignKeyColumn();
+    const int fkColumn = sqlModel->relation(sqlIndex.column()).foreignKeyColumn();
     // Index for the fk in the parent model.
     auto fkIndex = sqlModel->index(sqlIndex.row(), fkColumn);
     // Index for the pk in the foreign model.

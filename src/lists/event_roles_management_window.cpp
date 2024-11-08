@@ -32,19 +32,16 @@ bool EventRolesManagementWindow::repairConfirmation() {
 }
 
 void EventRolesManagementWindow::removeMarkedReferences(
-    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-    const QHash<IntegerPrimaryKey, QString> &idToValue
+    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
 ) {
-    auto relationModel = DataManager::get().eventRelationsModel();
+    auto* relationModel = DataManager::get().eventRelationsModel();
 
     removeReferencesFromModel(valueToIds, idToValue, relationModel, EventRelationsModel::ROLE_ID);
 }
 
-bool EventRolesManagementWindow::isUsed(const QVariant &id) {
-    auto *relationModel = DataManager::get().eventRelationsModel();
-    auto usage = relationModel->match(
-        relationModel->index(0, EventRelationsModel::ROLE_ID), Qt::DisplayRole, id
-    );
+bool EventRolesManagementWindow::isUsed(const QVariant& id) {
+    auto* relationModel = DataManager::get().eventRelationsModel();
+    auto usage = relationModel->match(relationModel->index(0, EventRelationsModel::ROLE_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
 }
 
@@ -52,8 +49,7 @@ QString EventRolesManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 event role", "%1 event roles", itemCount);
 }
 
-QString
-EventRolesManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString EventRolesManagementWindow::translatedItemDescription(const QString& item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in event role '%1'", item);
     }

@@ -20,29 +20,32 @@ public:
      * @param displayColumn The column in the foreign model to use for display purposes.
      * @param primaryKeyColumn The column in the foreign model that contains the primary key.
      */
-    ForeignKey(
-        int foreignKeyColumn, QSqlTableModel *foreignModel, int displayColumn, int primaryKeyColumn
-    );
+    ForeignKey(int foreignKeyColumn, QSqlTableModel* foreignModel, int displayColumn, int primaryKeyColumn);
 
-    QSqlTableModel *foreignModel() const;
+    [[nodiscard]] QSqlTableModel* foreignModel() const;
 
-    int displayColumn() const;
+    [[nodiscard]] int displayColumn() const;
 
-    int foreignKeyColumn() const;
+    [[nodiscard]] int foreignKeyColumn() const;
 
-    int primaryKeyColumn() const;
+    [[nodiscard]] int primaryKeyColumn() const;
 
     /**
      * Returns true if this foreign key is valid, false otherwise.
      */
-    bool isValid() const;
+    [[nodiscard]] bool isValid() const;
 
 private:
     int _displayColumn = -1;
     int _primaryKeyColumn = -1;
     int _foreignKeyColumn = -1;
 
-    QSqlTableModel *_foreignModel = nullptr;
+    QSqlTableModel* _foreignModel = nullptr;
+};
+
+struct ForeignKeyAndColumn {
+    ForeignKey fk;
+    int column = -1;
 };
 
 /**
@@ -62,9 +65,9 @@ class CustomSqlRelationalModel : public QSqlTableModel {
     Q_OBJECT
 
 public:
-    explicit CustomSqlRelationalModel(QObject *parent = nullptr);
+    explicit CustomSqlRelationalModel(QObject* parent = nullptr);
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * Get the foreign key relation for a column.
@@ -75,7 +78,7 @@ public:
      * @param column The absolute index of the extra column.
      * @return The relation, valid or invalid depending on the column.
      */
-    ForeignKey relation(int column) const;
+    [[nodiscard]] ForeignKey relation(int column) const;
 
     /**
      * Get the foreign model for a column.
@@ -85,7 +88,7 @@ public:
      * @param column The absolute index of the extra column.
      * @return A pointer to the model or null if none.
      */
-    QSqlTableModel *relationModel(int column) const;
+    [[nodiscard]] QSqlTableModel* relationModel(int column) const;
 
 
     /**
@@ -104,20 +107,17 @@ public:
      * @param displayColumn The column in the foreign table to add as an extra column to this model.
      * @param sourceModel The column in the foreign table the foreignKeyColumn refers to.
      */
-    void setRelation(
-        int foreignKeyColumn, QSqlTableModel *foreignModel, int displayColumn, int sourceModel
-    );
+    void setRelation(int foreignKeyColumn, QSqlTableModel* foreignModel, int displayColumn, int sourceModel);
 
-    QModelIndex
-    index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
-    QModelIndex buddy(const QModelIndex &index) const override;
+    [[nodiscard]] QModelIndex buddy(const QModelIndex& index) const override;
 
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 public Q_SLOTS:
     /**
@@ -131,9 +131,9 @@ private:
     QVector<ForeignKey> _foreignKeys;
     QVector<QHash<IntegerPrimaryKey, QPersistentModelIndex>> _foreignValues;
 
-    int asExtraColumn(int column) const;
+    [[nodiscard]] int asExtraColumn(int column) const;
 
-    QPair<const ForeignKey &, int> getFkFromForeignKeyColumn(int column) const;
+    [[nodiscard]] ForeignKeyAndColumn getFkFromForeignKeyColumn(int column) const;
 };
 
-void connectComboBox(const QAbstractItemModel *model, int relationColumn, QComboBox *comboBox);
+void connectComboBox(const QAbstractItemModel* model, int relationColumn, QComboBox* comboBox);

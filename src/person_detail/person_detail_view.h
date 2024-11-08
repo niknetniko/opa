@@ -14,11 +14,11 @@ class PersonDetailView : public QFrame {
     Q_OBJECT
 
 public:
-    explicit PersonDetailView(IntegerPrimaryKey id, QWidget *parent);
+    explicit PersonDetailView(IntegerPrimaryKey id, QWidget* parent);
 
-    bool hasId(IntegerPrimaryKey id) const;
+    [[nodiscard]] bool hasId(IntegerPrimaryKey id) const;
 
-    QString getDisplayName() const;
+    [[nodiscard]] QString getDisplayName() const;
 
     ~PersonDetailView() override;
 
@@ -35,6 +35,6 @@ Q_SIGNALS:
     void dataChanged(IntegerPrimaryKey id);
 
 private:
-    QAbstractProxyModel *model;
-    Ui::PersonDetailView *ui;
+    QAbstractProxyModel* model;
+    Ui::PersonDetailView* ui;
 };

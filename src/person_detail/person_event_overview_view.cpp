@@ -12,8 +12,7 @@
 #include "data/event.h"
 #include "utils/formatted_identifier_delegate.h"
 
-EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *parent) :
-    QWidget(parent) {
+EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget* parent) : QWidget(parent) {
     this->personId = personId;
     this->baseModel = DataManager::get().eventsModelForPerson(this, personId);
 
@@ -26,21 +25,16 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
     treeView->setModel(baseModel);
     treeView->hideColumn(PersonEventsModel::ROLE_ID);
     treeView->setItemDelegateForColumn(
-        PersonEventsModel::ID,
-        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
+        PersonEventsModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
     );
     treeView->header()->setSortIndicatorClearable(false);
-    treeView->header()->setSectionResizeMode(
-        PersonEventsModel::TYPE, QHeaderView::ResizeToContents
-    );
+    treeView->header()->setSectionResizeMode(PersonEventsModel::TYPE, QHeaderView::ResizeToContents);
     treeView->header()->setSectionResizeMode(PersonEventsModel::ID, QHeaderView::ResizeToContents);
-    treeView->header()->setSectionResizeMode(
-        PersonEventsModel::DATE, QHeaderView::ResizeToContents
-    );
+    treeView->header()->setSectionResizeMode(PersonEventsModel::DATE, QHeaderView::ResizeToContents);
     treeView->expandAll();
 
     // Wrap in a VBOX for layout reasons.
-    auto *layout = new QVBoxLayout(this);
+    auto* layout = new QVBoxLayout(this);
     layout->addWidget(treeView);
 
     connect(
@@ -50,7 +44,7 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
         &EventsOverviewView::handleSelectedNewRow
     );
     // Support models being reset.
-    connect(treeView->model(), &QAbstractItemModel::modelReset, this, [this]() {
+    connect(treeView->model(), &QAbstractItemModel::modelReset, this, [this] {
         this->handleSelectedNewRow(QItemSelection(), QItemSelection());
     });
 
@@ -58,22 +52,21 @@ EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget *pare
 }
 
 void EventsOverviewView::handleSelectedNewRow(
-    const QItemSelection &selected, [[maybe_unused]] const QItemSelection &deselected
+    const QItemSelection& selected, [[maybe_unused]] const QItemSelection& deselected
 ) {
     Q_EMIT this->selectedEvent(this->treeView->selectionModel()->model(), selected);
 }
 
-void EventsOverviewView::handleDoubleClick(const QModelIndex &clicked) {
+void EventsOverviewView::handleDoubleClick([[maybe_unused]] const QModelIndex& clicked) {
     this->editSelectedEvent();
 }
 
 void EventsOverviewView::handleNewEvent() {
     // First, look up the ID for the "default" event role just to be sure.
-    auto roleModel = DataManager::get().eventRolesModel();
+    auto* roleModel = DataManager::get().eventRolesModel();
     auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();
     auto defaultEventRoleIndex =
-        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole)
-            .first();
+        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole).first();
     if (!defaultEventRoleIndex.isValid()) {
         qWarning() << "Default role not found, aborting new event.";
         return;
@@ -82,7 +75,7 @@ void EventsOverviewView::handleNewEvent() {
 
     // Also lookup the ID for a first event.
     // TODO: do this intelligently.
-    auto typeModel = DataManager::get().eventTypesModel();
+    auto* typeModel = DataManager::get().eventTypesModel();
     auto defaultType = EventTypes::nameOriginToString[EventTypes::Birth].toString();
     auto defaultEventTypeIndex =
         typeModel->match(typeModel->index(0, EventTypesModel::TYPE), Qt::DisplayRole, defaultType);
@@ -91,8 +84,7 @@ void EventsOverviewView::handleNewEvent() {
         qWarning() << "Default type not found, aborting new event.";
         return;
     }
-    auto defaultTypeId =
-        typeModel->index(defaultEventTypeIndex.first().row(), EventTypesModel::ID).data();
+    auto defaultTypeId = typeModel->index(defaultEventTypeIndex.first().row(), EventTypesModel::ID).data();
 
 
     if (!QSqlDatabase::database().transaction()) {
@@ -102,15 +94,13 @@ void EventsOverviewView::handleNewEvent() {
     }
 
     // Second, insert a new event.
-    auto eventModel = DataManager::get().eventsModel();
+    auto* eventModel = DataManager::get().eventsModel();
     auto newEventRecord = eventModel->record();
     newEventRecord.setGenerated(EventsModel::ID, false);
     newEventRecord.setValue(EventsModel::TYPE_ID, defaultTypeId);
 
     if (!eventModel->insertRecord(-1, newEventRecord)) {
-        QMessageBox::warning(
-            this, tr("Could not insert event"), tr("Problem inserting new event into database.")
-        );
+        QMessageBox::warning(this, tr("Could not insert event"), tr("Problem inserting new event into database."));
         qDebug() << "Could not get last inserted ID for some reason:";
         qDebug() << eventModel->lastError();
         return;
@@ -118,9 +108,7 @@ void EventsOverviewView::handleNewEvent() {
 
     auto newEventId = eventModel->query().lastInsertId();
     if (!newEventId.isValid()) {
-        QMessageBox::warning(
-            this, tr("Could not insert event"), tr("Problem inserting new event into database.")
-        );
+        QMessageBox::warning(this, tr("Could not insert event"), tr("Problem inserting new event into database."));
         qDebug() << "Could not get last inserted ID for some reason:";
         qDebug() << eventModel->lastError();
         QSqlDatabase::database().rollback();
@@ -128,7 +116,7 @@ void EventsOverviewView::handleNewEvent() {
     }
 
     // Finally, link the event to our person.
-    auto eventRelationModel = DataManager::get().eventRelationsModel();
+    auto* eventRelationModel = DataManager::get().eventRelationsModel();
     auto eventRelationRecord = eventRelationModel->record();
     eventRelationRecord.setValue(EventRelationsModel::EVENT_ID, newEventId);
     eventRelationRecord.setValue(EventRelationsModel::PERSON_ID, this->personId);
@@ -136,9 +124,7 @@ void EventsOverviewView::handleNewEvent() {
 
     if (!eventRelationModel->insertRecord(-1, eventRelationRecord)) {
         QMessageBox::warning(
-            this,
-            tr("Could not event relation"),
-            tr("Problem inserting new event relation into database.")
+            this, tr("Could not event relation"), tr("Problem inserting new event relation into database.")
         );
         qDebug() << "Could not insert event relation for some reason:";
         qDebug() << eventRelationModel->lastError();
@@ -152,44 +138,39 @@ void EventsOverviewView::handleNewEvent() {
         return;
     }
 
-    auto singleEventModel = DataManager::get().singleEventModel(this, newEventId);
-    auto singleRelationModel = DataManager::get().singleEventRelationModel(
-        this, newEventId, defaultRoleId, this->personId
-    );
+    auto* singleEventModel = DataManager::get().singleEventModel(this, newEventId);
+    auto* singleRelationModel =
+        DataManager::get().singleEventRelationModel(this, newEventId, defaultRoleId, this->personId);
 
-    auto editorWindow = new EventEditor(singleRelationModel, singleEventModel, true, this);
+    auto* editorWindow = new EventEditor(singleRelationModel, singleEventModel, true, this);
     editorWindow->show();
     editorWindow->adjustSize();
 }
 
 void EventsOverviewView::editSelectedEvent() {
     // Get the currently selected name.
-    const auto selection = this->treeView->selectionModel();
+    auto* const selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     const auto selectRow = selection->selectedRows().first();
 
-    auto eventId = this->treeView->model()
-                       ->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent())
-                       .data();
-    auto eventRoleId = this->treeView->model()
-                           ->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent())
-                           .data();
+    auto eventId = this->treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+    auto eventRoleId =
+        this->treeView->model()->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent()).data();
 
-    auto eventModel = DataManager::get().singleEventModel(this, eventId);
-    auto eventRelationModel = DataManager::get().singleEventRelationModel(
-        this, eventId, eventRoleId, QVariant::fromValue(personId)
-    );
+    auto* eventModel = DataManager::get().singleEventModel(this, eventId);
+    auto* eventRelationModel =
+        DataManager::get().singleEventRelationModel(this, eventId, eventRoleId, QVariant::fromValue(personId));
 
-    auto *editorWindow = new EventEditor(eventRelationModel, eventModel, false, this);
+    auto* editorWindow = new EventEditor(eventRelationModel, eventModel, false, this);
     editorWindow->show();
     editorWindow->adjustSize();
 }
 
 void EventsOverviewView::removeSelectedEvent() const {
-    auto selection = this->treeView->selectionModel();
+    auto* selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
@@ -198,16 +179,12 @@ void EventsOverviewView::removeSelectedEvent() const {
     qDebug() << "Selection itself is " << selection;
 
     auto selectRow = selection->selectedIndexes().first();
-    auto eventId =
-        treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+    auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
 
     // Look up where it is linked.
-    auto relationModel = DataManager::get().eventRelationsModel();
+    auto* relationModel = DataManager::get().eventRelationsModel();
     auto usedCount =
-        relationModel
-            ->match(
-                relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1
-            )
+        relationModel->match(relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1)
             .size();
 
     QMessageBox confirmationBox;
@@ -219,11 +196,9 @@ void EventsOverviewView::removeSelectedEvent() const {
         confirmationBox.setInformativeText(i18n("This event is not linked to anybody else."));
         confirmationBox.setDefaultButton(QMessageBox::Ok);
     } else {
-        confirmationBox.setInformativeText(i18np(
-            "This event is linked to one other person",
-            "This event is linked to %1 other people",
-            usedCount
-        ));
+        confirmationBox.setInformativeText(
+            i18np("This event is linked to one other person", "This event is linked to %1 other people", usedCount)
+        );
         confirmationBox.setDefaultButton(QMessageBox::Cancel);
     }
 
@@ -234,10 +209,8 @@ void EventsOverviewView::removeSelectedEvent() const {
     qDebug() << "Will delete event with ID " << eventId.toLongLong();
 
     // Find the row in the original model.
-    auto eventsModel = DataManager::get().eventsModel();
-    auto result =
-        eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId)
-            .first();
+    auto* eventsModel = DataManager::get().eventsModel();
+    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId).first();
     if (!eventsModel->removeRow(result.row())) {
         qWarning() << "Could not delete event" << eventId.toLongLong();
     }
@@ -245,7 +218,7 @@ void EventsOverviewView::removeSelectedEvent() const {
 }
 
 void EventsOverviewView::unlinkSelectedEvent() {
-    auto selection = this->treeView->selectionModel();
+    auto* selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
@@ -254,18 +227,15 @@ void EventsOverviewView::unlinkSelectedEvent() {
     qDebug() << "Selection itself is " << selection;
 
     auto selectRow = selection->selectedIndexes().first();
-    auto eventId =
-        treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
-    auto roleId = treeView->model()
-                      ->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent())
-                      .data();
+    auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+    auto roleId = treeView->model()->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent()).data();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     confirmationBox.setText(i18n("Unlink this event?"));
-    confirmationBox.setInformativeText(i18n(
-        "This will remove the event from this person, but the event itself will not be deleted."
-    ));
+    confirmationBox.setInformativeText(
+        i18n("This will remove the event from this person, but the event itself will not be deleted.")
+    );
     confirmationBox.button(QMessageBox::Ok)->setText(i18n("Unlink event"));
     confirmationBox.setIcon(QMessageBox::Question);
     confirmationBox.setDefaultButton(QMessageBox::Ok);
@@ -274,9 +244,8 @@ void EventsOverviewView::unlinkSelectedEvent() {
         return;
     }
 
-    auto relationModel = DataManager::get().eventRelationsModel();
-    auto matchedModel =
-        DataManager::get().singleEventRelationModel(this, eventId, roleId, personId);
+    auto* relationModel = DataManager::get().eventRelationsModel();
+    auto* matchedModel = DataManager::get().singleEventRelationModel(this, eventId, roleId, personId);
     auto originalRow = mapToSourceModel(matchedModel->index(0, 0));
     qDebug() << "Mapped to row in original model" << originalRow.row();
 

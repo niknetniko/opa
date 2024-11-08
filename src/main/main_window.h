@@ -30,13 +30,13 @@ public:
     ~MainWindow() override = default;
 
 private Q_SLOTS:
-    void fileNew();
+    void fileNew() const;
 
     void settingsConfigure();
 
     void openOrSelectPerson(IntegerPrimaryKey personId);
 
-    void closeTab(int tabIndex);
+    void closeTab(int tabIndex) const;
 
     void openNameOriginManager();
 
@@ -49,8 +49,8 @@ private Q_SLOTS:
 private:
     // this is the name of the root widget inside our Ui file
     // you can rename it in designer and then change it here
-    Ui::Settings *m_settings;
-    QAction *m_switchAction;
+    Ui::Settings* m_settings = nullptr;
+    QAction* m_switchAction = nullptr;
 
-    int findTabFor(IntegerPrimaryKey personId);
+    [[nodiscard]] int findTabFor(IntegerPrimaryKey personId) const;
 };

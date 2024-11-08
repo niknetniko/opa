@@ -40,56 +40,56 @@ public:
 
     ~OpaDate() = default;
 
-    OpaDate(const OpaDate &) = default;
+    OpaDate(const OpaDate&) = default;
 
     OpaDate(
         Modifier modifier,
         Quality quality,
-        const QDate &proleptic,
-        const QDate &endProleptic,
+        const QDate& proleptic,
+        const QDate& endProleptic,
         bool hasYear,
         bool hasMonth,
         bool hasDay,
-        const QString &text
+        QString text
     );
 
-    OpaDate &operator=(const OpaDate &) = default;
+    OpaDate& operator=(const OpaDate&) = default;
 
-    bool hasMonth() const;
+    [[nodiscard]] bool hasMonth() const;
 
-    bool hasYear() const;
+    [[nodiscard]] bool hasYear() const;
 
-    bool hasDay() const;
+    [[nodiscard]] bool hasDay() const;
 
-    QDate prolepticRepresentation() const;
+    [[nodiscard]] QDate prolepticRepresentation() const;
 
-    QDate prolepticRepresentationEnd() const;
+    [[nodiscard]] QDate prolepticRepresentationEnd() const;
 
-    Quality quality() const;
+    [[nodiscard]] Quality quality() const;
 
-    Modifier modifier() const;
+    [[nodiscard]] Modifier modifier() const;
 
-    QString toDatabaseRepresentation() const;
+    [[nodiscard]] QString toDatabaseRepresentation() const;
 
-    QString toDisplayText() const;
+    [[nodiscard]] QString toDisplayText() const;
 
-    QString text() const;
+    [[nodiscard]] QString text() const;
 
-    static OpaDate fromDatabaseRepresentation(const QString &text);
+    static OpaDate fromDatabaseRepresentation(const QString& text);
 
-    static OpaDate fromDisplayText(const QString &text);
+    static OpaDate fromDisplayText(const QString& text);
 
 private:
     Modifier dateModifier = NONE;
     Quality dateQuality = EXACT;
     QDate proleptic;
     QDate endProleptic;
-    bool year;
-    bool month;
-    bool day;
+    bool year = true;
+    bool month = true;
+    bool day = true;
     QString userText;
 };
 
 Q_DECLARE_METATYPE(OpaDate);
 
-QDebug operator<<(QDebug dbg, const OpaDate &date);
+QDebug operator<<(QDebug dbg, const OpaDate& date);

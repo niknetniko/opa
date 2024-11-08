@@ -10,11 +10,11 @@ class EditProxyModel : public QIdentityProxyModel {
     Q_OBJECT
 
 public:
-    explicit EditProxyModel(QObject *parent = nullptr);
+    explicit EditProxyModel(QObject* parent = nullptr);
 
-    void addReadOnlyColumns(const QList<int> &columns);
+    void addReadOnlyColumns(const QList<int>& columns);
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
     QList<int> columns;

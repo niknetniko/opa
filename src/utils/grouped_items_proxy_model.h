@@ -65,6 +65,7 @@
    QIdentityProxyModel). However the limitation of only flat source models still applies.
 
 */
+// NOLINTBEGIN(modernize-use-nodiscard)
 class GroupedItemsProxyModel : public QIdentityProxyModel {
     Q_OBJECT
 
@@ -79,41 +80,40 @@ public:
     enum { SourceRowNumberRole = Qt::UserRole - 5 };
 
     explicit GroupedItemsProxyModel(
-        QObject *parent = Q_NULLPTR,
-        QAbstractItemModel *sourceModel = Q_NULLPTR,
-        const QVector<int> &groupColumns = QVector<int>()
+        QObject* parent = Q_NULLPTR,
+        QAbstractItemModel* sourceModel = Q_NULLPTR,
+        const QVector<int>& groupColumns = QVector<int>()
     );
 
     ~GroupedItemsProxyModel() override;
 
     // QAbstractItemModel interface
-    void setSourceModel(QAbstractItemModel *newSourceModel) Q_DECL_OVERRIDE;
+    void setSourceModel(QAbstractItemModel* newSourceModel) Q_DECL_OVERRIDE;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent) const Q_DECL_OVERRIDE;
+    QModelIndex index(int row, int column, const QModelIndex& parent) const Q_DECL_OVERRIDE;
 
-    QModelIndex parent(const QModelIndex &child) const Q_DECL_OVERRIDE;
+    QModelIndex parent(const QModelIndex& child) const Q_DECL_OVERRIDE;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-    bool hasChildren(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    bool hasChildren(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
-    QMap<int, QVariant> itemData(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    QMap<int, QVariant> itemData(const QModelIndex& index) const Q_DECL_OVERRIDE;
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const
-        Q_DECL_OVERRIDE;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
 
-    QSize span(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    QSize span(const QModelIndex& index) const Q_DECL_OVERRIDE;
 
     // QAbstractProxyModel interface
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const Q_DECL_OVERRIDE;
+    QModelIndex mapToSource(const QModelIndex& proxyIndex) const Q_DECL_OVERRIDE;
 
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const Q_DECL_OVERRIDE;
+    QModelIndex mapFromSource(const QModelIndex& sourceIndex) const Q_DECL_OVERRIDE;
 
     // GroupedItemProxyModel interface
 
@@ -161,11 +161,11 @@ public Q_SLOTS:
 
     /*! Add multiple groupings based on \a columns. The groups are appended to any existing
      * group(s). \sa clearGroups() */
-    virtual void addGroups(const QVector<int> &columns);
+    virtual void addGroups(const QVector<int>& columns);
 
     /*! Add multiple groupings based on \a columns. Any existing group(s) are first cleared. \sa
      * clearGroups() */
-    virtual void setGroups(const QVector<int> &columns);
+    virtual void setGroups(const QVector<int>& columns);
 
     /*! Insert a new grouping at \a index based on \a column. \sa addGroup(), removeGroup() */
     virtual void insertGroup(int index, int column);
@@ -195,7 +195,7 @@ public Q_SLOTS:
         m_groupRowSelectable = selectable;
     }
 
-    virtual void setGroupHeaderTitle(const QString &title, const QString &tooltip = QString());
+    virtual void setGroupHeaderTitle(const QString& title, const QString& tooltip = QString());
 
 protected:
     class GroupedProxyItem; // forward
@@ -204,50 +204,49 @@ protected:
         return !m_groups.isEmpty() && groupColumnVisible() ? 1 : 0;
     }
 
-    virtual QModelIndex indexForItem(GroupedProxyItem *item, int col = 0) const;
+    virtual QModelIndex indexForItem(GroupedProxyItem* item, int col = 0) const;
 
-    virtual GroupedProxyItem *
-    itemForIndex(const QModelIndex &index, bool rootDefault = false) const;
+    virtual GroupedProxyItem* itemForIndex(const QModelIndex& index, bool rootDefault = false) const;
 
-    virtual GroupedProxyItem *
-    findGroupItem(int group, const QVariant &value, GroupedProxyItem *parent = nullptr) const;
+    virtual GroupedProxyItem* findGroupItem(int group, const QVariant& value, GroupedProxyItem* parent = nullptr) const;
 
-    virtual QModelIndex sourceIndexForProxy(GroupedProxyItem *item) const;
+    virtual QModelIndex sourceIndexForProxy(GroupedProxyItem* item) const;
 
-    virtual bool isProxyColumn(const QModelIndex &index) const {
+    virtual bool isProxyColumn(const QModelIndex& index) const {
         return index.isValid() && extraColumns() && index.column() == 0 && groupColumnIsProxy();
     }
 
-    int totalRowCount(const GroupedProxyItem *parent = nullptr) const;
+    int totalRowCount(const GroupedProxyItem* parent = nullptr) const;
 
-    GroupedProxyItem *itemForRow(int row, GroupedProxyItem *parent = nullptr) const;
+    GroupedProxyItem* itemForRow(int row, GroupedProxyItem* parent = nullptr) const;
 
 protected Q_SLOTS:
-    virtual GroupedProxyItem *placeSourceRow(int row);
+    // ReSharper disable once CppRedundantQualifier
+    virtual GroupedItemsProxyModel::GroupedProxyItem* placeSourceRow(int row);
 
-    virtual void removeItem(GroupedProxyItem *item);
+    // ReSharper disable once CppRedundantQualifier
+    virtual void removeItem(GroupedItemsProxyModel::GroupedProxyItem* item);
 
-    virtual void removeUnusedGroups(GroupedProxyItem *parent = nullptr);
+    // ReSharper disable once CppRedundantQualifier
+    virtual void removeUnusedGroups(GroupedItemsProxyModel::GroupedProxyItem* parent = nullptr);
 
     virtual void reloadSourceModel();
 
     virtual void modelResetHandler();
 
-    virtual void dataChangedHandler(
-        const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles
-    );
+    virtual void
+    dataChangedHandler(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles);
 
-    virtual void rowsInsertedHandler(const QModelIndex &parent, int first, int last);
+    virtual void rowsInsertedHandler(const QModelIndex& parent, int first, int last);
 
-    virtual void rowsRemovedHandler(const QModelIndex &parent, int first, int last);
+    virtual void rowsRemovedHandler(const QModelIndex& parent, int first, int last);
 
-    virtual void rowsMovedHandler(
-        const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row
-    );
+    virtual void
+    rowsMovedHandler(const QModelIndex& parent, int start, int end, const QModelIndex& destination, int row);
 
 protected:
-    GroupedProxyItem *m_root;
-    QHash<int, GroupedProxyItem *> m_sourceMap;
+    GroupedProxyItem* m_root;
+    QHash<int, GroupedProxyItem*> m_sourceMap;
     QVector<int> m_groups;
     int m_groupMatchRole;
     int m_groupColumnProxySrc;
@@ -257,7 +256,7 @@ protected:
 
 private:
     bool setReloadSuspended(bool enable) {
-        bool prev = m_reloadSuspended;
+        const bool prev = m_reloadSuspended;
         m_reloadSuspended = enable;
         return prev;
     }
@@ -272,10 +271,10 @@ protected:
     class GroupedProxyItem {
     public:
         explicit GroupedProxyItem(
-            const QModelIndex &srcIndex, bool isSrcItem = false, GroupedProxyItem *parent = nullptr
+            const QModelIndex& srcIndex, bool isSrcItem = false, GroupedProxyItem* parent = nullptr
         );
 
-        explicit GroupedProxyItem(GroupedProxyItem *parent = nullptr);
+        explicit GroupedProxyItem(GroupedProxyItem* parent = nullptr);
 
         virtual ~GroupedProxyItem();
 
@@ -290,22 +289,22 @@ protected:
         }
 
         int rowCount() const {
-            return m_childItems.size();
+            return static_cast<int>(m_childItems.size());
         }
 
-        QVector<GroupedProxyItem *> children() const {
+        QVector<GroupedProxyItem*> children() const {
             return m_childItems;
         }
 
-        GroupedProxyItem *child(const int row) const {
+        GroupedProxyItem* child(const int row) const {
             return m_childItems.value(row, nullptr);
         }
 
-        int childRow(GroupedProxyItem *child) const {
-            return m_childItems.indexOf(child);
+        int childRow(GroupedProxyItem* child) const {
+            return static_cast<int>(m_childItems.indexOf(child));
         }
 
-        GroupedProxyItem *parent() const {
+        GroupedProxyItem* parent() const {
             return m_parentItem;
         }
 
@@ -323,23 +322,24 @@ protected:
 
         void clear();
 
-        GroupedProxyItem *addChild(const QModelIndex &srcIndex, bool isSrcItem = true);
+        GroupedProxyItem* addChild(const QModelIndex& srcIndex, bool isSrcItem = true);
 
-        void removeChild(GroupedProxyItem *item);
+        void removeChild(GroupedProxyItem* item);
 
         void removeChild(const int row) {
             removeChild(child(row));
         }
 
-        bool setData(const QVariant &data, int role = Qt::EditRole);
+        bool setData(const QVariant& data, int role = Qt::EditRole);
 
-        bool setItemData(const QMap<int, QVariant> &roles);
+        bool setItemData(const QMap<int, QVariant>& roles);
 
     protected:
-        GroupedProxyItem *m_parentItem;
-        QVector<GroupedProxyItem *> m_childItems;
+        GroupedProxyItem* m_parentItem;
+        QVector<GroupedProxyItem*> m_childItems;
         QMap<int, QVariant> m_itemData;
         QPersistentModelIndex m_sourceIndex;
         bool m_isSourceItem;
     }; // GroupedProxyItem
 }; // GroupedItemsProxyModel
+// NOLINTEND(modernize-use-nodiscard)

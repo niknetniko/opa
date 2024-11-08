@@ -1,18 +1,19 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringBuilder>
+#include <utility>
 
 #include "opa_date.h"
 
 OpaDate::OpaDate(
     Modifier modifier,
     Quality quality,
-    const QDate &proleptic,
-    const QDate &endProleptic,
+    const QDate& proleptic,
+    const QDate& endProleptic,
     bool hasYear,
     bool hasMonth,
     bool hasDay,
-    const QString &text
+    QString text
 ) :
     dateModifier(modifier),
     dateQuality(quality),
@@ -21,7 +22,7 @@ OpaDate::OpaDate(
     year(hasYear),
     month(hasMonth),
     day(hasDay),
-    userText(text) {
+    userText(std::move(text)) {
 }
 
 OpaDate::Quality OpaDate::quality() const {
@@ -62,16 +63,16 @@ QString OpaDate::toDatabaseRepresentation() const {
     result[QStringLiteral("day")] = this->day;
     result[QStringLiteral("userText")] = this->userText;
 
-    QJsonDocument doc(result);
+    const QJsonDocument doc(result);
     return QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
 }
 
-OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
-    QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
+OpaDate OpaDate::fromDatabaseRepresentation(const QString& text) {
+    const QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
     QJsonObject result = doc.object();
 
     if (result.isEmpty()) {
-        return OpaDate();
+        return {};
     }
 
     QDate endDate;
@@ -81,7 +82,7 @@ OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
         endDate = QDate();
     }
 
-    return OpaDate(
+    return {
         QVariant(result[QStringLiteral("dateModifier")].toString()).value<Modifier>(),
         QVariant(result[QStringLiteral("dateQuality")].toString()).value<Quality>(),
         QDate::fromJulianDay(result[QStringLiteral("proleptic")].toInteger()),
@@ -90,7 +91,7 @@ OpaDate OpaDate::fromDatabaseRepresentation(const QString &text) {
         result[QStringLiteral("month")].toBool(),
         result[QStringLiteral("day")].toBool(),
         result[QStringLiteral("userText")].toString()
-    );
+    };
 }
 
 QDate OpaDate::prolepticRepresentationEnd() const {
@@ -121,19 +122,19 @@ QString OpaDate::toDisplayText() const {
     }
 
     // TODO: support not using certain parts of the format.
-    QLocale local;
+    const QLocale local;
     auto format = local.dateFormat();
     result.append(this->prolepticRepresentation().toString(format));
 
     return result.join(QStringLiteral(" "));
 }
 
-OpaDate OpaDate::fromDisplayText(const QString &text) {
-    return OpaDate();
+OpaDate OpaDate::fromDisplayText([[maybe_unused]] const QString& text) {
+    return {};
 }
 
-QDebug operator<<(QDebug dbg, const OpaDate &date) {
-    QDebugStateSaver const saver(dbg);
+QDebug operator<<(QDebug dbg, const OpaDate& date) {
+    const QDebugStateSaver saver(dbg);
     dbg.nospace() << date.prolepticRepresentation();
     return dbg;
 }

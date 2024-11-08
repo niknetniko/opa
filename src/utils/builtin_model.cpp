@@ -2,7 +2,7 @@
 
 #include <QIcon>
 
-BuiltinModel::BuiltinModel(QObject *parent) : KRearrangeColumnsProxyModel(parent) {
+BuiltinModel::BuiltinModel(QObject* parent) : KRearrangeColumnsProxyModel(parent) {
 }
 
 void BuiltinModel::setColumns(int builtinColumn, int decoratedColumn) {
@@ -11,22 +11,21 @@ void BuiltinModel::setColumns(int builtinColumn, int decoratedColumn) {
     this->syncColumns();
 }
 
-QVariant BuiltinModel::data(const QModelIndex &index, int role) const {
+QVariant BuiltinModel::data(const QModelIndex& index, int role) const {
     Q_ASSERT(checkIndex(index, CheckIndexOption::IndexIsValid));
 
     auto sourceIndex = mapToSource(index);
     auto builtinIndex = sourceModel()->index(sourceIndex.row(), this->builtinColumn);
     Q_ASSERT(sourceModel()->checkIndex(builtinIndex, CheckIndexOption::IndexIsValid));
 
-    if (sourceIndex.column() == this->decoratedColumn && role == Qt::DecorationRole &&
-        builtinIndex.data().toBool()) {
+    if (sourceIndex.column() == this->decoratedColumn && role == Qt::DecorationRole && builtinIndex.data().toBool()) {
         return QIcon::fromTheme(QStringLiteral("lock"));
     }
 
     return QIdentityProxyModel::data(index, role);
 }
 
-Qt::ItemFlags BuiltinModel::flags(const QModelIndex &index) const {
+Qt::ItemFlags BuiltinModel::flags(const QModelIndex& index) const {
     auto flags = QIdentityProxyModel::flags(index);
 
     if (!index.isValid()) {
@@ -43,7 +42,7 @@ Qt::ItemFlags BuiltinModel::flags(const QModelIndex &index) const {
     return flags;
 }
 
-void BuiltinModel::setSourceModel(QAbstractItemModel *sourceModel) {
+void BuiltinModel::setSourceModel(QAbstractItemModel* sourceModel) {
     KRearrangeColumnsProxyModel::setSourceModel(sourceModel);
     this->syncColumns();
 }
@@ -53,7 +52,7 @@ void BuiltinModel::syncColumns() {
         return;
     }
 
-    QList<int> columns(QIdentityProxyModel::columnCount());
+    QList<int> columns(QIdentityProxyModel::columnCount()); // NOLINT(bugprone-parent-virtual-call)
     std::iota(columns.begin(), columns.end(), 0);
     columns.removeAt(this->builtinColumn);
     this->setSourceColumns(columns);

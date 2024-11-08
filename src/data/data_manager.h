@@ -1,6 +1,5 @@
 #pragma once
 
-// ReSharper disable once CppUnusedIncludeDirective
 #include <QAbstractProxyModel>
 #include <QObject>
 #include <QSqlRelationalTableModel>
@@ -18,21 +17,21 @@ class DataManager : public QObject {
     Q_OBJECT
 
 public:
-    static void initialize(QObject *parent);
+    static void initialize(QObject* parent);
 
-    static DataManager &get();
+    static DataManager& get();
 
-    QSqlTableModel *namesModel() const;
+    [[nodiscard]] QSqlTableModel* namesModel() const;
 
-    QSqlTableModel *nameOriginsModel() const;
+    [[nodiscard]] QSqlTableModel* nameOriginsModel() const;
 
-    QSqlTableModel *eventRolesModel() const;
+    [[nodiscard]] QSqlTableModel* eventRolesModel() const;
 
-    QSqlTableModel *eventTypesModel() const;
+    [[nodiscard]] QSqlTableModel* eventTypesModel() const;
 
-    QSqlTableModel *eventRelationsModel() const;
+    [[nodiscard]] QSqlTableModel* eventRelationsModel() const;
 
-    QSqlTableModel *eventsModel() const;
+    [[nodiscard]] QSqlTableModel* eventsModel() const;
 
     /**
      * Get a model representing all names for a single person.
@@ -40,7 +39,7 @@ public:
      * @param parent The parent for the returned model.
      * @param personId The ID of the person to filter on.
      */
-    QAbstractProxyModel *namesModelForPerson(QObject *parent, IntegerPrimaryKey personId) const;
+    QAbstractProxyModel* namesModelForPerson(QObject* parent, IntegerPrimaryKey personId) const;
 
     /**
      * Model for a single name.
@@ -48,21 +47,21 @@ public:
      * @param parent The parent for the returned model.
      * @param nameId The ID of the name.
      */
-    QAbstractProxyModel *singleNameModel(QObject *parent, const QVariant &nameId) const;
+    QAbstractProxyModel* singleNameModel(QObject* parent, const QVariant& nameId) const;
 
     /**
      * Model showing only the primary names for each person.
      *
      * @param parent The parent of the model.
      */
-    QAbstractProxyModel *primaryNamesModel(QObject *parent);
+    QAbstractProxyModel* primaryNamesModel(QObject* parent);
 
     /**
      * Model for the details view of a person.
      */
-    QAbstractProxyModel *personDetailsModel(QObject *parent, IntegerPrimaryKey personId);
+    QAbstractProxyModel* personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
 
-    QAbstractProxyModel *eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId);
+    QAbstractProxyModel* eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
 
     /**
      * Model for a single event.
@@ -70,7 +69,7 @@ public:
      * @param parent The parent for the returned model.
      * @param eventId The ID of the event.
      */
-    QAbstractProxyModel *singleEventModel(QObject *parent, const QVariant &eventId) const;
+    QAbstractProxyModel* singleEventModel(QObject* parent, const QVariant& eventId) const;
 
     /**
      * Model for a single event relation.
@@ -80,8 +79,8 @@ public:
      * @param roleId The ID of the role.
      * @param personId The ID of the person.
      */
-    QAbstractProxyModel *singleEventRelationModel(
-        QObject *parent, const QVariant &eventId, const QVariant &roleId, const QVariant &personId
+    QAbstractProxyModel* singleEventRelationModel(
+        QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
     ) const;
 
 Q_SIGNALS:
@@ -98,9 +97,9 @@ public Q_SLOTS:
     void onSourceModelChanged();
 
 private:
-    static DataManager *instance;
+    static DataManager* instance;
 
-    explicit DataManager(QObject *parent);
+    explicit DataManager(QObject* parent);
 
     /**
      * This is set to an address if the model updates are being sent from
@@ -108,15 +107,15 @@ private:
      * Its main use is preventing signal loops, so if set to an address,
      * the updates will not propagate to the DataManager.
      */
-    void *updatingFromDataManagerSource = nullptr;
+    void* updatingFromDataManagerSource = nullptr;
 
     // Base models that allow editing.
-    CustomSqlRelationalModel *baseNamesModel;
-    QSqlTableModel *baseNameOriginModel;
-    QSqlTableModel *baseEventRolesModel;
-    QSqlTableModel *baseEventTypesModel;
-    CustomSqlRelationalModel *baseEventRelationsModel;
-    CustomSqlRelationalModel *baseEventsModel;
+    CustomSqlRelationalModel* baseNamesModel;
+    QSqlTableModel* baseNameOriginModel;
+    QSqlTableModel* baseEventRolesModel;
+    QSqlTableModel* baseEventTypesModel;
+    CustomSqlRelationalModel* baseEventRelationsModel;
+    CustomSqlRelationalModel* baseEventsModel;
 
     /**
      * Connect the given model to the DataManager. All updates in
@@ -124,7 +123,7 @@ private:
      *
      * @param model The model to listen to for updates.
      */
-    void listenToModel(const QSqlTableModel *model);
+    void listenToModel(const QSqlTableModel* model) const;
 
     /**
      * Ensure the given model updates when the given tables are updated.
@@ -134,7 +133,7 @@ private:
      *
      * @param model The model to update. It will only listen to its own table.
      */
-    void propagateToModel(QSqlTableModel *model);
+    void propagateToModel(QSqlTableModel* model);
 
     /**
      * Ensure the given model updates when the given tables are updated.
@@ -145,7 +144,7 @@ private:
      * @param model The model to update.
      * @param tables The tables to listen to.
      */
-    void propagateToModel(QSqlTableModel *model, const QStringList &tables);
+    void propagateToModel(QSqlTableModel* model, const QStringList& tables);
 
     /**
      * Ensure the given model updates when the given tables are updated.
@@ -159,10 +158,8 @@ private:
      * @param updater Called when the model must update.
      */
     template<class ModelType>
-    void propagateToModel(
-        ModelType *model, QStringList tables, std::function<void(ModelType *)> updater
-    );
+    void propagateToModel(ModelType* model, QStringList tables, std::function<void(ModelType*)> updater);
 
     template<QSqlTableModelConcept ModelType, typename... Args>
-    ModelType *makeModel(Args &&...args);
+    ModelType* makeModel(Args&&... args);
 };

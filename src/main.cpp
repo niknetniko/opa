@@ -17,7 +17,7 @@
 #include "main/main_window.h"
 #include "opadebug.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     qSetMessagePattern(QString::fromUtf8("%{file}(%{line}): %{message}"));
     QApplication application(argc, argv);
 
@@ -37,9 +37,7 @@ int main(int argc, char **argv) {
         i18n("Copyright 2022, Niko Strijbol <strijbol.niko@gmail.com>")
     );
 
-    aboutData.addAuthor(
-        i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("strijbol.niko@gmail.com")
-    );
+    aboutData.addAuthor(i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("strijbol.niko@gmail.com"));
     aboutData.setOrganizationDomain("example.org");
     aboutData.setDesktopFileName(QStringLiteral("org.example.opa"));
 
@@ -52,7 +50,7 @@ int main(int argc, char **argv) {
     parser.process(application);
     aboutData.processCommandLine(&parser);
 
-    KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
+    const KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
 
     // Set up the SQLite database file.
     open_database(QStringLiteral("./test.db"));
@@ -60,7 +58,7 @@ int main(int argc, char **argv) {
     // Initialize the model manager.
     DataManager::initialize(&application);
 
-    auto window = new MainWindow;
+    auto* window = new MainWindow;
     window->show();
 
     return application.exec();

@@ -6,8 +6,6 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "event_types_management_window.h"
-#include "utils/builtin_text_translating_delegate.h"
-#include "utils/model_utils_find_source_model_of_type.h"
 
 EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));
@@ -32,17 +30,15 @@ bool EventTypesManagementWindow::repairConfirmation() {
 }
 
 void EventTypesManagementWindow::removeMarkedReferences(
-    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-    const QHash<IntegerPrimaryKey, QString> &idToValue
+    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
 ) {
-    auto eventsModel = DataManager::get().eventsModel();
+    auto* eventsModel = DataManager::get().eventsModel();
     removeReferencesFromModel(valueToIds, idToValue, eventsModel, EventsModel::TYPE_ID);
 }
 
-bool EventTypesManagementWindow::isUsed(const QVariant &id) {
-    auto *eventsModel = DataManager::get().eventsModel();
-    auto usage =
-        eventsModel->match(eventsModel->index(0, EventsModel::TYPE_ID), Qt::DisplayRole, id);
+bool EventTypesManagementWindow::isUsed(const QVariant& id) {
+    auto* eventsModel = DataManager::get().eventsModel();
+    auto usage = eventsModel->match(eventsModel->index(0, EventsModel::TYPE_ID), Qt::DisplayRole, id);
     return !usage.isEmpty();
 }
 
@@ -50,8 +46,7 @@ QString EventTypesManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 event type", "%1 event types", itemCount);
 }
 
-QString
-EventTypesManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString EventTypesManagementWindow::translatedItemDescription(const QString& item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in event type '%1'", item);
     }

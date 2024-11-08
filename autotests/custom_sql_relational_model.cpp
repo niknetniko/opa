@@ -50,9 +50,7 @@ private Q_SLOTS:
         CustomSqlRelationalModel model;
         model.setTable(u"people"_s);
         QVERIFY(model.select());
-        auto tester = QAbstractItemModelTester(
-            &model, QAbstractItemModelTester::FailureReportingMode::QtTest
-        );
+        auto tester = QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void testWithModelTesterWithForeignKeys() {
@@ -64,9 +62,7 @@ private Q_SLOTS:
         model.setTable(u"people"_s);
         model.setRelation(1, &nameModel, 1, 0);
         QVERIFY(model.select());
-        auto tester = QAbstractItemModelTester(
-            &model, QAbstractItemModelTester::FailureReportingMode::QtTest
-        );
+        auto tester = QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void testDataWithoutForeignKeys() {
@@ -124,7 +120,7 @@ private Q_SLOTS:
         auto record = model.record();
         record.setGenerated(0, false); // Do not generate the ID
         record.setValue(1, 3);
-        record.setValue(u"age"_s, 7);
+        record.setValue(u"age"_s, 7); // NOLINT(*-magic-numbers)
         QVERIFY(model.insertRecord(model.rowCount(), record));
         QVERIFY(model.submitAll());
 
@@ -169,7 +165,7 @@ private Q_SLOTS:
         QCOMPARE(model.index(0, 2).data().toLongLong(), 30);
         QCOMPARE(model.index(0, 3).data(), u"Alice"_s);
 
-        QSignalSpy spy(&model, &CustomSqlRelationalModel::dataChanged);
+        const QSignalSpy spy(&model, &CustomSqlRelationalModel::dataChanged);
 
         auto alice = nameModel.record(0);
         alice.setValue(u"name"_s, u"Annelies"_s);

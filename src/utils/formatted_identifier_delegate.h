@@ -2,7 +2,7 @@
 
 #include <QStyledItemDelegate>
 
-QString format_id(const QString &pattern, const QVariant &id);
+QString format_id(const QString& pattern, const QVariant& id);
 
 class FormattedIdentifierDelegate : public QStyledItemDelegate {
     Q_OBJECT
@@ -12,9 +12,9 @@ public:
     inline static const auto NAME = QStringLiteral("N%1");
     inline static const auto EVENT = QStringLiteral("E%1");
 
-    FormattedIdentifierDelegate(QObject *parent, const QString &pattern);
+    FormattedIdentifierDelegate(QObject* parent, QString pattern);
 
-    QString displayText(const QVariant &value, const QLocale &locale) const override;
+    [[nodiscard]] QString displayText(const QVariant& value, const QLocale& locale) const override;
 
 private:
     QString pattern;

@@ -15,9 +15,10 @@
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
 
-DataManager *DataManager::instance = nullptr;
+DataManager* DataManager::instance = nullptr;
 
-DataManager::DataManager(QObject *parent) : QObject(parent) {
+// NOLINTBEGIN(*-prefer-member-initializer)
+DataManager::DataManager(QObject* parent) : QObject(parent) {
     baseNameOriginModel = makeModel<NameOriginTableModel>();
     baseNamesModel = makeModel<NamesTableModel>(baseNameOriginModel);
     baseEventRolesModel = makeModel<EventRolesModel>();
@@ -25,35 +26,34 @@ DataManager::DataManager(QObject *parent) : QObject(parent) {
     baseEventTypesModel = makeModel<EventTypesModel>();
     baseEventsModel = makeModel<EventsModel>(baseEventTypesModel);
 }
+// NOLINTEND(*-prefer-member-initializer)
 
-QSqlTableModel *DataManager::namesModel() const {
+QSqlTableModel* DataManager::namesModel() const {
     return this->baseNamesModel;
 }
 
-QAbstractProxyModel *
-DataManager::namesModelForPerson(QObject *parent, const IntegerPrimaryKey personId) const {
-    auto *proxy = new CellFilteredProxyModel(parent);
+QAbstractProxyModel* DataManager::namesModelForPerson(QObject* parent, const IntegerPrimaryKey personId) const {
+    auto* proxy = new CellFilteredProxyModel(parent);
     proxy->setSourceModel(this->namesModel());
     proxy->addFilter(NamesTableModel::PERSON_ID, personId);
     return proxy;
 }
 
-QAbstractProxyModel *DataManager::singleNameModel(QObject *parent, const QVariant &nameId) const {
-    auto *proxy = new CellFilteredProxyModel(parent);
+QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVariant& nameId) const {
+    auto* proxy = new CellFilteredProxyModel(parent);
     proxy->setSourceModel(this->namesModel());
     proxy->addFilter(NamesTableModel::ID, nameId);
     return proxy;
 }
 
-QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
-    auto query = QStringLiteral(
-        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
-        "people.root "
-        "FROM people "
-        "JOIN names on people.id = names.person_id "
-        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)"
-    );
-    auto *baseModel = new QSqlQueryModel(parent);
+QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
+    auto query =
+        QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
+                       "people.root "
+                       "FROM people "
+                       "JOIN names on people.id = names.person_id "
+                       "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)");
+    auto* baseModel = new QSqlQueryModel(parent);
 
     // These positions are hardcoded from the query above.
     baseModel->setQuery(query);
@@ -65,24 +65,22 @@ QAbstractProxyModel *DataManager::primaryNamesModel(QObject *parent) {
     baseModel->setHeaderData(5, Qt::Horizontal, i18n("Wortel"));
 
     // We want to add a column, where the name is produced based on other columns.
-    auto *combinedModel = new DisplayNameProxyModel(parent);
+    auto* combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
 
     // We want to re-arrange the columns and hide most of them.
-    auto *rearrangedModel = new KRearrangeColumnsProxyModel(parent);
+    auto* rearrangedModel = new KRearrangeColumnsProxyModel(parent);
     rearrangedModel->setSourceModel(combinedModel);
     rearrangedModel->setSourceColumns(QVector<int>() << 0 << 6 << 5);
 
-    propagateToModel<QSqlQueryModel>(
-        baseModel,
-        {Schema::PeopleTable, Schema::NamesTable},
-        [query](auto *model) { model->setQuery(query); }
-    );
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [query](auto* model) {
+        model->setQuery(query);
+    });
 
     return rearrangedModel;
 }
 
-QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPrimaryKey personId) {
+QAbstractProxyModel* DataManager::personDetailsModel(QObject* parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral("SELECT people.id, names.titles, names.given_names, "
                                    "names.prefix, names.surname, people.root, people.sex "
                                    "FROM people "
@@ -95,7 +93,7 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
     query.exec();
     qDebug() << "DETAILS OK";
 
-    auto *baseModel = new QSqlQueryModel(parent);
+    auto* baseModel = new QSqlQueryModel(parent);
     baseModel->setQuery(std::move(query));
     baseModel->setHeaderData(PersonDetailModel::ID, Qt::Horizontal, i18n("Id"));
     baseModel->setHeaderData(PersonDetailModel::TITLES, Qt::Horizontal, i18n("Titels"));
@@ -106,13 +104,13 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
     baseModel->setHeaderData(PersonDetailModel::SEX, Qt::Horizontal, i18n("Geslacht"));
 
     // We want to add a column, where the name is produced based on other columns.
-    auto *combinedModel = new DisplayNameProxyModel(parent);
+    auto* combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
 
     propagateToModel<QSqlQueryModel>(
         baseModel,
         {Schema::PeopleTable, Schema::NamesTable},
-        [rawQuery, personId](auto *model) {
+        [rawQuery, personId](auto* model) {
             QSqlQuery newQuery;
             newQuery.prepare(rawQuery);
             newQuery.bindValue(QStringLiteral(":id"), personId);
@@ -131,36 +129,34 @@ QAbstractProxyModel *DataManager::personDetailsModel(QObject *parent, IntegerPri
     return combinedModel;
 }
 
-QSqlTableModel *DataManager::nameOriginsModel() const {
+QSqlTableModel* DataManager::nameOriginsModel() const {
     return this->baseNameOriginModel;
 }
 
-QSqlTableModel *DataManager::eventRolesModel() const {
+QSqlTableModel* DataManager::eventRolesModel() const {
     return this->baseEventRolesModel;
 }
 
-QSqlTableModel *DataManager::eventTypesModel() const {
+QSqlTableModel* DataManager::eventTypesModel() const {
     return this->baseEventTypesModel;
 }
 
-QSqlTableModel *DataManager::eventRelationsModel() const {
+QSqlTableModel* DataManager::eventRelationsModel() const {
     return this->baseEventRelationsModel;
 }
 
-QSqlTableModel *DataManager::eventsModel() const {
+QSqlTableModel* DataManager::eventsModel() const {
     return this->baseEventsModel;
 }
 
-QAbstractProxyModel *
-DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
-    auto rawQuery =
-        QStringLiteral("SELECT er.role, et.type, events.date, events.name, events.id, er.id "
-                       "FROM events "
-                       "LEFT JOIN event_types AS et ON events.type_id = et.id "
-                       "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                       "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                       "WHERE erel.person_id = :id "
-                       "ORDER BY events.date ASC");
+QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
+    auto rawQuery = QStringLiteral("SELECT er.role, et.type, events.date, events.name, events.id, er.id "
+                                   "FROM events "
+                                   "LEFT JOIN event_types AS et ON events.type_id = et.id "
+                                   "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+                                   "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+                                   "WHERE erel.person_id = :id "
+                                   "ORDER BY events.date ASC");
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);
@@ -170,7 +166,7 @@ DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
         abort();
     }
 
-    auto *baseModel = new QSqlQueryModel(parent);
+    auto* baseModel = new QSqlQueryModel(parent);
     baseModel->setQuery(std::move(query));
     baseModel->setHeaderData(PersonEventsModel::ID, Qt::Horizontal, i18n("Id"));
     baseModel->setHeaderData(PersonEventsModel::DATE, Qt::Horizontal, i18n("Datum"));
@@ -182,11 +178,8 @@ DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     // Connect the original model to changes.
     propagateToModel<QSqlQueryModel>(
         baseModel,
-        {Schema::EventsTable,
-         Schema::EventTypesTable,
-         Schema::EventRolesTable,
-         Schema::EventRelationsTable},
-        [rawQuery, personId](auto *model) {
+        {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable, Schema::EventRelationsTable},
+        [rawQuery, personId](auto* model) {
             QSqlQuery newQuery;
             newQuery.prepare(rawQuery);
             newQuery.bindValue(QStringLiteral(":id"), personId);
@@ -195,17 +188,17 @@ DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
         }
     );
 
-    auto *dateModel = new OpaDateModel(parent);
+    auto* dateModel = new OpaDateModel(parent);
     dateModel->setSourceModel(baseModel);
     dateModel->setDateColumn(PersonEventsModel::DATE);
 
-    auto proxy = new GroupedItemsProxyModel(parent);
+    auto* proxy = new GroupedItemsProxyModel(parent);
     proxy->setSourceModel(dateModel);
     proxy->setGroups({PersonEventsModel::ROLE});
     proxy->setGroupHeaderTitle(i18n("Rol"));
 
     // Hide the original role column.
-    auto *hidden = new KRearrangeColumnsProxyModel(parent);
+    auto* hidden = new KRearrangeColumnsProxyModel(parent);
     hidden->setSourceModel(proxy);
     hidden->setSourceColumns(
         {PersonEventsModel::ROLE,
@@ -220,17 +213,17 @@ DataManager::eventsModelForPerson(QObject *parent, IntegerPrimaryKey personId) {
     return hidden;
 }
 
-QAbstractProxyModel *DataManager::singleEventModel(QObject *parent, const QVariant &eventId) const {
-    auto *proxy = new CellFilteredProxyModel(parent);
+QAbstractProxyModel* DataManager::singleEventModel(QObject* parent, const QVariant& eventId) const {
+    auto* proxy = new CellFilteredProxyModel(parent);
     proxy->setSourceModel(this->eventsModel());
     proxy->addFilter(EventsModel::ID, eventId);
     return proxy;
 }
 
-QAbstractProxyModel *DataManager::singleEventRelationModel(
-    QObject *parent, const QVariant &eventId, const QVariant &roleId, const QVariant &personId
+QAbstractProxyModel* DataManager::singleEventRelationModel(
+    QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
 ) const {
-    auto *proxy = new CellFilteredProxyModel(parent);
+    auto* proxy = new CellFilteredProxyModel(parent);
     proxy->setSourceModel(this->eventRelationsModel());
     proxy->addFilter(EventRelationsModel::EVENT_ID, eventId);
     proxy->addFilter(EventRelationsModel::ROLE_ID, roleId);
@@ -238,7 +231,7 @@ QAbstractProxyModel *DataManager::singleEventRelationModel(
     return proxy;
 }
 
-void DataManager::listenToModel(const QSqlTableModel *model) {
+void DataManager::listenToModel(const QSqlTableModel* model) const {
     connect(model, &QAbstractItemModel::dataChanged, this, &DataManager::onSourceModelChanged);
     connect(model, &QAbstractItemModel::rowsInserted, this, &DataManager::onSourceModelChanged);
     connect(model, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSourceModelChanged);
@@ -246,10 +239,10 @@ void DataManager::listenToModel(const QSqlTableModel *model) {
 }
 
 void DataManager::onSourceModelChanged() {
-    QObject *sender = QObject::sender();
+    QObject* sender = QObject::sender();
     assert(sender != nullptr);
 
-    const auto sendingModel = qobject_cast<QSqlTableModel *>(sender);
+    auto* const sendingModel = qobject_cast<QSqlTableModel*>(sender);
     assert(sendingModel != nullptr);
 
     const auto metaMethod = sender->metaObject()->method(senderSignalIndex());
@@ -258,8 +251,8 @@ void DataManager::onSourceModelChanged() {
     // When this is called the first time, we will set the variable to true,
     // and propagate the signal to our own listeners.
     const auto senderName = QString::fromUtf8(sender->metaObject()->className());
-    qDebug() << "This update is triggered by" << senderName << "for table"
-             << sendingModel->tableName() << "by signal" << metaMethod.methodSignature();
+    qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName() << "by signal"
+             << metaMethod.methodSignature();
     if (this->updatingFromDataManagerSource == nullptr) {
         // qDebug() << "   Not updating yet";
         updatingFromDataManagerSource = sender;
@@ -272,28 +265,26 @@ void DataManager::onSourceModelChanged() {
     }
 }
 
-void DataManager::propagateToModel(QSqlTableModel *model, const QStringList &tables) {
-    this->propagateToModel<QSqlTableModel>(model, tables, [](QSqlTableModel *theModel) {
-        theModel->select();
-    });
+void DataManager::propagateToModel(QSqlTableModel* model, const QStringList& tables) {
+    this->propagateToModel<QSqlTableModel>(model, tables, [](QSqlTableModel* theModel) { theModel->select(); });
 }
 
-void DataManager::propagateToModel(QSqlTableModel *model) {
+void DataManager::propagateToModel(QSqlTableModel* model) {
     this->propagateToModel(model, {model->tableName()});
 }
 
-void DataManager::initialize(QObject *parent) {
+void DataManager::initialize(QObject* parent) {
     assert(instance == nullptr);
     instance = new DataManager(parent);
 }
 
-DataManager &DataManager::get() {
+DataManager& DataManager::get() {
     return *instance;
 }
 
 template<QSqlTableModelConcept ModelType, typename... Args>
-ModelType *DataManager::makeModel(Args &&...args) {
-    auto *model = new ModelType(this, std::forward<Args>(args)...);
+ModelType* DataManager::makeModel(Args&&... args) {
+    auto* model = new ModelType(this, std::forward<Args>(args)...);
     model->setEditStrategy(QSqlTableModel::OnFieldChange);
     if (!model->select()) {
         qWarning() << "Problem while getting data for model" << model->metaObject()->className();
@@ -311,17 +302,12 @@ ModelType *DataManager::makeModel(Args &&...args) {
 
 template<class ModelType>
 void DataManager::propagateToModel(
-    ModelType *model, QStringList tables, std::function<void(ModelType *)> updater
+    ModelType* model, QStringList tables, std::function<void(ModelType*)> updater // NOLINT(*-unnecessary-value-param)
 ) {
     auto name = model->metaObject()->className();
-    connect(
-        this,
-        &DataManager::dataChanged,
-        model,
-        [model, tables, updater, this](const QString &table) {
-            if (tables.contains(table) && updatingFromDataManagerSource != model) {
-                updater(model);
-            }
+    connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString& table) {
+        if (tables.contains(table) && updatingFromDataManagerSource != model) {
+            updater(model);
         }
-    );
+    });
 }

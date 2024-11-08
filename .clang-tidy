@@ -14,7 +14,24 @@ Checks: "*,
         -misc-non-private-member-variables-in-classes,
         -misc-include-cleaner,
         -cppcoreguidelines-owning-memory,
+        -readability-convert-member-functions-to-static,
+        -cppcoreguidelines-avoid-non-const-global-variables,
+        -readability-identifier-length,
+        -bugprone-easily-swappable-parameters,
+        -readability-redundant-access-specifiers,
+        -readability-function-cognitive-complexity,
+        -readability-magic-numbers,
+        -*-avoid-magic-numbers,
+        -cert-err58-cpp,
+        -performance-enum-size,
+        -*-special-member-functions,
+        -readability-implicit-bool-conversion,
+        -*-prefer-member-initializer,
+        -*-pro-type-const-cast,
 "
+CheckOptions:
+  # Default without connect
+  bugprone-unused-return-value.CheckedFunctions: ^::std::async$, ^::std::launder$, ^::std::remove$, ^::std::remove_if$, ^::std::unique$, ^::std::unique_ptr::release$, ^::std::basic_string::empty$, ^::std::vector::empty$, ^::std::back_inserter$, ^::std::distance$, ^::std::find$, ^::std::find_if$, ^::std::inserter$, ^::std::lower_bound$, ^::std::make_pair$, ^::std::map::count$, ^::std::map::find$, ^::std::map::lower_bound$, ^::std::multimap::equal_range$, ^::std::multimap::upper_bound$, ^::std::set::count$, ^::std::set::find$, ^::std::setfill$, ^::std::setprecision$, ^::std::setw$, ^::std::upper_bound$, ^::std::vector::at$, ^::bsearch$, ^::ferror$, ^::feof$, ^::isalnum$, ^::isalpha$, ^::isblank$, ^::iscntrl$, ^::isdigit$, ^::isgraph$, ^::islower$, ^::isprint$, ^::ispunct$, ^::isspace$, ^::isupper$, ^::iswalnum$, ^::iswprint$, ^::iswspace$, ^::isxdigit$, ^::memchr$, ^::memcmp$, ^::strcmp$, ^::strcoll$, ^::strncmp$, ^::strpbrk$, ^::strrchr$, ^::strspn$, ^::strstr$, ^::wcscmp$, ^::access$, ^::bind$, ^::difftime$, ^::dlsym$, ^::fnmatch$, ^::getaddrinfo$, ^::getopt$, ^::htonl$, ^::htons$, ^::iconv_open$, ^::inet_addr$, isascii$, isatty$, ^::mmap$, ^::newlocale$, ^::openat$, ^::pathconf$, ^::pthread_equal$, ^::pthread_getspecific$, ^::pthread_mutex_trylock$, ^::readdir$, ^::readlink$, ^::recvmsg$, ^::regexec$, ^::scandir$, ^::semget$, ^::setjmp$, ^::shm_open$, ^::shmget$, ^::sigismember$, ^::strcasecmp$, ^::strsignal$, ^::ttyname$
 # TODO: enable headers at some point
 HeaderFilterRegex: ''
 WarningsAsErrors: "*"

@@ -30,14 +30,14 @@
 #include <QQueue>
 
 GroupedItemsProxyModel::GroupedProxyItem::GroupedProxyItem(
-    const QModelIndex &srcIndex, const bool isSrcItem, GroupedProxyItem *parent
+    const QModelIndex& srcIndex, const bool isSrcItem, GroupedProxyItem* parent
 ) :
     m_parentItem(parent),
     m_sourceIndex(srcIndex),
     m_isSourceItem(isSrcItem) {
 }
 
-GroupedItemsProxyModel::GroupedProxyItem::GroupedProxyItem(GroupedProxyItem *parent) :
+GroupedItemsProxyModel::GroupedProxyItem::GroupedProxyItem(GroupedProxyItem* parent) :
     GroupedProxyItem(QModelIndex(), false, parent) {
 }
 
@@ -52,33 +52,32 @@ void GroupedItemsProxyModel::GroupedProxyItem::clear() {
 
 int GroupedItemsProxyModel::GroupedProxyItem::row() const {
     if (parent()) {
-        return parent()->childRow(const_cast<GroupedProxyItem *>(this));
+        return parent()->childRow(const_cast<GroupedProxyItem*>(this));
     }
 
     return -1;
 }
 
-GroupedItemsProxyModel::GroupedProxyItem *GroupedItemsProxyModel::GroupedProxyItem::addChild(
-    const QModelIndex &srcIndex, const bool isSrcItem
-) {
+GroupedItemsProxyModel::GroupedProxyItem*
+GroupedItemsProxyModel::GroupedProxyItem::addChild(const QModelIndex& srcIndex, const bool isSrcItem) {
     auto item = new GroupedProxyItem(srcIndex, isSrcItem, this);
     m_childItems.append(item);
     return item;
 }
 
-void GroupedItemsProxyModel::GroupedProxyItem::removeChild(GroupedProxyItem *item) {
+void GroupedItemsProxyModel::GroupedProxyItem::removeChild(GroupedProxyItem* item) {
     if (item) {
         m_childItems.removeAll(item);
         delete item;
     }
 }
 
-bool GroupedItemsProxyModel::GroupedProxyItem::setData(const QVariant &data, int role) {
+bool GroupedItemsProxyModel::GroupedProxyItem::setData(const QVariant& data, int role) {
     m_itemData.insert(role, data);
     return true;
 }
 
-bool GroupedItemsProxyModel::GroupedProxyItem::setItemData(const QMap<int, QVariant> &roles) {
+bool GroupedItemsProxyModel::GroupedProxyItem::setItemData(const QMap<int, QVariant>& roles) {
     bool b = true;
     for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it) {
         b = b && setData(it.value(), it.key());
@@ -92,7 +91,7 @@ bool GroupedItemsProxyModel::GroupedProxyItem::setItemData(const QMap<int, QVari
  */
 
 GroupedItemsProxyModel::GroupedItemsProxyModel(
-    QObject *parent, QAbstractItemModel *sourceModel, const QVector<int> &groupColumns
+    QObject* parent, QAbstractItemModel* sourceModel, const QVector<int>& groupColumns
 ) :
     QIdentityProxyModel(parent),
     m_root(new GroupedProxyItem()) {
@@ -103,9 +102,7 @@ GroupedItemsProxyModel::GroupedItemsProxyModel(
     GroupedItemsProxyModel::setGroupColumnIsProxy(false);
     GroupedItemsProxyModel::setGroupColumnProxySrc(-1);
     GroupedItemsProxyModel::setGroupRowSelectable(false);
-    GroupedItemsProxyModel::setGroupHeaderTitle(
-        tr("Grouping"), tr("This column shows item group information.")
-    );
+    GroupedItemsProxyModel::setGroupHeaderTitle(tr("Grouping"), tr("This column shows item group information."));
 
     if (sourceModel) {
         setReloadSuspended(!groupColumns.isEmpty());
@@ -123,7 +120,7 @@ GroupedItemsProxyModel::~GroupedItemsProxyModel() {
     delete m_root;
 }
 
-void GroupedItemsProxyModel::setSourceModel(QAbstractItemModel *newSourceModel) {
+void GroupedItemsProxyModel::setSourceModel(QAbstractItemModel* newSourceModel) {
     if (sourceModel()) {
         disconnect(sourceModel(), nullptr, this, nullptr);
     }
@@ -132,54 +129,29 @@ void GroupedItemsProxyModel::setSourceModel(QAbstractItemModel *newSourceModel) 
     reloadSourceModel();
 
     if (sourceModel()) {
-        connect(
-            sourceModel(),
-            &QAbstractItemModel::modelReset,
-            this,
-            &GroupedItemsProxyModel::modelResetHandler
-        );
-        connect(
-            sourceModel(),
-            &QAbstractItemModel::dataChanged,
-            this,
-            &GroupedItemsProxyModel::dataChangedHandler
-        );
-        connect(
-            sourceModel(),
-            &QAbstractItemModel::rowsInserted,
-            this,
-            &GroupedItemsProxyModel::rowsInsertedHandler
-        );
-        connect(
-            sourceModel(),
-            &QAbstractItemModel::rowsRemoved,
-            this,
-            &GroupedItemsProxyModel::rowsRemovedHandler
-        );
-        connect(
-            sourceModel(),
-            &QAbstractItemModel::rowsMoved,
-            this,
-            &GroupedItemsProxyModel::rowsMovedHandler
-        );
+        connect(sourceModel(), &QAbstractItemModel::modelReset, this, &GroupedItemsProxyModel::modelResetHandler);
+        connect(sourceModel(), &QAbstractItemModel::dataChanged, this, &GroupedItemsProxyModel::dataChangedHandler);
+        connect(sourceModel(), &QAbstractItemModel::rowsInserted, this, &GroupedItemsProxyModel::rowsInsertedHandler);
+        connect(sourceModel(), &QAbstractItemModel::rowsRemoved, this, &GroupedItemsProxyModel::rowsRemovedHandler);
+        connect(sourceModel(), &QAbstractItemModel::rowsMoved, this, &GroupedItemsProxyModel::rowsMovedHandler);
     }
 }
 
-QModelIndex GroupedItemsProxyModel::index(int row, int column, const QModelIndex &parent) const {
-    if (GroupedProxyItem *childItem = itemForIndex(parent, true)->child(row)) {
+QModelIndex GroupedItemsProxyModel::index(int row, int column, const QModelIndex& parent) const {
+    if (GroupedProxyItem* childItem = itemForIndex(parent, true)->child(row)) {
         return indexForItem(childItem, column);
     }
 
     return QModelIndex();
 }
 
-QModelIndex GroupedItemsProxyModel::parent(const QModelIndex &child) const {
-    GroupedProxyItem *childItem = itemForIndex(child);
+QModelIndex GroupedItemsProxyModel::parent(const QModelIndex& child) const {
+    GroupedProxyItem* childItem = itemForIndex(child);
     if (!childItem) {
         return QModelIndex();
     }
 
-    GroupedProxyItem *parentItem = childItem->parent();
+    GroupedProxyItem* parentItem = childItem->parent();
     if (!parentItem || parentItem == m_root) {
         return QModelIndex();
     }
@@ -187,20 +159,20 @@ QModelIndex GroupedItemsProxyModel::parent(const QModelIndex &child) const {
     return indexForItem(parentItem);
 }
 
-int GroupedItemsProxyModel::rowCount(const QModelIndex &parent) const {
+int GroupedItemsProxyModel::rowCount(const QModelIndex& parent) const {
     return itemForIndex(parent, true)->rowCount();
 }
 
-int GroupedItemsProxyModel::columnCount(const QModelIndex &parent) const {
+int GroupedItemsProxyModel::columnCount(const QModelIndex& parent) const {
     return sourceModel()->columnCount(parent) + extraColumns();
 }
 
-bool GroupedItemsProxyModel::hasChildren(const QModelIndex &parent) const {
+bool GroupedItemsProxyModel::hasChildren(const QModelIndex& parent) const {
     return rowCount(parent) > 0;
 }
 
-QVariant GroupedItemsProxyModel::data(const QModelIndex &index, int role) const {
-    GroupedProxyItem *item = itemForIndex(index);
+QVariant GroupedItemsProxyModel::data(const QModelIndex& index, int role) const {
+    GroupedProxyItem* item = itemForIndex(index);
     if (!item) {
         return QVariant();
     }
@@ -220,8 +192,8 @@ QVariant GroupedItemsProxyModel::data(const QModelIndex &index, int role) const 
     return sourceModel()->data(mapToSource(index), role);
 }
 
-QMap<int, QVariant> GroupedItemsProxyModel::itemData(const QModelIndex &index) const {
-    GroupedProxyItem *item = itemForIndex(index);
+QMap<int, QVariant> GroupedItemsProxyModel::itemData(const QModelIndex& index) const {
+    GroupedProxyItem* item = itemForIndex(index);
     if (!item) {
         return QMap<int, QVariant>();
     }
@@ -237,26 +209,24 @@ QMap<int, QVariant> GroupedItemsProxyModel::itemData(const QModelIndex &index) c
     return sourceModel()->itemData(mapToSource(index));
 }
 
-QVariant
-GroupedItemsProxyModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant GroupedItemsProxyModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal) {
-        if (extraColumns() && section == 0 &&
-            (role == Qt::DisplayRole || role == Qt::ToolTipRole)) {
+        if (extraColumns() && section == 0 && (role == Qt::DisplayRole || role == Qt::ToolTipRole)) {
             return m_root->data(role);
         }
 
         return sourceModel()->headerData(section - extraColumns(), orientation, role);
     }
     if (orientation == Qt::Vertical) {
-        if (GroupedProxyItem *item = itemForRow(section); item && item->isSourceItem()) {
+        if (GroupedProxyItem* item = itemForRow(section); item && item->isSourceItem()) {
             return sourceModel()->headerData(section, orientation, role);
         }
     }
     return QVariant();
 }
 
-Qt::ItemFlags GroupedItemsProxyModel::flags(const QModelIndex &index) const {
-    GroupedProxyItem *item = itemForIndex(index);
+Qt::ItemFlags GroupedItemsProxyModel::flags(const QModelIndex& index) const {
+    GroupedProxyItem* item = itemForIndex(index);
     if (!item) {
         return Qt::NoItemFlags;
     }
@@ -275,8 +245,8 @@ Qt::ItemFlags GroupedItemsProxyModel::flags(const QModelIndex &index) const {
     return sourceModel()->flags(mapToSource(index));
 }
 
-QSize GroupedItemsProxyModel::span(const QModelIndex &index) const {
-    GroupedProxyItem *item = itemForIndex(index);
+QSize GroupedItemsProxyModel::span(const QModelIndex& index) const {
+    GroupedProxyItem* item = itemForIndex(index);
     if (!item) {
         return QSize();
     }
@@ -288,21 +258,19 @@ QSize GroupedItemsProxyModel::span(const QModelIndex &index) const {
     return QSize(columnCount(), 1);
 }
 
-QModelIndex GroupedItemsProxyModel::mapToSource(const QModelIndex &proxyIndex) const {
-    if (GroupedProxyItem *item = itemForIndex(proxyIndex, false); item && item->isSourceItem()) {
+QModelIndex GroupedItemsProxyModel::mapToSource(const QModelIndex& proxyIndex) const {
+    if (GroupedProxyItem* item = itemForIndex(proxyIndex, false); item && item->isSourceItem()) {
         // qDebug() << proxyIndex << item->sourceIndex << sourceModel()->index(item->sourceRow(),
         // proxyIndex.column() - extraColumns());
-        return sourceModel()->index(
-            item->sourceIndex().row(), proxyIndex.column() - extraColumns()
-        );
+        return sourceModel()->index(item->sourceIndex().row(), proxyIndex.column() - extraColumns());
     }
 
     return QModelIndex();
 }
 
-QModelIndex GroupedItemsProxyModel::mapFromSource(const QModelIndex &sourceIndex) const {
-    if (GroupedProxyItem *item = nullptr; m_sourceMap.contains(sourceIndex.row()) &&
-                                          ((item = m_sourceMap.value(sourceIndex.row())))) {
+QModelIndex GroupedItemsProxyModel::mapFromSource(const QModelIndex& sourceIndex) const {
+    if (GroupedProxyItem* item = nullptr;
+        m_sourceMap.contains(sourceIndex.row()) && ((item = m_sourceMap.value(sourceIndex.row())))) {
         // qDebug() << sourceIndex << indexForItem(item, sourceIndex.column() + extraColumns());
         return indexForItem(item, sourceIndex.column() + extraColumns());
     }
@@ -310,7 +278,7 @@ QModelIndex GroupedItemsProxyModel::mapFromSource(const QModelIndex &sourceIndex
     return QModelIndex();
 }
 
-void GroupedItemsProxyModel::addGroups(const QVector<int> &columns) {
+void GroupedItemsProxyModel::addGroups(const QVector<int>& columns) {
     if (columns.isEmpty()) {
         return;
     }
@@ -322,7 +290,7 @@ void GroupedItemsProxyModel::addGroups(const QVector<int> &columns) {
     reloadSourceModel();
 }
 
-void GroupedItemsProxyModel::setGroups(const QVector<int> &columns) {
+void GroupedItemsProxyModel::setGroups(const QVector<int>& columns) {
     if (columns.isEmpty()) {
         clearGroups();
         return;
@@ -369,7 +337,7 @@ void GroupedItemsProxyModel::setGroupMatchRole(int role) {
     }
 }
 
-void GroupedItemsProxyModel::setGroupHeaderTitle(const QString &title, const QString &tooltip) {
+void GroupedItemsProxyModel::setGroupHeaderTitle(const QString& title, const QString& tooltip) {
     m_root->setData(title, Qt::DisplayRole);
     if (!tooltip.isEmpty()) {
         m_root->setData(tooltip, Qt::ToolTipRole);
@@ -386,7 +354,7 @@ void GroupedItemsProxyModel::setGroupHeaderTitle(const QString &title, const QSt
 // protected methods
 //
 
-QModelIndex GroupedItemsProxyModel::indexForItem(GroupedProxyItem *item, const int col) const {
+QModelIndex GroupedItemsProxyModel::indexForItem(GroupedProxyItem* item, const int col) const {
     if (!item || item->row() < 0 || col < 0) {
         return QModelIndex();
     }
@@ -394,10 +362,10 @@ QModelIndex GroupedItemsProxyModel::indexForItem(GroupedProxyItem *item, const i
     return createIndex(item->row(), col, item);
 }
 
-GroupedItemsProxyModel::GroupedProxyItem *
-GroupedItemsProxyModel::itemForIndex(const QModelIndex &index, const bool rootDefault) const {
+GroupedItemsProxyModel::GroupedProxyItem*
+GroupedItemsProxyModel::itemForIndex(const QModelIndex& index, const bool rootDefault) const {
     if (GroupedProxyItem * item;
-        index.isValid() && ((item = static_cast<GroupedProxyItem *>(index.internalPointer())))) {
+        index.isValid() && ((item = static_cast<GroupedProxyItem*>(index.internalPointer())))) {
         return item;
     }
     if (rootDefault) {
@@ -406,17 +374,15 @@ GroupedItemsProxyModel::itemForIndex(const QModelIndex &index, const bool rootDe
     return nullptr;
 }
 
-GroupedItemsProxyModel::GroupedProxyItem *GroupedItemsProxyModel::findGroupItem(
-    const int group, const QVariant &value, GroupedProxyItem *parent
-) const {
+GroupedItemsProxyModel::GroupedProxyItem*
+GroupedItemsProxyModel::findGroupItem(const int group, const QVariant& value, GroupedProxyItem* parent) const {
     if (!parent)
         parent = m_root;
-    for (GroupedProxyItem *item: parent->children()) {
+    for (GroupedProxyItem* item: parent->children()) {
         if (!item) {
             continue;
         }
-        if (!item->isSourceItem() && item->data(Qt::UserRole).toInt() == group &&
-            item->data(Qt::EditRole) == value) {
+        if (!item->isSourceItem() && item->data(Qt::UserRole).toInt() == group && item->data(Qt::EditRole) == value) {
             return item;
         }
         if (item->rowCount() && ((item = findGroupItem(group, value, item)))) {
@@ -426,7 +392,7 @@ GroupedItemsProxyModel::GroupedProxyItem *GroupedItemsProxyModel::findGroupItem(
     return nullptr;
 }
 
-QModelIndex GroupedItemsProxyModel::sourceIndexForProxy(GroupedProxyItem *item) const {
+QModelIndex GroupedItemsProxyModel::sourceIndexForProxy(GroupedProxyItem* item) const {
     QModelIndex srcIdx = item->sourceIndex();
     if (groupColumnProxySrc() > -1) {
         srcIdx = sourceModel()->index(srcIdx.row(), groupColumnProxySrc(), srcIdx.parent());
@@ -434,12 +400,12 @@ QModelIndex GroupedItemsProxyModel::sourceIndexForProxy(GroupedProxyItem *item) 
     return srcIdx;
 }
 
-int GroupedItemsProxyModel::totalRowCount(const GroupedProxyItem *parent) const {
+int GroupedItemsProxyModel::totalRowCount(const GroupedProxyItem* parent) const {
     if (!parent) {
         parent = m_root;
     }
     int count = 0;
-    for (GroupedProxyItem *item: parent->children()) {
+    for (GroupedProxyItem* item: parent->children()) {
         ++count;
         if (item->isGroupItem()) {
             count += totalRowCount(item);
@@ -448,17 +414,16 @@ int GroupedItemsProxyModel::totalRowCount(const GroupedProxyItem *parent) const 
     return count;
 }
 
-GroupedItemsProxyModel::GroupedProxyItem *
-GroupedItemsProxyModel::itemForRow(int row, GroupedProxyItem *parent) const {
-    GroupedProxyItem *ret = nullptr;
+GroupedItemsProxyModel::GroupedProxyItem* GroupedItemsProxyModel::itemForRow(int row, GroupedProxyItem* parent) const {
+    GroupedProxyItem* ret = nullptr;
     if (!parent) {
         parent = m_root;
     }
-    QQueue<GroupedProxyItem *> q;
+    QQueue<GroupedProxyItem*> q;
     q.enqueue(parent);
     int count = 0;
     while (!q.isEmpty()) {
-        for (GroupedProxyItem *p = q.dequeue(); GroupedProxyItem * item: p->children()) {
+        for (GroupedProxyItem* p = q.dequeue(); GroupedProxyItem * item: p->children()) {
             if (count++ == row) {
                 return item;
             }
@@ -470,13 +435,13 @@ GroupedItemsProxyModel::itemForRow(int row, GroupedProxyItem *parent) const {
     return ret;
 }
 
-GroupedItemsProxyModel::GroupedProxyItem *GroupedItemsProxyModel::placeSourceRow(const int row) {
-    GroupedProxyItem *grpParent = m_root;
+GroupedItemsProxyModel::GroupedProxyItem* GroupedItemsProxyModel::placeSourceRow(const int row) {
+    GroupedProxyItem* grpParent = m_root;
     QModelIndex sourceIndex = sourceModel()->index(row, 0);
     for (int col: m_groups) {
         sourceIndex = sourceModel()->index(row, col);
         QVariant val = sourceIndex.data(groupMatchRole());
-        GroupedProxyItem *grpItem;
+        GroupedProxyItem* grpItem;
         if (!((grpItem = findGroupItem(col, val, grpParent)))) {
             beginInsertRows(indexForItem(grpParent), grpParent->rowCount(), grpParent->rowCount());
             grpItem = grpParent->addChild(sourceIndex, false);
@@ -487,19 +452,19 @@ GroupedItemsProxyModel::GroupedProxyItem *GroupedItemsProxyModel::placeSourceRow
         grpParent = grpItem;
     }
     beginInsertRows(indexForItem(grpParent), grpParent->rowCount(), grpParent->rowCount());
-    GroupedProxyItem *newItem = grpParent->addChild(sourceIndex);
+    GroupedProxyItem* newItem = grpParent->addChild(sourceIndex);
     m_sourceMap.insert(row, newItem);
     endInsertRows();
 
     return newItem;
 }
 
-void GroupedItemsProxyModel::removeItem(GroupedProxyItem *item) {
+void GroupedItemsProxyModel::removeItem(GroupedProxyItem* item) {
     if (!item || !item->parent()) {
         return;
     }
 
-    GroupedProxyItem *parent = item->parent();
+    GroupedProxyItem* parent = item->parent();
     beginRemoveRows(indexForItem(parent), item->row(), item->row());
     if (item->isSourceItem())
         m_sourceMap.remove(item->sourceIndex().row());
@@ -507,11 +472,11 @@ void GroupedItemsProxyModel::removeItem(GroupedProxyItem *item) {
     endRemoveRows();
 }
 
-void GroupedItemsProxyModel::removeUnusedGroups(GroupedProxyItem *parent) {
+void GroupedItemsProxyModel::removeUnusedGroups(GroupedProxyItem* parent) {
     if (!parent) {
         parent = m_root;
     }
-    for (GroupedProxyItem *item: parent->children()) {
+    for (GroupedProxyItem* item: parent->children()) {
         if (item->isSourceItem()) {
             continue;
         }
@@ -542,7 +507,7 @@ void GroupedItemsProxyModel::modelResetHandler() {
 }
 
 void GroupedItemsProxyModel::dataChangedHandler(
-    const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles
+    const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles
 ) {
     // qDebug() << topLeft << bottomRight << roles;
     if (!topLeft.isValid() || !bottomRight.isValid() || m_groups.isEmpty() ||
@@ -550,7 +515,7 @@ void GroupedItemsProxyModel::dataChangedHandler(
         return;
     }
 
-    const QModelIndex &srcParent = topLeft.parent();
+    const QModelIndex& srcParent = topLeft.parent();
     int endRow = qMin(bottomRight.row(), sourceModel()->rowCount());
     int startCol = qMax(topLeft.column(), 0);
     int endCol = qMin(bottomRight.column(), sourceModel()->columnCount() - 1);
@@ -561,15 +526,15 @@ void GroupedItemsProxyModel::dataChangedHandler(
                 continue;
             } // not a column we care about
 
-            const QModelIndex &srcIdx = sourceModel()->index(row, col, srcParent);
-            GroupedProxyItem *currItem = itemForIndex(mapFromSource(srcIdx), false);
+            const QModelIndex& srcIdx = sourceModel()->index(row, col, srcParent);
+            GroupedProxyItem* currItem = itemForIndex(mapFromSource(srcIdx), false);
             if (!currItem) {
                 // source model is out of sync (shouldn't happen)
                 reloadSourceModel();
                 return;
             }
-            GroupedProxyItem *currParent = currItem->parent();
-            if (GroupedProxyItem *newParent = findGroupItem(col, srcIdx.data(groupMatchRole()));
+            GroupedProxyItem* currParent = currItem->parent();
+            if (GroupedProxyItem* newParent = findGroupItem(col, srcIdx.data(groupMatchRole()));
                 newParent && currParent == newParent) {
                 continue;
             } // parent group hasn't changed
@@ -586,16 +551,16 @@ void GroupedItemsProxyModel::dataChangedHandler(
     }
 }
 
-void GroupedItemsProxyModel::rowsInsertedHandler(const QModelIndex &parent, int first, int last) {
+void GroupedItemsProxyModel::rowsInsertedHandler(const QModelIndex& parent, int first, int last) {
     Q_UNUSED(parent)
     for (int row = first; row <= last; ++row) {
         placeSourceRow(row);
     }
 }
 
-void GroupedItemsProxyModel::rowsRemovedHandler(const QModelIndex &parent, int first, int last) {
+void GroupedItemsProxyModel::rowsRemovedHandler(const QModelIndex& parent, int first, int last) {
     for (int row = first; row <= last; ++row) {
-        GroupedProxyItem *currItem = m_sourceMap.value(row, nullptr);
+        GroupedProxyItem* currItem = m_sourceMap.value(row, nullptr);
         if (!currItem || !currItem->parent()) {
             // source model is out of sync (shouldn't happen)
             reloadSourceModel();
@@ -607,7 +572,7 @@ void GroupedItemsProxyModel::rowsRemovedHandler(const QModelIndex &parent, int f
 }
 
 void GroupedItemsProxyModel::rowsMovedHandler(
-    const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row
+    const QModelIndex& parent, int start, int end, const QModelIndex& destination, int row
 ) {
     rowsRemovedHandler(parent, start, end);
     rowsInsertedHandler(destination.parent(), row, row + (end - start));

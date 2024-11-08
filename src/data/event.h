@@ -16,7 +16,7 @@ namespace EventRoles {
         {Primary, kli18n("Primary")}, {Witness, kli18n("Witness")}
     };
 
-    static const std::function toDisplayString = [](const QString &databaseValue) {
+    static const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 } // namespace EventRoles
@@ -29,7 +29,7 @@ public:
     static constexpr int ROLE = 1;
     static constexpr int BUILTIN = 2;
 
-    explicit EventRolesModel(QObject *parent);
+    explicit EventRolesModel(QObject* parent);
 };
 
 namespace EventTypes {
@@ -48,7 +48,7 @@ namespace EventTypes {
         {Funeral, kli18n("Funeral")}
     };
 
-    static const std::function toDisplayString = [](const QString &databaseValue) {
+    static const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 } // namespace EventTypes
@@ -61,7 +61,7 @@ public:
     static constexpr int TYPE = 1;
     static constexpr int BUILTIN = 2;
 
-    explicit EventTypesModel(QObject *parent);
+    explicit EventTypesModel(QObject* parent);
 };
 
 class EventRelationsModel : public CustomSqlRelationalModel {
@@ -73,7 +73,7 @@ public:
     static constexpr int ROLE_ID = 2;
     static constexpr int ROLE = 3;
 
-    explicit EventRelationsModel(QObject *parent, QSqlTableModel *rolesModel);
+    explicit EventRelationsModel(QObject* parent, QSqlTableModel* rolesModel);
 };
 
 class EventsModel : public CustomSqlRelationalModel {
@@ -86,7 +86,7 @@ public:
     static constexpr int NAME = 3;
     static constexpr int TYPE = 4;
 
-    explicit EventsModel(QObject *parent, QSqlTableModel *typesModel);
+    explicit EventsModel(QObject* parent, QSqlTableModel* typesModel);
 };
 
 namespace PersonEventsModel {

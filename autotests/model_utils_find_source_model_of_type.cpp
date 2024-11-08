@@ -27,17 +27,17 @@ class TestFindSourceModelOfType : public QObject {
     Q_OBJECT
 
 private Q_SLOTS:
-    void testOneLevel() {
+    void testOneLevel() const {
         ProxyModelA proxyModelA;
         ModelA modelA;
 
         proxyModelA.setSourceModel(&modelA);
 
-        auto foundModel = findSourceModelOfType<ModelA>(&proxyModelA);
+        const auto* foundModel = findSourceModelOfType<ModelA>(&proxyModelA);
         QCOMPARE(foundModel, &modelA);
     }
 
-    void testTwoLevels() {
+    void testTwoLevels() const {
         ProxyModelA proxyModelA;
         ProxyModelB proxyModelB;
         ModelA modelA;
@@ -45,11 +45,11 @@ private Q_SLOTS:
         proxyModelB.setSourceModel(&modelA);
         proxyModelA.setSourceModel(&proxyModelB);
 
-        auto foundModel = findSourceModelOfType<ModelA>(&proxyModelA);
+        const auto* foundModel = findSourceModelOfType<ModelA>(&proxyModelA);
         QCOMPARE(foundModel, &modelA);
     }
 
-    void testNotFound() {
+    void testNotFound() const {
         ProxyModelA proxyModelA;
         ProxyModelB proxyModelB;
         ModelA modelA;
@@ -57,27 +57,27 @@ private Q_SLOTS:
         proxyModelB.setSourceModel(&modelA);
         proxyModelA.setSourceModel(&proxyModelB);
 
-        auto foundModel = findSourceModelOfType<ModelB>(&proxyModelA);
+        const auto* foundModel = findSourceModelOfType<ModelB>(&proxyModelA);
         QCOMPARE(foundModel, nullptr);
     }
 
-    void testDirectCast() {
+    void testDirectCast() const {
         ModelA modelA;
-        auto foundModel = findSourceModelOfType<ModelA>(&modelA);
+        const auto* foundModel = findSourceModelOfType<ModelA>(&modelA);
         QCOMPARE(foundModel, &modelA);
     }
 
-    void testInheritance() {
+    void testInheritance() const {
         ProxyModelA proxyModelA;
         ModelB modelB;
 
         proxyModelA.setSourceModel(&modelB);
 
         // ModelB inherits from ModelA, so this should succeed
-        auto foundModelA = findSourceModelOfType<ModelA>(&proxyModelA);
+        const auto* foundModelA = findSourceModelOfType<ModelA>(&proxyModelA);
         QCOMPARE(foundModelA, &modelB);
 
-        auto foundModelB = findSourceModelOfType<ModelB>(&proxyModelA);
+        const auto* foundModelB = findSourceModelOfType<ModelB>(&proxyModelA);
         QCOMPARE(foundModelB, &modelB);
     }
 };

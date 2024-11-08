@@ -18,9 +18,9 @@ namespace Data::Person {
         const auto FEMALE = QStringLiteral("female");
         const auto UNKNOWN = QStringLiteral("unknown");
 
-        QString toDisplay(const QString &sex);
+        QString toDisplay(const QString& sex);
 
-        QString toIcon(const QString &sex);
+        QString toIcon(const QString& sex);
     } // namespace Sex
 } // namespace Data::Person
 
@@ -39,10 +39,10 @@ class DisplayNameProxyModel : public KExtraColumnsProxyModel {
     Q_OBJECT
 
 public:
-    explicit DisplayNameProxyModel(QObject *parent = nullptr);
+    explicit DisplayNameProxyModel(QObject* parent = nullptr);
 
-    QVariant
-    extraColumnData(const QModelIndex &parent, int row, int extraColumn, int role) const override;
+    [[nodiscard]] QVariant
+    extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const override;
 };
 
 namespace PersonDetailModel {

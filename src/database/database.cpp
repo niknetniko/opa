@@ -7,11 +7,11 @@
 #include <qsqldriver.h>
 #include <sqlite3.h>
 
-const auto driver = QStringLiteral("QSQLITE");
+const static auto driver = QStringLiteral("QSQLITE"); // NOLINT(*-err58-cpp)
 
-void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
-    auto commands = script.split(QStringLiteral(";"));
-    for (auto &command: commands) {
+// NOLINTNEXTLINE(*-use-internal-linkage)
+void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
+    for (auto& command: script.split(QStringLiteral(";"))) {
         command.replace(QStringLiteral("\n"), QStringLiteral(" "));
         command = command.trimmed();
         if (command.isEmpty()) {
@@ -33,14 +33,14 @@ void executeScriptOrAbort(const QString &script, const QSqlDatabase &database) {
     }
 }
 
-void open_database(const QString &file) {
+void open_database(const QString& file) {
     if (!QSqlDatabase::isDriverAvailable(driver)) {
         qCritical() << "SQLite driver is not available. Hu?" << QSqlDatabase::drivers();
         abort();
     }
 
     // Support in-memory databases for tests.
-    bool existing;
+    bool existing = false;
     if (file == QStringLiteral(":memory:")) {
         existing = false;
     } else {
@@ -79,7 +79,7 @@ void open_database(const QString &file) {
         abort();
     }
     QTextStream schema_stream(&schema_file);
-    QString schema = schema_stream.readAll();
+    const QString schema = schema_stream.readAll();
 
     // Run the creation script if this is a new database.
     qDebug() << "Running database creation script...";
@@ -92,6 +92,6 @@ void open_database(const QString &file) {
         abort();
     }
     QTextStream init_stream(&init_file);
-    QString init = init_stream.readAll();
+    const QString init = init_stream.readAll();
     executeScriptOrAbort(init, database);
 }

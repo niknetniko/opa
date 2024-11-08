@@ -12,26 +12,18 @@
 class CustomSqlRelationalModel;
 
 EventEditor::EventEditor(
-    QAbstractItemModel *eventRelationModel,
-    QAbstractItemModel *eventModel,
-    bool newEvent,
-    QWidget *parent
+    QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
 ) :
-    QDialog(parent) {
-    this->eventRelationModel = eventRelationModel;
-    this->eventModel = eventModel;
-    this->newEvent = newEvent;
-
-    this->form = new Ui::EventEditorForm();
+    QDialog(parent),
+    eventRelationModel(eventRelationModel),
+    eventModel(eventModel),
+    newEvent(newEvent),
+    form(new Ui::EventEditorForm()) {
     form->setupUi(this);
 
     // Connect the buttons.
-    connect(
-        form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept
-    ); // NOLINT(*-unused-return-value)
-    connect(
-        form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject
-    ); // NOLINT(*-unused-return-value)
+    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept); // NOLINT(*-unused-return-value)
+    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     qDebug() << "Events model count:" << eventModel->columnCount();
@@ -85,9 +77,9 @@ void EventEditor::accept() {
         QDialog::accept();
     } else {
         // Find the original model.
-        auto eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
+        const auto* eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
         assert(eventSqlModel != nullptr);
-        auto relationSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventRelationModel);
+        const auto* relationSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventRelationModel);
         assert(relationSqlModel != nullptr);
         auto eventError = eventSqlModel->lastError();
         auto relationError = relationSqlModel->lastError();
@@ -98,8 +90,7 @@ void EventEditor::accept() {
         QMessageBox::critical(
             this,
             i18n("Fout bij opslaan"),
-            i18n("The changes could not be saved for some reason:\n") + eventError.text() +
-                relationError.text()
+            i18n("The changes could not be saved for some reason:\n") + eventError.text() + relationError.text()
         );
     }
 }
@@ -109,9 +100,13 @@ void EventEditor::reject() {
     this->eventModel->revert();
     if (this->newEvent) {
         qDebug() << "Removing cancelled addition...";
-        this->eventRelationModel->removeRow(this->eventRelationModel->rowCount() - 1);
+        if (!this->eventRelationModel->removeRow(this->eventRelationModel->rowCount() - 1)) {
+            qWarning() << "Could not revert event relation model?";
+        }
         qDebug() << "Removing cancelled addition...";
-        this->eventModel->removeRow(this->eventModel->rowCount() - 1);
+        if (!this->eventModel->removeRow(this->eventModel->rowCount() - 1)) {
+            qWarning() << "Could not revert event model?";
+        }
     }
     QDialog::reject();
 }

@@ -9,14 +9,7 @@ class TestOpaDate : public QObject {
     Q_OBJECT
 
     const OpaDate date = OpaDate(
-        OpaDate::DURING,
-        OpaDate::EXACT,
-        QDate(2001, 7, 4),
-        QDate(),
-        true,
-        false,
-        true,
-        u"Hallo this is a test"_s
+        OpaDate::DURING, OpaDate::EXACT, QDate(2001, 7, 4), QDate(), true, false, true, u"Hallo this is a test"_s
     );
 
     const QString json =
@@ -24,7 +17,7 @@ class TestOpaDate : public QObject {
 
 private Q_SLOTS:
     void jsonEncoding() {
-        QString generated = date.toDatabaseRepresentation();
+        const auto generated = date.toDatabaseRepresentation();
         QCOMPARE(generated, json);
     }
 

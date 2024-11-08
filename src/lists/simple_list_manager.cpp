@@ -18,17 +18,15 @@
 #include "utils/edit_proxy_model.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 
-StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow *parent) :
-    QIdentityProxyModel(parent) {
+StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow* parent) : QIdentityProxyModel(parent) {
 }
 
-QVariant StatusTooltipModel::data(const QModelIndex &index, int role) const {
+QVariant StatusTooltipModel::data(const QModelIndex& index, int role) const {
     Q_ASSERT(checkIndex(index, CheckIndexOption::IndexIsValid));
 
-    auto window = qobject_cast<SimpleListManagementWindow *>(this->parent());
+    auto* window = qobject_cast<SimpleListManagementWindow*>(this->parent());
     if (index.isValid() && role == Qt::StatusTipRole && index.column() == window->displayColumn) {
-        auto isBuiltin =
-            QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
+        auto isBuiltin = QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
         auto id = QIdentityProxyModel::index(index.row(), window->idColumn).data();
 
         auto rawData = QIdentityProxyModel::index(index.row(), window->displayColumn).data();
@@ -74,7 +72,7 @@ void SimpleListManagementWindow::addItem() const {
 }
 
 void SimpleListManagementWindow::removeItem() const {
-    auto selection = this->tableView->selectionModel();
+    auto* selection = this->tableView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
@@ -82,7 +80,9 @@ void SimpleListManagementWindow::removeItem() const {
     auto selectedIndex = selection->selection().first().indexes().first();
     auto rootIndex = mapToSourceModel(selectedIndex);
 
-    this->model->removeRow(rootIndex.row());
+    if (!this->model->removeRow(rootIndex.row())) {
+        qWarning() << "Could not remove item!";
+    }
     this->model->select();
 }
 
@@ -152,7 +152,7 @@ void SimpleListManagementWindow::repairItems() {
 }
 
 void SimpleListManagementWindow::onSelectionChanged(
-    const QItemSelection &selected, const QItemSelection &deselected
+    const QItemSelection& selected, [[maybe_unused]] const QItemSelection& deselected
 ) {
     if (selected.isEmpty()) {
         this->removeAction->setEnabled(false);
@@ -167,11 +167,11 @@ void SimpleListManagementWindow::onSelectionChanged(
 }
 
 void SimpleListManagementWindow::initializeLayout() {
-    auto *toolbar = addToolBar(i18n("Manage"));
+    auto* toolbar = addToolBar(i18n("Manage"));
     // toolbar->setOrientation(Qt::Vertical);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-    auto addAction = new QAction(toolbar);
+    auto* addAction = new QAction(toolbar);
     addAction->setText(i18n("Add"));
     addAction->setToolTip(i18n("Add a new row to the table"));
     addAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
@@ -186,7 +186,7 @@ void SimpleListManagementWindow::initializeLayout() {
     toolbar->addAction(removeAction);
     connect(removeAction, &QAction::triggered, this, &SimpleListManagementWindow::removeItem);
 
-    auto repairAction = new QAction(toolbar);
+    auto* repairAction = new QAction(toolbar);
     repairAction->setText(i18n("Clean up"));
     repairAction->setToolTip(i18n("Remove empty and duplicate rows."));
     repairAction->setIcon(QIcon::fromTheme(QStringLiteral("tools-wizard")));
@@ -194,24 +194,24 @@ void SimpleListManagementWindow::initializeLayout() {
     toolbar->addAction(repairAction);
     connect(repairAction, &QAction::triggered, this, &SimpleListManagementWindow::repairItems);
 
-    auto centralWidget = new QWidget();
+    auto* centralWidget = new QWidget();
 
     // We want to have a tooltip.
-    auto tooltipModel = new StatusTooltipModel(this);
+    auto* tooltipModel = new StatusTooltipModel(this);
     tooltipModel->setSourceModel(model);
 
     // Show an icon for the built-in rows.
-    auto builtinIconModel = new BuiltinModel(centralWidget);
+    auto* builtinIconModel = new BuiltinModel(centralWidget);
     builtinIconModel->setSourceModel(tooltipModel);
     builtinIconModel->setColumns(builtinColumn, displayColumn);
 
     // Make only the ID column not editable.
-    auto editableModel = new EditProxyModel(centralWidget);
+    auto* editableModel = new EditProxyModel(centralWidget);
     editableModel->setSourceModel(builtinIconModel);
     editableModel->addReadOnlyColumns({idColumn});
 
     // We want to filter and sort.
-    auto filterProxyModel = new QSortFilterProxyModel(centralWidget);
+    auto* filterProxyModel = new QSortFilterProxyModel(centralWidget);
     filterProxyModel->setSourceModel(editableModel);
 
     tableView = new QTableView(centralWidget);
@@ -243,28 +243,21 @@ void SimpleListManagementWindow::initializeLayout() {
         this->onSelectionChanged(QItemSelection(), QItemSelection());
     });
 
-    auto *searchBox = new QLineEdit(centralWidget);
+    auto* searchBox = new QLineEdit(centralWidget);
     searchBox->setPlaceholderText(i18n("Search..."));
     searchBox->setClearButtonEnabled(true);
-    connect(
-        searchBox,
-        &QLineEdit::textEdited,
-        filterProxyModel,
-        &QSortFilterProxyModel::setFilterFixedString
-    );
+    connect(searchBox, &QLineEdit::textEdited, filterProxyModel, &QSortFilterProxyModel::setFilterFixedString);
     filterProxyModel->setFilterKeyColumn(displayColumn);
     filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    auto gridLayout = new QVBoxLayout(centralWidget);
+    auto* gridLayout = new QVBoxLayout(centralWidget);
     gridLayout->addWidget(searchBox, 0);
     gridLayout->addWidget(tableView, 1);
 
     setCentralWidget(centralWidget);
 
-    auto tableCount = new QLabel;
-    auto updater = [tableCount, this] {
-        tableCount->setText(translatedItemCount(tableView->model()->rowCount()));
-    };
+    auto* tableCount = new QLabel;
+    auto updater = [tableCount, this] { tableCount->setText(translatedItemCount(tableView->model()->rowCount())); };
     connect(tableView->model(), &QAbstractItemModel::rowsInserted, this, updater);
     connect(tableView->model(), &QAbstractItemModel::rowsRemoved, this, updater);
     connect(tableView->model(), &QAbstractItemModel::modelReset, this, updater);
@@ -278,18 +271,18 @@ void SimpleListManagementWindow::setColumns(int idColumn, int displayColumn, int
     this->builtinColumn = builtinColumn;
 }
 
-void SimpleListManagementWindow::setTranslator(const std::function<QString(QString)> &translator) {
+void SimpleListManagementWindow::setTranslator(const std::function<QString(QString)>& translator) {
     this->translator = translator;
 }
 
-void SimpleListManagementWindow::setModel(QSqlTableModel *model) {
+void SimpleListManagementWindow::setModel(QSqlTableModel* model) {
     this->model = model;
 }
 
 void SimpleListManagementWindow::removeReferencesFromModel(
-    const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-    const QHash<IntegerPrimaryKey, QString> &idToValue,
-    QSqlTableModel *foreignModel,
+    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
+    const QHash<IntegerPrimaryKey, QString>& idToValue,
+    QSqlTableModel* foreignModel,
     int foreignKeyColumn
 ) {
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
@@ -325,8 +318,7 @@ QString SimpleListManagementWindow::translatedItemCount(int itemCount) const {
     return i18np("%1 item", "%1 items", itemCount);
 }
 
-QString
-SimpleListManagementWindow::translatedItemDescription(const QString &item, bool isBuiltIn) const {
+QString SimpleListManagementWindow::translatedItemDescription(const QString& item, bool isBuiltIn) const {
     if (isBuiltIn) {
         return i18n("Built-in item '%1'", item);
     }

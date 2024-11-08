@@ -13,7 +13,7 @@ class NamesEditor : public QDialog {
     Q_OBJECT
 
 public:
-    explicit NamesEditor(QAbstractProxyModel *model, bool newRow, QWidget *parent);
+    explicit NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* parent);
 
     ~NamesEditor() override;
 
@@ -23,8 +23,8 @@ public Q_SLOTS:
     void reject() override;
 
 private:
-    QAbstractProxyModel *model;
-    QDataWidgetMapper *mapper;
+    QAbstractProxyModel* model;
+    QDataWidgetMapper* mapper;
     bool newRow;
-    Ui::NameEditorForm *form;
+    Ui::NameEditorForm* form;
 };

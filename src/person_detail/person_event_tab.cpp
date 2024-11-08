@@ -8,9 +8,9 @@
 #include <QVBoxLayout>
 #include "person_event_overview_view.h"
 
-PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWidget(parent) {
+PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     // Create a toolbar.
-    auto *nameToolbar = new QToolBar(this);
+    auto* nameToolbar = new QToolBar(this);
 
     this->addAction = new QAction(nameToolbar);
     this->addAction->setText(i18n("Nieuwe naam toevoegen"));
@@ -36,10 +36,10 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWid
     nameToolbar->addAction(this->unlinkAction);
 
     // Create a table.
-    auto *eventView = new EventsOverviewView(person, this);
+    auto* eventView = new EventsOverviewView(person, this);
 
     // Add them together.
-    auto *nameTabContainerLayout = new QVBoxLayout(this);
+    auto* nameTabContainerLayout = new QVBoxLayout(this);
     nameTabContainerLayout->setSpacing(0);
     nameTabContainerLayout->addWidget(nameToolbar);
     nameTabContainerLayout->addWidget(eventView);
@@ -51,9 +51,8 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget *parent) : QWid
     connect(unlinkAction, &QAction::triggered, eventView, &EventsOverviewView::unlinkSelectedEvent);
 }
 
-void PersonEventTab::onEventSelected(
-    const QAbstractItemModel *model, const QItemSelection &selected
-) {
+void PersonEventTab::onEventSelected([[maybe_unused]] const QAbstractItemModel* model, const QItemSelection& selected)
+    const {
     // TODO: prevent something here?
     this->editAction->setEnabled(!selected.isEmpty());
     this->removeAction->setEnabled(!selected.isEmpty());

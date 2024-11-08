@@ -17,15 +17,15 @@ class BuiltinModel : public KRearrangeColumnsProxyModel {
     Q_OBJECT
 
 public:
-    explicit BuiltinModel(QObject *parent = nullptr);
+    explicit BuiltinModel(QObject* parent = nullptr);
 
     void setColumns(int builtinColumn, int decoratedColumn);
 
-    QVariant data(const QModelIndex &index, int role) const override;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    void setSourceModel(QAbstractItemModel *sourceModel) override;
+    void setSourceModel(QAbstractItemModel* sourceModel) override;
 
 private:
     int decoratedColumn = -1;

@@ -10,9 +10,9 @@
 #include "names/names_overview_view.h"
 #include "person_name_tab.h"
 
-PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidget(parent) {
+PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     // Create a toolbar.
-    auto *nameToolbar = new QToolBar(this);
+    auto* nameToolbar = new QToolBar(this);
 
     this->addAction = new QAction(nameToolbar);
     this->addAction->setText(i18n("Nieuwe naam toevoegen"));
@@ -44,10 +44,10 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     nameToolbar->addAction(this->downAction);
 
     // Create a table.
-    auto *nameTableView = new NamesOverviewView(person, this);
+    auto* nameTableView = new NamesOverviewView(person, this);
 
     // Add them together.
-    auto *nameTabContainerLayout = new QVBoxLayout(this);
+    auto* nameTabContainerLayout = new QVBoxLayout(this);
     nameTabContainerLayout->setSpacing(0);
     nameTabContainerLayout->addWidget(nameToolbar);
     nameTabContainerLayout->addWidget(nameTableView);
@@ -60,30 +60,15 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget *parent) : QWidge
     // Listen to when the sort changes and allow re-ordering or not.
     connect(nameTableView, &NamesOverviewView::sortChanged, this, &PersonNameTab::onSortChanged);
     // Allow editing a name.
-    connect(
-        this->editAction, &QAction::triggered, nameTableView, &NamesOverviewView::editSelectedName
-    );
+    connect(this->editAction, &QAction::triggered, nameTableView, &NamesOverviewView::editSelectedName);
     // Allow deleting a name.
-    connect(
-        this->removeAction,
-        &QAction::triggered,
-        nameTableView,
-        &NamesOverviewView::removeSelectedName
-    );
+    connect(this->removeAction, &QAction::triggered, nameTableView, &NamesOverviewView::removeSelectedName);
 
-    connect(
-        this->upAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameUp
-    );
-    connect(
-        this->downAction,
-        &QAction::triggered,
-        nameTableView,
-        &NamesOverviewView::moveSelectedNameDown
-    );
+    connect(this->upAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameUp);
+    connect(this->downAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameDown);
 }
 
-void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemSelection &selected)
-    const {
+void PersonNameTab::onNameSelected(const QAbstractItemModel* model, const QItemSelection& selected) const {
     if (selected.isEmpty()) {
         this->editAction->setEnabled(false);
         this->removeAction->setEnabled(false);
@@ -106,7 +91,7 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel *model, const QItemS
 }
 
 void PersonNameTab::onSortChanged(
-    const QAbstractItemModel *model, const QItemSelection &selected, const int logicalIndex
+    [[maybe_unused]] const QAbstractItemModel* model, const QItemSelection& selected, const int logicalIndex
 ) const {
     // Check if there is currently a selected item.
     if (selected.isEmpty()) {

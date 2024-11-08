@@ -15,9 +15,9 @@ class StatusTooltipModel : public QIdentityProxyModel {
     Q_OBJECT
 
 public:
-    explicit StatusTooltipModel(SimpleListManagementWindow *parent);
+    explicit StatusTooltipModel(SimpleListManagementWindow* parent);
 
-    QVariant data(const QModelIndex &index, int role) const override;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
 };
 
 class SimpleListManagementWindow : public QMainWindow {
@@ -47,44 +47,43 @@ public Q_SLOTS:
     /**
      * Called when the selection is changed in the view.
      */
-    void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 protected:
     void initializeLayout();
 
     void setColumns(int idColumn, int displayColumn, int builtinColumn);
 
-    void setTranslator(const std::function<QString(QString)> &translator);
+    void setTranslator(const std::function<QString(QString)>& translator);
 
-    void setModel(QSqlTableModel *model);
+    void setModel(QSqlTableModel* model);
 
     static void removeReferencesFromModel(
-        const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-        const QHash<IntegerPrimaryKey, QString> &idToValue,
-        QSqlTableModel *foreignModel,
+        const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
+        const QHash<IntegerPrimaryKey, QString>& idToValue,
+        QSqlTableModel* foreignModel,
         int foreignKeyColumn
     );
 
     virtual bool repairConfirmation() = 0;
 
-    virtual bool isUsed(const QVariant &id) = 0;
+    virtual bool isUsed(const QVariant& id) = 0;
 
     virtual void removeMarkedReferences(
-        const QHash<QString, QVector<IntegerPrimaryKey>> &valueToIds,
-        const QHash<IntegerPrimaryKey, QString> &idToValue
+        const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
     ) = 0;
 
-    virtual QString translatedItemCount(int itemCount) const;
+    [[nodiscard]] virtual QString translatedItemCount(int itemCount) const;
 
-    virtual QString translatedItemDescription(const QString &item, bool isBuiltIn) const;
+    [[nodiscard]] virtual QString translatedItemDescription(const QString& item, bool isBuiltIn) const;
 
 private:
     int idColumn = -1;
     int displayColumn = -1;
     int builtinColumn = -1;
     std::function<QString(QString)> translator;
-    QAction *removeAction = nullptr;
-    QTableView *tableView = nullptr;
-    QSqlTableModel *model = nullptr;
-    BuiltinTextTranslatingDelegate *originTranslator = nullptr;
+    QAction* removeAction = nullptr;
+    QTableView* tableView = nullptr;
+    QSqlTableModel* model = nullptr;
+    BuiltinTextTranslatingDelegate* originTranslator = nullptr;
 };
