@@ -4,21 +4,21 @@
 #include "event.h"
 #include "utils/opa_date.h"
 
-EventRolesModel::EventRolesModel(QObject *parent) : QSqlTableModel(parent) {
+EventRolesModel::EventRolesModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setTable(Schema::EventRolesTable);
 
     QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     QSqlTableModel::setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
 }
 
-EventTypesModel::EventTypesModel(QObject *parent) : QSqlTableModel(parent) {
+EventTypesModel::EventTypesModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setTable(Schema::EventTypesTable);
 
     QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     QSqlTableModel::setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
 }
 
-EventRelationsModel::EventRelationsModel(QObject *parent, QSqlTableModel *rolesModel) :
+EventRelationsModel::EventRelationsModel(QObject* parent, QSqlTableModel* rolesModel) :
     CustomSqlRelationalModel(parent) {
     CustomSqlRelationalModel::setTable(Schema::EventRelationsTable);
 
@@ -30,8 +30,7 @@ EventRelationsModel::EventRelationsModel(QObject *parent, QSqlTableModel *rolesM
     CustomSqlRelationalModel::setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
 }
 
-EventsModel::EventsModel(QObject *parent, QSqlTableModel *typesModel) :
-    CustomSqlRelationalModel(parent) {
+EventsModel::EventsModel(QObject* parent, QSqlTableModel* typesModel) : CustomSqlRelationalModel(parent) {
     CustomSqlRelationalModel::setTable(Schema::EventsTable);
 
     this->setRelation(TYPE_ID, typesModel, EventTypesModel::TYPE, EventTypesModel::ID);

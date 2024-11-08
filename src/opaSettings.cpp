@@ -14,12 +14,12 @@ public:
         delete q;
         q = nullptr;
     }
-    opaSettingsHelper(const opaSettingsHelper &) = delete;
-    opaSettingsHelper &operator=(const opaSettingsHelper &) = delete;
-    opaSettings *q;
+    opaSettingsHelper(const opaSettingsHelper&) = delete;
+    opaSettingsHelper& operator=(const opaSettingsHelper&) = delete;
+    opaSettings* q;
 };
 Q_GLOBAL_STATIC(opaSettingsHelper, s_globalopaSettings)
-opaSettings *opaSettings::self() {
+opaSettings* opaSettings::self() {
     if (!s_globalopaSettings()->q) {
         new opaSettings;
         s_globalopaSettings()->q->read();
@@ -33,19 +33,18 @@ opaSettings::opaSettings() : KConfigSkeleton(QStringLiteral("oparc")) {
     s_globalopaSettings()->q = this;
     setCurrentGroup(QStringLiteral("Preferences"));
 
-    KConfigSkeleton::ItemColor *itemColorBackground;
+    KConfigSkeleton::ItemColor* itemColorBackground;
     itemColorBackground = new KConfigSkeleton::ItemColor(
         currentGroup(), QStringLiteral("colorBackground"), mColorBackground, QColor("black")
     );
     addItem(itemColorBackground, QStringLiteral("colorBackground"));
-    KConfigSkeleton::ItemColor *itemColorForeground;
+    KConfigSkeleton::ItemColor* itemColorForeground;
     itemColorForeground = new KConfigSkeleton::ItemColor(
         currentGroup(), QStringLiteral("colorForeground"), mColorForeground, QColor("yellow")
     );
     addItem(itemColorForeground, QStringLiteral("colorForeground"));
-    KConfigSkeleton::ItemInt *itemAgeInDays;
-    itemAgeInDays =
-        new KConfigSkeleton::ItemInt(currentGroup(), QStringLiteral("ageInDays"), mAgeInDays, 2);
+    KConfigSkeleton::ItemInt* itemAgeInDays;
+    itemAgeInDays = new KConfigSkeleton::ItemInt(currentGroup(), QStringLiteral("ageInDays"), mAgeInDays, 2);
     addItem(itemAgeInDays, QStringLiteral("ageInDays"));
 }
 

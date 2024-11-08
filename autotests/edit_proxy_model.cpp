@@ -49,9 +49,7 @@ private Q_SLOTS:
         EditProxyModel builtinModel;
         builtinModel.setSourceModel(&model);
         builtinModel.addReadOnlyColumns({1, 2});
-        auto tester = QAbstractItemModelTester(
-            &builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest
-        );
+        auto tester = QAbstractItemModelTester(&builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void testIndicatedColumnsAreReadOnly() {

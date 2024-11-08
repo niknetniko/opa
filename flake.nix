@@ -108,6 +108,7 @@
               # TODO: whut
               pkgs.llvmPackages.clang-unwrapped.python
               pkgs.gersemi
+              treefmtEval.config.build.wrapper
             ];
           shellHook = ''
             export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}

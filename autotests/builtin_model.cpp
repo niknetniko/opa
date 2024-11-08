@@ -47,9 +47,7 @@ private Q_SLOTS:
         BuiltinModel builtinModel;
         builtinModel.setSourceModel(&model);
         builtinModel.setColumns(2, 1);
-        auto tester = QAbstractItemModelTester(
-            &builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest
-        );
+        auto tester = QAbstractItemModelTester(&builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void testColumnIsHiddenAndShownAsIcon() {

@@ -9,13 +9,13 @@
 
 class opaSettings : public KConfigSkeleton {
 public:
-    static opaSettings *self();
+    static opaSettings* self();
     ~opaSettings() override;
 
     /**
       Set color of the background
     */
-    static void setColorBackground(const QColor &v) {
+    static void setColorBackground(const QColor& v) {
         if (!self()->isColorBackgroundImmutable())
             self()->mColorBackground = v;
     }
@@ -37,7 +37,7 @@ public:
     /**
       Set color of the foreground
     */
-    static void setColorForeground(const QColor &v) {
+    static void setColorForeground(const QColor& v) {
         if (!self()->isColorForegroundImmutable())
             self()->mColorForeground = v;
     }

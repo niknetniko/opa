@@ -15,12 +15,9 @@ class SuperSqlRelationalDelegate : public QStyledItemDelegate {
     Q_OBJECT
 
 public:
-    explicit SuperSqlRelationalDelegate(QObject *parent);
+    explicit SuperSqlRelationalDelegate(QObject* parent);
 
-    QWidget *createEditor(
-        QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index
-    ) const override;
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
-        const override;
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 };

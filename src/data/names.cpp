@@ -1,8 +1,7 @@
 #include "names.h"
 #include "database/schema.h"
 
-NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel *originsModel) :
-    CustomSqlRelationalModel(parent) {
+NamesTableModel::NamesTableModel(QObject* parent, QSqlTableModel* originsModel) : CustomSqlRelationalModel(parent) {
     CustomSqlRelationalModel::setTable(Schema::NamesTable);
     setRelation(ORIGIN_ID, originsModel, NameOriginTableModel::ORIGIN, NameOriginTableModel::ID);
 
@@ -20,7 +19,7 @@ NamesTableModel::NamesTableModel(QObject *parent, QSqlTableModel *originsModel) 
     CustomSqlRelationalModel::setSort(SORT, Qt::SortOrder::AscendingOrder);
 }
 
-NameOriginTableModel::NameOriginTableModel(QObject *parent) : QSqlTableModel(parent) {
+NameOriginTableModel::NameOriginTableModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setTable(Schema::NameOriginsTable);
 
     QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));

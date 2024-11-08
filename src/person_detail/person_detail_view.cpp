@@ -13,7 +13,7 @@
 #include "ui_person_detail_view.h"
 #include "utils/formatted_identifier_delegate.h"
 
-PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget *parent) : QFrame(parent) {
+PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFrame(parent) {
     this->ui = new Ui::PersonDetailView();
     ui->setupUi(this);
 
@@ -21,11 +21,11 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget *parent) : QFra
     this->populate();
 
     // Create tab for events
-    auto *eventTab = new PersonEventTab(id, ui->tabWidget);
+    auto* eventTab = new PersonEventTab(id, ui->tabWidget);
     ui->tabWidget->addTab(eventTab, i18n("Gebeurtenissen"));
 
     // Create tab for names
-    auto *nameTab = new PersonNameTab(id, ui->tabWidget);
+    auto* nameTab = new PersonNameTab(id, ui->tabWidget);
     ui->tabWidget->addTab(nameTab, i18n("Namen"));
 
     // Connect the model to this view, so we update when the data is changed.

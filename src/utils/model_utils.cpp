@@ -1,7 +1,7 @@
 #include "model_utils_find_source_model_of_type.h"
 #include "opa_date.h"
 
-OpaDateModel::OpaDateModel(QObject *parent) : QIdentityProxyModel(parent) {
+OpaDateModel::OpaDateModel(QObject* parent) : QIdentityProxyModel(parent) {
 }
 
 int OpaDateModel::dateColumn() const {
@@ -16,7 +16,7 @@ void OpaDateModel::setDateColumn(int column) {
     this->theDateColumn = column;
 }
 
-QVariant OpaDateModel::data(const QModelIndex &index, int role) const {
+QVariant OpaDateModel::data(const QModelIndex& index, int role) const {
     auto rawData = QIdentityProxyModel::data(index, role);
     if (index.column() == this->theDateColumn && rawData.isValid() && !rawData.isNull()) {
         auto model = OpaDate::fromDatabaseRepresentation(rawData.toString());
@@ -29,7 +29,7 @@ QVariant OpaDateModel::data(const QModelIndex &index, int role) const {
     return rawData;
 }
 
-bool OpaDateModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+bool OpaDateModel::setData(const QModelIndex& index, const QVariant& value, int role) {
     QVariant savedValue = value;
     if (index.column() == this->theDateColumn && value.isValid() && !value.isNull()) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {

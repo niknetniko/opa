@@ -17,23 +17,13 @@ public:
     static constexpr int ORIGIN_ID = 7;
     static constexpr int ORIGIN = 8;
 
-    explicit NamesTableModel(QObject *parent, QSqlTableModel *originsModel);
+    explicit NamesTableModel(QObject* parent, QSqlTableModel* originsModel);
 };
 
 namespace NameOrigins {
     Q_NAMESPACE
 
-    enum Values {
-        Unknown,
-        Inherited,
-        Patrilineal,
-        Matrilineal,
-        Taken,
-        Patronymic,
-        Matronymic,
-        Location,
-        Occupation
-    };
+    enum Values { Unknown, Inherited, Patrilineal, Matrilineal, Taken, Patronymic, Matronymic, Location, Occupation };
 
     Q_ENUM_NS(Values)
 
@@ -49,7 +39,7 @@ namespace NameOrigins {
         {Occupation, kli18n("Occupation")}
     };
 
-    static const std::function toDisplayString = [](const QString &databaseValue) {
+    static const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 }; // namespace NameOrigins
@@ -63,5 +53,5 @@ public:
     static constexpr int ORIGIN = 1;
     static constexpr int BUILTIN = 2;
 
-    explicit NameOriginTableModel(QObject *parent = nullptr);
+    explicit NameOriginTableModel(QObject* parent = nullptr);
 };
