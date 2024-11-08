@@ -200,7 +200,7 @@ public Q_SLOTS:
 protected:
     class GroupedProxyItem; // forward
 
-    virtual uint extraColumns() const {
+    virtual int extraColumns() const {
         return !m_groups.isEmpty() && groupColumnVisible() ? 1 : 0;
     }
 
@@ -245,14 +245,14 @@ protected Q_SLOTS:
     rowsMovedHandler(const QModelIndex& parent, int start, int end, const QModelIndex& destination, int row);
 
 protected:
-    GroupedProxyItem* m_root;
+    GroupedProxyItem* m_root = nullptr;
     QHash<int, GroupedProxyItem*> m_sourceMap;
     QVector<int> m_groups;
-    int m_groupMatchRole;
-    int m_groupColumnProxySrc;
-    bool m_groupColumnVisible;
-    bool m_groupColumnIsProxy;
-    bool m_groupRowSelectable;
+    int m_groupMatchRole = 0;
+    int m_groupColumnProxySrc = 0;
+    bool m_groupColumnVisible = false;
+    bool m_groupColumnIsProxy = false;
+    bool m_groupRowSelectable = false;
 
 private:
     bool setReloadSuspended(bool enable) {
