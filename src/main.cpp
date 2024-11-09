@@ -1,7 +1,7 @@
 #include "data/data_manager.h"
 #include "database/database.h"
-#include "main/main_window.h"
 #include "logging.h"
+#include "main/main_window.h"
 
 #include <KAboutData>
 #include <KCrash>

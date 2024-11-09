@@ -67,7 +67,7 @@ private Q_SLOTS:
         editor->show();
         QVERIFY(QTest::qWaitForWindowFocused(editor));
 
-        auto *roleComboBox = editor->findChild<QComboBox*>("eventRoleComboBox");
+        auto* roleComboBox = editor->findChild<QComboBox*>("eventRoleComboBox");
         roleComboBox->setFocus(Qt::MouseFocusReason);
         roleComboBox->setCurrentIndex(1);
         roleComboBox->clearFocus();
