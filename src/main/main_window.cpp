@@ -4,7 +4,6 @@
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
 #include "main_person_tab/person_list.h"
-#include "opadebug.h"
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
 
