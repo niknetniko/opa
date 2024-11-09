@@ -3,6 +3,7 @@
 //
 
 // ReSharper disable CppMemberFunctionMayBeStatic
+// ReSharper disable CppMemberFunctionMayBeConst
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QSqlError>

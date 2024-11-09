@@ -33,7 +33,7 @@ void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
     }
 }
 
-void open_database(const QString& file) {
+void open_database(const QString& file, bool seed) {
     if (!QSqlDatabase::isDriverAvailable(driver)) {
         qCritical() << "SQLite driver is not available. Hu?" << QSqlDatabase::drivers();
         abort();
@@ -84,6 +84,11 @@ void open_database(const QString& file) {
     // Run the creation script if this is a new database.
     qDebug() << "Running database creation script...";
     executeScriptOrAbort(schema, database);
+
+    if (!seed) {
+        qDebug() << "Not seeding database.";
+        return;
+    }
 
     // Initialize the data in the database.
     QFile init_file(QStringLiteral(":/init.sql"));

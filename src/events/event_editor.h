@@ -4,15 +4,16 @@
 #include <QDataWidgetMapper>
 #include <QDialog>
 
-#include "ui_event_editor.h"
+namespace Ui {
+    class EventEditorForm;
+}
 
 class EventEditor : public QDialog {
     Q_OBJECT
 
 public:
-    explicit EventEditor(
-        QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
-    );
+    explicit
+    EventEditor(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent);
 
     ~EventEditor() override;
 

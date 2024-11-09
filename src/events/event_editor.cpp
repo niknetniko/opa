@@ -1,15 +1,14 @@
 #include "event_editor.h"
 
+#include "data/data_manager.h"
+#include "data/event.h"
+#include "ui_event_editor.h"
+#include "utils/formatted_identifier_delegate.h"
+#include "utils/model_utils_find_source_model_of_type.h"
+#include "utils/proxy_enabled_relational_delegate.h"
+
 #include <QMessageBox>
 #include <QSqlError>
-#include <QSqlTableModel>
-#include <data/data_manager.h>
-#include <data/event.h>
-#include <utils/formatted_identifier_delegate.h>
-#include <utils/model_utils_find_source_model_of_type.h>
-#include <utils/proxy_enabled_relational_delegate.h>
-
-class CustomSqlRelationalModel;
 
 EventEditor::EventEditor(
     QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
@@ -26,7 +25,6 @@ EventEditor::EventEditor(
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
-    qDebug() << "Events model count:" << eventModel->columnCount();
     connectComboBox(eventModel, EventsModel::TYPE, form->eventTypeComboBox);
 
     if (newEvent) {
@@ -51,16 +49,6 @@ EventEditor::EventEditor(
     eventMapper->addMapping(form->eventNameEdit, EventsModel::NAME);
     eventMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventMapper->toFirst();
-
-    qDebug() << "Current event is now " << eventMapper->currentIndex();
-    qDebug() << "Model has rows:" << eventModel->rowCount();
-
-    connect(eventMapper, &QDataWidgetMapper::currentIndexChanged, this, [](int index) {
-        qDebug() << "eventMapper index changed to " << index;
-    });
-    connect(eventRelationMapper, &QDataWidgetMapper::currentIndexChanged, this, [](int index) {
-        qDebug() << "eventRelationMapper index changed to " << index;
-    });
 }
 
 EventEditor::~EventEditor() {
@@ -87,11 +75,12 @@ void EventEditor::accept() {
         qWarning() << "Event relation error was:" << relationError.text();
         qDebug() << "Raw event error: " << eventError.text();
         qDebug() << "Raw event relation error: " << relationError.text();
-        QMessageBox::critical(
-            this,
-            i18n("Fout bij opslaan"),
-            i18n("The changes could not be saved for some reason:\n") + eventError.text() + relationError.text()
-        );
+        // TODO: how to show this error to the user somehow?
+        // QMessageBox::critical(
+        //     this,
+        //     i18n("Fout bij opslaan"),
+        //     i18n("The changes could not be saved for some reason:\n") + eventError.text() + relationError.text()
+        // );
     }
 }
 

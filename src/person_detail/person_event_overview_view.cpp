@@ -1,16 +1,17 @@
-#include <QHeaderView>
-
 #include "person_event_overview_view.h"
 
+#include "data/data_manager.h"
+#include "data/event.h"
+#include "events/event_editor.h"
+#include "utils/formatted_identifier_delegate.h"
+
+#include <QAbstractButton>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <events/event_editor.h>
-
-#include "data/data_manager.h"
-#include "data/event.h"
-#include "utils/formatted_identifier_delegate.h"
+#include <QVBoxLayout>
 
 EventsOverviewView::EventsOverviewView(IntegerPrimaryKey personId, QWidget* parent) : QWidget(parent) {
     this->personId = personId;
