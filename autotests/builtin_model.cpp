@@ -1,4 +1,6 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
+#include "utils/builtin_model.h"
+
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QSqlError>
@@ -6,8 +8,6 @@
 #include <QSqlTableModel>
 #include <QStandardItemModel>
 #include <QTest>
-
-#include "utils/builtin_model.h"
 
 using namespace Qt::Literals::StringLiterals;
 

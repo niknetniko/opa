@@ -4,9 +4,9 @@
 
 #include "custom_sql_relational_model.h"
 
-#include <QIdentityProxyModel>
-
 #include "model_utils_find_source_model_of_type.h"
+
+#include <QIdentityProxyModel>
 
 ForeignKey::ForeignKey(
     const int foreignKeyColumn, QSqlTableModel* foreignModel, const int displayColumn, const int primaryKeyColumn

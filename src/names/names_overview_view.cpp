@@ -1,14 +1,5 @@
 #include "names_overview_view.h"
 
-#include <KRearrangeColumnsProxyModel>
-#include <QDebug>
-#include <QHeaderView>
-#include <QMessageBox>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QTreeView>
-
 #include "data/data_manager.h"
 #include "data/names.h"
 #include "database/schema.h"
@@ -17,6 +8,15 @@
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
+
+#include <KRearrangeColumnsProxyModel>
+#include <QDebug>
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <QTreeView>
 
 QString Names::construct_display_name(
     const QString& titles, const QString& givenNames, const QString& prefix, const QString& surname

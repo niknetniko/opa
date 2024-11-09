@@ -1,11 +1,11 @@
 #pragma once
 
+#include "database/schema.h"
+#include "utils/custom_sql_relational_model.h"
+
 #include <QAbstractProxyModel>
 #include <QObject>
 #include <QSqlRelationalTableModel>
-
-#include "database/schema.h"
-#include "utils/custom_sql_relational_model.h"
 
 template<class M>
 concept QSqlTableModelConcept = std::is_base_of_v<QSqlTableModel, M>;

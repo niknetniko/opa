@@ -1,10 +1,10 @@
 #pragma once
 
-#include <QDataWidgetMapper>
-#include <QDialog>
-
 #include "names_overview_view.h"
 #include "ui_name_editor.h"
+
+#include <QDataWidgetMapper>
+#include <QDialog>
 
 /**
  * Editor for names.

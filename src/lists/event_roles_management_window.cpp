@@ -1,13 +1,14 @@
+#include "event_roles_management_window.h"
+
+#include "data/data_manager.h"
+#include "data/event.h"
+#include "utils/builtin_text_translating_delegate.h"
+#include "utils/model_utils_find_source_model_of_type.h"
+
 #include <KLocalizedString>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QSqlQuery>
-
-#include "data/data_manager.h"
-#include "data/event.h"
-#include "event_roles_management_window.h"
-#include "utils/builtin_text_translating_delegate.h"
-#include "utils/model_utils_find_source_model_of_type.h"
 
 EventRolesManagementWindow::EventRolesManagementWindow() {
     setWindowTitle(i18n("Manage event roles"));

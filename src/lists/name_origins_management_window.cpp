@@ -1,14 +1,14 @@
 #include "name_origins_management_window.h"
 
-#include <KLocalizedString>
-#include <QMessageBox>
-#include <QProgressDialog>
-#include <QSqlQuery>
-
 #include "data/data_manager.h"
 #include "data/names.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
+
+#include <KLocalizedString>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QSqlQuery>
 
 NameOriginsManagementWindow::NameOriginsManagementWindow() {
     setWindowTitle(i18n("Manage name origins"));

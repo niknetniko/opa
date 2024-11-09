@@ -1,4 +1,6 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
+#include "utils/edit_proxy_model.h"
+
 #include "utils/builtin_model.h"
 
 #include <QAbstractItemModelTester>
@@ -8,8 +10,6 @@
 #include <QSqlTableModel>
 #include <QStandardItemModel>
 #include <QTest>
-
-#include "utils/edit_proxy_model.h"
 
 using namespace Qt::Literals::StringLiterals;
 

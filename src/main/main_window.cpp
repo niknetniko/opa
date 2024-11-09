@@ -1,16 +1,17 @@
-#include <KActionCollection>
-#include <KConfigDialog>
-#include <KLocalizedString>
-#include <QDockWidget>
+#include "main_window.h"
 
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
 #include "main_person_tab/person_list.h"
-#include "main_window.h"
 #include "opadebug.h"
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
+
+#include <KActionCollection>
+#include <KConfigDialog>
+#include <KLocalizedString>
+#include <QDockWidget>
 
 MainWindow::MainWindow() {
     setAttribute(Qt::WA_DeleteOnClose);

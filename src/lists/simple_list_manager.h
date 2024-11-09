@@ -1,13 +1,13 @@
 #pragma once
 
+#include "database/schema.h"
+#include <utils/builtin_text_translating_delegate.h>
+
 #include <QIdentityProxyModel>
 #include <QMainWindow>
 #include <QSqlTableModel>
 #include <QTableView>
 #include <QWidget>
-#include <utils/builtin_text_translating_delegate.h>
-
-#include "database/schema.h"
 
 class SimpleListManagementWindow;
 

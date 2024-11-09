@@ -1,8 +1,9 @@
-#include <KLocalizedString>
+#include "event.h"
 
 #include "database/schema.h"
-#include "event.h"
 #include "utils/opa_date.h"
+
+#include <KLocalizedString>
 
 EventRolesModel::EventRolesModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setTable(Schema::EventRolesTable);

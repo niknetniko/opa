@@ -4,6 +4,10 @@
 
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
+#include "utils/custom_sql_relational_model.h"
+
+#include "database/database.h"
+
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QSqlError>
@@ -11,9 +15,6 @@
 #include <QSqlRecord>
 #include <QStandardItemModel>
 #include <QTest>
-
-#include "database/database.h"
-#include "utils/custom_sql_relational_model.h"
 
 using namespace Qt::Literals::StringLiterals;
 

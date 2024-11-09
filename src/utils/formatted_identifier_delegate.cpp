@@ -1,7 +1,8 @@
 #include "formatted_identifier_delegate.h"
 
-#include <utility>
 #include "database/schema.h"
+
+#include <utility>
 
 QString format_id(const QString& pattern, const QVariant& id) {
     return pattern.arg(id.toLongLong(), 4, 10, QLatin1Char('0'));

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "database/schema.h"
+
 #include <QTableView>
 #include <QWidget>
-
-#include "database/schema.h"
 
 class PersonNameTab : public QWidget {
     Q_OBJECT

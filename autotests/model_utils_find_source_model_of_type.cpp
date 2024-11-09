@@ -1,9 +1,8 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include <QTest>
-
 #include "utils/model_utils_find_source_model_of_type.h"
 
 #include <QStandardItemModel>
+#include <QTest>
 
 using namespace Qt::Literals::StringLiterals;
 

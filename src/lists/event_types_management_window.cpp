@@ -1,11 +1,12 @@
+#include "event_types_management_window.h"
+
+#include "data/data_manager.h"
+#include "data/event.h"
+
 #include <KLocalizedString>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QSqlQuery>
-
-#include "data/data_manager.h"
-#include "data/event.h"
-#include "event_types_management_window.h"
 
 EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));

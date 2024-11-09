@@ -1,3 +1,11 @@
+#include "name_editor.h"
+
+#include "data/data_manager.h"
+#include "data/names.h"
+#include "utils/formatted_identifier_delegate.h"
+#include "utils/model_utils_find_source_model_of_type.h"
+#include "utils/proxy_enabled_relational_delegate.h"
+
 #include <KLocalizedString>
 #include <QCompleter>
 #include <QDialog>
@@ -6,13 +14,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
-
-#include "data/data_manager.h"
-#include "data/names.h"
-#include "name_editor.h"
-#include "utils/formatted_identifier_delegate.h"
-#include "utils/model_utils_find_source_model_of_type.h"
-#include "utils/proxy_enabled_relational_delegate.h"
 
 
 NamesEditor::NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* parent) :

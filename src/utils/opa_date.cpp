@@ -1,9 +1,9 @@
+#include "opa_date.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringBuilder>
 #include <utility>
-
-#include "opa_date.h"
 
 OpaDate::OpaDate(
     Modifier modifier,

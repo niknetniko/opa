@@ -1,7 +1,8 @@
 #pragma once
 
-#include <QSortFilterProxyModel>
 #include "database/schema.h"
+
+#include <QSortFilterProxyModel>
 
 
 struct ColumnAndDataPair {

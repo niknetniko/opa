@@ -1,9 +1,10 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
+#include "database/database.h"
+#include "utils/grouped_items_proxy_model.h"
+
 #include <QAbstractItemModelTester>
 #include <QStandardItemModel>
 #include <QTest>
-#include "database/database.h"
-#include "utils/grouped_items_proxy_model.h"
 
 using namespace Qt::Literals::StringLiterals;
 

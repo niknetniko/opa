@@ -1,10 +1,11 @@
-#include <QComboBox>
-#include <QLineEdit>
-#include <QSqlError>
+#include "proxy_enabled_relational_delegate.h"
 
 #include "custom_sql_relational_model.h"
 #include "model_utils_find_source_model_of_type.h"
-#include "proxy_enabled_relational_delegate.h"
+
+#include <QComboBox>
+#include <QLineEdit>
+#include <QSqlError>
 
 SuperSqlRelationalDelegate::SuperSqlRelationalDelegate(QObject* parent) : QStyledItemDelegate(parent) {
 }

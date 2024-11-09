@@ -1,3 +1,9 @@
+#include "person_list.h"
+
+#include "data/data_manager.h"
+#include "data/person.h"
+#include "utils/formatted_identifier_delegate.h"
+
 #include <KConfigGroup>
 #include <KLocalizedString>
 #include <QDebug>
@@ -6,11 +12,6 @@
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QVBoxLayout>
-
-#include "data/data_manager.h"
-#include "data/person.h"
-#include "person_list.h"
-#include "utils/formatted_identifier_delegate.h"
 
 PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
     auto* baseModel = DataManager::get().primaryNamesModel(this);

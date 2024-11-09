@@ -3,10 +3,12 @@
 //
 
 #include "person_event_tab.h"
+
+#include "person_event_overview_view.h"
+
 #include <KLocalizedString>
 #include <QToolBar>
 #include <QVBoxLayout>
-#include "person_event_overview_view.h"
 
 PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     // Create a toolbar.

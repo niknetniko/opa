@@ -1,3 +1,8 @@
+#include "data/data_manager.h"
+#include "database/database.h"
+#include "main/main_window.h"
+#include "opadebug.h"
+
 #include <KAboutData>
 #include <KCrash>
 #include <KDBusService>
@@ -11,11 +16,6 @@
 #include <QString>
 #include <QTableView>
 #include <QtLogging>
-
-#include "data/data_manager.h"
-#include "database/database.h"
-#include "main/main_window.h"
-#include "opadebug.h"
 
 int main(int argc, char** argv) {
     qSetMessagePattern(QString::fromUtf8("%{file}(%{line}): %{message}"));

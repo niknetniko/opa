@@ -1,10 +1,10 @@
 #pragma once
 
-#include <QAbstractProxyModel>
-#include <QSqlRecord>
-
 #include "database/schema.h"
 #include "utils/formatted_identifier_delegate.h"
+
+#include <QAbstractProxyModel>
+#include <QSqlRecord>
 
 namespace Ui {
     class PersonDetailView;

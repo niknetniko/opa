@@ -1,10 +1,10 @@
 #pragma once
 
+#include "database/schema.h"
+
 #include <QSqlRelationalTableModel>
 #include <QString>
 #include <QTreeView>
-
-#include "database/schema.h"
 
 
 namespace Names {

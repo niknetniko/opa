@@ -1,4 +1,5 @@
 #include "names.h"
+
 #include "database/schema.h"
 
 NamesTableModel::NamesTableModel(QObject* parent, QSqlTableModel* originsModel) : CustomSqlRelationalModel(parent) {

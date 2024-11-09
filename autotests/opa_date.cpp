@@ -1,5 +1,6 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "utils/opa_date.h"
+
 #include <QSqlDatabase>
 #include <QTest>
 

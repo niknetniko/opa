@@ -1,9 +1,9 @@
 #pragma once
 
+#include "database/schema.h"
+
 #include <QComboBox>
 #include <QSqlTableModel>
-
-#include "database/schema.h"
 
 class ForeignKey {
 public:

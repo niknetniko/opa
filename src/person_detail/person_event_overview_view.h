@@ -1,9 +1,9 @@
 #pragma once
 
+#include "database/schema.h"
+
 #include <QTreeView>
 #include <QWidget>
-
-#include "database/schema.h"
 
 /**
  * Display a list of events for a single person.

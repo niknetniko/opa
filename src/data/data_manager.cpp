@@ -1,11 +1,7 @@
 #include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>
-
 #include <QLibraryInfo>
 // ReSharper disable once CppUnusedIncludeDirective
-#include <QSqlError>
-#include <QSqlQuery>
-
 #include "data/names.h"
 #include "data_manager.h"
 #include "event.h"
@@ -14,6 +10,9 @@
 #include "utils/grouped_items_proxy_model.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
+
+#include <QSqlError>
+#include <QSqlQuery>
 
 DataManager* DataManager::instance = nullptr;
 

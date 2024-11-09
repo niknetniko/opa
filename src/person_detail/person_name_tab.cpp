@@ -2,13 +2,14 @@
 // Created by niko on 28/09/24.
 //
 
-#include <KLocalizedString>
-#include <QToolBar>
-#include <QVBoxLayout>
+#include "person_name_tab.h"
 
 #include "data/names.h"
 #include "names/names_overview_view.h"
-#include "person_name_tab.h"
+
+#include <KLocalizedString>
+#include <QToolBar>
+#include <QVBoxLayout>
 
 PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     // Create a toolbar.

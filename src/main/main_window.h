@@ -1,10 +1,10 @@
 #pragma once
 
-#include <KXmlGuiWindow>
-#include <QAction>
-
 #include "database/schema.h"
 #include "opaSettings.h"
+
+#include <KXmlGuiWindow>
+#include <QAction>
 
 namespace Ui {
     class Settings;
