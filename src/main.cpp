@@ -1,11 +1,10 @@
 #include "data/data_manager.h"
-#include "database/database.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "logging.h"
 #include "main/main_window.h"
 
 #include <KAboutData>
 #include <KCrash>
-#include <KDBusService>
 #include <KIconTheme>
 #include <KLocalizedString>
 #include <KStyleManager>
@@ -20,7 +19,7 @@
 
 int main(int argc, char** argv) {
     qSetMessagePattern(QStringLiteral("%{if-category}[%{category}] %{endif}%{file}(%{line}): %{message}"));
-    QApplication application(argc, argv);
+    const QApplication application(argc, argv);
 
     // Ensure proper icons and styles on non-plasma sessions.
     KIconTheme::initTheme();

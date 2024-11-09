@@ -7,8 +7,8 @@
 
 #include "welcome_view.h"
 
+#include "main/main_window.h"
 #include "recent_item_model.h"
-#include <main/main_window.h>
 
 #include <KAboutData>
 #include <KConfigGroup>
@@ -272,5 +272,3 @@ bool WelcomeView::updateLayout() {
 
     return result;
 }
-
-#include "moc_welcome_view.cpp"

@@ -1,9 +1,6 @@
-#include <KLocalizedString>
-#include <KRearrangeColumnsProxyModel>
-#include <QLibraryInfo>
-// ReSharper disable once CppUnusedIncludeDirective
-#include "data/names.h"
 #include "data_manager.h"
+
+#include "data/names.h"
 #include "event.h"
 #include "names/names_overview_view.h"
 #include "person.h"
@@ -11,6 +8,9 @@
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/single_row_model.h"
 
+#include <KLocalizedString>
+#include <KRearrangeColumnsProxyModel>
+#include <QLibraryInfo>
 #include <QSqlError>
 #include <QSqlQuery>
 
