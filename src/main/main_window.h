@@ -6,6 +6,8 @@
 #include <KXmlGuiWindow>
 #include <QAction>
 
+
+class KRecentFilesAction;
 namespace Ui {
     class Settings;
 }
@@ -29,28 +31,57 @@ public:
 
     ~MainWindow() override = default;
 
-private Q_SLOTS:
-    void fileNew() const;
+    [[nodiscard]] KRecentFilesAction* recentFilesAction() const;
 
+    void showWelcomeScreen();
+
+protected:
+    void saveProperties(KConfigGroup& config) override;
+    void readProperties(const KConfigGroup& config) override;
+
+public Q_SLOTS:
+    void newFile();
+    void openFile();
+    void openUrl(const QUrl& url);
+    void closeFile();
+
+private Q_SLOTS:
     void settingsConfigure();
 
     void openOrSelectPerson(IntegerPrimaryKey personId);
 
     void closeTab(int tabIndex) const;
 
-    void openNameOriginManager();
+    void openNameOriginManager() const;
 
-    void openEventRolesManager();
+    void openEventRolesManager() const;
 
-    void openEventTypesManager();
+    void openEventTypesManager() const;
 
     bool queryClose() override;
 
 private:
+    QString currentFile;
+
     // this is the name of the root widget inside our Ui file
     // you can rename it in designer and then change it here
     Ui::Settings* m_settings = nullptr;
     QAction* m_switchAction = nullptr;
 
+    QAction* manageNameOrigins_ = nullptr;
+    QAction* manageEventRoles_ = nullptr;
+    QAction* manageEventTypes_ = nullptr;
+    KRecentFilesAction* recentFilesAction_ = nullptr;
+    QAction* openNewAction_ = nullptr;
+    QAction* openAction_ = nullptr;
+    QAction* quitAction_ = nullptr;
+    QAction* closeAction_ = nullptr;
+
     [[nodiscard]] int findTabFor(IntegerPrimaryKey personId) const;
+
+    void loadFile(const QString& filename, bool isNew = false);
+
+    void clearUi();
+
+    void syncActions() const;
 };

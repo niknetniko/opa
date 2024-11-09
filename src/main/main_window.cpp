@@ -1,74 +1,167 @@
 #include "main_window.h"
 
+#include "data/data_manager.h"
+#include "database/database.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
 #include "main_person_tab/person_list.h"
 #include "person_detail/person_detail_view.h"
 #include "ui_settings.h"
+#include "welcome/welcome_view.h"
 
 #include <KActionCollection>
 #include <KConfigDialog>
 #include <KLocalizedString>
 #include <QDockWidget>
+#include <QFileDialog>
 
 MainWindow::MainWindow() {
+    const KSharedConfigPtr config = KSharedConfig::openConfig();
+
     setAttribute(Qt::WA_DeleteOnClose);
+
+    manageNameOrigins_ = new QAction(this);
+    manageNameOrigins_->setText(i18n("Manage name origins"));
+    connect(manageNameOrigins_, &QAction::triggered, this, &MainWindow::openNameOriginManager);
+
+    manageEventRoles_ = new QAction(this);
+    manageEventRoles_->setText(i18n("Manage event roles"));
+    connect(manageEventRoles_, &QAction::triggered, this, &MainWindow::openEventRolesManager);
+
+    manageEventTypes_ = new QAction(this);
+    manageEventTypes_->setText(i18n("Manage event types"));
+    connect(manageEventTypes_, &QAction::triggered, this, &MainWindow::openEventTypesManager);
+
+    auto* actionCollection = KXMLGUIClient::actionCollection();
+    actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
+    actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
+    actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes_);
+
+    openNewAction_ = KStandardAction::openNew(this, &MainWindow::newFile, actionCollection);
+    openAction_ = KStandardAction::open(this, &MainWindow::openFile, actionCollection);
+    quitAction_ = KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
+    closeAction_ = KStandardAction::close(this, &MainWindow::closeFile, actionCollection);
+
+    KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
+    recentFilesAction_ = KStandardAction::openRecent(this, &MainWindow::openUrl, actionCollection);
+    recentFilesAction_->loadEntries(config->group(QStringLiteral("RecentFiles")));
+
+    setupGUI();
+    showWelcomeScreen();
+    syncActions();
+}
+
+void MainWindow::loadFile(const QString& filename, bool isNew) {
+    qDebug() << "Loading file..." << filename << "new?" << isNew;
+    // If there is an existing open file, close it.
+    if (!currentFile.isEmpty()) {
+        DataManager::reset();
+        close_database();
+        currentFile.clear();
+    }
+
+    clearUi();
+
+    // Save the file we will open and open it.
+    currentFile = filename;
+    recentFilesAction_->addUrl(QUrl::fromLocalFile(filename));
+    open_database(filename, isNew);
+    DataManager::initialize(this);
 
     // Attach the tab view.
     auto* tabWidget = new QTabWidget();
     tabWidget->setTabsClosable(true);
     tabWidget->setMovable(true);
-    tabWidget->addTab(new QLabel(tr("Niets"), this), tr("Test"));
+    tabWidget->addTab(new QLabel(tr("Nothing"), this), tr("Test"));
     setCentralWidget(tabWidget);
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
 
     // Initialise the dock by default.
     auto* dockWidget = new QDockWidget(tr("Personen"), this);
+    dockWidget->setObjectName("persondock");
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     auto* tableView = new PersonListWidget(this);
     dockWidget->setWidget(tableView);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-
     // Connect stuff.
     connect(tableView, &PersonListWidget::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
-
-    auto* manageNameOrigins = new QAction(this);
-    manageNameOrigins->setText(i18n("Manage name origins"));
-    connect(manageNameOrigins, &QAction::triggered, this, &MainWindow::openNameOriginManager);
-
-    auto* manageEventOrigins = new QAction(this);
-    manageEventOrigins->setText(i18n("Manage event roles"));
-    connect(manageEventOrigins, &QAction::triggered, this, &MainWindow::openEventRolesManager);
-
-    auto* manageEventTypes = new QAction(this);
-    manageEventTypes->setText(i18n("Manage event types"));
-    connect(manageEventTypes, &QAction::triggered, this, &MainWindow::openEventTypesManager);
-
-    auto* actionCollection = KXMLGUIClient::actionCollection();
-    actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins);
-    actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventOrigins);
-    actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes);
-    KStandardAction::openNew(this, &MainWindow::fileNew, actionCollection);
-    KStandardAction::quit(QCoreApplication::instance(), &QApplication::closeAllWindows, actionCollection);
-    KStandardAction::preferences(this, &MainWindow::settingsConfigure, actionCollection);
-
-    setupGUI();
+    syncActions();
 }
 
-void MainWindow::fileNew() const {
-    qDebug() << "MainWindow::fileNew()";
-    (new MainWindow)->show();
+void MainWindow::clearUi() {
+    // Remove the main widget.
+    auto* oldCentralWidget = takeCentralWidget();
+    delete oldCentralWidget;
+
+    // Delete the person dock.
+    for (auto* dockWidget: findChildren<QDockWidget*>()) {
+        if (dockWidgetArea(dockWidget) != Qt::NoDockWidgetArea) {
+            removeDockWidget(dockWidget);
+            delete dockWidget;
+        }
+    }
 }
+void MainWindow::syncActions() const {
+    const QList manageActions{manageEventRoles_, manageEventTypes_, manageNameOrigins_};
+    for (auto* manageAction: manageActions) {
+        manageAction->setEnabled(!currentFile.isEmpty());
+    }
+    closeAction_->setEnabled(!currentFile.isEmpty());
+}
+
+KRecentFilesAction* MainWindow::recentFilesAction() const {
+    return recentFilesAction_;
+}
+
+void MainWindow::showWelcomeScreen() {
+    clearUi();
+    auto* welcomeScreen = new WelcomeView(this);
+    setCentralWidget(welcomeScreen);
+    syncActions();
+}
+
+void MainWindow::saveProperties(KConfigGroup& config) {
+    config.writePathEntry("currentFile", currentFile);
+}
+
+void MainWindow::readProperties(const KConfigGroup& config) {
+    if (config.hasKey("currentFile")) {
+        loadFile(config.readPathEntry("currentFile", QStringLiteral("")));
+    }
+}
+
+void MainWindow::newFile() {
+    // TODO: support using in-memory databases here.
+    qDebug() << "Open new file...";
+    const auto fileNameFromDialog = QFileDialog::getSaveFileName(this, i18n("Save File As"));
+    if (!fileNameFromDialog.isEmpty()) {
+        loadFile(fileNameFromDialog, true);
+    }
+}
+
+void MainWindow::openFile() {
+    qDebug() << "Open file...";
+    const auto fileNameFromDialog = QFileDialog::getOpenFileName(this, i18n("Open File"));
+    if (!fileNameFromDialog.isEmpty()) {
+        loadFile(fileNameFromDialog);
+    }
+}
+void MainWindow::openUrl(const QUrl& url) {
+    qDebug() << "Opening url" << url;
+    loadFile(url.toLocalFile());
+}
+
+void MainWindow::closeFile() {
+    DataManager::reset();
+    close_database();
+    currentFile.clear();
+    this->showWelcomeScreen();
+}
+
 
 void MainWindow::settingsConfigure() {
-    qDebug() << "MainWindow::settingsConfigure()";
-    // The preference dialog is derived from prefs_base.ui
-    //
-    // compare the names of the widgets in the .ui file
-    // to the names of the variables in the .kcfg file
-    // avoid to have 2 dialogs shown
     if (KConfigDialog::showDialog(QStringLiteral("settings"))) {
         return;
     }
@@ -133,22 +226,28 @@ int MainWindow::findTabFor(IntegerPrimaryKey personId) const {
     return -1;
 }
 
-void MainWindow::openNameOriginManager() {
+void MainWindow::openNameOriginManager() const {
     auto* window = new NameOriginsManagementWindow;
     window->show();
 }
 
-void MainWindow::openEventRolesManager() {
+void MainWindow::openEventRolesManager() const {
     auto* window = new EventRolesManagementWindow;
     window->show();
 }
 
-void MainWindow::openEventTypesManager() {
+void MainWindow::openEventTypesManager() const {
     auto* window = new EventTypesManagementWindow;
     window->show();
 }
 
 bool MainWindow::queryClose() {
+    const KSharedConfigPtr config = KSharedConfig::openConfig();
+    recentFilesAction_->saveEntries(config->group(QStringLiteral("RecentFiles")));
+    if (!currentFile.isEmpty()) {
+        auto general = config->group(QStringLiteral("General"));
+        general.writeEntry("currentFile", currentFile);
+    }
     QApplication::closeAllWindows();
     return KXmlGuiWindow::queryClose();
 }

@@ -11,6 +11,7 @@
 #include <KStyleManager>
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QFileInfo>
 #include <QIcon>
 #include <QLoggingCategory>
 #include <QString>
@@ -32,9 +33,9 @@ int main(int argc, char** argv) {
         QStringLiteral("opa"),
         i18n("opa"),
         QStringLiteral("0.1"),
-        i18n("A Simple Application written with KDE Frameworks"),
+        i18n("A Qt/KDE genealogy program"),
         KAboutLicense::GPL,
-        i18n("Copyright 2022, Niko Strijbol <strijbol.niko@gmail.com>")
+        i18n("Copyright 2024, Niko Strijbol <strijbol.niko@gmail.com>")
     );
 
     aboutData.addAuthor(i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("strijbol.niko@gmail.com"));
@@ -50,16 +51,22 @@ int main(int argc, char** argv) {
     parser.process(application);
     aboutData.processCommandLine(&parser);
 
-    const KDBusService appDBusService(KDBusService::Multiple | KDBusService::NoExitOnFailure);
+    if (application.isSessionRestored()) {
+        kRestoreMainWindows<MainWindow>();
+    } else {
+        auto* window = new MainWindow;
+        window->show();
 
-    // Set up the SQLite database file.
-    open_database(QStringLiteral("./test.db"));
-
-    // Initialize the model manager.
-    DataManager::initialize(&application);
-
-    auto* window = new MainWindow;
-    window->show();
+        // Load a previous file if needed.
+        const KSharedConfigPtr config = KSharedConfig::openConfig();
+        const KConfigGroup generalGroup(config, QStringLiteral("General"));
+        const bool shouldShowWelcomeScreen = generalGroup.readEntry("showWelcome", true);
+        const QString existingFile = generalGroup.readPathEntry("currentFile", QStringLiteral());
+        const QFileInfo info(existingFile);
+        if (!shouldShowWelcomeScreen && info.exists() && info.isFile()) {
+            window->openUrl(QUrl::fromLocalFile(existingFile));
+        }
+    }
 
     return application.exec();
 }

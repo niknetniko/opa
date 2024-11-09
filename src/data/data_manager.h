@@ -18,6 +18,7 @@ class DataManager : public QObject {
 
 public:
     static void initialize(QObject* parent);
+    static void reset();
 
     static DataManager& get();
 

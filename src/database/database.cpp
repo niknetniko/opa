@@ -1,11 +1,12 @@
 #include "database.h"
 
+#include <sqlite3.h>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <sqlite3.h>
 
 
 Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
@@ -123,4 +124,8 @@ void open_database(const QString& file, bool seed) {
     QTextStream init_stream(&init_file);
     const QString init = init_stream.readAll();
     executeScriptOrAbort(init, database);
+}
+
+void close_database() {
+    QSqlDatabase::database().close();
 }

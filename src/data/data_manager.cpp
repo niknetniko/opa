@@ -276,6 +276,11 @@ void DataManager::initialize(QObject* parent) {
     assert(instance == nullptr);
     instance = new DataManager(parent);
 }
+void DataManager::reset() {
+    assert(instance != nullptr);
+    delete instance;
+    instance = nullptr;
+}
 
 DataManager& DataManager::get() {
     return *instance;
