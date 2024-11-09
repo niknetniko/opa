@@ -64,11 +64,26 @@ private Q_SLOTS:
         auto* singleRelationModel = DataManager::get().singleEventRelationModel(this, newEventId, 1, 1);
 
         auto* editor = new EventEditor(singleRelationModel, singleEventModel, false, nullptr);
-        editor->findChild<QComboBox*>("eventRoleComboBox")->setCurrentIndex(1);
-        editor->findChild<QLineEdit*>("eventNameEdit")->setText(u"The Event Name"_s);
-        editor->findChild<QComboBox*>("eventTypeComboBox")->setCurrentIndex(1);
+        editor->show();
+        QVERIFY(QTest::qWaitForWindowFocused(editor));
+
+        auto *roleComboBox = editor->findChild<QComboBox*>("eventRoleComboBox");
+        roleComboBox->setFocus(Qt::MouseFocusReason);
+        roleComboBox->setCurrentIndex(1);
+        roleComboBox->clearFocus();
+
+        auto* eventName = editor->findChild<QLineEdit*>("eventNameEdit");
+        eventName->setFocus(Qt::MouseFocusReason);
+        eventName->setText(u"The Event Name"_s);
+        eventName->clearFocus();
+
+        auto* typeComboBox = editor->findChild<QComboBox*>("eventTypeComboBox");
+        typeComboBox->setFocus(Qt::MouseFocusReason);
+        typeComboBox->setCurrentIndex(1);
+        typeComboBox->clearFocus();
         // TODO: test date somehow.
 
+        qDebug() << "SUBMIT!";
         auto* acceptButton = editor->findChild<QDialogButtonBox*>("dialogButtons")->button(QDialogButtonBox::Ok);
         QTest::mouseClick(acceptButton, Qt::LeftButton);
 

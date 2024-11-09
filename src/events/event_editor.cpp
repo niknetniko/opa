@@ -9,6 +9,7 @@
 
 #include <QMessageBox>
 #include <QSqlError>
+#include <QSqlQuery>
 
 EventEditor::EventEditor(
     QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
@@ -36,17 +37,17 @@ EventEditor::EventEditor(
 
     eventRelationMapper = new QDataWidgetMapper(this);
     eventRelationMapper->setModel(this->eventRelationModel);
-    eventRelationMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     eventRelationMapper->addMapping(form->eventRoleComboBox, EventRelationsModel::ROLE);
     eventRelationMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventRelationMapper->toFirst();
 
+    // TODO: investigate why this does not work with manual submit.
+    //  Possibly since the model uses auto-submit?
     eventMapper = new QDataWidgetMapper(this);
     eventMapper->setModel(this->eventModel);
-    eventMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     eventMapper->addMapping(form->eventDatePicker, EventsModel::DATE);
-    eventMapper->addMapping(form->eventTypeComboBox, EventsModel::TYPE);
     eventMapper->addMapping(form->eventNameEdit, EventsModel::NAME);
+    eventMapper->addMapping(form->eventTypeComboBox, EventsModel::TYPE);
     eventMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventMapper->toFirst();
 }
@@ -57,11 +58,7 @@ EventEditor::~EventEditor() {
 
 void EventEditor::accept() {
     // Attempt to submit the mapper changes.
-    qDebug() << "Current event index is " << this->eventMapper->currentIndex();
-    qDebug() << "Is the current event index valid? "
-             << this->eventModel->index(this->eventMapper->currentIndex(), 0).isValid();
     if (this->eventMapper->submit() && this->eventRelationMapper->submit()) {
-        // We are done.
         QDialog::accept();
     } else {
         // Find the original model.
@@ -88,11 +85,9 @@ void EventEditor::reject() {
     this->eventRelationModel->revert();
     this->eventModel->revert();
     if (this->newEvent) {
-        qDebug() << "Removing cancelled addition...";
         if (!this->eventRelationModel->removeRow(this->eventRelationModel->rowCount() - 1)) {
             qWarning() << "Could not revert event relation model?";
         }
-        qDebug() << "Removing cancelled addition...";
         if (!this->eventModel->removeRow(this->eventModel->rowCount() - 1)) {
             qWarning() << "Could not revert event model?";
         }

@@ -1,7 +1,7 @@
 #include "data/data_manager.h"
 #include "database/database.h"
 #include "main/main_window.h"
-#include "opadebug.h"
+#include "logging.h"
 
 #include <KAboutData>
 #include <KCrash>
@@ -18,7 +18,7 @@
 #include <QtLogging>
 
 int main(int argc, char** argv) {
-    qSetMessagePattern(QString::fromUtf8("%{file}(%{line}): %{message}"));
+    qSetMessagePattern(QStringLiteral("%{if-category}[%{category}] %{endif}%{file}(%{line}): %{message}"));
     QApplication application(argc, argv);
 
     // Ensure proper icons and styles on non-plasma sessions.

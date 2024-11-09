@@ -3,6 +3,7 @@
 #include "names_overview_view.h"
 #include "ui_name_editor.h"
 
+#include <QAbstractProxyModel>
 #include <QDataWidgetMapper>
 #include <QDialog>
 

@@ -2,10 +2,14 @@
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <qsqldriver.h>
 #include <sqlite3.h>
+
+
+Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
+
 
 const static auto driver = QStringLiteral("QSQLITE"); // NOLINT(*-err58-cpp)
 
@@ -33,6 +37,18 @@ void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
     }
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+// NOLINTNEXTLINE(*-use-internal-linkage)
+int sql_trace_callback(unsigned int type, [[maybe_unused]] void* context, void* p, [[maybe_unused]] void* x) {
+    if (type == SQLITE_TRACE_PROFILE) {
+        auto* statement = static_cast<sqlite3_stmt*>(p);
+        const auto* sql = sqlite3_expanded_sql(statement);
+        qDebug(OPA_SQL) << sql;
+    }
+
+    return 0;
+}
+
 void open_database(const QString& file, bool seed) {
     if (!QSqlDatabase::isDriverAvailable(driver)) {
         qCritical() << "SQLite driver is not available. Hu?" << QSqlDatabase::drivers();
@@ -56,6 +72,14 @@ void open_database(const QString& file, bool seed) {
         qDebug() << "Error occurred opening the database " << file;
         qDebug() << database.lastError().text();
         abort();
+    }
+
+    QVariant v = database.driver()->handle();
+    if (v.isValid() && (qstrcmp(v.typeName(), "sqlite3*") == 0)) {
+        // v.data() returns a pointer to the handle
+        if (sqlite3* handle = *static_cast<sqlite3**>(v.data())) {
+            sqlite3_trace_v2(handle, SQLITE_TRACE_PROFILE, sql_trace_callback, nullptr);
+        }
     }
 
     // Ensure we have foreign keys...

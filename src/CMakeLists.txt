@@ -58,13 +58,27 @@ add_library(opa-lib STATIC
     lists/event_types_management_window.cpp
     events/event_editor.h
     events/event_editor.cpp
-    opadebug.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
-    HEADER opadebug.h
+    HEADER logging.h
     IDENTIFIER OPA
     CATEGORY_NAME "opa"
+    DESCRIPTION "Default log for the application."
+    EXPORT Opa
+)
+
+ecm_qt_export_logging_category(
+    IDENTIFIER "OPA_SQL"
+    CATEGORY_NAME "opa.sql"
+    DESCRIPTION "Opa SQL log"
+    EXPORT Opa
+)
+
+ecm_qt_install_logging_categories(
+    EXPORT Opa
+    FILE opa.categories
+    DESTINATION "${KDE_INSTALL_LOGGINGCATEGORIESDIR}"
 )
 
 target_link_libraries(opa PRIVATE
