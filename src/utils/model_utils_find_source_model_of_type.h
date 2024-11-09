@@ -1,9 +1,10 @@
 #pragma once
 
+#include <qabstractproxymodel.h>
+
 #include <KLazyLocalizedString>
 #include <QIdentityProxyModel>
 #include <QMetaEnum>
-#include <qabstractproxymodel.h>
 
 /**
  * Find the first source model of a specific type.

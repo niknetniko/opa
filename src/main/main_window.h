@@ -83,5 +83,5 @@ private:
 
     void clearUi();
 
-    void syncActions() const;
+    void syncActions();
 };

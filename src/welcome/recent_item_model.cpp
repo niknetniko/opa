@@ -7,8 +7,9 @@
 
 #include "recent_item_model.h"
 
-#include <QMimeDatabase>
 #include <qdir.h>
+
+#include <QMimeDatabase>
 
 RecentItemsModel::RecentItemsModel(QObject* parent) : QAbstractListModel(parent) {
 }

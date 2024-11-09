@@ -103,12 +103,18 @@ void MainWindow::clearUi() {
         }
     }
 }
-void MainWindow::syncActions() const {
+void MainWindow::syncActions() {
     const QList manageActions{manageEventRoles_, manageEventTypes_, manageNameOrigins_};
     for (auto* manageAction: manageActions) {
         manageAction->setEnabled(!currentFile.isEmpty());
     }
     closeAction_->setEnabled(!currentFile.isEmpty());
+
+    if (currentFile.isEmpty()) {
+        setWindowTitle(QStringLiteral("opa"));
+    } else {
+        setWindowTitle(QStringLiteral("%1 - opa").arg(currentFile));
+    }
 }
 
 KRecentFilesAction* MainWindow::recentFilesAction() const {
