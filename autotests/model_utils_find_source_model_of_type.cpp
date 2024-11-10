@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 // ReSharper disable CppMemberFunctionMayBeStatic
 #include "utils/model_utils_find_source_model_of_type.h"
 
