@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "name_origins_management_window.h"
 
 #include "data/data_manager.h"

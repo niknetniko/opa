@@ -1,14 +1,13 @@
 /*
-    SPDX-FileCopyrightText: 2022 Jiří Wolker <woljiri@gmail.com>
-    SPDX-FileCopyrightText: 2022 Eugene Popov <popov895@ukr.net>
-
-    SPDX-License-Identifier: GPL-2.0-or-later
-*/
-
+ * SPDX-FileCopyrightText: 2022 Jiří Wolker <woljiri@gmail.com>
+ * SPDX-FileCopyrightText: 2022 Eugene Popov <popov895@ukr.net>
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 #include "recent_item_model.h"
 
-#include <qdir.h>
-
+#include <QDir>
 #include <QMimeDatabase>
 
 RecentItemsModel::RecentItemsModel(QObject* parent) : QAbstractListModel(parent) {

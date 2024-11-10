@@ -1,7 +1,8 @@
-//
-// Created by niko on 28/09/24.
-//
-
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "person_name_tab.h"
 
 #include "data/names.h"

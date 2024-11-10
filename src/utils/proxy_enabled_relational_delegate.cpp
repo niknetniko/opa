@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "proxy_enabled_relational_delegate.h"
 
 #include "custom_sql_relational_model.h"

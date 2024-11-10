@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "person_event_overview_view.h"
 
 #include "data/data_manager.h"

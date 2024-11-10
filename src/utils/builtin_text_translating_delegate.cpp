@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "builtin_text_translating_delegate.h"
 
 BuiltinTextTranslatingDelegate::BuiltinTextTranslatingDelegate(QObject* parent) : QStyledItemDelegate(parent) {

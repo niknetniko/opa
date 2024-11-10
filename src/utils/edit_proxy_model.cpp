@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "edit_proxy_model.h"
 
 EditProxyModel::EditProxyModel(QObject* parent) : QIdentityProxyModel(parent) {

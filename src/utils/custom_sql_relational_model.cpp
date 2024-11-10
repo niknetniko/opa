@@ -1,6 +1,8 @@
-//
-// Created by niko on 17/10/24.
-//
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 #include "custom_sql_relational_model.h"
 

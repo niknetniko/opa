@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "single_row_model.h"
 
 CellFilteredProxyModel::CellFilteredProxyModel(QObject* parent) : QSortFilterProxyModel(parent) {

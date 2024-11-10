@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "database.h"
 
 #include <sqlite3.h>
@@ -8,9 +13,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
-
 Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
-
 
 const static auto driver = QStringLiteral("QSQLITE"); // NOLINT(*-err58-cpp)
 

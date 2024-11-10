@@ -2,9 +2,9 @@
 <component type="desktop-application">
   <id>org.example.opa.desktop</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license> https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-metadata_license </project_license>
+  <project_license>GPL-3.0-or-later</project_license>
   <name>opa</name>
-  <summary>Qt app for managing genealogies</summary>
+  <summary>Qt/KDE genealogy program</summary>
   <description>
     <p>Hallo</p>
   </description>

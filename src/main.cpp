@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "data/data_manager.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "logging.h"
@@ -33,11 +38,11 @@ int main(int argc, char** argv) {
         i18n("opa"),
         QStringLiteral("0.1"),
         i18n("A Qt/KDE genealogy program"),
-        KAboutLicense::GPL,
-        i18n("Copyright 2024, Niko Strijbol <strijbol.niko@gmail.com>")
+        KAboutLicense::GPL_V3,
+        i18n("Copyright Niko Strijbol <niko@strijbol.be>")
     );
 
-    aboutData.addAuthor(i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("strijbol.niko@gmail.com"));
+    aboutData.addAuthor(i18n("Niko Strijbol"), i18n("Author"), QStringLiteral("niko@strijbol.be"));
     aboutData.setOrganizationDomain("example.org");
     aboutData.setDesktopFileName(QStringLiteral("org.example.opa"));
 

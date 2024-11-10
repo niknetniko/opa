@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "name_editor.h"
 
 #include "data/data_manager.h"
@@ -14,7 +19,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
-
 
 NamesEditor::NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* parent) :
     QDialog(parent),
