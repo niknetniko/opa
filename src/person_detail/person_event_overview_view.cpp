@@ -9,6 +9,7 @@
 #include "data/event.h"
 #include "events/event_editor.h"
 #include "utils/formatted_identifier_delegate.h"
+#include <link_existing/choose_existing_reference_window.h>
 
 #include <QAbstractButton>
 #include <QHeaderView>
@@ -259,4 +260,15 @@ void EventsOverviewView::unlinkSelectedEvent() {
         qWarning() << "Could not unlink event" << eventId.toLongLong();
     }
     relationModel->select();
+}
+
+void EventsOverviewView::linkExistingEvent() {
+    // TODO: allow setting the role of this link!
+    auto* eventsModel = DataManager::get().eventsModel();
+    const auto selectedEvent = ChooseExistingReferenceWindow::selectItem(EventsModel::ID, eventsModel, this);
+    if (!selectedEvent.isValid()) {
+        return;
+    }
+
+    qDebug() << "Selected event..." << selectedEvent;
 }

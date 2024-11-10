@@ -44,7 +44,15 @@ public Q_SLOTS:
      */
     void removeSelectedEvent() const;
 
+    /**
+     * Unlink the selected event.
+     */
     void unlinkSelectedEvent();
+
+    /**
+     * Link a new event.
+     */
+    void linkExistingEvent();
 
 Q_SIGNALS:
     /**

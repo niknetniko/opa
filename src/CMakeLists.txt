@@ -62,6 +62,8 @@ add_library(opa-lib STATIC
     welcome/welcome_view.cpp
     welcome/recent_item_model.h
     welcome/recent_item_model.cpp
+    link_existing/choose_existing_reference_window.h
+    link_existing/choose_existing_reference_window.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

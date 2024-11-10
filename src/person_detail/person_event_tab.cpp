@@ -13,30 +13,35 @@
 
 PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     // Create a toolbar.
-    auto* nameToolbar = new QToolBar(this);
+    auto* toolbar = new QToolBar(this);
 
-    this->addAction = new QAction(nameToolbar);
-    this->addAction->setText(i18n("Nieuwe naam toevoegen"));
+    this->addAction = new QAction(toolbar);
+    this->addAction->setText(i18n("Add new event"));
     this->addAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
-    nameToolbar->addAction(this->addAction);
+    toolbar->addAction(this->addAction);
 
-    this->editAction = new QAction(nameToolbar);
-    this->editAction->setText(i18n("Naam bewerken"));
+    this->editAction = new QAction(toolbar);
+    this->editAction->setText(i18n("Edit event"));
     this->editAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-entry")));
     this->editAction->setEnabled(false);
-    nameToolbar->addAction(this->editAction);
+    toolbar->addAction(this->editAction);
 
-    this->removeAction = new QAction(nameToolbar);
+    this->removeAction = new QAction(toolbar);
     this->removeAction->setText(i18n("Remove event"));
     this->removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
     this->removeAction->setEnabled(false);
-    nameToolbar->addAction(this->removeAction);
+    toolbar->addAction(this->removeAction);
 
-    this->unlinkAction = new QAction(nameToolbar);
+    this->linkAction = new QAction(toolbar);
+    this->linkAction->setText(i18n("Link event"));
+    this->linkAction->setIcon(QIcon::fromTheme(QStringLiteral("insert-link")));
+    toolbar->addAction(this->linkAction);
+
+    this->unlinkAction = new QAction(toolbar);
     this->unlinkAction->setText(i18n("Unlink event"));
     this->unlinkAction->setIcon(QIcon::fromTheme(QStringLiteral("remove-link")));
     this->unlinkAction->setEnabled(false);
-    nameToolbar->addAction(this->unlinkAction);
+    toolbar->addAction(this->unlinkAction);
 
     // Create a table.
     auto* eventView = new EventsOverviewView(person, this);
@@ -44,7 +49,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     // Add them together.
     auto* nameTabContainerLayout = new QVBoxLayout(this);
     nameTabContainerLayout->setSpacing(0);
-    nameTabContainerLayout->addWidget(nameToolbar);
+    nameTabContainerLayout->addWidget(toolbar);
     nameTabContainerLayout->addWidget(eventView);
 
     connect(addAction, &QAction::triggered, eventView, &EventsOverviewView::handleNewEvent);
@@ -52,6 +57,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     connect(editAction, &QAction::triggered, eventView, &EventsOverviewView::editSelectedEvent);
     connect(removeAction, &QAction::triggered, eventView, &EventsOverviewView::removeSelectedEvent);
     connect(unlinkAction, &QAction::triggered, eventView, &EventsOverviewView::unlinkSelectedEvent);
+    connect(linkAction, &QAction::triggered, eventView, &EventsOverviewView::linkExistingEvent);
 }
 
 void PersonEventTab::onEventSelected([[maybe_unused]] const QAbstractItemModel* model, const QItemSelection& selected)
