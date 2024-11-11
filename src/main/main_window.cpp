@@ -84,8 +84,8 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
 
     // Initialise the dock by default.
-    auto* dockWidget = new QDockWidget(tr("Personen"), this);
-    dockWidget->setObjectName("persondock");
+    auto* dockWidget = new QDockWidget(tr("People"), this);
+    dockWidget->setObjectName("person_dock");
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     auto* tableView = new PersonListWidget(this);
