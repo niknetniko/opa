@@ -8,34 +8,24 @@
 #include "choose_existing_reference_window.h"
 
 #include <person_detail/person_event_tab.h>
+#include <utils/model_utils_find_source_model_of_type.h>
 
 #include <KLocalizedString>
+#include <KRearrangeColumnsProxyModel>
+#include <QDialogButtonBox>
+#include <QGroupBox>
 #include <QHeaderView>
+#include <QLabel>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QVBoxLayout>
 
-QVariant ChooseExistingReferenceWindow::selectItem(
-    int resultColumn, QAbstractItemModel* sourceModel, QWidget* parent, int searchColumn
-) {
-    assert(
-        sourceModel->checkIndex(sourceModel->index(0, resultColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
-    );
-    assert(
-        searchColumn == -1 ||
-        sourceModel->checkIndex(sourceModel->index(0, searchColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
-    );
-
-    ChooseExistingReferenceWindow dialog(searchColumn, resultColumn, sourceModel, parent);
-    dialog.exec();
-    return dialog.selected;
-}
-
 void ChooseExistingReferenceWindow::accept() {
     if (auto selection = tableView->selectionModel()->selection(); !selection.isEmpty()) {
-        const int selectedRow = selection.indexes().first().row();
-        selected = tableView->model()->index(selectedRow, resultColumn).data();
+        const auto tableViewSelected = selection.indexes().first();
+        const auto sourceSelection = mapToSourceModel(tableViewSelected);
+        selected = sourceModel->index(sourceSelection.row(), resultColumn).data();
     }
 
     QDialog::accept();
@@ -56,8 +46,13 @@ ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
     searchColumn(searchColumn),
     resultColumn(resultColumn),
     sourceModel(sourceModel) {
-    // TODO: allow setting the displayed columns somehow.
-    // TODO: should I subclass this?
+    assert(
+        sourceModel->checkIndex(sourceModel->index(0, resultColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
+    );
+    assert(
+        searchColumn == -1 ||
+        sourceModel->checkIndex(sourceModel->index(0, searchColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
+    );
     // TODO: format IDs (in subclass somehow?)
 
     setWindowModality(Qt::WindowModal);
@@ -66,21 +61,44 @@ ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
     filterModel->setSourceModel(sourceModel);
     filterModel->setFilterKeyColumn(searchColumn);
 
-    auto* layout = new QVBoxLayout;
-    auto* searchBox = new QLineEdit;
+    displayModel = new KRearrangeColumnsProxyModel(this);
+    displayModel->setSourceModel(filterModel);
+
+    layout = new QVBoxLayout;
+
+    tableBox = new QGroupBox(this);
+    tableBox->setFlat(true);
+    layout->addWidget(tableBox);
+    auto* innerGroupBoxLayout = new QVBoxLayout(tableBox);
+
+    tableHelpText = new QLabel(tableBox);
+
+    auto* searchBox = new QLineEdit(tableBox);
     searchBox->setClearButtonEnabled(true);
     searchBox->setPlaceholderText(i18n("Search..."));
     connect(searchBox, &QLineEdit::textChanged, filterModel, &QSortFilterProxyModel::setFilterFixedString);
 
-    tableView = new QTableView;
-    tableView->setModel(filterModel);
+    tableView = new QTableView(tableBox);
+    tableView->setModel(displayModel);
     tableView->setSelectionMode(QTableView::SingleSelection);
     tableView->setSelectionBehavior(QTableView::SelectRows);
     tableView->setShowGrid(false);
     tableView->verticalHeader()->hide();
     connect(tableView, &QTableView::doubleClicked, this, &ChooseExistingReferenceWindow::itemSelected);
 
-    layout->addWidget(searchBox);
-    layout->addWidget(tableView);
-    setLayout(layout);
+    innerGroupBoxLayout->addWidget(tableHelpText);
+    innerGroupBoxLayout->addWidget(searchBox);
+    innerGroupBoxLayout->addWidget(tableView);
+
+    auto* buttonBox = new QDialogButtonBox(this);
+    buttonBox->setStandardButtons(QDialogButtonBox::StandardButton::Cancel | QDialogButtonBox::StandardButton::Ok);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    auto* parentLayout = new QVBoxLayout;
+    parentLayout->addLayout(layout);
+    parentLayout->addWidget(buttonBox);
+
+    setLayout(parentLayout);
 }

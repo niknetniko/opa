@@ -34,6 +34,8 @@ public:
     static constexpr int ROLE = 1;
     static constexpr int BUILTIN = 2;
 
+    static QVariant getDefaultRole();
+
     explicit EventRolesModel(QObject* parent);
 };
 

@@ -8,6 +8,7 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "ui_event_editor.h"
+#include "ui_temp.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"

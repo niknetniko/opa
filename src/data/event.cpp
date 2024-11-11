@@ -5,6 +5,7 @@
  */
 #include "event.h"
 
+#include "data_manager.h"
 #include "database/schema.h"
 #include "utils/opa_date.h"
 
@@ -15,6 +16,18 @@ EventRolesModel::EventRolesModel(QObject* parent) : QSqlTableModel(parent) {
 
     QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
     QSqlTableModel::setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
+}
+
+QVariant EventRolesModel::getDefaultRole() {
+    auto* roleModel = DataManager::get().eventRolesModel();
+    auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();
+    auto defaultEventRoleIndex =
+        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole).first();
+    if (!defaultEventRoleIndex.isValid()) {
+        qWarning() << "Default role not found, aborting new event.";
+        return {};
+    }
+    return roleModel->index(defaultEventRoleIndex.row(), EventRolesModel::ID).data();
 }
 
 EventTypesModel::EventTypesModel(QObject* parent) : QSqlTableModel(parent) {

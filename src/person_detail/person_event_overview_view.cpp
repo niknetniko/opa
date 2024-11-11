@@ -9,6 +9,7 @@
 #include "data/event.h"
 #include "events/event_editor.h"
 #include "utils/formatted_identifier_delegate.h"
+#include <link_existing/choose_existing_event_window.h>
 #include <link_existing/choose_existing_reference_window.h>
 
 #include <QAbstractButton>
@@ -70,15 +71,11 @@ void EventsOverviewView::handleDoubleClick([[maybe_unused]] const QModelIndex& c
 
 void EventsOverviewView::handleNewEvent() {
     // First, look up the ID for the "default" event role just to be sure.
-    auto* roleModel = DataManager::get().eventRolesModel();
-    auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();
-    auto defaultEventRoleIndex =
-        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole).first();
-    if (!defaultEventRoleIndex.isValid()) {
+    auto defaultRoleId = EventRolesModel::getDefaultRole();
+    if (!defaultRoleId.isValid()) {
         qWarning() << "Default role not found, aborting new event.";
         return;
     }
-    auto defaultRoleId = roleModel->index(defaultEventRoleIndex.row(), EventRolesModel::ID).data();
 
     // Also lookup the ID for a first event.
     // TODO: do this intelligently.
@@ -264,8 +261,7 @@ void EventsOverviewView::unlinkSelectedEvent() {
 
 void EventsOverviewView::linkExistingEvent() {
     // TODO: allow setting the role of this link!
-    auto* eventsModel = DataManager::get().eventsModel();
-    const auto selectedEvent = ChooseExistingReferenceWindow::selectItem(EventsModel::ID, eventsModel, this);
+    const auto selectedEvent = ChooseExistingEventWindow::selectEventAndRole(this);
     if (!selectedEvent.isValid()) {
         return;
     }
