@@ -8,9 +8,8 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "events/event_editor.h"
+#include "link_existing/choose_existing_event_window.h"
 #include "utils/formatted_identifier_delegate.h"
-#include <link_existing/choose_existing_event_window.h>
-#include <link_existing/choose_existing_reference_window.h>
 
 #include <QAbstractButton>
 #include <QHeaderView>
@@ -89,7 +88,6 @@ void EventsOverviewView::handleNewEvent() {
         return;
     }
     auto defaultTypeId = typeModel->index(defaultEventTypeIndex.first().row(), EventTypesModel::ID).data();
-
 
     if (!QSqlDatabase::database().transaction()) {
         qWarning() << "Could not get transaction on database for some reason.";
@@ -214,7 +212,7 @@ void EventsOverviewView::removeSelectedEvent() const {
 
     // Find the row in the original model.
     auto* eventsModel = DataManager::get().eventsModel();
-    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId).first();
+    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId).constFirst();
     if (!eventsModel->removeRow(result.row())) {
         qWarning() << "Could not delete event" << eventId.toLongLong();
     }
@@ -266,5 +264,17 @@ void EventsOverviewView::linkExistingEvent() {
         return;
     }
 
-    qDebug() << "Selected event..." << selectedEvent;
+    auto* eventRelationModel = DataManager::get().eventRelationsModel();
+    auto eventRelationRecord = eventRelationModel->record();
+    eventRelationRecord.setValue(EventRelationsModel::EVENT_ID, selectedEvent.eventId);
+    eventRelationRecord.setValue(EventRelationsModel::PERSON_ID, this->personId);
+    eventRelationRecord.setValue(EventRelationsModel::ROLE_ID, selectedEvent.roleId);
+
+    if (!eventRelationModel->insertRecord(-1, eventRelationRecord)) {
+        QMessageBox::warning(
+            this, tr("Could not event relation"), tr("Problem inserting new event relation into database.")
+        );
+        qDebug() << "Could not insert event relation for some reason:";
+        qDebug() << eventRelationModel->lastError();
+    }
 }
