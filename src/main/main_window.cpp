@@ -78,6 +78,7 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     auto* tabWidget = new QTabWidget();
     tabWidget->setTabsClosable(true);
     tabWidget->setMovable(true);
+    tabWidget->setDocumentMode(true);
     tabWidget->addTab(new QLabel(tr("Nothing"), this), tr("Test"));
     setCentralWidget(tabWidget);
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
