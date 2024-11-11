@@ -6,6 +6,7 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 #include "utils/model_utils_find_source_model_of_type.h"
 
+#include <QIdentityProxyModel>
 #include <QStandardItemModel>
 #include <QTest>
 

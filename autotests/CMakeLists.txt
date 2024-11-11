@@ -2,7 +2,8 @@ enable_testing()
 
 ecm_add_tests(
     database.cpp
-    opa_date.cpp
+    genealogical_date.cpp
+    genealogical_date_proxy_model.cpp
     grouping_model.cpp
     custom_sql_relational_model.cpp
     builtin_model.cpp

@@ -36,6 +36,8 @@ add_library(opa-lib STATIC
     lists/name_origins_management_window.cpp
     dates/genealogical_date.h
     dates/genealogical_date.cpp
+    dates/genealogical_date_proxy_model.h
+    dates/genealogical_date_proxy_model.cpp
     person_detail/person_event_overview_view.h
     person_detail/person_event_overview_view.cpp
     person_detail/person_event_tab.h

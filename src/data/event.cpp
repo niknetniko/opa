@@ -7,7 +7,6 @@
 
 #include "data_manager.h"
 #include "database/schema.h"
-#include "utils/opa_date.h"
 
 #include <KLocalizedString>
 
@@ -22,7 +21,7 @@ QVariant EventRolesModel::getDefaultRole() {
     auto* roleModel = DataManager::get().eventRolesModel();
     auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();
     auto defaultEventRoleIndex =
-        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole).first();
+        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole).constFirst();
     if (!defaultEventRoleIndex.isValid()) {
         qWarning() << "Default role not found, aborting new event.";
         return {};

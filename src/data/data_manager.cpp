@@ -6,6 +6,7 @@
 #include "data_manager.h"
 
 #include "data/names.h"
+#include "dates/genealogical_date_proxy_model.h"
 #include "event.h"
 #include "names/names_overview_view.h"
 #include "person.h"
@@ -192,7 +193,7 @@ QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerP
         }
     );
 
-    auto* dateModel = new OpaDateModel(parent);
+    auto* dateModel = new GenealogicalDateProxyModel(parent);
     dateModel->setSourceModel(baseModel);
     dateModel->setDateColumn(PersonEventsModel::DATE);
 

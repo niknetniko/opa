@@ -51,7 +51,6 @@ public:
         Modifier modifier,
         Quality quality,
         const QDate& proleptic,
-        const QDate& endProleptic,
         bool hasYear,
         bool hasMonth,
         bool hasDay,
@@ -60,6 +59,8 @@ public:
 
     GenealogicalDate& operator=(const GenealogicalDate&) = default;
 
+    bool operator==(const GenealogicalDate&) const = default;
+
     [[nodiscard]] bool hasMonth() const;
 
     [[nodiscard]] bool hasYear() const;
@@ -67,8 +68,6 @@ public:
     [[nodiscard]] bool hasDay() const;
 
     [[nodiscard]] QDate prolepticRepresentation() const;
-
-    [[nodiscard]] QDate prolepticRepresentationEnd() const;
 
     [[nodiscard]] Quality quality() const;
 
@@ -88,7 +87,6 @@ private:
     Modifier dateModifier = NONE;
     Quality dateQuality = EXACT;
     QDate proleptic;
-    QDate endProleptic;
     bool year = true;
     bool month = true;
     bool day = true;

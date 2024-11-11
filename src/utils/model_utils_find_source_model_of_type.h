@@ -8,7 +8,6 @@
 #include <qabstractproxymodel.h>
 
 #include <KLazyLocalizedString>
-#include <QIdentityProxyModel>
 #include <QMetaEnum>
 
 /**
@@ -66,29 +65,18 @@ inline QModelIndex mapToSourceModel(const QModelIndex& index) {
     return converted;
 }
 
-constexpr int ModelRole = Qt::UserRole + 20;
+template<typename E>
+bool isValidEnum(const QString& value) {
+    auto result = QMetaEnum::fromType<E>().keyToValue(value.toUtf8().constData());
+    return result > 0;
+}
 
-/**
- * Class the handle a column where an OpaDate is saved as JSON in some column.
- * The model ignores empty strings or null values, but will error on other invalid values.
- */
-class OpaDateModel : public QIdentityProxyModel {
-    Q_OBJECT
-
-public:
-    explicit OpaDateModel(QObject* parent);
-
-    void setDateColumn(int column);
-
-    [[nodiscard]] int dateColumn() const;
-
-    [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-
-    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
-
-private:
-    int theDateColumn = -1;
-};
+template<typename E>
+E enumFromString(const QString& value) {
+    auto result = QMetaEnum::fromType<E>().keyToValue(value.toUtf8().constData());
+    assert(result >= 0);
+    return static_cast<E>(result);
+}
 
 template<typename E>
 QString genericToDisplayString(const QString& databaseValue, QHash<E, KLazyLocalizedString> mapping) {

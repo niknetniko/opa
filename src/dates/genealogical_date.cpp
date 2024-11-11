@@ -5,25 +5,18 @@
  */
 #include "genealogical_date.h"
 
+#include "utils/model_utils_find_source_model_of_type.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringBuilder>
-#include <utility>
 
 GenealogicalDate::GenealogicalDate(
-    Modifier modifier,
-    Quality quality,
-    const QDate& proleptic,
-    const QDate& endProleptic,
-    bool hasYear,
-    bool hasMonth,
-    bool hasDay,
-    QString text
+    Modifier modifier, Quality quality, const QDate& proleptic, bool hasYear, bool hasMonth, bool hasDay, QString text
 ) :
     dateModifier(modifier),
     dateQuality(quality),
     proleptic(proleptic),
-    endProleptic(endProleptic),
     year(hasYear),
     month(hasMonth),
     day(hasDay),
@@ -60,9 +53,6 @@ QString GenealogicalDate::toDatabaseRepresentation() const {
     result[QStringLiteral("dateModifier")] = QVariant::fromValue(this->dateModifier).toString();
     result[QStringLiteral("dateQuality")] = QVariant::fromValue(this->dateQuality).toString();
     result[QStringLiteral("proleptic")] = this->proleptic.toJulianDay();
-    if (endProleptic.isValid()) {
-        result[QStringLiteral("prolepticEnd")] = this->endProleptic.toJulianDay();
-    }
     result[QStringLiteral("year")] = this->year;
     result[QStringLiteral("month")] = this->month;
     result[QStringLiteral("day")] = this->day;
@@ -80,18 +70,10 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
         return {};
     }
 
-    QDate endDate;
-    if (result.contains(QStringLiteral("prolepticEnd"))) {
-        endDate = QDate::fromJulianDay(result[QStringLiteral("prolepticEnd")].toInteger());
-    } else {
-        endDate = QDate();
-    }
-
     return {
         QVariant(result[QStringLiteral("dateModifier")].toString()).value<Modifier>(),
         QVariant(result[QStringLiteral("dateQuality")].toString()).value<Quality>(),
         QDate::fromJulianDay(result[QStringLiteral("proleptic")].toInteger()),
-        endDate,
         result[QStringLiteral("year")].toBool(),
         result[QStringLiteral("month")].toBool(),
         result[QStringLiteral("day")].toBool(),
@@ -99,19 +81,11 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     };
 }
 
-QDate GenealogicalDate::prolepticRepresentationEnd() const {
-    return endProleptic;
-}
-
 QString GenealogicalDate::text() const {
     return userText;
 }
 
 QString GenealogicalDate::toDisplayText() const {
-    if (!this->text().isEmpty()) {
-        return this->text();
-    }
-
     QStringList result;
     if (this->modifier() != NONE) {
         auto mod = QVariant::fromValue(modifier()).toString().toLower();
@@ -135,48 +109,35 @@ GenealogicalDate GenealogicalDate::fromDisplayText(const QString& text) {
         return {};
     }
 
+    qDebug() << "Parts are" << parts;
+
     auto modifier = NONE;
     auto quality = EXACT;
     auto dateRemainder = QStringLiteral();
 
-    // We must assume the only part is a date.
-    if (parts.length() == 1) {
-        dateRemainder = parts.constFirst();
-    } else if (parts.length() == 2) {
-        const QVariant result(parts.constFirst());
-        if (result.canConvert<Modifier>()) {
-            modifier = result.value<Modifier>();
-        } else if (result.canConvert<Quality>()) {
-            quality = result.value<Quality>();
-        } else {
-            qWarning() << "Did not understand" << parts.constFirst();
-        }
-        dateRemainder = parts.at(1);
-    } else if (parts.length() == 3) {
-        const QVariant rawModifier(parts.constFirst());
-        if (rawModifier.canConvert<Modifier>()) {
-            modifier = rawModifier.value<Modifier>();
-        } else {
-            qWarning() << "Unknown modifier part" << rawModifier << "from" << parts;
-        }
-        const QVariant rawQuality(parts.at(1));
-        if (rawQuality.canConvert<Quality>()) {
-            quality = rawQuality.value<Quality>();
-        } else {
-            qWarning() << "Unknown quality part" << rawQuality << "from" << parts;
-        }
-        dateRemainder = parts.sliced(2, parts.length()).join(QStringLiteral(" "));
+    const auto rawPart1 = parts.constFirst().toUpper();
+    if (isValidEnum<Modifier>(rawPart1)) {
+        modifier = enumFromString<Modifier>(rawPart1);
+        parts.removeFirst();
     }
+
+    const auto rawPart2 = parts.constFirst().toUpper();
+    if (isValidEnum<Quality>(rawPart2)) {
+        quality = enumFromString<Quality>(rawPart2);
+        parts.removeFirst();
+    }
+
+    dateRemainder = parts.join(QStringLiteral(" "));
 
     const QLocale local;
     auto format = local.dateFormat();
     auto date = QDate::fromString(dateRemainder, format);
 
-    return {modifier, quality, date, {}, true, true, true, QStringLiteral()};
+    return {modifier, quality, date, true, true, true, QStringLiteral()};
 }
 
 QDebug operator<<(QDebug dbg, const GenealogicalDate& date) {
     const QDebugStateSaver saver(dbg);
-    dbg.nospace() << date.prolepticRepresentation();
+    dbg.nospace() << date.toDatabaseRepresentation();
     return dbg;
 }
