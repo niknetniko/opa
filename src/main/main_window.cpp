@@ -12,7 +12,9 @@
 #include "lists/name_origins_management_window.h"
 #include "main_person_tab/person_list.h"
 #include "person_detail/person_detail_view.h"
+#include "person_placeholder_widget.h"
 #include "ui_settings.h"
+#include "utils/placeholder_widget.h"
 #include "welcome/welcome_view.h"
 
 #include <KActionCollection>
@@ -74,14 +76,16 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     open_database(filename, isNew);
     DataManager::initialize(this);
 
-    // Attach the tab view.
-    auto* tabWidget = new QTabWidget();
+    auto* tabWidget = new QTabWidget;
     tabWidget->setTabsClosable(true);
     tabWidget->setMovable(true);
     tabWidget->setDocumentMode(true);
-    tabWidget->addTab(new QLabel(tr("Nothing"), this), tr("Test"));
-    setCentralWidget(tabWidget);
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
+
+    auto* placeholderWidget = new TabWidgetPlaceholderWidget;
+    placeholderWidget->setTabWidget(tabWidget);
+    placeholderWidget->setPlaceholder(new PersonPlaceholderWidget);
+    setCentralWidget(placeholderWidget);
 
     // Initialise the dock by default.
     auto* dockWidget = new QDockWidget(tr("People"), this);
@@ -121,6 +125,9 @@ void MainWindow::syncActions() {
     } else {
         setWindowTitle(QStringLiteral("%1 - opa").arg(currentFile));
     }
+}
+QTabWidget* MainWindow::getTabWidget() const {
+    return qobject_cast<TabWidgetPlaceholderWidget*>(centralWidget())->getTabWidget();
 }
 
 KRecentFilesAction* MainWindow::recentFilesAction() const {
@@ -196,18 +203,15 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
     // First, check if we already have a tab for the person in question.
     auto existingTab = this->findTabFor(personId);
     if (existingTab >= 0) {
-        qDebug() << "Existing tab found... " << personId;
-        qobject_cast<QTabWidget*>(centralWidget())->setCurrentIndex(existingTab);
+        getTabWidget()->setCurrentIndex(existingTab);
         return;
     }
 
-    qDebug() << "No existing tab found... " << personId;
-
     auto* detailView = new PersonDetailView(personId, this);
-    auto addedIndex = qobject_cast<QTabWidget*>(centralWidget())->addTab(detailView, detailView->getDisplayName());
+    auto addedIndex = getTabWidget()->addTab(detailView, detailView->getDisplayName());
 
     // Go to the tab.
-    qobject_cast<QTabWidget*>(centralWidget())->setCurrentIndex(addedIndex);
+    getTabWidget()->setCurrentIndex(addedIndex);
 
     // Connect to the detail view to update the name of the person when needed.
     connect(detailView, &PersonDetailView::dataChanged, detailView, [this](IntegerPrimaryKey id) {
@@ -215,21 +219,20 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
         if (tabIndex < 0) {
             return; // Do nothing as the tab no longer exists for some reason.
         }
-        auto* theDetailView =
-            qobject_cast<PersonDetailView*>(qobject_cast<QTabWidget*>(centralWidget())->widget(tabIndex));
-        qobject_cast<QTabWidget*>(centralWidget())->setTabText(tabIndex, theDetailView->getDisplayName());
+        auto* theDetailView = qobject_cast<PersonDetailView*>(getTabWidget()->widget(tabIndex));
+        getTabWidget()->setTabText(tabIndex, theDetailView->getDisplayName());
     });
 }
 
 void MainWindow::closeTab(int tabIndex) const {
-    qobject_cast<QTabWidget*>(centralWidget())->removeTab(tabIndex);
+    getTabWidget()->removeTab(tabIndex);
 }
 
 int MainWindow::findTabFor(IntegerPrimaryKey personId) const {
-    for (int i = 0; i < qobject_cast<QTabWidget*>(centralWidget())->count(); i++) {
-        auto* tab = qobject_cast<QTabWidget*>(centralWidget())->widget(i);
+    for (int i = 0; i < getTabWidget()->count(); i++) {
+        auto* tab = getTabWidget()->widget(i);
         // The tab widget should be a "PersonDetailView"
-        if (auto* details = dynamic_cast<PersonDetailView*>(tab)) {
+        if (auto* details = qobject_cast<PersonDetailView*>(tab)) {
             if (details->hasId(personId)) {
                 return i;
             }

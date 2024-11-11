@@ -66,6 +66,10 @@ add_library(opa-lib STATIC
     link_existing/choose_existing_reference_window.cpp
     link_existing/choose_existing_event_window.h
     link_existing/choose_existing_event_window.cpp
+    utils/placeholder_widget.h
+    utils/placeholder_widget.cpp
+    main/person_placeholder_widget.h
+    main/person_placeholder_widget.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

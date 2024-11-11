@@ -89,4 +89,6 @@ private:
     void clearUi();
 
     void syncActions();
+
+    [[nodiscard]] QTabWidget* getTabWidget() const;
 };
