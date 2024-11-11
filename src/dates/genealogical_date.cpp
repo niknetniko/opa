@@ -3,14 +3,14 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "opa_date.h"
+#include "genealogical_date.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringBuilder>
 #include <utility>
 
-OpaDate::OpaDate(
+GenealogicalDate::GenealogicalDate(
     Modifier modifier,
     Quality quality,
     const QDate& proleptic,
@@ -30,31 +30,31 @@ OpaDate::OpaDate(
     userText(std::move(text)) {
 }
 
-OpaDate::Quality OpaDate::quality() const {
+GenealogicalDate::Quality GenealogicalDate::quality() const {
     return this->dateQuality;
 }
 
-QDate OpaDate::prolepticRepresentation() const {
+QDate GenealogicalDate::prolepticRepresentation() const {
     return this->proleptic;
 }
 
-bool OpaDate::hasMonth() const {
+bool GenealogicalDate::hasMonth() const {
     return month;
 }
 
-bool OpaDate::hasYear() const {
+bool GenealogicalDate::hasYear() const {
     return year;
 }
 
-bool OpaDate::hasDay() const {
+bool GenealogicalDate::hasDay() const {
     return day;
 }
 
-OpaDate::Modifier OpaDate::modifier() const {
+GenealogicalDate::Modifier GenealogicalDate::modifier() const {
     return dateModifier;
 }
 
-QString OpaDate::toDatabaseRepresentation() const {
+QString GenealogicalDate::toDatabaseRepresentation() const {
     QJsonObject result;
 
     result[QStringLiteral("dateModifier")] = QVariant::fromValue(this->dateModifier).toString();
@@ -72,7 +72,7 @@ QString OpaDate::toDatabaseRepresentation() const {
     return QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
 }
 
-OpaDate OpaDate::fromDatabaseRepresentation(const QString& text) {
+GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& text) {
     const QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
     QJsonObject result = doc.object();
 
@@ -99,25 +99,21 @@ OpaDate OpaDate::fromDatabaseRepresentation(const QString& text) {
     };
 }
 
-QDate OpaDate::prolepticRepresentationEnd() const {
+QDate GenealogicalDate::prolepticRepresentationEnd() const {
     return endProleptic;
 }
 
-QString OpaDate::text() const {
+QString GenealogicalDate::text() const {
     return userText;
 }
 
-QString OpaDate::toDisplayText() const {
-    // TODO: copy Gramps' date handler system to get this to work better.
-    // TODO: support ranges (better or tout court)
-
+QString GenealogicalDate::toDisplayText() const {
     if (!this->text().isEmpty()) {
         return this->text();
     }
 
     QStringList result;
     if (this->modifier() != NONE) {
-        // TODO: allow translating this...
         auto mod = QVariant::fromValue(modifier()).toString().toLower();
         result.append(mod);
     }
@@ -126,7 +122,6 @@ QString OpaDate::toDisplayText() const {
         result.append(theQuality);
     }
 
-    // TODO: support not using certain parts of the format.
     const QLocale local;
     auto format = local.dateFormat();
     result.append(this->prolepticRepresentation().toString(format));
@@ -134,11 +129,53 @@ QString OpaDate::toDisplayText() const {
     return result.join(QStringLiteral(" "));
 }
 
-OpaDate OpaDate::fromDisplayText([[maybe_unused]] const QString& text) {
-    return {};
+GenealogicalDate GenealogicalDate::fromDisplayText(const QString& text) {
+    auto parts = text.split(QStringLiteral(" "));
+    if (parts.empty()) {
+        return {};
+    }
+
+    auto modifier = NONE;
+    auto quality = EXACT;
+    auto dateRemainder = QStringLiteral();
+
+    // We must assume the only part is a date.
+    if (parts.length() == 1) {
+        dateRemainder = parts.constFirst();
+    } else if (parts.length() == 2) {
+        const QVariant result(parts.constFirst());
+        if (result.canConvert<Modifier>()) {
+            modifier = result.value<Modifier>();
+        } else if (result.canConvert<Quality>()) {
+            quality = result.value<Quality>();
+        } else {
+            qWarning() << "Did not understand" << parts.constFirst();
+        }
+        dateRemainder = parts.at(1);
+    } else if (parts.length() == 3) {
+        const QVariant rawModifier(parts.constFirst());
+        if (rawModifier.canConvert<Modifier>()) {
+            modifier = rawModifier.value<Modifier>();
+        } else {
+            qWarning() << "Unknown modifier part" << rawModifier << "from" << parts;
+        }
+        const QVariant rawQuality(parts.at(1));
+        if (rawQuality.canConvert<Quality>()) {
+            quality = rawQuality.value<Quality>();
+        } else {
+            qWarning() << "Unknown quality part" << rawQuality << "from" << parts;
+        }
+        dateRemainder = parts.sliced(2, parts.length()).join(QStringLiteral(" "));
+    }
+
+    const QLocale local;
+    auto format = local.dateFormat();
+    auto date = QDate::fromString(dateRemainder, format);
+
+    return {modifier, quality, date, {}, true, true, true, QStringLiteral()};
 }
 
-QDebug operator<<(QDebug dbg, const OpaDate& date) {
+QDebug operator<<(QDebug dbg, const GenealogicalDate& date) {
     const QDebugStateSaver saver(dbg);
     dbg.nospace() << date.prolepticRepresentation();
     return dbg;

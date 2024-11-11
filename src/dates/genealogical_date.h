@@ -29,7 +29,7 @@
  * TODO: support parsing from free-form text
  * TODO: support generating human-readable text from this
  */
-class OpaDate {
+class GenealogicalDate {
     Q_GADGET
 
 public:
@@ -41,13 +41,13 @@ public:
 
     Q_ENUM(Quality);
 
-    OpaDate() = default;
+    GenealogicalDate() = default;
 
-    ~OpaDate() = default;
+    ~GenealogicalDate() = default;
 
-    OpaDate(const OpaDate&) = default;
+    GenealogicalDate(const GenealogicalDate&) = default;
 
-    OpaDate(
+    GenealogicalDate(
         Modifier modifier,
         Quality quality,
         const QDate& proleptic,
@@ -58,7 +58,7 @@ public:
         QString text
     );
 
-    OpaDate& operator=(const OpaDate&) = default;
+    GenealogicalDate& operator=(const GenealogicalDate&) = default;
 
     [[nodiscard]] bool hasMonth() const;
 
@@ -80,9 +80,9 @@ public:
 
     [[nodiscard]] QString text() const;
 
-    static OpaDate fromDatabaseRepresentation(const QString& text);
+    static GenealogicalDate fromDatabaseRepresentation(const QString& text);
 
-    static OpaDate fromDisplayText(const QString& text);
+    static GenealogicalDate fromDisplayText(const QString& text);
 
 private:
     Modifier dateModifier = NONE;
@@ -95,6 +95,6 @@ private:
     QString userText;
 };
 
-Q_DECLARE_METATYPE(OpaDate);
+Q_DECLARE_METATYPE(GenealogicalDate);
 
-QDebug operator<<(QDebug dbg, const OpaDate& date);
+QDebug operator<<(QDebug dbg, const GenealogicalDate& date);

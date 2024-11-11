@@ -34,8 +34,8 @@ add_library(opa-lib STATIC
     utils/proxy_enabled_relational_delegate.cpp
     lists/name_origins_management_window.h
     lists/name_origins_management_window.cpp
-    utils/opa_date.h
-    utils/opa_date.cpp
+    dates/genealogical_date.h
+    dates/genealogical_date.cpp
     person_detail/person_event_overview_view.h
     person_detail/person_event_overview_view.cpp
     person_detail/person_event_tab.h
