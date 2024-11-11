@@ -62,11 +62,11 @@ QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
     // These positions are hardcoded from the query above.
     baseModel->setQuery(query);
     baseModel->setHeaderData(0, Qt::Horizontal, i18n("Id"));
-    baseModel->setHeaderData(1, Qt::Horizontal, i18n("Titels"));
-    baseModel->setHeaderData(2, Qt::Horizontal, i18n("Voornamen"));
-    baseModel->setHeaderData(3, Qt::Horizontal, i18n("Voorvoegsels"));
-    baseModel->setHeaderData(4, Qt::Horizontal, i18n("Achternaam"));
-    baseModel->setHeaderData(5, Qt::Horizontal, i18n("Wortel"));
+    baseModel->setHeaderData(1, Qt::Horizontal, i18n("Titles"));
+    baseModel->setHeaderData(2, Qt::Horizontal, i18n("First names"));
+    baseModel->setHeaderData(3, Qt::Horizontal, i18n("Prefixes"));
+    baseModel->setHeaderData(4, Qt::Horizontal, i18n("Surnames"));
+    baseModel->setHeaderData(5, Qt::Horizontal, i18n("Root"));
 
     // We want to add a column, where the name is produced based on other columns.
     auto* combinedModel = new DisplayNameProxyModel(parent);

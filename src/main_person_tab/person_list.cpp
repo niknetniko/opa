@@ -28,7 +28,7 @@ PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
     filtered->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     auto* searchBox = new QLineEdit(this);
-    searchBox->setPlaceholderText(i18n("Zoeken..."));
+    searchBox->setPlaceholderText(i18n("Search.."));
     searchBox->setClearButtonEnabled(true);
 
     // Allow searching...
