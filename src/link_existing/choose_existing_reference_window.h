@@ -8,6 +8,8 @@
 #include <QDialog>
 
 
+class QItemSelection;
+class QDialogButtonBox;
 class KRearrangeColumnsProxyModel;
 class QLabel;
 class QGroupBox;
@@ -23,6 +25,7 @@ public Q_SLOTS:
 
 protected Q_SLOTS:
     void itemSelected(const QModelIndex& selected);
+    void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) const;
 
 protected:
     /**
@@ -53,4 +56,5 @@ private:
     int resultColumn;
 
     QAbstractItemModel* sourceModel;
+    QDialogButtonBox* buttonBox;
 };

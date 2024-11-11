@@ -17,6 +17,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -33,10 +34,17 @@ void ChooseExistingReferenceWindow::accept() {
 
 void ChooseExistingReferenceWindow::itemSelected(const QModelIndex& selected) {
     if (!selected.isValid()) {
+        buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(false);
         return;
     }
 
     accept();
+}
+
+void ChooseExistingReferenceWindow::selectionChanged(
+    const QItemSelection& selected, [[maybe_unused]] const QItemSelection& deselected
+) const {
+    buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(!selected.indexes().isEmpty());
 }
 
 ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
@@ -85,13 +93,20 @@ ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
     tableView->setShowGrid(false);
     tableView->verticalHeader()->hide();
     connect(tableView, &QTableView::doubleClicked, this, &ChooseExistingReferenceWindow::itemSelected);
+    connect(
+        tableView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        &ChooseExistingReferenceWindow::selectionChanged
+    );
 
     innerGroupBoxLayout->addWidget(tableHelpText);
     innerGroupBoxLayout->addWidget(searchBox);
     innerGroupBoxLayout->addWidget(tableView);
 
-    auto* buttonBox = new QDialogButtonBox(this);
+    buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::StandardButton::Cancel | QDialogButtonBox::StandardButton::Ok);
+    buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(false);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

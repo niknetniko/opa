@@ -15,6 +15,7 @@
 #include <QDebug>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QHeaderView>
 #include <QLabel>
 #include <QTableView>
 
@@ -49,6 +50,10 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
     tableView->setItemDelegateForColumn(
         EventsModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::EVENT)
     );
+    tableView->horizontalHeader()->setSectionResizeMode(EventsModel::ID, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(EventsModel::DATE, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setStretchLastSection(true);
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Add a new group box with the role in it.
     auto* roleGroupBox = new QGroupBox(this);
