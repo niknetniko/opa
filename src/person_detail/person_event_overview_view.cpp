@@ -146,7 +146,6 @@ void EventsOverviewView::handleNewEvent() {
 
     auto* editorWindow = new EventEditor(singleRelationModel, singleEventModel, true, this);
     editorWindow->show();
-    editorWindow->adjustSize();
 }
 
 void EventsOverviewView::editSelectedEvent() {
@@ -168,7 +167,6 @@ void EventsOverviewView::editSelectedEvent() {
 
     auto* editorWindow = new EventEditor(eventRelationModel, eventModel, false, this);
     editorWindow->show();
-    editorWindow->adjustSize();
 }
 
 void EventsOverviewView::removeSelectedEvent() const {

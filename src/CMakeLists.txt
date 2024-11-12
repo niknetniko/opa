@@ -38,6 +38,8 @@ add_library(opa-lib STATIC
     dates/genealogical_date.cpp
     dates/genealogical_date_proxy_model.h
     dates/genealogical_date_proxy_model.cpp
+    dates/genealogical_date_edit_window.h
+    dates/genealogical_date_edit_window.cpp
     person_detail/person_event_overview_view.h
     person_detail/person_event_overview_view.cpp
     person_detail/person_event_tab.h
@@ -72,6 +74,8 @@ add_library(opa-lib STATIC
     utils/placeholder_widget.cpp
     main/person_placeholder_widget.h
     main/person_placeholder_widget.cpp
+    utils/proxy_delegate.h
+    utils/proxy_delegate.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

@@ -79,6 +79,8 @@ public:
 
     [[nodiscard]] QString text() const;
 
+    [[nodiscard]] bool isValid() const;
+
     static GenealogicalDate fromDatabaseRepresentation(const QString& text);
 
     static GenealogicalDate fromDisplayText(const QString& text);

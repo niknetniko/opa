@@ -85,6 +85,10 @@ QString GenealogicalDate::text() const {
     return userText;
 }
 
+bool GenealogicalDate::isValid() const {
+    return prolepticRepresentation().isValid();
+}
+
 QString GenealogicalDate::toDisplayText() const {
     QStringList result;
     if (this->modifier() != NONE) {

@@ -39,6 +39,8 @@ public:
 
     [[nodiscard]] QSqlTableModel* eventsModel() const;
 
+    [[nodiscard]] QAbstractItemModel* eventsModelWithDateSupport(QObject* parent) const;
+
     /**
      * Get a model representing all names for a single person.
      *

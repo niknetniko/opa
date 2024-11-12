@@ -154,6 +154,15 @@ QSqlTableModel* DataManager::eventsModel() const {
     return this->baseEventsModel;
 }
 
+QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) const {
+    // TODO: this should happen in the base model instead.
+    auto* model = eventsModel();
+    auto* dateModel = new GenealogicalDateProxyModel(parent);
+    dateModel->setSourceModel(model);
+    dateModel->setDateColumn(EventsModel::DATE);
+    return dateModel;
+}
+
 QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral("SELECT er.role, et.type, events.date, events.name, events.id, er.id "
                                    "FROM events "
@@ -220,7 +229,7 @@ QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerP
 
 QAbstractProxyModel* DataManager::singleEventModel(QObject* parent, const QVariant& eventId) const {
     auto* proxy = new CellFilteredProxyModel(parent);
-    proxy->setSourceModel(this->eventsModel());
+    proxy->setSourceModel(this->eventsModelWithDateSupport(parent));
     proxy->addFilter(EventsModel::ID, eventId);
     return proxy;
 }

@@ -8,14 +8,14 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "ui_event_editor.h"
-#include "ui_temp.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
+#include <dates/genealogical_date.h>
+#include <dates/genealogical_date_edit_window.h>
+#include <utils/proxy_delegate.h>
 
-#include <QMessageBox>
 #include <QSqlError>
-#include <QSqlQuery>
 
 EventEditor::EventEditor(
     QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
@@ -24,12 +24,13 @@ EventEditor::EventEditor(
     eventRelationModel(eventRelationModel),
     eventModel(eventModel),
     newEvent(newEvent),
-    form(new Ui::EventEditorForm()) {
+    form(new Ui::EventEditorForm) {
     form->setupUi(this);
 
     // Connect the buttons.
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept); // NOLINT(*-unused-return-value)
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
+    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditor::editDateWithEditor);
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     connectComboBox(eventModel, EventsModel::TYPE, form->eventTypeComboBox);
@@ -64,9 +65,12 @@ EventEditor::~EventEditor() {
 
 void EventEditor::accept() {
     // Attempt to submit the mapper changes.
-    if (this->eventMapper->submit() && this->eventRelationMapper->submit()) {
+    bool eventSubmit = eventMapper->submit();
+    bool relationSubmit = eventRelationMapper->submit();
+    if (eventSubmit && relationSubmit) {
         QDialog::accept();
     } else {
+        qDebug() << "Event submit" << eventSubmit << ", relation submit" << relationSubmit;
         // Find the original model.
         const auto* eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
         assert(eventSqlModel != nullptr);
@@ -99,4 +103,15 @@ void EventEditor::reject() {
         }
     }
     QDialog::reject();
+}
+
+void EventEditor::editDateWithEditor() {
+    const auto currentText = form->eventDatePicker->text();
+    const auto startDate = GenealogicalDate::fromDisplayText(currentText);
+
+    qDebug() << "Start date is" << startDate << "Is valid?" << startDate.isValid();
+
+    if (const auto date = GenealogicalDateEditWindow::editDate(startDate, this); date.isValid()) {
+        form->eventDatePicker->setText(date.toDisplayText());
+    }
 }
