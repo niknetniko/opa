@@ -65,8 +65,8 @@ EventEditor::~EventEditor() {
 
 void EventEditor::accept() {
     // Attempt to submit the mapper changes.
-    bool eventSubmit = eventMapper->submit();
-    bool relationSubmit = eventRelationMapper->submit();
+    const bool eventSubmit = eventMapper->submit();
+    const bool relationSubmit = eventRelationMapper->submit();
     if (eventSubmit && relationSubmit) {
         QDialog::accept();
     } else {
