@@ -21,20 +21,21 @@ CREATE TABLE names
     given_names TEXT,
     prefix      TEXT,
     surname     TEXT,
+    note        TEXT,
     origin_id   INTEGER NULL DEFAULT NULL REFERENCES name_origins (id) ON DELETE SET DEFAULT
 );
 
 CREATE TABLE event_types
 (
-    id   INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    type TEXT,
+    id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    type    TEXT,
     builtin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE event_roles
 (
-    id   INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    role TEXT,
+    id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    role    TEXT,
     builtin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
@@ -43,7 +44,8 @@ CREATE TABLE events
     id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
     date    TEXT,
-    name    TEXT
+    name    TEXT,
+    note    TEXT
 );
 
 CREATE TABLE event_relations

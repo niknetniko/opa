@@ -91,7 +91,9 @@ public:
     static constexpr int TYPE_ID = 1;
     static constexpr int DATE = 2;
     static constexpr int NAME = 3;
-    static constexpr int TYPE = 4;
+    static constexpr int NOTE = 4;
+    // Extra columns added by the relation.
+    static constexpr int TYPE = 5;
 
     explicit EventsModel(QObject* parent, QSqlTableModel* typesModel);
 };

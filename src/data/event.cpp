@@ -58,4 +58,5 @@ EventsModel::EventsModel(QObject* parent, QSqlTableModel* typesModel) : CustomSq
     CustomSqlRelationalModel::setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
     CustomSqlRelationalModel::setHeaderData(NAME, Qt::Horizontal, i18n("Naam"));
     CustomSqlRelationalModel::setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
+    CustomSqlRelationalModel::setHeaderData(NOTE, Qt::Horizontal, i18n("Notitie"));
 }

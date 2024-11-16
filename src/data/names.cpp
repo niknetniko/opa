@@ -21,6 +21,7 @@ NamesTableModel::NamesTableModel(QObject* parent, QSqlTableModel* originsModel) 
     CustomSqlRelationalModel::setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
     CustomSqlRelationalModel::setHeaderData(ORIGIN_ID, Qt::Horizontal, i18n("Oorsprong-id"));
     CustomSqlRelationalModel::setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
+    CustomSqlRelationalModel::setHeaderData(NOTE, Qt::Horizontal, i18n("Notitie"));
 
     CustomSqlRelationalModel::setSort(SORT, Qt::SortOrder::AscendingOrder);
 }
