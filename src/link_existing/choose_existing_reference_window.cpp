@@ -61,7 +61,6 @@ ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
         searchColumn == -1 ||
         sourceModel->checkIndex(sourceModel->index(0, searchColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
     );
-    // TODO: format IDs (in subclass somehow?)
 
     setWindowModality(Qt::WindowModal);
 

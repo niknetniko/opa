@@ -76,6 +76,8 @@ add_library(opa-lib STATIC
     main/person_placeholder_widget.cpp
     utils/proxy_delegate.h
     utils/proxy_delegate.cpp
+    notes/note_editor_window.h
+    notes/note_editor_window.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib
@@ -127,6 +129,7 @@ target_link_libraries(opa-lib PUBLIC
     KF6::KIOCore
     KF6::KIOFileWidgets
     KF6::KIOWidgets
+    KF6::TextWidgets
     ${SQLite3_LIBRARIES}
 )
 

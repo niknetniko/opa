@@ -45,7 +45,8 @@ find_package(
              IconThemes
              ItemModels
              Kirigami
-             KIO)
+             KIO
+             TextWidgets)
 
 find_package(SQLite3)
 include_directories(${SQLite3_INCLUDE_DIRS})
