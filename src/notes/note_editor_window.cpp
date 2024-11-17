@@ -17,8 +17,8 @@ NoteEditorWindow::NoteEditorWindow(const QString& text, QWidget* parent) : QDial
 
     auto* toolbar = new QToolBar(this);
     textEditor = new KRichTextWidget(this);
+    qDebug() << "Setting existing text to" << text;
     textEditor->setTextOrHtml(text);
-    textEditor->setRichTextSupport(KRichTextWidget::FullSupport);
     textEditor->setCheckSpellingEnabled(true);
     auto actions = textEditor->createActions();
 
@@ -75,11 +75,11 @@ NoteEditorWindow::NoteEditorWindow(const QString& text, QWidget* parent) : QDial
     nestedLayout->setContentsMargins(defaultContentMargins);
 }
 QString NoteEditorWindow::editText(const QString& initialText, const QString& windowTitle, QWidget* parent) {
-    NoteEditorWindow noteEditor{initialText, parent};
-    noteEditor.setWindowTitle(windowTitle);
+    auto* noteEditor = new NoteEditorWindow(initialText, parent);
+    noteEditor->setWindowTitle(windowTitle);
 
-    if (noteEditor.exec() == Accepted) {
-        return noteEditor.textEditor->textOrHtml();
+    if (noteEditor->exec() == Accepted) {
+        return noteEditor->textEditor->textOrHtml();
     } else {
         return QStringLiteral();
     }

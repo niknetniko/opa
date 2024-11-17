@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>313</height>
+    <width>540</width>
+    <height>408</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -105,7 +105,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="eventNameLabel">
             <property name="text">
-             <string>Description</string>
+             <string>Name</string>
             </property>
             <property name="buddy">
              <cstring>eventNameEdit</cstring>
@@ -114,6 +114,30 @@
           </item>
           <item row="2" column="1">
            <widget class="QLineEdit" name="eventNameEdit"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Description</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout2" stretch="0,0">
+            <item>
+             <widget class="KRichTextEdit" name="noteEdit"/>
+            </item>
+            <item alignment="Qt::AlignmentFlag::AlignTop">
+             <widget class="QPushButton" name="noteEditButton">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset theme="edit-entry"/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -131,6 +155,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KRichTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>KRichTextEdit</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

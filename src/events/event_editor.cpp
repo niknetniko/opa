@@ -13,6 +13,7 @@
 #include "utils/proxy_enabled_relational_delegate.h"
 #include <dates/genealogical_date.h>
 #include <dates/genealogical_date_edit_window.h>
+#include <notes/note_editor_window.h>
 #include <utils/proxy_delegate.h>
 
 #include <QSqlError>
@@ -31,6 +32,7 @@ EventEditor::EventEditor(
     connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditor::editDateWithEditor);
+    connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditor::editNoteWithEditor);
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     connectComboBox(eventModel, EventsModel::TYPE, form->eventTypeComboBox);
@@ -48,6 +50,8 @@ EventEditor::EventEditor(
     eventRelationMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventRelationMapper->toFirst();
 
+    form->noteEdit->enableRichTextMode();
+
     // TODO: investigate why this does not work with manual submit.
     //  Possibly since the model uses auto-submit?
     eventMapper = new QDataWidgetMapper(this);
@@ -55,6 +59,7 @@ EventEditor::EventEditor(
     eventMapper->addMapping(form->eventDatePicker, EventsModel::DATE);
     eventMapper->addMapping(form->eventNameEdit, EventsModel::NAME);
     eventMapper->addMapping(form->eventTypeComboBox, EventsModel::TYPE);
+    eventMapper->addMapping(form->noteEdit, EventsModel::NOTE);
     eventMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventMapper->toFirst();
 }
@@ -109,9 +114,16 @@ void EventEditor::editDateWithEditor() {
     const auto currentText = form->eventDatePicker->text();
     const auto startDate = GenealogicalDate::fromDisplayText(currentText);
 
-    qDebug() << "Start date is" << startDate << "Is valid?" << startDate.isValid();
-
     if (const auto date = GenealogicalDateEditWindow::editDate(startDate, this); date.isValid()) {
         form->eventDatePicker->setText(date.toDisplayText());
+    }
+}
+
+void EventEditor::editNoteWithEditor() {
+    qDebug() << form->noteEdit->acceptRichText();
+    const auto currentText = form->noteEdit->textOrHtml();
+
+    if (const auto note = NoteEditorWindow::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+        form->noteEdit->setTextOrHtml(note);
     }
 }

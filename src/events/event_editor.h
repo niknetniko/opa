@@ -28,6 +28,7 @@ public Q_SLOTS:
     void reject() override;
 
     void editDateWithEditor();
+    void editNoteWithEditor();
 
 private:
     QAbstractItemModel* eventRelationModel;
