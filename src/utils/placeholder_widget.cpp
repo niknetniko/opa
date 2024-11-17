@@ -53,8 +53,7 @@ QWidget* PlaceholderWidget::getMainWidget() const {
 
 void TabWidgetPlaceholderWidget::setTabWidget(QTabWidget* mainWidget) {
     setMainWidget(mainWidget);
-    auto r = connect(mainWidget, &QTabWidget::currentChanged, this, &TabWidgetPlaceholderWidget::currentTabChanged);
-    qDebug() << r;
+    connect(mainWidget, &QTabWidget::currentChanged, this, &TabWidgetPlaceholderWidget::currentTabChanged);
 }
 
 QTabWidget* TabWidgetPlaceholderWidget::getTabWidget() const {
