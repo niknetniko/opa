@@ -7,14 +7,13 @@
 
 #include "data/data_manager.h"
 #include "data/event.h"
+#include "dates/genealogical_date.h"
+#include "dates/genealogical_date_edit_window.h"
+#include "notes/note_editor_window.h"
 #include "ui_event_editor.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
-#include <dates/genealogical_date.h>
-#include <dates/genealogical_date_edit_window.h>
-#include <notes/note_editor_window.h>
-#include <utils/proxy_delegate.h>
 
 #include <QSqlError>
 
@@ -120,7 +119,6 @@ void EventEditor::editDateWithEditor() {
 }
 
 void EventEditor::editNoteWithEditor() {
-    qDebug() << form->noteEdit->acceptRichText();
     const auto currentText = form->noteEdit->textOrHtml();
 
     if (const auto note = NoteEditorWindow::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {

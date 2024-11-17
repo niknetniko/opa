@@ -7,6 +7,7 @@
 
 #include "data/data_manager.h"
 #include "data/names.h"
+#include "notes/note_editor_window.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
@@ -59,23 +60,22 @@ NamesEditor::NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* paren
     givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
     form->givenNames->setCompleter(surnameCompleter);
 
-    // Map the data from the database to the form.
+    form->noteEdit->enableRichTextMode();
+    connect(form->noteEditButton, &QPushButton::clicked, this, &NamesEditor::editNoteWithEditor);
+
+    // TODO: investigate why this does not work with manual submit.
+    //  Possibly since the model uses auto-submit?
+    //  This means cancel does not work.
     this->mapper = new QDataWidgetMapper(this);
     mapper->setModel(this->model);
-    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->addMapping(form->titles, NamesTableModel::TITLES);
     mapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->origin, NamesTableModel::ORIGIN);
+    mapper->addMapping(form->noteEdit, NamesTableModel::NOTE);
     mapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     mapper->toFirst();
-
-    qDebug() << "Current index is now " << mapper->currentIndex();
-
-    connect(mapper, &QDataWidgetMapper::currentIndexChanged, this, [](int index) {
-        qDebug() << "DataMapper index changed to " << index;
-    });
 }
 
 void NamesEditor::accept() {
@@ -111,6 +111,14 @@ void NamesEditor::reject() {
         }
     }
     QDialog::reject();
+}
+
+void NamesEditor::editNoteWithEditor() {
+    const auto currentText = form->noteEdit->textOrHtml();
+
+    if (const auto note = NoteEditorWindow::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+        form->noteEdit->setTextOrHtml(note);
+    }
 }
 
 NamesEditor::~NamesEditor() {

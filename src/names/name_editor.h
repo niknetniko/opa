@@ -25,8 +25,9 @@ public:
 
 public Q_SLOTS:
     void accept() override;
-
     void reject() override;
+
+    void editNoteWithEditor();
 
 private:
     QAbstractProxyModel* model;
