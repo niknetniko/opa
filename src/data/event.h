@@ -11,17 +11,90 @@
 #include <QString>
 
 namespace EventRoles {
-    Q_NAMESPACE
+    Q_NAMESPACE;
 
-    enum Values { Primary, Witness };
-
-    Q_ENUM_NS(Values)
-
-    static const QHash<Values, KLazyLocalizedString> nameOriginToString = {
-        {Primary, kli18n("Primary")}, {Witness, kli18n("Witness")}
+    enum Values {
+        /**
+         * The primary participant in the event.
+         * Its role depends on the event in question.
+         * For example, the newborn is the primary in birth, while the deceased is the primary in a death event.
+         */
+        Primary,
+        /**
+         * A generic role for a secondary participant who plays no other role than being present.
+         */
+        Witness,
+        // The following roles are for birth events only.
+        /**
+         * The biological mother of the child.
+         * Role should only be used with birth events.
+         */
+        Mother,
+        /**
+         * The biological father of the child.
+         * Role should only be used with birth events.
+         */
+        Father,
+        /**
+         * The adoptive parent of the child.
+         * Role should only be used with birth events.
+         * Based on the sex of the linked person, it becomes the adoptive mother or father.
+         */
+        AdoptiveParent,
+        /**
+         * A stepparent of the child.
+         * Role should only be used with birth events.
+         * Based on the sex of the linked person, it becomes the stepmother or stepfather.
+         */
+        Stepparent,
+        /**
+         * A foster parent of the child.
+         * Role should only be used with birth events.
+         * Based on the sex of the linked person, it becomes the foster mother or father.
+         */
+        FosterParent,
+        /**
+         * Surrogate mother.
+         * Role should only be used with birth events.
+         * Based on other roles, the surrogate is assumed to not have donated genetic material.
+         * For example, if another woman is linked as GeneticDonor or Mother, it is assumed the surrogate did not
+         * donate any genetic material to the child.
+         */
+        SurrogateMother,
+        /**
+         * Sperm or egg donor of the child.
+         * Role should only be used with birth events.
+         * Based on the sex of the linked person, it is either a sperm donor or egg donor.
+         */
+        GeneticDonor,
+        /**
+         * Indicates that the person is recognized as the parent of the child (the primary participant of the event),
+         * without having been through e.g. adoption procedures.
+         * This encompasses alternative parenting cultures or legal parents of which it is known that they are not the
+         * biological father.
+         * For example, if a man is revealed not to be the biological father, but he still is the legal parent of the
+         * child.
+         *
+         */
+        RecognizedParent,
     };
 
-    static const std::function toDisplayString = [](const QString& databaseValue) {
+    Q_ENUM_NS(Values);
+
+    const QHash<Values, KLazyLocalizedString> nameOriginToString{
+        {Primary, kli18n("Primary")},
+        {Witness, kli18n("Witness")},
+        {Mother, kli18n("Mother")},
+        {Father, kli18n("Father")},
+        {AdoptiveParent, kli18n("Adoptive parent")},
+        {Stepparent, kli18n("Stepparent")},
+        {FosterParent, kli18n("Foster parent")},
+        {SurrogateMother, kli18n("Surrogate mother")},
+        {GeneticDonor, kli18n("Genetic donor")},
+        {RecognizedParent, kli18n("Recognized parent")},
+    };
+
+    const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 } // namespace EventRoles
@@ -44,9 +117,9 @@ namespace EventTypes {
 
     enum Values { Birth, Death, Marriage, Divorce, Baptism, Funeral };
 
-    Q_ENUM_NS(Values)
+    Q_ENUM_NS(Values);
 
-    static const QHash<Values, KLazyLocalizedString> nameOriginToString = {
+    const QHash<Values, KLazyLocalizedString> nameOriginToString{
         {Birth, kli18n("Birth")},
         {Death, kli18n("Death")},
         {Marriage, kli18n("Marriage")},
@@ -55,7 +128,7 @@ namespace EventTypes {
         {Funeral, kli18n("Funeral")}
     };
 
-    static const std::function toDisplayString = [](const QString& databaseValue) {
+    const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 } // namespace EventTypes
