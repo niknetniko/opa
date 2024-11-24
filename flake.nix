@@ -110,6 +110,7 @@
               pkgs.llvmPackages.clang-unwrapped.python
               pkgs.gersemi
               treefmtEval.config.build.wrapper
+              pkgs.bashInteractive
             ];
           shellHook = ''
             export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
