@@ -17,6 +17,14 @@ EventRolesModel::EventRolesModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
 }
 
+QList<EventTypes::Values> EventTypes::relationshipStartingEvents() {
+    return {Marriage};
+}
+
+QList<EventRoles::Values> EventRoles::parentRoles() {
+    return {Mother, Father, AdoptiveParent, Stepparent, FosterParent, SurrogateMother, GeneticDonor, RecognizedParent};
+}
+
 QVariant EventRolesModel::getDefaultRole() {
     auto* roleModel = DataManager::get().eventRolesModel();
     auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();

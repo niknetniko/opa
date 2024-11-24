@@ -22,15 +22,16 @@ VALUES (2, 1, 'Jan', 'Jaap', 2),
 
 INSERT INTO event_roles (role, builtin)
 VALUES ('Primary', true),
+       ('Partner', true),
        ('Witness', true),
        ('Mother', true),
        ('Father', true),
-       ('Adoptive parent', true),
+       ('AdoptiveParent', true),
        ('Stepparent', true),
-       ('Foster parent', true),
-       ('Surrogate mother', true),
-       ('Genetic donor', true),
-       ('Recognized parent', true);
+       ('FosterParent', true),
+       ('SurrogateMother', true),
+       ('GeneticDonor', true),
+       ('RecognizedParent', true);
 
 INSERT INTO event_types(type, builtin)
 VALUES ('Birth', true),

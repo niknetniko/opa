@@ -78,6 +78,8 @@ add_library(opa-lib STATIC
     utils/proxy_delegate.cpp
     notes/note_editor_window.h
     notes/note_editor_window.cpp
+    data/family.h
+    data/family.cpp
 )
 
 ecm_qt_declare_logging_category(opa-lib

@@ -18,8 +18,14 @@ namespace EventRoles {
          * The primary participant in the event.
          * Its role depends on the event in question.
          * For example, the newborn is the primary in birth, while the deceased is the primary in a death event.
+         * One exception are marriages and other partnership events: by convention, the person with the lowest ID
+         * is the primary, the other one is called "Partner".
          */
         Primary,
+        /**
+         * Role for the second person in relationship events.
+         */
+        Partner,
         /**
          * A generic role for a secondary participant who plays no other role than being present.
          */
@@ -83,6 +89,7 @@ namespace EventRoles {
 
     const QHash<Values, KLazyLocalizedString> nameOriginToString{
         {Primary, kli18n("Primary")},
+        {Partner, kli18n("Partner")},
         {Witness, kli18n("Witness")},
         {Mother, kli18n("Mother")},
         {Father, kli18n("Father")},
@@ -97,6 +104,9 @@ namespace EventRoles {
     const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
+
+    QList<Values> parentRoles();
+
 } // namespace EventRoles
 
 class EventRolesModel : public QSqlTableModel {
@@ -131,6 +141,12 @@ namespace EventTypes {
     const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
+
+    /**
+     * A list of event types that start a relationship which can lead to a family.
+     */
+    QList<Values> relationshipStartingEvents();
+
 } // namespace EventTypes
 
 class EventTypesModel : public QSqlTableModel {

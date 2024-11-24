@@ -34,7 +34,7 @@ namespace NameOrigins {
 
     Q_ENUM_NS(Values)
 
-    static const QHash<Values, KLazyLocalizedString> nameOriginToString = {
+    const QHash<Values, KLazyLocalizedString> nameOriginToString = {
         {Unknown, kli18n("Unknown")},
         {Inherited, kli18n("Inherited")},
         {Patrilineal, kli18n("Patrilineal")},
@@ -46,7 +46,7 @@ namespace NameOrigins {
         {Occupation, kli18n("Occupation")}
     };
 
-    static const std::function toDisplayString = [](const QString& databaseValue) {
+    const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 }; // namespace NameOrigins

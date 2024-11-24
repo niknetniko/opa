@@ -67,21 +67,20 @@ inline QModelIndex mapToSourceModel(const QModelIndex& index) {
 
 template<typename E>
 bool isValidEnum(const QString& value) {
-    auto result = QMetaEnum::fromType<E>().keyToValue(value.toUtf8().constData());
-    return result > 0;
+    auto result = QMetaEnum::fromType<E>().keyToValue(value.toLatin1().constData());
+    return result >= 0;
 }
 
 template<typename E>
 E enumFromString(const QString& value) {
-    auto result = QMetaEnum::fromType<E>().keyToValue(value.toUtf8().constData());
+    auto result = QMetaEnum::fromType<E>().keyToValue(value.toLatin1().constData());
     assert(result >= 0);
     return static_cast<E>(result);
 }
 
 template<typename E>
 QString genericToDisplayString(const QString& databaseValue, QHash<E, KLazyLocalizedString> mapping) {
-    // Attempt to get the value as enum.
-    auto result = QMetaEnum::fromType<E>().keyToValue(databaseValue.toUtf8().data());
+    auto result = QMetaEnum::fromType<E>().keyToValue(databaseValue.toLatin1().constData());
     if (result == -1) {
         // This is not a built-in type, so do nothing with it.
         return databaseValue;
