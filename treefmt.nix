@@ -2,7 +2,7 @@
 {
   projectRootFile = "flake.nix";
   # Nix files
-  programs.nixfmt-rfc-style.enable = true;
+  programs.nixfmt.enable = true;
   # CMake files
   programs.cmake-format.enable = true;
   # C++
