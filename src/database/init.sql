@@ -1,6 +1,6 @@
-INSERT INTO people(root, sex)
-VALUES (true, 'male'),
-       (false, 'female');
+-- INSERT INTO people(root, sex)
+-- VALUES (true, 'male'),
+--        (false, 'female');
 
 INSERT INTO name_origins(origin, builtin)
 VALUES ('Unknown', true),
@@ -13,12 +13,12 @@ VALUES ('Unknown', true),
        ('Location', true),
        ('Occupation', true);
 
-INSERT INTO names(person_id, sort, given_names, surname, origin_id)
-VALUES (1, 1, 'Jos', 'Jozephson', 1);
-
-INSERT INTO names(person_id, sort, given_names, surname, origin_id)
-VALUES (2, 1, 'Jan', 'Jaap', 2),
-       (2, 2, 'Aap', 'Daap', 1);
+-- INSERT INTO names(person_id, sort, given_names, surname, origin_id)
+-- VALUES (1, 1, 'Jos', 'Jozephson', 1);
+--
+-- INSERT INTO names(person_id, sort, given_names, surname, origin_id)
+-- VALUES (2, 1, 'Jan', 'Jaap', 2),
+--        (2, 2, 'Aap', 'Daap', 1);
 
 INSERT INTO event_roles (role, builtin)
 VALUES ('Primary', true),
@@ -41,10 +41,10 @@ VALUES ('Birth', true),
        ('Baptism', true),
        ('Funeral', true);
 
-INSERT INTO events (type_id, date, name)
-VALUES (1, NULL, 'test 1'),
-       (2, NULL, 'test 2');
-
-INSERT INTO event_relations (event_id, person_id, role_id)
-VALUES (1, 1, 1),
-       (2, 2, 2);
+-- INSERT INTO events (type_id, date, name)
+-- VALUES (1, NULL, 'test 1'),
+--        (2, NULL, 'test 2');
+--
+-- INSERT INTO event_relations (event_id, person_id, role_id)
+-- VALUES (1, 1, 1),
+--        (2, 2, 2);

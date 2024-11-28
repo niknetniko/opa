@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // ReSharper disable CppMemberFunctionMayBeStatic
+// ReSharper disable CppMemberFunctionMayBeConst
 #include "utils/builtin_model.h"
 
 #include <QAbstractItemModelTester>

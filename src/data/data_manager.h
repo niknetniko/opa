@@ -91,6 +91,15 @@ public:
         QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
     ) const;
 
+    /**
+     * Get a tree model of all partners and children of a certain person.
+     * The children are modeled as child rows of parents.
+     * Children without other parent are added under a synthetic "other" parent.
+     *
+     * TODO: include add partners.
+     */
+    QAbstractProxyModel* familyModelFor(QObject* parent, IntegerPrimaryKey person);
+
 Q_SIGNALS:
     /**
      * Called when a change has occurred in a certain model, and other models depending on data

@@ -1,7 +1,8 @@
-
-// SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 #pragma once
 #include "event.h"
@@ -41,13 +42,27 @@ public:
 
     FamilyProxyModel(IntegerPrimaryKey person, QObject* parent);
 
-    QModelIndex parent(const QModelIndex& child) const override;
+    [[nodiscard]] QModelIndex parent(const QModelIndex& child) const override;
+    bool hasChildren(const QModelIndex& parent) const override;
 
-    QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
-    QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
+    [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
+    [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
 
-    int rowCount(const QModelIndex& parent) const override;
+    [[nodiscard]] int rowCount(const QModelIndex& parent) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
+
+    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
+
+    QString query() const;
+
+
+private Q_SLOTS:
+    void updateMapping();
 
 private:
-    QMap<QModelIndex, QList<QModelIndex>> createMapping() const;
+    QString query_;
+    QMap<int, QList<int>> mapping;
+
+    // QString debugPrint(const QAbstractItemModel* model, int row) const;
 };

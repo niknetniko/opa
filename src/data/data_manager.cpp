@@ -8,6 +8,7 @@
 #include "data/names.h"
 #include "dates/genealogical_date_proxy_model.h"
 #include "event.h"
+#include "family.h"
 #include "names/names_overview_view.h"
 #include "person.h"
 #include "utils/grouped_items_proxy_model.h"
@@ -243,6 +244,10 @@ QAbstractProxyModel* DataManager::singleEventRelationModel(
     proxy->addFilter(EventRelationsModel::ROLE_ID, roleId);
     proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
     return proxy;
+}
+QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimaryKey person) {
+    // TODO: link properly for updates.
+    return new FamilyProxyModel(person, parent);
 }
 
 void DataManager::listenToModel(const QSqlTableModel* model) const {
