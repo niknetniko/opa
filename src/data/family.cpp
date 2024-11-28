@@ -12,6 +12,8 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
+constexpr int BASTARD_CHILDREN_ROW_ID = std::numeric_limits<int>::max();
+
 
 FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) : QAbstractProxyModel(parent) {
     query_ = QStringLiteral(R"-(
@@ -71,7 +73,8 @@ WHERE event_relations.person_id != %1
                  .arg(person);
 
     QStringList roleValue;
-    for (auto string: EventTypes::relationshipStartingEvents()) {
+    const auto relationShipEvents = EventTypes::relationshipStartingEvents();
+    for (auto string: relationShipEvents) {
         roleValue.append(QString::fromUtf8(EventTypes::nameOriginToString[string].untranslatedText()));
     }
     roleValue.append(QString::fromUtf8(EventTypes::nameOriginToString[EventTypes::Birth].untranslatedText()));
@@ -102,6 +105,9 @@ WHERE event_relations.person_id != %1
     // TODO: check if this needs to happen when the underlying model changes.
     connect(this, &QAbstractProxyModel::sourceModelChanged, this, &FamilyProxyModel::updateMapping);
 
+    // We need at least one extra row.
+    assert(baseModel->rowCount() < BASTARD_CHILDREN_ROW_ID - 1);
+
     QAbstractProxyModel::setSourceModel(baseModel);
 }
 
@@ -113,7 +119,11 @@ QModelIndex FamilyProxyModel::parent(const QModelIndex& child) const {
     auto sourceChild = mapToSource(child);
     for (auto [sourceParentRow, sourceChildRows]: mapping.asKeyValueRange()) {
         if (sourceChildRows.contains(sourceChild.row())) {
-            return mapFromSource(sourceModel()->index(sourceParentRow, 0));
+            if (sourceParentRow == BASTARD_CHILDREN_ROW_ID && hasBastardChildren()) {
+                return index(mapping.keys().size() - 1, 0);
+            } else {
+                return mapFromSource(sourceModel()->index(sourceParentRow, 0));
+            }
         }
     }
 
@@ -140,7 +150,6 @@ QModelIndex FamilyProxyModel::mapFromSource(const QModelIndex& sourceIndex) cons
 
     // We have a child, so the row is relative to the parent.
     for (auto it = mapping.cbegin(), end = mapping.cend(); it != end; ++it) {
-        auto sourceParentRow = it.key();
         auto sourceChildRows = it.value();
         auto proxyParentIndex = std::distance(mapping.cbegin(), it);
         if (sourceChildRows.contains(sourceRow)) {
@@ -170,19 +179,21 @@ QModelIndex FamilyProxyModel::mapToSource(const QModelIndex& proxyIndex) const {
 int FamilyProxyModel::rowCount(const QModelIndex& parent) const {
     // If we pass the top-level root, return the number of parents.
     if (!parent.isValid()) {
-        // TODO: support another virtual row.
-        // if (mapping.keys().contains(-1)) {
-        //     // We do +1 since we manually add a top-level item.
-        //     return static_cast<int>(mapping.keys().size() + 1);
-        // } else {
         return static_cast<int>(mapping.keys().size());
-        // }
     }
 
-    // If the parent is one of the keys, it is a child.v
-    auto sourceParent = mapToSource(parent);
-    if (parent.column() == 0 && mapping.contains(sourceParent.row())) {
-        return static_cast<int>(mapping[sourceParent.row()].size());
+    int sourceParentRow;
+    if (hasBastardParent(parent)) {
+        // If the parent is for bastard children, we use the special row.
+        sourceParentRow = BASTARD_CHILDREN_ROW_ID;
+    } else {
+        auto sourceParent = mapToSource(parent);
+        sourceParentRow = sourceParent.row();
+    }
+
+    // If the parent is one of the keys, it is a child.
+    if (parent.column() == 0 && mapping.contains(sourceParentRow)) {
+        return static_cast<int>(mapping[sourceParentRow].size());
     }
 
     // In all other cases, either because it is not the right column, or we check more levels,
@@ -190,7 +201,7 @@ int FamilyProxyModel::rowCount(const QModelIndex& parent) const {
     return 0;
 }
 
-int FamilyProxyModel::columnCount(const QModelIndex& parent) const {
+int FamilyProxyModel::columnCount([[maybe_unused]] const QModelIndex& parent) const {
     return sourceModel()->columnCount();
 }
 
@@ -212,25 +223,26 @@ QModelIndex FamilyProxyModel::index(int row, int column, const QModelIndex& pare
         if (row >= keys.size()) {
             return {};
         }
-        // We do not have a parent.
         auto originalRow = keys[row];
         return createIndex(row, column, originalRow);
     }
 }
 
 QVariant FamilyProxyModel::data(const QModelIndex& index, int role) const {
-    // TODO: handle this
-    // if (index.isValid() && !index.parent().isValid() && role == Qt::DisplayRole &&
-    //     index.row() == rowCount(QModelIndex()) - 1) {
-    //     // We are accessing the special parent row without actual parent.
-    //     if (index.column() == GIVEN_NAMES) {
-    //         return QStringLiteral("Out of wedlock");
-    //     } else if (index.column() == TYPE) {
-    //         return EventTypes::Values::Marriage;
-    //     } else {
-    //         return QStringLiteral("");
-    //     }
-    // }
+    assert(checkIndex(index, CheckIndexOption::IndexIsValid));
+
+    if (isBastardParentRow(index) && role == Qt::DisplayRole) {
+        switch (index.column()) {
+            // TODO: properly handle this.
+            case GIVEN_NAMES:
+                return QStringLiteral("Out of wedlock");
+            case TYPE:
+                return EventTypes::Marriage;
+            default:
+                return {};
+        }
+    }
+
     return QAbstractProxyModel::data(index, role);
 }
 
@@ -240,97 +252,52 @@ QString FamilyProxyModel::query() const {
 
 void FamilyProxyModel::updateMapping() {
     mapping.clear();
-    QMap<QModelIndex, QList<QModelIndex>> internalMapping;
-
     if (sourceModel() == nullptr) {
         return; // There is no data.
-    }
-
-    qDebug() << " === SOURCE MODEL ===";
-    // Print all source stuff for debug.
-    for (int row = 0; row < sourceModel()->rowCount(); ++row) {
-        // qDebug() << debugPrint(sourceModel(), row);
     }
 
     // First, map all parents to their index.
     QHash<IntegerPrimaryKey, QModelIndex> parentIdToRelationshipIndex;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto eventType = enumFromString<EventTypes::Values>(sourceModel()->index(row, TYPE).data().toString());
-        auto personId = sourceModel()->index(row, PERSON_ID).data().toLongLong();
-        auto eventId = sourceModel()->index(row, EVENT_ID).data().toLongLong();
-        auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(row, ROLE).data().toString());
         if (EventTypes::relationshipStartingEvents().contains(eventType)) {
-            qDebug() << "Found partner relationship for event" << eventId << "with role" << eventRole;
+            auto personId = sourceModel()->index(row, PERSON_ID).data().toLongLong();
             parentIdToRelationshipIndex[personId] = sourceModel()->index(row, 0);
         }
     }
 
-    qDebug() << "Mapped all parents to their index:";
-    qDebug() << "  " << parentIdToRelationshipIndex;
-
     // Now, we can map every birth event to a relationship index.
-    QHash<IntegerPrimaryKey, QModelIndex> birthEventToParentRelationshipIndex;
+    QHash<IntegerPrimaryKey, int> birthEventToParentRelationshipIndex;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(row, ROLE).data().toString());
-        auto personId = sourceModel()->index(row, PERSON_ID).data().toLongLong();
-        auto eventId = sourceModel()->index(row, EVENT_ID).data().toLongLong();
         if (EventRoles::parentRoles().contains(eventRole)) {
-            qDebug() << "Found parent relationship for event" << eventId << "with role" << eventRole;
+            auto eventId = sourceModel()->index(row, EVENT_ID).data().toLongLong();
+            auto personId = sourceModel()->index(row, PERSON_ID).data().toLongLong();
             auto parentRelationshipIndex = parentIdToRelationshipIndex[personId];
-            birthEventToParentRelationshipIndex[eventId] = parentRelationshipIndex;
+            birthEventToParentRelationshipIndex[eventId] = parentRelationshipIndex.row();
         }
     }
-
-    qDebug() << "Mapped all births to their relationship index:";
-    qDebug() << "   " << birthEventToParentRelationshipIndex;
 
     // Finally, we map every parent to their children.
-    for (int row = 0; row < sourceModel()->rowCount(); ++row) {
-        auto eventType = enumFromString<EventTypes::Values>(sourceModel()->index(row, TYPE).data().toString());
-        auto eventId = sourceModel()->index(row, EVENT_ID).data().toLongLong();
-        auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(row, ROLE).data().toString());
+    for (int sourceRow = 0; sourceRow < sourceModel()->rowCount(); ++sourceRow) {
+        auto eventType = enumFromString<EventTypes::Values>(sourceModel()->index(sourceRow, TYPE).data().toString());
+        auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(sourceRow, ROLE).data().toString());
         if (eventType == EventTypes::Birth && eventRole == EventRoles::Primary) {
-            qDebug() << "Mapping birth event" << eventId << "with role" << eventRole;
-            auto parentRelationshipIndex = birthEventToParentRelationshipIndex[eventId];
-            qDebug() << "  the event is mapped to" << parentRelationshipIndex;
-            internalMapping[parentRelationshipIndex].append(sourceModel()->index(row, 0));
+            auto eventId = sourceModel()->index(sourceRow, EVENT_ID).data().toLongLong();
+            auto parentRelationshipRow = birthEventToParentRelationshipIndex.value(eventId, BASTARD_CHILDREN_ROW_ID);
+            mapping[parentRelationshipRow].append(sourceRow);
         }
     }
-
-    for (auto [key, value]: internalMapping.asKeyValueRange()) {
-        int parentRow = key.row();
-        // qDebug() << "PARENT" << debugPrint(sourceModel(), parentRow) << key;
-        for (auto modelIndex: std::as_const(value)) {
-            int childRow = modelIndex.row();
-            // qDebug() << "  CHILD" << debugPrint(sourceModel(), childRow) << modelIndex;
-        }
-        qDebug() << key << value;
-    }
-
-    // TODO: do this directly.
-    for (auto [key, value]: internalMapping.asKeyValueRange()) {
-        int parentRow = key.row();
-        for (auto modelIndex: std::as_const(value)) {
-            int childRow = modelIndex.row();
-            mapping[parentRow].append(childRow);
-        }
-    }
-
-    qDebug() << "MAPPING IS ======================================";
-    qDebug() << mapping;
 }
 
-// QString FamilyProxyModel::debugPrint(const QAbstractItemModel* model, int row) const {
-//     if (row >= model->rowCount()) {
-//         return QStringLiteral("[invalid]");
-//     }
-//     auto eventType = enumFromString<EventTypes::Values>(model->index(row, TYPE).data().toString());
-//     auto personId = model->index(row, PERSON_ID).data().toLongLong();
-//     auto eventId = sourceModel()->index(row, EVENT_ID).data().toLongLong();
-//     auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(row, ROLE).data().toString());
-//
-//     QString text;
-//     QDebug{&text}.nospace() << "[id=" << eventId << ",type=" << eventType << ",person=" << personId
-//                             << ",role=" << eventRole << "]";
-//     return text;
-// }
+bool FamilyProxyModel::hasBastardChildren() const {
+    return mapping.keys().contains(BASTARD_CHILDREN_ROW_ID);
+}
+
+bool FamilyProxyModel::isBastardParentRow(const QModelIndex& index) const {
+    return !index.parent().isValid() && hasBastardParent(index);
+}
+
+bool FamilyProxyModel::hasBastardParent(const QModelIndex& parent) const {
+    return hasBastardChildren() && parent.row() + 1 == mapping.keys().size();
+}

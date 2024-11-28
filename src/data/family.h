@@ -64,5 +64,7 @@ private:
     QString query_;
     QMap<int, QList<int>> mapping;
 
-    // QString debugPrint(const QAbstractItemModel* model, int row) const;
+    bool hasBastardChildren() const;
+    bool isBastardParentRow(const QModelIndex& index) const;
+    bool hasBastardParent(const QModelIndex& parent) const;
 };

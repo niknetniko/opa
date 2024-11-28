@@ -149,6 +149,25 @@ private:
                                .arg(motherRoleId)));
     }
 
+    void addBastardChild() {
+        QSqlQuery query;
+        // Add a bastard child.
+        auto bastardChildId = addPerson(u"Bastard"_s, u"Bober"_s, u"Female"_s);
+        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
+        auto birthEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        auto fatherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Father'"_s);
+        auto primaryRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Primary'"_s);
+        // Link it to the parent.
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                               .arg(birthEvent)
+                               .arg(1)
+                               .arg(fatherRoleId)));
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                               .arg(birthEvent)
+                               .arg(bastardChildId)
+                               .arg(primaryRoleId)));
+    }
+
 private Q_SLOTS:
     void init() {
         // Without this, we cannot test anything.
@@ -166,7 +185,7 @@ private Q_SLOTS:
         db.close();
     }
 
-    void testCorrectDataInDefaultCase() {
+    void testDefaultCaseBasics() {
         auto* model = DataManager::get().familyModelFor(this, 1);
         QCOMPARE(model->rowCount(), 1);
 
@@ -174,13 +193,32 @@ private Q_SLOTS:
         QCOMPARE(firstParentIndex.data(), 2);
 
         // Only the first column has parents.
-        qDebug() << "CHECK NON-ZERO COLUMN";
         QCOMPARE(model->rowCount(model->index(0, 3)), 0);
-        qDebug() << "CHECK ZERO COLUMN";
         QCOMPARE(model->rowCount(model->index(0, 0)), 1);
     }
 
-    void testWithModelTester() {
+    void testDefaultCaseWithModelTester() {
+        auto* model = DataManager::get().familyModelFor(this, 1);
+        new QAbstractItemModelTester(model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+    }
+
+    void testBastardCaseBasics() {
+        addBastardChild();
+
+        auto* model = DataManager::get().familyModelFor(this, 1);
+        QCOMPARE(model->rowCount(), 2);
+
+        // The ID of the first parent.
+        QCOMPARE(model->index(0, FamilyProxyModel::PERSON_ID).data(), 2);
+        // The parent of the bastard children.
+        QCOMPARE(model->index(1, FamilyProxyModel::PERSON_ID).data(), QVariant{});
+
+        QCOMPARE(model->rowCount(model->index(0, 0)), 1);
+        QCOMPARE(model->rowCount(model->index(1, 0)), 1);
+    }
+
+    void testBastardCaseWithModelTester() {
+        addBastardChild();
         auto* model = DataManager::get().familyModelFor(this, 1);
         new QAbstractItemModelTester(model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
