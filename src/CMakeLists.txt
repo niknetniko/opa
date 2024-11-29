@@ -80,6 +80,8 @@ add_library(opa-lib STATIC
     notes/note_editor_window.cpp
     data/family.h
     data/family.cpp
+    person_detail/person_family_tab.cpp
+    person_detail/person_family_tab.h
 )
 
 ecm_qt_declare_logging_category(opa-lib

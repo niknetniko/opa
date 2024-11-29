@@ -15,9 +15,8 @@
 
 Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
 
-const static auto driver = QStringLiteral("QSQLITE"); // NOLINT(*-err58-cpp)
+const static auto driver = QStringLiteral("QSQLITE");
 
-// NOLINTNEXTLINE(*-use-internal-linkage)
 void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
     for (auto& command: script.split(QStringLiteral(";"))) {
         command.replace(QStringLiteral("\n"), QStringLiteral(" "));
@@ -53,7 +52,7 @@ int sql_trace_callback(unsigned int type, [[maybe_unused]] void* context, void* 
     return 0;
 }
 
-void open_database(const QString& file, bool seed) {
+void openDatabase(const QString& file, bool seed, bool initialise) {
     if (!QSqlDatabase::isDriverAvailable(driver)) {
         qCritical() << "SQLite driver is not available. Hu?" << QSqlDatabase::drivers();
         abort();
@@ -113,22 +112,39 @@ void open_database(const QString& file, bool seed) {
     qDebug() << "Running database creation script...";
     executeScriptOrAbort(schema, database);
 
+    if (!initialise) {
+        qDebug() << "Not initialising database.";
+        return;
+    }
+
+    qDebug() << "Adding built-in data";
+    QFile initFile(QStringLiteral(":/init.sql"));
+    if (!initFile.open(QFile::ReadOnly | QFile::Text)) {
+        qWarning() << "Error occurred opening database init file";
+        abort();
+    }
+    QTextStream initStream(&initFile);
+    QString init = initStream.readAll();
+    executeScriptOrAbort(init, database);
+
     if (!seed) {
         qDebug() << "Not seeding database.";
         return;
     }
 
+    qDebug() << "Seeding with sample data";
+
     // Initialize the data in the database.
-    QFile init_file(QStringLiteral(":/init.sql"));
-    if (!init_file.open(QFile::ReadOnly | QFile::Text)) {
-        qWarning() << "Error occurred opening database init file";
+    QFile seedFile(QStringLiteral(":/init.sql"));
+    if (!seedFile.open(QFile::ReadOnly | QFile::Text)) {
+        qWarning() << "Error occurred opening database seed file";
         abort();
     }
-    QTextStream init_stream(&init_file);
-    const QString init = init_stream.readAll();
-    executeScriptOrAbort(init, database);
+    QTextStream seedStream(&seedFile);
+    QString seedQuery = seedStream.readAll();
+    executeScriptOrAbort(seedQuery, database);
 }
 
-void close_database() {
+void closeDatabase() {
     QSqlDatabase::database().close();
 }

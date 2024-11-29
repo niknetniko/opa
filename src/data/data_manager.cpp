@@ -246,15 +246,27 @@ QAbstractProxyModel* DataManager::singleEventRelationModel(
     return proxy;
 }
 QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimaryKey person) {
-    // TODO: link properly for updates.
-    return new FamilyProxyModel(person, parent);
+    auto* proxyModel = new FamilyProxyModel(person, parent);
+
+    propagateToModel<FamilyProxyModel>(
+        proxyModel,
+        {Schema::EventsTable,
+         Schema::EventTypesTable,
+         Schema::EventRolesTable,
+         Schema::EventRelationsTable,
+         Schema::NamesTable,
+         Schema::PeopleTable},
+        [](auto* model) { model->resetAndLoadData(); }
+    );
+
+    return proxyModel;
 }
 
 void DataManager::listenToModel(const QSqlTableModel* model) const {
-    connect(model, &QAbstractItemModel::dataChanged, this, &DataManager::onSourceModelChanged);
-    connect(model, &QAbstractItemModel::rowsInserted, this, &DataManager::onSourceModelChanged);
-    connect(model, &QAbstractItemModel::rowsRemoved, this, &DataManager::onSourceModelChanged);
-    connect(model, &QAbstractItemModel::modelReset, this, &DataManager::onSourceModelChanged);
+    connect(model, &QSqlTableModel::dataChanged, this, &DataManager::onSourceModelChanged);
+    connect(model, &QSqlTableModel::rowsInserted, this, &DataManager::onSourceModelChanged);
+    connect(model, &QSqlTableModel::rowsRemoved, this, &DataManager::onSourceModelChanged);
+    connect(model, &QSqlTableModel::modelReset, this, &DataManager::onSourceModelChanged);
 }
 
 void DataManager::onSourceModelChanged() {

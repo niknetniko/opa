@@ -27,7 +27,7 @@ class EventEditorTest : public QObject {
 
 private Q_SLOTS:
     void init() {
-        open_database(u":memory:"_s, false);
+        openDatabase(u":memory:"_s, false, false);
 
         QSqlQuery query;
         QVERIFY(query.exec(u"INSERT INTO event_types (id, type, builtin) VALUES (1, 'One', true), (2, 'Two', true)"_s));

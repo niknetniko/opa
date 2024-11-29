@@ -57,7 +57,7 @@ private Q_SLOTS:
         QVERIFY(QSqlDatabase::isDriverAvailable(u"QSQLITE"_s));
 
         // Open the database.
-        open_database(u":memory:"_s);
+        openDatabase(u":memory:"_s);
     }
 
     void cleanup() {

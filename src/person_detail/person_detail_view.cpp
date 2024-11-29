@@ -10,6 +10,7 @@
 #include "data/person.h"
 #include "database/schema.h"
 #include "person_event_tab.h"
+#include "person_family_tab.h"
 #include "person_name_tab.h"
 #include "ui_person_detail_view.h"
 #include "utils/formatted_identifier_delegate.h"
@@ -28,11 +29,15 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
 
     // Create tab for events
     auto* eventTab = new PersonEventTab(id, ui->tabWidget);
-    ui->tabWidget->addTab(eventTab, i18n("Gebeurtenissen"));
+    ui->tabWidget->addTab(eventTab, i18n("Events"));
+
+    // Create a tab for family.
+    auto* familyTab = new PersonFamilyTab(id, ui->tabWidget);
+    ui->tabWidget->addTab(familyTab, i18n("Family"));
 
     // Create tab for names
     auto* nameTab = new PersonNameTab(id, ui->tabWidget);
-    ui->tabWidget->addTab(nameTab, i18n("Namen"));
+    ui->tabWidget->addTab(nameTab, i18n("Names"));
 
     // Connect the model to this view, so we update when the data is changed.
     connect(this->model, &QAbstractProxyModel::dataChanged, this, &PersonDetailView::populate);

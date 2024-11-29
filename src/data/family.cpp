@@ -15,14 +15,17 @@
 constexpr int BASTARD_CHILDREN_ROW_ID = std::numeric_limits<int>::max();
 
 
-FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) : QAbstractProxyModel(parent) {
+FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) :
+    QAbstractProxyModel(parent),
+    person(person) {
+    // TODO: is it needed to remove the hard-coded roles and relationships?
     query_ = QStringLiteral(R"-(
 WITH parent_events(event_id) AS
        (SELECT events.id
         FROM events
                LEFT JOIN event_relations on events.id = event_relations.event_id
                LEFT JOIN event_roles on event_relations.role_id = event_roles.id
-        WHERE person_id = %1
+        WHERE person_id = :id
           AND event_roles.role IN ('Father', 'Mother')),
      children(event_id) AS
        (SELECT events.id
@@ -40,7 +43,7 @@ WITH parent_events(event_id) AS
                LEFT JOIN event_roles on event_relations.role_id = event_roles.id
                LEFT JOIN event_types on event_types.id = events.type_id
         WHERE event_roles.role IN ('Father', 'Mother')
-          AND event_relations.person_id != %1
+          AND event_relations.person_id != :id
           AND events.id IN parent_events),
      relationships(event_id) AS
        (SELECT events.id
@@ -66,49 +69,11 @@ FROM events
        LEFT JOIN event_roles ON event_roles.id = event_relations.role_id
        LEFT JOIN event_types ON events.type_id = event_types.id
        LEFT JOIN names on event_relations.person_id = names.person_id
-WHERE event_relations.person_id != %1
+WHERE event_relations.person_id != :id
   AND (events.id IN children OR events.id IN relationships)
   AND (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = event_relations.person_id));
-)-")
-                 .arg(person);
-
-    QStringList roleValue;
-    const auto relationShipEvents = EventTypes::relationshipStartingEvents();
-    for (auto string: relationShipEvents) {
-        roleValue.append(QString::fromUtf8(EventTypes::nameOriginToString[string].untranslatedText()));
-    }
-    roleValue.append(QString::fromUtf8(EventTypes::nameOriginToString[EventTypes::Birth].untranslatedText()));
-
-    QSqlQuery query;
-    query.prepare(query_);
-    query.bindValue(QStringLiteral(":types"), roleValue.join(QStringLiteral(",")));
-    query.bindValue(QStringLiteral(":id"), person);
-
-    if (!query.exec()) {
-        qWarning() << "Something went wrong...";
-        qDebug() << query.lastError();
-    }
-
-    auto* baseModel = new QSqlQueryModel(parent);
-    baseModel->setQuery(std::move(query));
-    baseModel->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Id"));
-    baseModel->setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
-    baseModel->setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
-    baseModel->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
-    baseModel->setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Soort-id"));
-    baseModel->setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
-    baseModel->setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
-    baseModel->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
-    baseModel->setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
-    baseModel->setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
-
-    // TODO: check if this needs to happen when the underlying model changes.
-    connect(this, &QAbstractProxyModel::sourceModelChanged, this, &FamilyProxyModel::updateMapping);
-
-    // We need at least one extra row.
-    assert(baseModel->rowCount() < BASTARD_CHILDREN_ROW_ID - 1);
-
-    QAbstractProxyModel::setSourceModel(baseModel);
+)-");
+    resetAndLoadData();
 }
 
 QModelIndex FamilyProxyModel::parent(const QModelIndex& child) const {
@@ -120,7 +85,7 @@ QModelIndex FamilyProxyModel::parent(const QModelIndex& child) const {
     for (auto [sourceParentRow, sourceChildRows]: mapping.asKeyValueRange()) {
         if (sourceChildRows.contains(sourceChild.row())) {
             if (sourceParentRow == BASTARD_CHILDREN_ROW_ID && hasBastardChildren()) {
-                return index(mapping.keys().size() - 1, 0);
+                return index(static_cast<int>(mapping.size() - 1), 0);
             } else {
                 return mapFromSource(sourceModel()->index(sourceParentRow, 0));
             }
@@ -140,20 +105,20 @@ QModelIndex FamilyProxyModel::mapFromSource(const QModelIndex& sourceIndex) cons
         return {};
     }
 
-    int sourceRow = sourceIndex.row();
+    const int sourceRow = sourceIndex.row();
     auto keys = mapping.keys();
     // The source index refers to a parent.
     if (auto proxyRow = keys.indexOf(sourceRow); proxyRow != -1) {
         // qDebug() << "  refers to parent, returning parent index at" << proxyRow;
-        return index(proxyRow, sourceIndex.column());
+        return index(static_cast<int>(proxyRow), sourceIndex.column());
     }
 
     // We have a child, so the row is relative to the parent.
     for (auto it = mapping.cbegin(), end = mapping.cend(); it != end; ++it) {
-        auto sourceChildRows = it.value();
-        auto proxyParentIndex = std::distance(mapping.cbegin(), it);
+        const auto& sourceChildRows = it.value();
+        auto proxyParentIndex = static_cast<int>(std::distance(mapping.cbegin(), it));
         if (sourceChildRows.contains(sourceRow)) {
-            int proxyChildRow = sourceChildRows.indexOf(sourceRow);
+            const int proxyChildRow = static_cast<int>(sourceChildRows.indexOf(sourceRow));
             // Get the parent for this child.
             auto parent = index(proxyParentIndex, 0);
             // qDebug() << "  refers to child, returning relative row" << proxyChildRow;
@@ -170,26 +135,17 @@ QModelIndex FamilyProxyModel::mapToSource(const QModelIndex& proxyIndex) const {
     }
 
     // Easy-peasy, get the row in the original model.
-    int originalRow = proxyIndex.internalId();
-    // qDebug() << "Mapping proxy index" << proxyIndex << "to source index";
-    // qDebug() << "  internal source row is" << originalRow;
+    const int originalRow = static_cast<int>(proxyIndex.internalId());
     return sourceModel()->index(originalRow, proxyIndex.column());
 }
 
 int FamilyProxyModel::rowCount(const QModelIndex& parent) const {
     // If we pass the top-level root, return the number of parents.
     if (!parent.isValid()) {
-        return static_cast<int>(mapping.keys().size());
+        return static_cast<int>(mapping.size());
     }
 
-    int sourceParentRow;
-    if (hasBastardParent(parent)) {
-        // If the parent is for bastard children, we use the special row.
-        sourceParentRow = BASTARD_CHILDREN_ROW_ID;
-    } else {
-        auto sourceParent = mapToSource(parent);
-        sourceParentRow = sourceParent.row();
-    }
+    const int sourceParentRow = hasBastardParent(parent) ? BASTARD_CHILDREN_ROW_ID : mapToSource(parent).row();
 
     // If the parent is one of the keys, it is a child.
     if (parent.column() == 0 && mapping.contains(sourceParentRow)) {
@@ -217,7 +173,7 @@ QModelIndex FamilyProxyModel::index(int row, int column, const QModelIndex& pare
         if (row >= mapping[key].size()) {
             return {};
         }
-        auto originalRow = mapping[key][row];
+        auto originalRow = mapping[key].at(row);
         return createIndex(row, column, originalRow);
     } else {
         if (row >= keys.size()) {
@@ -231,23 +187,61 @@ QModelIndex FamilyProxyModel::index(int row, int column, const QModelIndex& pare
 QVariant FamilyProxyModel::data(const QModelIndex& index, int role) const {
     assert(checkIndex(index, CheckIndexOption::IndexIsValid));
 
-    if (isBastardParentRow(index) && role == Qt::DisplayRole) {
-        switch (index.column()) {
-            // TODO: properly handle this.
-            case GIVEN_NAMES:
-                return QStringLiteral("Out of wedlock");
-            case TYPE:
-                return EventTypes::Marriage;
-            default:
-                return {};
+    if (isBastardParentRow(index)) {
+        if (role == Qt::DisplayRole) {
+            switch (index.column()) {
+                // TODO: properly handle this.
+                case GIVEN_NAMES:
+                    return QStringLiteral("Out of wedlock");
+                case TYPE:
+                    return EventTypes::Marriage;
+                default:
+                    return {};
+            }
+        } else {
+            return {};
         }
     }
 
     return QAbstractProxyModel::data(index, role);
 }
 
-QString FamilyProxyModel::query() const {
-    return query_;
+Qt::ItemFlags FamilyProxyModel::flags(const QModelIndex& index) const {
+    if (!index.isValid()) {
+        return Qt::NoItemFlags;
+    }
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+}
+
+void FamilyProxyModel::resetAndLoadData() {
+    QSqlQuery query;
+    query.prepare(query_);
+    query.bindValue(QStringLiteral(":id"), person);
+
+    if (!query.exec()) {
+        qWarning() << "Something went wrong...";
+        qDebug() << query.lastError();
+    }
+
+    auto* baseModel = new QSqlQueryModel(QObject::parent());
+    baseModel->setQuery(std::move(query));
+    baseModel->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Id"));
+    baseModel->setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
+    baseModel->setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
+    baseModel->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
+    baseModel->setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Soort-id"));
+    baseModel->setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
+    baseModel->setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
+    baseModel->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
+    baseModel->setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
+    baseModel->setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
+
+    // TODO: check if this needs to happen when the underlying model changes.
+    connect(this, &FamilyProxyModel::sourceModelChanged, this, &FamilyProxyModel::updateMapping);
+
+    // We need at least one extra row.
+    assert(baseModel->rowCount() < BASTARD_CHILDREN_ROW_ID - 1);
+    QAbstractProxyModel::setSourceModel(baseModel);
 }
 
 void FamilyProxyModel::updateMapping() {
@@ -291,7 +285,7 @@ void FamilyProxyModel::updateMapping() {
 }
 
 bool FamilyProxyModel::hasBastardChildren() const {
-    return mapping.keys().contains(BASTARD_CHILDREN_ROW_ID);
+    return mapping.contains(BASTARD_CHILDREN_ROW_ID);
 }
 
 bool FamilyProxyModel::isBastardParentRow(const QModelIndex& index) const {
@@ -299,5 +293,5 @@ bool FamilyProxyModel::isBastardParentRow(const QModelIndex& index) const {
 }
 
 bool FamilyProxyModel::hasBastardParent(const QModelIndex& parent) const {
-    return hasBastardChildren() && parent.row() + 1 == mapping.keys().size();
+    return hasBastardChildren() && parent.row() + 1 == mapping.size();
 }

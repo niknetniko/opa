@@ -64,7 +64,7 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     // If there is an existing open file, close it.
     if (!currentFile.isEmpty()) {
         DataManager::reset();
-        close_database();
+        closeDatabase();
         currentFile.clear();
     }
 
@@ -73,7 +73,7 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     // Save the file we will open and open it.
     currentFile = filename;
     recentFilesAction_->addUrl(QUrl::fromLocalFile(filename));
-    open_database(filename, isNew);
+    openDatabase(filename, isNew);
     DataManager::initialize(this);
 
     auto* tabWidget = new QTabWidget;
@@ -174,7 +174,7 @@ void MainWindow::openUrl(const QUrl& url) {
 
 void MainWindow::closeFile() {
     DataManager::reset();
-    close_database();
+    closeDatabase();
     currentFile.clear();
     this->showWelcomeScreen();
 }

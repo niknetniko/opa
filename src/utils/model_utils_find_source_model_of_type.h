@@ -5,9 +5,8 @@
  */
 #pragma once
 
-#include <qabstractproxymodel.h>
-
 #include <KLazyLocalizedString>
+#include <QAbstractProxyModel>
 #include <QMetaEnum>
 
 /**

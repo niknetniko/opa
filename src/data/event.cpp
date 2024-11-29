@@ -28,13 +28,12 @@ QList<EventRoles::Values> EventRoles::parentRoles() {
 QVariant EventRolesModel::getDefaultRole() {
     auto* roleModel = DataManager::get().eventRolesModel();
     auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();
-    auto defaultEventRoleIndex =
-        roleModel->match(roleModel->index(0, EventRolesModel::ROLE), Qt::DisplayRole, defaultRole).constFirst();
+    auto defaultEventRoleIndex = roleModel->match(roleModel->index(0, ROLE), Qt::DisplayRole, defaultRole).constFirst();
     if (!defaultEventRoleIndex.isValid()) {
         qWarning() << "Default role not found, aborting new event.";
         return {};
     }
-    return roleModel->index(defaultEventRoleIndex.row(), EventRolesModel::ID).data();
+    return roleModel->index(defaultEventRoleIndex.row(), ID).data();
 }
 
 EventTypesModel::EventTypesModel(QObject* parent) : QSqlTableModel(parent) {
