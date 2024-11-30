@@ -3,25 +3,25 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "name_editor.h"
+#include "name_editor_dialog.h"
 
 #include "data/data_manager.h"
 #include "data/names.h"
 #include "notes/note_editor_window.h"
+#include "ui_name_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
 
 #include <KLocalizedString>
 #include <QCompleter>
+#include <QDataWidgetMapper>
 #include <QDialog>
-#include <QMessageBox>
-#include <QQuickWidget>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
 
-NamesEditor::NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* parent) :
+NamesEditorDialog::NamesEditorDialog(QAbstractProxyModel* model, bool newRow, QWidget* parent) :
     QDialog(parent),
     model(model),
     newRow(newRow),
@@ -61,7 +61,7 @@ NamesEditor::NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* paren
     form->givenNames->setCompleter(surnameCompleter);
 
     form->noteEdit->enableRichTextMode();
-    connect(form->noteEditButton, &QPushButton::clicked, this, &NamesEditor::editNoteWithEditor);
+    connect(form->noteEditButton, &QPushButton::clicked, this, &NamesEditorDialog::editNoteWithEditor);
 
     // TODO: investigate why this does not work with manual submit.
     //  Possibly since the model uses auto-submit?
@@ -78,31 +78,23 @@ NamesEditor::NamesEditor(QAbstractProxyModel* model, bool newRow, QWidget* paren
     mapper->toFirst();
 }
 
-void NamesEditor::accept() {
+void NamesEditorDialog::accept() {
     // Attempt to submit the mapper changes.
-    qDebug() << "Current index is " << this->mapper->currentIndex();
-    qDebug() << "Is the current index valid? " << this->model->index(this->mapper->currentIndex(), 0).isValid();
-    if (this->mapper->submit()) {
+    if (mapper->submit()) {
         // We are done.
         QDialog::accept();
     } else {
         // Find the original model.
-        const auto* sqlModel = findSourceModelOfType<QSqlQueryModel>(this->model);
+        auto* sqlModel = findSourceModelOfType<QSqlQueryModel>(model);
         assert(sqlModel != nullptr);
         auto lastError = sqlModel->lastError();
-        auto errorText = lastError.text();
-        qWarning() << "Error was:" << errorText;
-        qDebug() << "Raw error: " << lastError;
-        QMessageBox::critical(
-            this, i18n("Fout bij opslaan"), i18n("The changes could not be saved for some reason:\n") + errorText
-        );
-
+        qWarning() << "Error was:" << lastError.text();
         qDebug() << "Native error code is " << lastError.nativeErrorCode();
         qDebug() << "Last query is " << sqlModel->query().lastQuery();
     }
 }
 
-void NamesEditor::reject() {
+void NamesEditorDialog::reject() {
     this->model->revert();
     if (this->newRow) {
         qDebug() << "Removing cancelled addition...";
@@ -113,7 +105,7 @@ void NamesEditor::reject() {
     QDialog::reject();
 }
 
-void NamesEditor::editNoteWithEditor() {
+void NamesEditorDialog::editNoteWithEditor() {
     const auto currentText = form->noteEdit->textOrHtml();
 
     if (const auto note = NoteEditorWindow::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
@@ -121,6 +113,16 @@ void NamesEditor::editNoteWithEditor() {
     }
 }
 
-NamesEditor::~NamesEditor() {
+NamesEditorDialog::~NamesEditorDialog() {
     delete this->form;
+}
+
+void NamesEditorDialog::showDialogForNewName(QAbstractProxyModel* model, QWidget* parent) {
+    auto* editorWindow = new NamesEditorDialog(model, true, parent);
+    editorWindow->show();
+}
+
+void NamesEditorDialog::showDialogForExistingName(QAbstractProxyModel* model, QWidget* parent) {
+    auto* editorWindow = new NamesEditorDialog(model, false, parent);
+    editorWindow->show();
 }

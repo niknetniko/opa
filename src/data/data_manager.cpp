@@ -9,7 +9,6 @@
 #include "dates/genealogical_date_proxy_model.h"
 #include "event.h"
 #include "family.h"
-#include "names/names_overview_view.h"
 #include "person.h"
 #include "utils/grouped_items_proxy_model.h"
 #include "utils/model_utils_find_source_model_of_type.h"

@@ -14,8 +14,8 @@ add_library(opa-lib STATIC
     data/event.cpp
     person_detail/person_detail_view.h
     person_detail/person_detail_view.cpp
-    names/name_editor.h
-    names/name_editor.cpp
+    editors/name_editor_dialog.h
+    editors/name_editor_dialog.cpp
     utils/single_row_model.h
     utils/single_row_model.cpp
     data/data_manager.h

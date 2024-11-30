@@ -7,7 +7,7 @@
 
 #include "data/data_manager.h"
 #include "data/names.h"
-#include "names/name_editor.h"
+#include "editors/name_editor_dialog.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
 #include <utils/model_utils.h>
@@ -174,9 +174,7 @@ void PersonNameTab::onAddNewName() {
     auto theId = lastInsertedId.toLongLong();
     auto* singleModel = DataManager::get().singleNameModel(this, theId);
 
-    auto* editorWindow = new NamesEditor(singleModel, true, this);
-    editorWindow->show();
-    editorWindow->adjustSize();
+    NamesEditorDialog::showDialogForNewName(singleModel, this);
 }
 
 void PersonNameTab::onEditSelectedName() {
@@ -192,9 +190,7 @@ void PersonNameTab::onEditSelectedName() {
     auto idToEdit = model->index(selectedIndex.row(), PersonNamesModel::ID).data();
     auto* singleModel = DataManager::get().singleNameModel(this, idToEdit);
 
-    auto* editorWindow = new NamesEditor(singleModel, false, this);
-    editorWindow->show();
-    editorWindow->adjustSize();
+    NamesEditorDialog::showDialogForExistingName(singleModel, this);
 }
 
 void PersonNameTab::onRemoveSelectedName() const {

@@ -5,7 +5,7 @@
  */
 #include "person.h"
 
-#include "names/names_overview_view.h"
+#include "names.h"
 
 #include <KLocalizedString>
 #include <QString>
@@ -43,7 +43,7 @@ QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int r
             const auto givenNames = this->index(row, 2, parent).data(role).toString();
             const auto prefix = this->index(row, 3, parent).data(role).toString();
             const auto surname = this->index(row, 4, parent).data(role).toString();
-            return Names::construct_display_name(titles, givenNames, prefix, surname);
+            return construct_display_name(titles, givenNames, prefix, surname);
         }
     }
     return {};

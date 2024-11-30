@@ -7,6 +7,25 @@
 
 #include "database/schema.h"
 
+QString construct_display_name(
+    const QString& titles, const QString& givenNames, const QString& prefix, const QString& surname
+) {
+    QStringList nameParts;
+    if (!titles.isEmpty()) {
+        nameParts.append(titles);
+    }
+    if (!givenNames.isEmpty()) {
+        nameParts.append(givenNames);
+    }
+    if (!prefix.isEmpty()) {
+        nameParts.append(prefix);
+    }
+    if (!surname.isEmpty()) {
+        nameParts.append(surname);
+    }
+    return nameParts.join(QStringLiteral(" "));
+}
+
 NamesTableModel::NamesTableModel(QObject* parent, QSqlTableModel* originsModel) : CustomSqlRelationalModel(parent) {
     CustomSqlRelationalModel::setTable(Schema::NamesTable);
     setRelation(ORIGIN_ID, originsModel, NameOriginTableModel::ORIGIN, NameOriginTableModel::ID);
