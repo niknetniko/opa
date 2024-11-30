@@ -84,16 +84,16 @@ void EventEditorDialog::showDialogForExistingEvent(
 
 void EventEditorDialog::accept() {
     // Attempt to submit the mapper changes.
-    const bool eventSubmit = eventMapper->submit();
-    const bool relationSubmit = eventRelationMapper->submit();
+    bool eventSubmit = eventMapper->submit();
+    bool relationSubmit = eventRelationMapper->submit();
     if (eventSubmit && relationSubmit) {
         QDialog::accept();
     } else {
         qDebug() << "Event submit" << eventSubmit << ", relation submit" << relationSubmit;
         // Find the original model.
-        const auto* eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
+        auto* eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
         assert(eventSqlModel != nullptr);
-        const auto* relationSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventRelationModel);
+        auto* relationSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventRelationModel);
         assert(relationSqlModel != nullptr);
         auto eventError = eventSqlModel->lastError();
         auto relationError = relationSqlModel->lastError();
@@ -120,18 +120,18 @@ void EventEditorDialog::reject() {
 }
 
 void EventEditorDialog::editDateWithEditor() {
-    const auto currentText = form->eventDatePicker->text();
-    const auto startDate = GenealogicalDate::fromDisplayText(currentText);
+    auto currentText = form->eventDatePicker->text();
+    auto startDate = GenealogicalDate::fromDisplayText(currentText);
 
-    if (const auto date = GenealogicalDateEditWindow::editDate(startDate, this); date.isValid()) {
+    if (auto date = GenealogicalDateEditWindow::editDate(startDate, this); date.isValid()) {
         form->eventDatePicker->setText(date.toDisplayText());
     }
 }
 
 void EventEditorDialog::editNoteWithEditor() {
-    const auto currentText = form->noteEdit->textOrHtml();
+    auto currentText = form->noteEdit->textOrHtml();
 
-    if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+    if (auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }
 }
