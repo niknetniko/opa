@@ -5,72 +5,111 @@
  */
 #include "person_name_tab.h"
 
+#include "data/data_manager.h"
 #include "data/names.h"
-#include "names/names_overview_view.h"
+#include "names/name_editor.h"
+#include "utils/builtin_text_translating_delegate.h"
+#include "utils/formatted_identifier_delegate.h"
+#include <utils/model_utils.h>
 
 #include <KLocalizedString>
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
 #include <QToolBar>
+#include <QTreeView>
 #include <QVBoxLayout>
 
 PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
+    this->person = person;
+    this->baseModel = DataManager::get().namesModelForPerson(this, person);
+
+    this->treeView = new QTreeView(this);
+    treeView->setModel(baseModel);
+    treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    treeView->setUniformRowHeights(true);
+    treeView->setRootIsDecorated(false);
+    treeView->setSortingEnabled(true);
+    treeView->sortByColumn(PersonNamesModel::SORT, Qt::AscendingOrder);
+    treeView->header()->setSortIndicatorClearable(false);
+
+    // The ID should be formatted properly.
+    treeView->setItemDelegateForColumn(
+        PersonNamesModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME)
+    );
+    // Origins must be translated.
+    auto* originTranslator = new BuiltinTextTranslatingDelegate(treeView);
+    originTranslator->setTranslator(NameOrigins::toDisplayString);
+    treeView->setItemDelegateForColumn(PersonNamesModel::ORIGIN, originTranslator);
+
+    // Handle a naming being selected.
+    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &PersonNameTab::onNameSelected);
+    // Clear the selection when the model is reset.
+    //  TODO: is this a bug in Qt?
+    connect(treeView->model(), &QAbstractItemModel::modelReset, this, [this] { this->onNameSelected({}); });
+    // Edit a name on double-click.
+    connect(treeView, &QTreeView::doubleClicked, this, &PersonNameTab::onEditSelectedName);
+    // Preserve the selection when the sorting changes.
+    connect(treeView->header(), &QHeaderView::sortIndicatorChanged, this, [this](int logicalIndex) {
+        auto* model = treeView->selectionModel();
+        onSortChanged(model->selection(), logicalIndex);
+    });
+
     // Create a toolbar.
     auto* nameToolbar = new QToolBar(this);
 
-    this->addAction = new QAction(nameToolbar);
-    this->addAction->setText(i18n("Nieuwe naam toevoegen"));
-    this->addAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
+    addAction = new QAction(nameToolbar);
+    addAction->setText(i18n("Nieuwe naam toevoegen"));
+    addAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
     nameToolbar->addAction(this->addAction);
 
-    this->editAction = new QAction(nameToolbar);
-    this->editAction->setText(i18n("Naam bewerken"));
-    this->editAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-entry")));
-    this->editAction->setEnabled(false);
+    editAction = new QAction(nameToolbar);
+    editAction->setText(i18n("Naam bewerken"));
+    editAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-entry")));
+    editAction->setEnabled(false);
     nameToolbar->addAction(this->editAction);
 
-    this->removeAction = new QAction(nameToolbar);
-    this->removeAction->setText(i18n("Naam verwijderen"));
-    this->removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
-    this->removeAction->setEnabled(false);
+    removeAction = new QAction(nameToolbar);
+    removeAction->setText(i18n("Naam verwijderen"));
+    removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
+    removeAction->setEnabled(false);
     nameToolbar->addAction(this->removeAction);
 
-    this->upAction = new QAction(nameToolbar);
-    this->upAction->setText(i18n("Omhoog"));
-    this->upAction->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
-    this->upAction->setEnabled(false);
+    upAction = new QAction(nameToolbar);
+    upAction->setText(i18n("Omhoog"));
+    upAction->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
+    upAction->setEnabled(false);
     nameToolbar->addAction(this->upAction);
 
-    this->downAction = new QAction(nameToolbar);
-    this->downAction->setText(i18n("Omlaag"));
-    this->downAction->setIcon(QIcon::fromTheme(QStringLiteral("go-down")));
-    this->downAction->setEnabled(false);
+    downAction = new QAction(nameToolbar);
+    downAction->setText(i18n("Omlaag"));
+    downAction->setIcon(QIcon::fromTheme(QStringLiteral("go-down")));
+    downAction->setEnabled(false);
     nameToolbar->addAction(this->downAction);
-
-    // Create a table.
-    auto* nameTableView = new NamesOverviewView(person, this);
 
     // Add them together.
     auto* nameTabContainerLayout = new QVBoxLayout(this);
     nameTabContainerLayout->setSpacing(0);
     nameTabContainerLayout->addWidget(nameToolbar);
-    nameTabContainerLayout->addWidget(nameTableView);
+    nameTabContainerLayout->addWidget(treeView);
 
     // Connect the buttons and stuff.
     // Allow adding new persons.
-    connect(this->addAction, &QAction::triggered, nameTableView, &NamesOverviewView::handleNewName);
-    // Listen to when a name is selected, to enable or disable some buttons.
-    connect(nameTableView, &NamesOverviewView::selectedName, this, &PersonNameTab::onNameSelected);
-    // Listen to when the sort changes and allow re-ordering or not.
-    connect(nameTableView, &NamesOverviewView::sortChanged, this, &PersonNameTab::onSortChanged);
+    connect(addAction, &QAction::triggered, this, &PersonNameTab::onAddNewName);
     // Allow editing a name.
-    connect(this->editAction, &QAction::triggered, nameTableView, &NamesOverviewView::editSelectedName);
+    connect(editAction, &QAction::triggered, this, &PersonNameTab::onEditSelectedName);
     // Allow deleting a name.
-    connect(this->removeAction, &QAction::triggered, nameTableView, &NamesOverviewView::removeSelectedName);
-
-    connect(this->upAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameUp);
-    connect(this->downAction, &QAction::triggered, nameTableView, &NamesOverviewView::moveSelectedNameDown);
+    connect(removeAction, &QAction::triggered, this, &PersonNameTab::onRemoveSelectedName);
+    // Move a name up.
+    connect(upAction, &QAction::triggered, this, &PersonNameTab::onMoveSelectedNameUp);
+    // Move a name down.
+    connect(downAction, &QAction::triggered, this, &PersonNameTab::onMoveSelectedNameDown);
 }
 
-void PersonNameTab::onNameSelected(const QAbstractItemModel* model, const QItemSelection& selected) const {
+void PersonNameTab::onNameSelected(const QItemSelection& selected) const {
     if (selected.isEmpty()) {
         this->editAction->setEnabled(false);
         this->removeAction->setEnabled(false);
@@ -81,8 +120,11 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel* model, const QItemS
 
     this->editAction->setEnabled(true);
 
-    const int nameSort = model->index(selected.indexes().first().row(), 1).data().toInt();
-    const int rowCount = model->rowCount();
+    auto selectedIndex = selected.indexes().first();
+    auto* model = selectedIndex.model();
+
+    int nameSort = model->index(selectedIndex.row(), PersonNamesModel::SORT).data().toInt();
+    int rowCount = model->rowCount();
 
     // Do not allow removal of the main name.
     this->removeAction->setEnabled(nameSort != 1);
@@ -92,9 +134,7 @@ void PersonNameTab::onNameSelected(const QAbstractItemModel* model, const QItemS
     this->downAction->setEnabled(nameSort < model->rowCount() && rowCount > 1);
 }
 
-void PersonNameTab::onSortChanged(
-    [[maybe_unused]] const QAbstractItemModel* model, const QItemSelection& selected, const int logicalIndex
-) const {
+void PersonNameTab::onSortChanged(const QItemSelection& selected, const int logicalIndex) const {
     // Check if there is currently a selected item.
     if (selected.isEmpty()) {
         // Leave everything alone as it was.
@@ -102,8 +142,125 @@ void PersonNameTab::onSortChanged(
         return;
     }
 
-    const bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
+    bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
     // Only allow up and down if the view is not sorted or sorted on the second column.
     this->upAction->setEnabled(this->upAction->isEnabled() && allowUpAndDown);
     this->downAction->setEnabled(this->downAction->isEnabled() && allowUpAndDown);
+}
+
+void PersonNameTab::onAddNewName() {
+    auto* namesModel = DataManager::get().namesModel();
+
+    // Add a new row to the table for editing.
+    auto newRecord = namesModel->record();
+    newRecord.setGenerated(NamesTableModel::ID, false);
+    newRecord.setValue(NamesTableModel::PERSON_ID, this->person);
+    newRecord.setValue(NamesTableModel::SORT, treeView->model()->rowCount() + 1);
+    if (!namesModel->insertRecord(-1, newRecord)) {
+        QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
+        qDebug() << "Could not get last inserted ID for some reason:";
+        qDebug() << namesModel->lastError();
+        return;
+    }
+
+    auto lastInsertedId = namesModel->query().lastInsertId();
+    if (!lastInsertedId.isValid()) {
+        QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
+        qDebug() << "Could not get last inserted ID for some reason:";
+        qDebug() << namesModel->lastError();
+        return;
+    }
+
+    auto theId = lastInsertedId.toLongLong();
+    auto* singleModel = DataManager::get().singleNameModel(this, theId);
+
+    auto* editorWindow = new NamesEditor(singleModel, true, this);
+    editorWindow->show();
+    editorWindow->adjustSize();
+}
+
+void PersonNameTab::onEditSelectedName() {
+    auto* selection = treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    assert(selection->selectedRows().size() == 1);
+    auto selectedIndex = selection->selectedIndexes().first();
+    auto* model = selectedIndex.model();
+
+    auto idToEdit = model->index(selectedIndex.row(), PersonNamesModel::ID).data();
+    auto* singleModel = DataManager::get().singleNameModel(this, idToEdit);
+
+    auto* editorWindow = new NamesEditor(singleModel, false, this);
+    editorWindow->show();
+    editorWindow->adjustSize();
+}
+
+void PersonNameTab::onRemoveSelectedName() const {
+    auto* selection = treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    assert(selection->selectedRows().size() == 1);
+
+    if (!treeView->model()->removeRow(selection->selectedRows().first().row())) {
+        qWarning() << "Could not remove row.";
+    }
+}
+
+void PersonNameTab::onMoveSelectedNameDown() const {
+    auto* selection = treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    assert(selection->selectedRows().size() == 1);
+    auto selectRow = selection->selectedRows().first().row();
+    auto newRow = selectRow + 1;
+    moveSelectedNameToPosition(selectRow, newRow);
+}
+
+void PersonNameTab::onMoveSelectedNameUp() const {
+    auto* selection = treeView->selectionModel();
+    if (!selection->hasSelection()) {
+        return;
+    }
+
+    assert(selection->selectedRows().size() == 1);
+    auto selectRow = selection->selectedRows().first().row();
+    auto newRow = selectRow - 1;
+    moveSelectedNameToPosition(selectRow, newRow);
+}
+
+void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow) const {
+    auto* model = treeView->model();
+
+    assert(sourceRow >= 0 && sourceRow < model->rowCount());
+    assert(destinationRow >= 0 && destinationRow < model->rowCount());
+
+    QVector<int> vector(model->rowCount());
+    std::iota(std::begin(vector), std::end(vector), 1);
+    std::swap(vector[sourceRow], vector[destinationRow]);
+
+    // We want to update this in one go; so get the root model.
+    auto* namesModel = DataManager::get().namesModel();
+
+    auto saved = modelTransaction(namesModel, [&vector, &model] {
+        for (int row = 0; row < vector.length(); ++row) {
+            // Do this on the original model, so no need to map changes.
+            model->setData(model->index(row, 1), vector[row]);
+        }
+    });
+
+    // Commit the data and done.
+    if (!saved) {
+        qDebug() << "Could not submit for some reason";
+        qDebug() << namesModel->lastError();
+    }
+
+    treeView->selectionModel()->select(
+        model->index(destinationRow, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows
+    );
 }

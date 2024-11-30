@@ -8,6 +8,14 @@
 #include "utils/custom_sql_relational_model.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 
+/**
+ * Create a single display name from the different name parts.
+ *
+ * Any of the parts can be empty.
+ */
+QString
+construct_display_name(const QString& titles, const QString& givenNames, const QString& prefix, const QString& surname);
+
 class NamesTableModel : public CustomSqlRelationalModel {
     Q_OBJECT
 
@@ -62,3 +70,13 @@ public:
 
     explicit NameOriginTableModel(QObject* parent = nullptr);
 };
+
+namespace PersonNamesModel {
+    static constexpr int ID = 0;
+    static constexpr int SORT = 1;
+    static constexpr int TITLES = 2;
+    static constexpr int GIVEN_NAMES = 3;
+    static constexpr int PREFIX = 4;
+    static constexpr int SURNAME = 5;
+    static constexpr int ORIGIN = 6;
+}; // namespace PersonNamesModel

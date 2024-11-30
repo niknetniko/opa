@@ -44,6 +44,8 @@ public:
     /**
      * Get a model representing all names for a single person.
      *
+     * The returned model has columns as described in the \c PersonNamesModel namespace.
+     *
      * @param parent The parent for the returned model.
      * @param personId The ID of the person to filter on.
      */

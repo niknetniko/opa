@@ -39,10 +39,26 @@ QSqlTableModel* DataManager::namesModel() const {
 }
 
 QAbstractProxyModel* DataManager::namesModelForPerson(QObject* parent, const IntegerPrimaryKey personId) const {
-    auto* proxy = new CellFilteredProxyModel(parent);
-    proxy->setSourceModel(this->namesModel());
-    proxy->addFilter(NamesTableModel::PERSON_ID, personId);
-    return proxy;
+    auto* baseProxy = new CellFilteredProxyModel(parent);
+    baseProxy->setSourceModel(this->namesModel());
+    baseProxy->addFilter(NamesTableModel::PERSON_ID, personId);
+
+    auto* selectedColumnsModel = new KRearrangeColumnsProxyModel(parent);
+    selectedColumnsModel->setSourceModel(baseProxy);
+    selectedColumnsModel->setSourceColumns(
+        {NamesTableModel::ID,
+         NamesTableModel::SORT,
+         NamesTableModel::TITLES,
+         NamesTableModel::GIVEN_NAMES,
+         NamesTableModel::PREFIX,
+         NamesTableModel::SURNAME,
+         NamesTableModel::ORIGIN}
+    );
+
+    auto* filterProxyModel = new QSortFilterProxyModel(parent);
+    filterProxyModel->setSourceModel(selectedColumnsModel);
+
+    return filterProxyModel;
 }
 
 QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVariant& nameId) const {

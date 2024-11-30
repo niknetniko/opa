@@ -14,8 +14,6 @@ add_library(opa-lib STATIC
     data/event.cpp
     person_detail/person_detail_view.h
     person_detail/person_detail_view.cpp
-    names/names_overview_view.h
-    names/names_overview_view.cpp
     names/name_editor.h
     names/name_editor.cpp
     utils/single_row_model.h
@@ -27,7 +25,6 @@ add_library(opa-lib STATIC
     utils/formatted_identifier_delegate.h
     utils/formatted_identifier_delegate.cpp
     utils/model_utils_find_source_model_of_type.h
-    utils/model_utils.cpp
     person_detail/person_name_tab.h
     person_detail/person_name_tab.cpp
     utils/proxy_enabled_relational_delegate.h
@@ -82,6 +79,8 @@ add_library(opa-lib STATIC
     data/family.cpp
     person_detail/person_family_tab.cpp
     person_detail/person_family_tab.h
+    utils/model_utils.cpp
+    utils/model_utils.h
 )
 
 ecm_qt_declare_logging_category(opa-lib
