@@ -10,7 +10,7 @@
 #include "editors/name_editor_dialog.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
-#include <utils/model_utils.h>
+#include "utils/model_utils.h"
 
 #include <KLocalizedString>
 #include <QHeaderView>
