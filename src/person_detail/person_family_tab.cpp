@@ -37,7 +37,6 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     toolbar->addAction(addPartnerAction);
 
     auto* nameTabContainerLayout = new QVBoxLayout(this);
-    // nameTabContainerLayout->setSpacing(0);
     nameTabContainerLayout->addWidget(toolbar);
     nameTabContainerLayout->addWidget(treeView);
 }

@@ -10,10 +10,10 @@
 #include <QWidget>
 
 
-class QAbstractItemModel;
-class QItemSelection;
-class QTreeView;
 class QAction;
+class QTreeView;
+class QItemSelection;
+class QAbstractItemModel;
 
 /**
  * Tab for displaying and managing the names of a given person.

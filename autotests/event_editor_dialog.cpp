@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // ReSharper disable CppMemberFunctionMayBeConst
-#include "events/event_editor_dialog.h"
+#include "editors/event_editor_dialog.h"
 
 #include "data/data_manager.h"
 #include "data/event.h"

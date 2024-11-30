@@ -18,7 +18,6 @@
 #include <KLocalizedString>
 #include <QDate>
 #include <QSqlQuery>
-#include <QToolBar>
 
 PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFrame(parent) {
     this->ui = new Ui::PersonDetailView();

@@ -64,48 +64,46 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidge
     addAction = new QAction(nameToolbar);
     addAction->setText(i18n("Nieuwe naam toevoegen"));
     addAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
-    nameToolbar->addAction(this->addAction);
+    nameToolbar->addAction(addAction);
 
     editAction = new QAction(nameToolbar);
     editAction->setText(i18n("Naam bewerken"));
     editAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-entry")));
     editAction->setEnabled(false);
-    nameToolbar->addAction(this->editAction);
+    nameToolbar->addAction(editAction);
 
     removeAction = new QAction(nameToolbar);
     removeAction->setText(i18n("Naam verwijderen"));
     removeAction->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
     removeAction->setEnabled(false);
-    nameToolbar->addAction(this->removeAction);
+    nameToolbar->addAction(removeAction);
 
     upAction = new QAction(nameToolbar);
     upAction->setText(i18n("Omhoog"));
     upAction->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
     upAction->setEnabled(false);
-    nameToolbar->addAction(this->upAction);
+    nameToolbar->addAction(upAction);
 
     downAction = new QAction(nameToolbar);
     downAction->setText(i18n("Omlaag"));
     downAction->setIcon(QIcon::fromTheme(QStringLiteral("go-down")));
     downAction->setEnabled(false);
-    nameToolbar->addAction(this->downAction);
+    nameToolbar->addAction(downAction);
 
     // Add them together.
-    auto* nameTabContainerLayout = new QVBoxLayout(this);
-    nameTabContainerLayout->setSpacing(0);
-    nameTabContainerLayout->addWidget(nameToolbar);
-    nameTabContainerLayout->addWidget(treeView);
+    auto* container = new QVBoxLayout(this);
+    container->addWidget(nameToolbar);
+    container->addWidget(treeView);
+
+    qDebug() << "Custom NAME Margins:" << this->contentsMargins();
+    qDebug() << "  treeView Margins:" << treeView->contentsMargins();
+    qDebug() << "  Layout Spacing:" << container->spacing();
 
     // Connect the buttons and stuff.
-    // Allow adding new persons.
     connect(addAction, &QAction::triggered, this, &PersonNameTab::onAddNewName);
-    // Allow editing a name.
     connect(editAction, &QAction::triggered, this, &PersonNameTab::onEditSelectedName);
-    // Allow deleting a name.
     connect(removeAction, &QAction::triggered, this, &PersonNameTab::onRemoveSelectedName);
-    // Move a name up.
     connect(upAction, &QAction::triggered, this, &PersonNameTab::onMoveSelectedNameUp);
-    // Move a name down.
     connect(downAction, &QAction::triggered, this, &PersonNameTab::onMoveSelectedNameDown);
 }
 

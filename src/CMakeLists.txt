@@ -37,8 +37,6 @@ add_library(opa-lib STATIC
     dates/genealogical_date_proxy_model.cpp
     dates/genealogical_date_editor_dialog.h
     dates/genealogical_date_editor_dialog.cpp
-    person_detail/person_event_overview_view.h
-    person_detail/person_event_overview_view.cpp
     person_detail/person_event_tab.h
     person_detail/person_event_tab.cpp
     utils/grouped_items_proxy_model.h
