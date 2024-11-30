@@ -9,7 +9,7 @@
 #include "data/event.h"
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_edit_window.h"
-#include "notes/note_editor_window.h"
+#include "editors/note_editor_dialog.h"
 #include "ui_event_editor.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
@@ -121,7 +121,7 @@ void EventEditor::editDateWithEditor() {
 void EventEditor::editNoteWithEditor() {
     const auto currentText = form->noteEdit->textOrHtml();
 
-    if (const auto note = NoteEditorWindow::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+    if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }
 }

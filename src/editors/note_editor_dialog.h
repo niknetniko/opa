@@ -6,19 +6,18 @@
  */
 
 #pragma once
-#include <KXmlGuiWindow>
 #include <QDialog>
 
 class KRichTextWidget;
 
 /**
- * A "dialog" which allows editing some text.
+ * An editor for notes.
  */
-class NoteEditorWindow : public QDialog {
+class NoteEditorDialog : public QDialog {
     Q_OBJECT
 
 public:
-    NoteEditorWindow(const QString& text, QWidget* parent);
+    NoteEditorDialog(const QString& text, QWidget* parent);
 
     static QString editText(const QString& initialText, const QString& windowTitle, QWidget* parent);
 

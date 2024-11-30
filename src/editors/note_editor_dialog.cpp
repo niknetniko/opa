@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "note_editor_window.h"
+#include "note_editor_dialog.h"
 
 #include <KActionCollection>
 #include <KRichTextWidget>
@@ -12,12 +12,11 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 
-NoteEditorWindow::NoteEditorWindow(const QString& text, QWidget* parent) : QDialog(parent) {
+NoteEditorDialog::NoteEditorDialog(const QString& text, QWidget* parent) : QDialog(parent) {
     setWindowModality(Qt::WindowModal);
 
     auto* toolbar = new QToolBar(this);
     textEditor = new KRichTextWidget(this);
-    qDebug() << "Setting existing text to" << text;
     textEditor->setTextOrHtml(text);
     textEditor->setCheckSpellingEnabled(true);
     auto actions = textEditor->createActions();
@@ -74,8 +73,8 @@ NoteEditorWindow::NoteEditorWindow(const QString& text, QWidget* parent) : QDial
     layout->setContentsMargins(0, 0, 0, 0);
     nestedLayout->setContentsMargins(defaultContentMargins);
 }
-QString NoteEditorWindow::editText(const QString& initialText, const QString& windowTitle, QWidget* parent) {
-    auto* noteEditor = new NoteEditorWindow(initialText, parent);
+QString NoteEditorDialog::editText(const QString& initialText, const QString& windowTitle, QWidget* parent) {
+    auto* noteEditor = new NoteEditorDialog(initialText, parent);
     noteEditor->setWindowTitle(windowTitle);
 
     if (noteEditor->exec() == Accepted) {

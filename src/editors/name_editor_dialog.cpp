@@ -7,7 +7,7 @@
 
 #include "data/data_manager.h"
 #include "data/names.h"
-#include "notes/note_editor_window.h"
+#include "note_editor_dialog.h"
 #include "ui_name_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
@@ -108,7 +108,7 @@ void NamesEditorDialog::reject() {
 void NamesEditorDialog::editNoteWithEditor() {
     const auto currentText = form->noteEdit->textOrHtml();
 
-    if (const auto note = NoteEditorWindow::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+    if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }
 }

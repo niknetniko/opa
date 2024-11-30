@@ -73,8 +73,8 @@ add_library(opa-lib STATIC
     main/person_placeholder_widget.cpp
     utils/proxy_delegate.h
     utils/proxy_delegate.cpp
-    notes/note_editor_window.h
-    notes/note_editor_window.cpp
+    editors/note_editor_dialog.h
+    editors/note_editor_dialog.cpp
     data/family.h
     data/family.cpp
     person_detail/person_family_tab.cpp
