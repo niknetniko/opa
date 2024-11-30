@@ -57,8 +57,8 @@ add_library(opa-lib STATIC
     lists/simple_list_manager.cpp
     lists/event_types_management_window.h
     lists/event_types_management_window.cpp
-    events/event_editor.h
-    events/event_editor.cpp
+    editors/event_editor_dialog.h
+    editors/event_editor_dialog.cpp
     welcome/welcome_view.h
     welcome/welcome_view.cpp
     welcome/recent_item_model.h

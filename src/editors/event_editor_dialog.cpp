@@ -3,21 +3,22 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "event_editor.h"
+#include "event_editor_dialog.h"
 
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_edit_window.h"
-#include "editors/note_editor_dialog.h"
-#include "ui_event_editor.h"
+#include "note_editor_dialog.h"
+#include "ui_event_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 #include "utils/proxy_enabled_relational_delegate.h"
 
+#include <QDataWidgetMapper>
 #include <QSqlError>
 
-EventEditor::EventEditor(
+EventEditorDialog::EventEditorDialog(
     QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
 ) :
     QDialog(parent),
@@ -30,8 +31,8 @@ EventEditor::EventEditor(
     // Connect the buttons.
     connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditor::editDateWithEditor);
-    connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditor::editNoteWithEditor);
+    connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditorDialog::editDateWithEditor);
+    connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     connectComboBox(eventModel, EventsModel::TYPE, form->eventTypeComboBox);
@@ -63,11 +64,25 @@ EventEditor::EventEditor(
     eventMapper->toFirst();
 }
 
-EventEditor::~EventEditor() {
+EventEditorDialog::~EventEditorDialog() {
     delete this->form;
 }
 
-void EventEditor::accept() {
+void EventEditorDialog::showDialogForNewEvent(
+    QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent
+) {
+    auto* dialog = new EventEditorDialog(eventRelationModel, eventModel, true, parent);
+    dialog->show();
+}
+
+void EventEditorDialog::showDialogForExistingEvent(
+    QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent
+) {
+    auto* dialog = new EventEditorDialog(eventRelationModel, eventModel, false, parent);
+    dialog->show();
+}
+
+void EventEditorDialog::accept() {
     // Attempt to submit the mapper changes.
     const bool eventSubmit = eventMapper->submit();
     const bool relationSubmit = eventRelationMapper->submit();
@@ -87,15 +102,10 @@ void EventEditor::accept() {
         qDebug() << "Raw event error: " << eventError.text();
         qDebug() << "Raw event relation error: " << relationError.text();
         // TODO: how to show this error to the user somehow?
-        // QMessageBox::critical(
-        //     this,
-        //     i18n("Fout bij opslaan"),
-        //     i18n("The changes could not be saved for some reason:\n") + eventError.text() + relationError.text()
-        // );
     }
 }
 
-void EventEditor::reject() {
+void EventEditorDialog::reject() {
     this->eventRelationModel->revert();
     this->eventModel->revert();
     if (this->newEvent) {
@@ -109,7 +119,7 @@ void EventEditor::reject() {
     QDialog::reject();
 }
 
-void EventEditor::editDateWithEditor() {
+void EventEditorDialog::editDateWithEditor() {
     const auto currentText = form->eventDatePicker->text();
     const auto startDate = GenealogicalDate::fromDisplayText(currentText);
 
@@ -118,7 +128,7 @@ void EventEditor::editDateWithEditor() {
     }
 }
 
-void EventEditor::editNoteWithEditor() {
+void EventEditorDialog::editNoteWithEditor() {
     const auto currentText = form->noteEdit->textOrHtml();
 
     if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {

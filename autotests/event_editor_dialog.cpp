@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // ReSharper disable CppMemberFunctionMayBeConst
-#include "events/event_editor.h"
+#include "events/event_editor_dialog.h"
 
 #include "data/data_manager.h"
 #include "data/event.h"
@@ -68,7 +68,7 @@ private Q_SLOTS:
         auto* singleEventModel = DataManager::get().singleEventModel(this, newEventId);
         auto* singleRelationModel = DataManager::get().singleEventRelationModel(this, newEventId, 1, 1);
 
-        auto* editor = new EventEditor(singleRelationModel, singleEventModel, false, nullptr);
+        auto* editor = new EventEditorDialog(singleRelationModel, singleEventModel, false, nullptr);
         editor->show();
         QVERIFY(QTest::qWaitForWindowFocused(editor));
 
@@ -105,7 +105,7 @@ private Q_SLOTS:
 };
 
 // void EventEditorTest::testAccept() {
-//     editor = new EventEditor(eventRelationsModel, eventsModel, true);
+//     editor = new EventEditorDialog(eventRelationsModel, eventsModel, true);
 //     // Simulate user input.
 //     editor->findChild<QComboBox*>("eventTypeComboBox")->setCurrentText("Workshop");
 //     editor->findChild<QLineEdit*>("eventNameEdit")->setText("Qt Workshop");
@@ -124,7 +124,7 @@ private Q_SLOTS:
 // }
 
 // void EventEditorTest::testRejectNewEvent() {
-//     editor = new EventEditor(eventRelationsModel, eventsModel, true);
+//     editor = new EventEditorDialog(eventRelationsModel, eventsModel, true);
 //     QCOMPARE(eventsModel->rowCount(), 2); // One extra row for the new event.
 //     QCOMPARE(eventRelationsModel->rowCount(), 2); // One extra row for the new event relation.
 //
@@ -139,7 +139,7 @@ private Q_SLOTS:
 // }
 
 // void EventEditorTest::testRejectExistingEvent() {
-//     editor = new EventEditor(eventRelationsModel, eventsModel, false);
+//     editor = new EventEditorDialog(eventRelationsModel, eventsModel, false);
 //     // Simulate user input (changing existing data).
 //     editor->findChild<QComboBox*>("eventTypeComboBox")->setCurrentText("Workshop");
 //
@@ -154,4 +154,4 @@ private Q_SLOTS:
 
 QTEST_MAIN(EventEditorTest)
 
-#include "event_editor.moc"
+#include "event_editor_dialog.moc"

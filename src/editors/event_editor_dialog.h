@@ -5,23 +5,30 @@
  */
 #pragma once
 
-#include <QAbstractItemModel>
-#include <QDataWidgetMapper>
 #include <QDialog>
 
 namespace Ui {
     class EventEditorForm;
 }
 
-class EventEditor : public QDialog {
+class QAbstractItemModel;
+class QDataWidgetMapper;
+
+
+class EventEditorDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit EventEditor(
+    explicit EventEditorDialog(
         QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
     );
 
-    ~EventEditor() override;
+    ~EventEditorDialog() override;
+
+    static void
+    showDialogForNewEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
+    static void
+    showDialogForExistingEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
 
 public Q_SLOTS:
     void accept() override;

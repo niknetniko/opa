@@ -7,7 +7,7 @@
 
 #include "data/data_manager.h"
 #include "data/event.h"
-#include "events/event_editor.h"
+#include "editors/event_editor_dialog.h"
 #include "link_existing/choose_existing_event_window.h"
 #include "utils/formatted_identifier_delegate.h"
 
@@ -144,8 +144,7 @@ void EventsOverviewView::handleNewEvent() {
     auto* singleRelationModel =
         DataManager::get().singleEventRelationModel(this, newEventId, defaultRoleId, this->personId);
 
-    auto* editorWindow = new EventEditor(singleRelationModel, singleEventModel, true, this);
-    editorWindow->show();
+    EventEditorDialog::showDialogForNewEvent(singleRelationModel, singleEventModel, this);
 }
 
 void EventsOverviewView::editSelectedEvent() {
@@ -165,8 +164,7 @@ void EventsOverviewView::editSelectedEvent() {
     auto* eventRelationModel =
         DataManager::get().singleEventRelationModel(this, eventId, eventRoleId, QVariant::fromValue(personId));
 
-    auto* editorWindow = new EventEditor(eventRelationModel, eventModel, false, this);
-    editorWindow->show();
+    EventEditorDialog::showDialogForExistingEvent(eventRelationModel, eventModel, this);
 }
 
 void EventsOverviewView::removeSelectedEvent() const {
