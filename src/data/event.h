@@ -129,7 +129,7 @@ namespace EventTypes {
 
     Q_ENUM_NS(Values);
 
-    const QHash<Values, KLazyLocalizedString> nameOriginToString{
+    const QHash<Values, KLazyLocalizedString> typeToString{
         {Birth, kli18n("Birth")},
         {Death, kli18n("Death")},
         {Marriage, kli18n("Marriage")},
@@ -139,7 +139,7 @@ namespace EventTypes {
     };
 
     const std::function toDisplayString = [](const QString& databaseValue) {
-        return genericToDisplayString<Values>(databaseValue, nameOriginToString);
+        return genericToDisplayString<Values>(databaseValue, typeToString);
     };
 
     /**

@@ -36,7 +36,8 @@ QString Data::Person::Sex::toIcon(const QString& sex) {
     return QStringLiteral("⚥");
 }
 
-QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const {
+QVariant
+OldDisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const {
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (extraColumn == 0) {
             const auto titles = this->index(row, 1, parent).data(role).toString();
@@ -49,6 +50,6 @@ QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int r
     return {};
 }
 
-DisplayNameProxyModel::DisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent) {
+OldDisplayNameProxyModel::OldDisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent) {
     this->appendColumn(i18n("Naam"));
 }

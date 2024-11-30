@@ -87,12 +87,13 @@ QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
 
     // We want to add a column, where the name is produced based on other columns.
     auto* combinedModel = new DisplayNameProxyModel(parent);
+    combinedModel->setColumns({.titles = 1, .givenNames = 2, .prefix = 3, .surname = 4});
     combinedModel->setSourceModel(baseModel);
 
     // We want to re-arrange the columns and hide most of them.
     auto* rearrangedModel = new KRearrangeColumnsProxyModel(parent);
     rearrangedModel->setSourceModel(combinedModel);
-    rearrangedModel->setSourceColumns(QVector<int>() << 0 << 6 << 5);
+    rearrangedModel->setSourceColumns({0, 6, 5});
 
     propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [query](auto* model) {
         model->setQuery(query);
@@ -260,6 +261,7 @@ QAbstractProxyModel* DataManager::singleEventRelationModel(
     proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
     return proxy;
 }
+
 QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimaryKey person) {
     auto* proxyModel = new FamilyProxyModel(person, parent);
 
@@ -274,7 +276,29 @@ QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimary
         [](auto* model) { model->resetAndLoadData(); }
     );
 
-    return proxyModel;
+    auto* combinedModel = new DisplayNameProxyModel(parent);
+    combinedModel->setColumns(
+        {.givenNames = FamilyProxyModel::GIVEN_NAMES,
+         .prefix = FamilyProxyModel::PREFIX,
+         .surname = FamilyProxyModel::SURNAME}
+    );
+    combinedModel->setSourceModel(proxyModel);
+
+    auto* columnModel = new KRearrangeColumnsProxyModel(parent);
+    columnModel->setSourceModel(combinedModel);
+    columnModel->setSourceColumns(
+        {FamilyProxyModel::TYPE,
+         FamilyProxyModel::DATE,
+         proxyModel->columnCount(),
+         FamilyProxyModel::ROLE,
+         FamilyProxyModel::EVENT_ID}
+    );
+
+    auto* dateModel = new GenealogicalDateProxyModel(parent);
+    dateModel->setSourceModel(columnModel);
+    dateModel->setDateColumn(FamilyDisplayModel::DATE);
+
+    return dateModel;
 }
 
 void DataManager::listenToModel(const QSqlTableModel* model) const {

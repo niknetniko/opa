@@ -52,3 +52,25 @@ NameOriginTableModel::NameOriginTableModel(QObject* parent) : QSqlTableModel(par
     QSqlTableModel::setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
     QSqlTableModel::setHeaderData(BUILTIN, Qt::Horizontal, i18n("Ingebouwd"));
 }
+
+DisplayNameProxyModel::DisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent) {
+    this->appendColumn(i18n("Name"));
+}
+
+void DisplayNameProxyModel::setColumns(NameColumns columns) {
+    this->columns = columns;
+}
+
+QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const {
+    if (role == Qt::DisplayRole) {
+        if (extraColumn == 0) {
+            const auto titles = this->index(row, columns.titles, parent).data(role).toString();
+            const auto givenNames = this->index(row, columns.givenNames, parent).data(role).toString();
+            const auto prefix = this->index(row, columns.prefix, parent).data(role).toString();
+            const auto surname = this->index(row, columns.surname, parent).data(role).toString();
+            return construct_display_name(titles, givenNames, prefix, surname);
+        }
+    }
+
+    return {};
+}

@@ -135,7 +135,7 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
     qDebug() << "Seeding with sample data";
 
     // Initialize the data in the database.
-    QFile seedFile(QStringLiteral(":/init.sql"));
+    QFile seedFile(QStringLiteral(":/seed.sql"));
     if (!seedFile.open(QFile::ReadOnly | QFile::Text)) {
         qWarning() << "Error occurred opening database seed file";
         abort();

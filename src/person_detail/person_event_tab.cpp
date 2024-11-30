@@ -115,7 +115,7 @@ void PersonEventTab::onAddNewEvent() {
     // Also lookup the ID for a first event.
     // TODO: do this intelligently.
     auto* typeModel = DataManager::get().eventTypesModel();
-    auto defaultType = EventTypes::nameOriginToString[EventTypes::Birth].toString();
+    auto defaultType = QString::fromUtf8(EventTypes::typeToString[EventTypes::Birth].untranslatedText());
     auto defaultEventTypeIndex =
         typeModel->match(typeModel->index(0, EventTypesModel::TYPE), Qt::DisplayRole, defaultType);
 

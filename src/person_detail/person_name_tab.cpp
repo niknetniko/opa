@@ -95,10 +95,6 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidge
     container->addWidget(nameToolbar);
     container->addWidget(treeView);
 
-    qDebug() << "Custom NAME Margins:" << this->contentsMargins();
-    qDebug() << "  treeView Margins:" << treeView->contentsMargins();
-    qDebug() << "  Layout Spacing:" << container->spacing();
-
     // Connect the buttons and stuff.
     connect(addAction, &QAction::triggered, this, &PersonNameTab::onAddNewName);
     connect(editAction, &QAction::triggered, this, &PersonNameTab::onEditSelectedName);

@@ -28,6 +28,7 @@ public:
     static constexpr int GIVEN_NAMES = 7;
     static constexpr int PREFIX = 8;
     static constexpr int SURNAME = 9;
+    static constexpr int DISPLAY_NAME = 10;
 
     FamilyProxyModel(IntegerPrimaryKey person, QObject* parent);
 
@@ -37,13 +38,14 @@ public:
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
 
-    [[nodiscard]] int rowCount(const QModelIndex& parent) const override;
-    [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
+    [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+    bool hasBastardChildren() const;
 public Q_SLOTS:
     void resetAndLoadData();
 
@@ -55,7 +57,14 @@ private:
     QString query_;
     QMap<int, QList<int>> mapping;
 
-    bool hasBastardChildren() const;
     bool isBastardParentRow(const QModelIndex& index) const;
     bool hasBastardParent(const QModelIndex& parent) const;
 };
+
+namespace FamilyDisplayModel {
+    constexpr int TYPE = 0;
+    constexpr int DATE = 1;
+    constexpr int DISPLAY_NAME = 2;
+    constexpr int ROLE = 3;
+    constexpr int EVENT_ID = 4;
+} // namespace FamilyDisplayModel

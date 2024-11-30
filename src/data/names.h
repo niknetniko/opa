@@ -8,6 +8,8 @@
 #include "utils/custom_sql_relational_model.h"
 #include "utils/model_utils_find_source_model_of_type.h"
 
+#include <KExtraColumnsProxyModel>
+
 /**
  * Create a single display name from the different name parts.
  *
@@ -80,3 +82,25 @@ namespace PersonNamesModel {
     static constexpr int SURNAME = 5;
     static constexpr int ORIGIN = 6;
 }; // namespace PersonNamesModel
+
+
+struct NameColumns {
+    int titles = -1;
+    int givenNames = -1;
+    int prefix = -1;
+    int surname = -1;
+};
+
+class DisplayNameProxyModel : public KExtraColumnsProxyModel {
+    Q_OBJECT
+
+public:
+    explicit DisplayNameProxyModel(QObject* parent = nullptr);
+
+    void setColumns(NameColumns columns);
+
+    QVariant extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const override;
+
+private:
+    NameColumns columns;
+};

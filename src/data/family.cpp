@@ -190,11 +190,8 @@ QVariant FamilyProxyModel::data(const QModelIndex& index, int role) const {
     if (isBastardParentRow(index)) {
         if (role == Qt::DisplayRole) {
             switch (index.column()) {
-                // TODO: properly handle this.
-                case GIVEN_NAMES:
-                    return QStringLiteral("Out of wedlock");
                 case TYPE:
-                    return EventTypes::Marriage;
+                    return QStringLiteral("Children with no other parent");
                 default:
                     return {};
             }
@@ -225,16 +222,16 @@ void FamilyProxyModel::resetAndLoadData() {
 
     auto* baseModel = new QSqlQueryModel(QObject::parent());
     baseModel->setQuery(std::move(query));
-    baseModel->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Id"));
-    baseModel->setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
-    baseModel->setHeaderData(ROLE, Qt::Horizontal, i18n("Rol"));
-    baseModel->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
-    baseModel->setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Soort-id"));
-    baseModel->setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
-    baseModel->setHeaderData(DATE, Qt::Horizontal, i18n("Datum"));
-    baseModel->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
-    baseModel->setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
-    baseModel->setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
+    baseModel->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Event ID"));
+    baseModel->setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Role ID"));
+    baseModel->setHeaderData(ROLE, Qt::Horizontal, i18n("Role"));
+    baseModel->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Person ID"));
+    baseModel->setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Type ID"));
+    baseModel->setHeaderData(TYPE, Qt::Horizontal, i18n("Type"));
+    baseModel->setHeaderData(DATE, Qt::Horizontal, i18n("Date"));
+    baseModel->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Given names"));
+    baseModel->setHeaderData(PREFIX, Qt::Horizontal, i18n("Prefixes"));
+    baseModel->setHeaderData(SURNAME, Qt::Horizontal, i18n("Surnames"));
 
     // TODO: check if this needs to happen when the underlying model changes.
     connect(this, &FamilyProxyModel::sourceModelChanged, this, &FamilyProxyModel::updateMapping);

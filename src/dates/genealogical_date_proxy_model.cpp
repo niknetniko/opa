@@ -26,20 +26,23 @@ void GenealogicalDateProxyModel::setDateColumn(int column) {
 QVariant GenealogicalDateProxyModel::data(const QModelIndex& index, int role) const {
     // TODO: enable this assertion...
     // Q_ASSERT(checkIndex(index, QAbstractItemModel::CheckIndexOption::IndexIsValid));
-    if (role == RawDateRole && index.column() == this->dateColumn_) {
-        return QVariant::fromValue(
-            GenealogicalDate::fromDatabaseRepresentation(QIdentityProxyModel::data(index, Qt::DisplayRole).toString())
-        );
-    }
-
-    auto rawData = QIdentityProxyModel::data(index, role);
     if (index.column() == this->dateColumn_) {
-        auto model = GenealogicalDate::fromDatabaseRepresentation(rawData.toString());
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            return model.toDisplayText();
+        switch (role) {
+            case Qt::DisplayRole:
+            case Qt::EditRole: {
+                auto raw = QIdentityProxyModel::data(index, role).toString();
+                return GenealogicalDate::fromDatabaseRepresentation(raw).toDisplayText();
+            }
+            case RawDateRole: {
+                auto raw = QIdentityProxyModel::data(index, Qt::DisplayRole).toString();
+                return QVariant::fromValue(GenealogicalDate::fromDatabaseRepresentation(raw));
+            }
+            default:
+                return QIdentityProxyModel::data(index, role);
         }
     }
-    return rawData;
+
+    return QIdentityProxyModel::data(index, role);
 }
 
 bool GenealogicalDateProxyModel::setData(const QModelIndex& index, const QVariant& value, int role) {

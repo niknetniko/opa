@@ -18,11 +18,17 @@ VALUES (3, 1, 'Zoon', 'Jozephson', 1),
        (5, 1, 'Dochter', 'Jozephson', 1);
 
 INSERT INTO events (type_id, date, name)
-VALUES (1, NULL, 'geboorte Jos'),
+VALUES (1,
+        '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+        'geboorte Jos'),
        (2, NULL, 'dood Jos'),
        (3, NULL, 'Marriage Jos'),
-       (1, NULL, 'geboorte zoon'),
-       (1, NULL, 'geboorte dochter');
+       (1,
+        '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+        'geboorte zoon'),
+       (1,
+        '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+        'geboorte dochter');
 
 INSERT INTO event_relations (event_id, person_id, role_id)
 VALUES (1, 1, 1),

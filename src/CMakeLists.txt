@@ -137,7 +137,7 @@ target_link_libraries(opa-lib PUBLIC
 qt_add_resources(opa-lib "opa-database"
     PREFIX "/"
     BASE "database"
-    FILES database/init.sql database/schema.sql
+    FILES database/init.sql database/schema.sql database/seed.sql
 )
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

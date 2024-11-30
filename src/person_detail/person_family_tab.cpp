@@ -20,6 +20,7 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     personId = person;
 
     auto* familyModel = DataManager::get().familyModelFor(this, personId);
+    auto* sourceModel = findSourceModelOfType<FamilyProxyModel>(familyModel);
 
     // Create the tree view.
     treeView = new QTreeView(this);
@@ -28,6 +29,9 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     treeView->setModel(familyModel);
     treeView->setUniformRowHeights(true);
     treeView->expandAll();
+    if (sourceModel->hasBastardChildren()) {
+        treeView->setFirstColumnSpanned(sourceModel->rowCount() - 1, {}, true);
+    }
 
     auto* toolbar = new QToolBar(this);
 

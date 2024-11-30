@@ -40,11 +40,11 @@ namespace DisplayNameModel {
  *
  * This class adds a column to provide a display name.
  */
-class DisplayNameProxyModel : public KExtraColumnsProxyModel {
+class OldDisplayNameProxyModel : public KExtraColumnsProxyModel {
     Q_OBJECT
 
 public:
-    explicit DisplayNameProxyModel(QObject* parent = nullptr);
+    explicit OldDisplayNameProxyModel(QObject* parent = nullptr);
 
     [[nodiscard]] QVariant
     extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const override;
