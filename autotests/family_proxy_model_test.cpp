@@ -6,8 +6,6 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "./test_utils.h"
-#include "data/data_manager.h"
-#include "data/event.h"
 #include "data/family.h"
 #include "data/names.h"
 #include "database/database.h"
@@ -112,51 +110,49 @@ private Q_SLOTS:
         // Open the database.
         openDatabase(u":memory:"_s, false);
         addParentAndChild();
-        DataManager::initialize(this);
     }
 
     void cleanup() {
-        DataManager::reset();
         auto db = QSqlDatabase::database();
         db.close();
     }
 
     void testDefaultCaseBasics() {
-        auto* model = DataManager::get().familyModelFor(this, 1);
-        QCOMPARE(model->rowCount(), 1);
+        FamilyProxyModel model(1);
+        QCOMPARE(model.rowCount(), 1);
 
-        auto firstParentIndex = model->index(0, FamilyProxyModel::PERSON_ID);
+        auto firstParentIndex = model.index(0, FamilyProxyModel::PERSON_ID);
         QCOMPARE(firstParentIndex.data(), 2);
 
         // Only the first column has parents.
-        QCOMPARE(model->rowCount(model->index(0, 3)), 0);
-        QCOMPARE(model->rowCount(model->index(0, 0)), 1);
+        QCOMPARE(model.rowCount(model.index(0, 3)), 0);
+        QCOMPARE(model.rowCount(model.index(0, 0)), 1);
     }
 
     void testDefaultCaseWithModelTester() {
-        auto* model = DataManager::get().familyModelFor(this, 1);
-        new QAbstractItemModelTester(model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        FamilyProxyModel model(1);
+        new QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void testBastardCaseBasics() {
         addBastardChild();
 
-        auto* model = DataManager::get().familyModelFor(this, 1);
-        QCOMPARE(model->rowCount(), 2);
+        FamilyProxyModel model(1);
+        QCOMPARE(model.rowCount(), 2);
 
         // The ID of the first parent.
-        QCOMPARE(model->index(0, FamilyProxyModel::PERSON_ID).data(), 2);
+        QCOMPARE(model.index(0, FamilyProxyModel::PERSON_ID).data(), 2);
         // The parent of the bastard children.
-        QCOMPARE(model->index(1, FamilyProxyModel::PERSON_ID).data(), QVariant{});
+        QCOMPARE(model.index(1, FamilyProxyModel::PERSON_ID).data(), QVariant{});
 
-        QCOMPARE(model->rowCount(model->index(0, 0)), 1);
-        QCOMPARE(model->rowCount(model->index(1, 0)), 1);
+        QCOMPARE(model.rowCount(model.index(0, 0)), 1);
+        QCOMPARE(model.rowCount(model.index(1, 0)), 1);
     }
 
     void testBastardCaseWithModelTester() {
         addBastardChild();
-        auto* model = DataManager::get().familyModelFor(this, 1);
-        new QAbstractItemModelTester(model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+        FamilyProxyModel model(1);
+        new QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 };
 

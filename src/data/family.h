@@ -30,7 +30,7 @@ public:
     static constexpr int SURNAME = 9;
     static constexpr int DISPLAY_NAME = 10;
 
-    FamilyProxyModel(IntegerPrimaryKey person, QObject* parent);
+    explicit FamilyProxyModel(IntegerPrimaryKey person, QObject* parent = nullptr);
 
     [[nodiscard]] QModelIndex parent(const QModelIndex& child) const override;
     [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
