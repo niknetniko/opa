@@ -10,19 +10,19 @@
 #include <QDialog>
 
 namespace Ui {
-    class GenealogicalDateEditWindow;
+    class GenealogicalDateEditorDialog;
 }
 
 class GenealogicalDate;
 /**
  * Window showing an editor for a GenealogicalDate (or asking for a new one).
  */
-class GenealogicalDateEditWindow : public QDialog {
+class GenealogicalDateEditorDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit GenealogicalDateEditWindow(const GenealogicalDate& existingDate, QWidget* parent);
-    ~GenealogicalDateEditWindow() override;
+    explicit GenealogicalDateEditorDialog(const GenealogicalDate& existingDate, QWidget* parent);
+    ~GenealogicalDateEditorDialog() override;
 
     static GenealogicalDate editDate(const GenealogicalDate& existingDate = {}, QWidget* parent = nullptr);
 
@@ -37,6 +37,6 @@ private Q_SLOTS:
 
 private:
     GenealogicalDate date;
-    Ui::GenealogicalDateEditWindow* ui;
+    Ui::GenealogicalDateEditorDialog* ui;
     QString defaultLineEditStyle;
 };

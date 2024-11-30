@@ -8,7 +8,7 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "dates/genealogical_date.h"
-#include "dates/genealogical_date_edit_window.h"
+#include "dates/genealogical_date_editor_dialog.h"
 #include "note_editor_dialog.h"
 #include "ui_event_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
@@ -123,7 +123,7 @@ void EventEditorDialog::editDateWithEditor() {
     auto currentText = form->eventDatePicker->text();
     auto startDate = GenealogicalDate::fromDisplayText(currentText);
 
-    if (auto date = GenealogicalDateEditWindow::editDate(startDate, this); date.isValid()) {
+    if (auto date = GenealogicalDateEditorDialog::editDate(startDate, this); date.isValid()) {
         form->eventDatePicker->setText(date.toDisplayText());
     }
 }
