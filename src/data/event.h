@@ -107,7 +107,7 @@ namespace EventRoles {
 
     QList<Values> parentRoles();
 
-} // namespace EventRoles
+}
 
 class EventRolesModel : public QSqlTableModel {
     Q_OBJECT
@@ -147,7 +147,7 @@ namespace EventTypes {
      */
     QList<Values> relationshipStartingEvents();
 
-} // namespace EventTypes
+}
 
 class EventTypesModel : public QSqlTableModel {
     Q_OBJECT
@@ -194,4 +194,4 @@ namespace PersonEventsModel {
     constexpr int NAME = 3;
     constexpr int ID = 4;
     constexpr int ROLE_ID = 5;
-} // namespace PersonEventsModel
+}

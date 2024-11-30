@@ -67,4 +67,4 @@ namespace FamilyDisplayModel {
     constexpr int DISPLAY_NAME = 2;
     constexpr int ROLE = 3;
     constexpr int EVENT_ID = 4;
-} // namespace FamilyDisplayModel
+}

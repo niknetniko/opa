@@ -59,8 +59,7 @@ namespace NameOrigins {
     const std::function toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
-}; // namespace NameOrigins
-
+}
 
 class NameOriginTableModel : public QSqlTableModel {
     Q_OBJECT
@@ -81,8 +80,7 @@ namespace PersonNamesModel {
     static constexpr int PREFIX = 4;
     static constexpr int SURNAME = 5;
     static constexpr int ORIGIN = 6;
-}; // namespace PersonNamesModel
-
+}
 
 struct NameColumns {
     int titles = -1;

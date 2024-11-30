@@ -16,7 +16,7 @@ namespace Data::Person {
         const auto CALL_NAME = QStringLiteral("call_name");
         const auto SUFFIX = QStringLiteral("suffix");
         const auto SEX = QStringLiteral("sex");
-    } // namespace Table
+    }
 
     namespace Sex {
         const auto MALE = QStringLiteral("male");
@@ -26,14 +26,14 @@ namespace Data::Person {
         QString toDisplay(const QString& sex);
 
         QString toIcon(const QString& sex);
-    } // namespace Sex
-} // namespace Data::Person
+    }
+}
 
 namespace DisplayNameModel {
     constexpr int ID = 0;
     constexpr int NAME = 1;
     constexpr int ROOT = 2;
-} // namespace DisplayNameModel
+}
 
 namespace PersonDetailModel {
     constexpr int ID = 0;
@@ -44,4 +44,4 @@ namespace PersonDetailModel {
     constexpr int ROOT = 5;
     constexpr int SEX = 6;
     constexpr int DISPLAY_NAME = 7;
-}; // namespace PersonDetailModel
+}
