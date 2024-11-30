@@ -35,21 +35,3 @@ QString Data::Person::Sex::toIcon(const QString& sex) {
     }
     return QStringLiteral("⚥");
 }
-
-QVariant
-OldDisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const {
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        if (extraColumn == 0) {
-            const auto titles = this->index(row, 1, parent).data(role).toString();
-            const auto givenNames = this->index(row, 2, parent).data(role).toString();
-            const auto prefix = this->index(row, 3, parent).data(role).toString();
-            const auto surname = this->index(row, 4, parent).data(role).toString();
-            return construct_display_name(titles, givenNames, prefix, surname);
-        }
-    }
-    return {};
-}
-
-OldDisplayNameProxyModel::OldDisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent) {
-    this->appendColumn(i18n("Naam"));
-}

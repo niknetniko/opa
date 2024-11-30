@@ -35,21 +35,6 @@ namespace DisplayNameModel {
     constexpr int ROOT = 2;
 } // namespace DisplayNameModel
 
-/**
- * Not for direct use.
- *
- * This class adds a column to provide a display name.
- */
-class OldDisplayNameProxyModel : public KExtraColumnsProxyModel {
-    Q_OBJECT
-
-public:
-    explicit OldDisplayNameProxyModel(QObject* parent = nullptr);
-
-    [[nodiscard]] QVariant
-    extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const override;
-};
-
 namespace PersonDetailModel {
     constexpr int ID = 0;
     constexpr int TITLES = 1;
