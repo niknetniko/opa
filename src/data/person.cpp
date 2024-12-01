@@ -7,31 +7,20 @@
 
 #include "names.h"
 
-#include <KLocalizedString>
 #include <QString>
 
-QString Data::Person::Sex::toDisplay(const QString& sex) {
-    if (sex == MALE) {
-        return i18n("Man");
+QString Sex::toIcon(const QString& sex) {
+    if (!isValidEnum<Values>(sex)) {
+        return QStringLiteral("⚥");
     }
-    if (sex == FEMALE) {
-        return i18n("Vrouw");
-    }
-    if (sex == UNKNOWN) {
-        return i18n("Onbekend");
-    }
-    return sex;
-}
 
-QString Data::Person::Sex::toIcon(const QString& sex) {
-    if (sex == MALE) {
-        return QStringLiteral("♂");
+    switch (enumFromString<Values>(sex)) {
+        case Male:
+            return QStringLiteral("♂");
+        case Female:
+            return QStringLiteral("♀");
+        case Unknown:
+        default:
+            return QStringLiteral("?");
     }
-    if (sex == FEMALE) {
-        return QStringLiteral("♀");
-    }
-    if (sex == UNKNOWN) {
-        return QStringLiteral("?");
-    }
-    return QStringLiteral("⚥");
 }

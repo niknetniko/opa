@@ -79,6 +79,10 @@ add_library(opa-lib STATIC
     person_detail/person_family_tab.h
     utils/model_utils.cpp
     utils/model_utils.h
+    tree_view/tree_view_window.cpp
+    tree_view/tree_view_window.h
+    tree_view/person_tree_graph_model.cpp
+    tree_view/person_tree_graph_model.h
 )
 
 ecm_qt_declare_logging_category(opa-lib
@@ -132,6 +136,7 @@ target_link_libraries(opa-lib PUBLIC
     KF6::KIOWidgets
     KF6::TextWidgets
     ${SQLite3_LIBRARIES}
+    ${QtNodes_LIBRARIES}
 )
 
 qt_add_resources(opa-lib "opa-database"

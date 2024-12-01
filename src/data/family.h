@@ -25,10 +25,11 @@ public:
     static constexpr int TYPE_ID = 4;
     static constexpr int TYPE = 5;
     static constexpr int DATE = 6;
-    static constexpr int GIVEN_NAMES = 7;
-    static constexpr int PREFIX = 8;
-    static constexpr int SURNAME = 9;
-    static constexpr int DISPLAY_NAME = 10;
+    static constexpr int TITLES = 7;
+    static constexpr int GIVEN_NAMES = 8;
+    static constexpr int PREFIX = 9;
+    static constexpr int SURNAME = 10;
+    static constexpr int DISPLAY_NAME = 11;
 
     explicit FamilyProxyModel(IntegerPrimaryKey person, QObject* parent = nullptr);
 
@@ -45,7 +46,7 @@ public:
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    bool hasBastardChildren() const;
+    [[nodiscard]] bool hasBastardChildren() const;
 public Q_SLOTS:
     void resetAndLoadData();
 
@@ -57,8 +58,8 @@ private:
     QString query_;
     QMap<int, QList<int>> mapping;
 
-    bool isBastardParentRow(const QModelIndex& index) const;
-    bool hasBastardParent(const QModelIndex& parent) const;
+    [[nodiscard]] bool isBastardParentRow(const QModelIndex& index) const;
+    [[nodiscard]] bool hasBastardParent(const QModelIndex& parent) const;
 };
 
 namespace FamilyDisplayModel {
@@ -67,4 +68,36 @@ namespace FamilyDisplayModel {
     constexpr int DISPLAY_NAME = 2;
     constexpr int ROLE = 3;
     constexpr int EVENT_ID = 4;
+}
+
+class AncestorQueryModel : public QSqlQueryModel {
+    Q_OBJECT
+public:
+    static constexpr int CHILD_ID = 0;
+    static constexpr int FATHER_ID = 1;
+    static constexpr int MOTHER_ID = 2;
+    static constexpr int VISITED = 3;
+    static constexpr int LEVEL = 4;
+    static constexpr int TITLES = 5;
+    static constexpr int GIVEN_NAMES = 6;
+    static constexpr int PREFIX = 7;
+    static constexpr int SURNAME = 8;
+
+    explicit AncestorQueryModel(IntegerPrimaryKey person, QObject* parent = nullptr);
+
+public Q_SLOTS:
+    void resetAndLoadData();
+
+private:
+    IntegerPrimaryKey person;
+    QString query_;
+};
+
+namespace AncestorDisplayModel {
+    static constexpr int CHILD_ID = 0;
+    static constexpr int FATHER_ID = 1;
+    static constexpr int MOTHER_ID = 2;
+    static constexpr int VISITED = 3;
+    static constexpr int LEVEL = 4;
+    static constexpr int DISPLAY_NAME = 5;
 }

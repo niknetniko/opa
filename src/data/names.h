@@ -83,10 +83,10 @@ namespace PersonNamesModel {
 }
 
 struct NameColumns {
-    int titles = -1;
-    int givenNames = -1;
-    int prefix = -1;
-    int surname = -1;
+    int titles;
+    int givenNames;
+    int prefix;
+    int surname;
 };
 
 class DisplayNameProxyModel : public KExtraColumnsProxyModel {

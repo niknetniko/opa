@@ -5,28 +5,28 @@
  */
 #pragma once
 
-#include <KExtraColumnsProxyModel>
+#include "utils/model_utils_find_source_model_of_type.h"
+
 #include <QString>
 
-namespace Data::Person {
-    namespace Table {
-        const auto ID = QStringLiteral("id");
-        const auto GIVEN_NAMES = QStringLiteral("given_names");
-        const auto NICK_NAME = QStringLiteral("nick_name");
-        const auto CALL_NAME = QStringLiteral("call_name");
-        const auto SUFFIX = QStringLiteral("suffix");
-        const auto SEX = QStringLiteral("sex");
-    }
+namespace Sex {
+    Q_NAMESPACE
 
-    namespace Sex {
-        const auto MALE = QStringLiteral("male");
-        const auto FEMALE = QStringLiteral("female");
-        const auto UNKNOWN = QStringLiteral("unknown");
+    enum Values { Male, Female, Unknown };
 
-        QString toDisplay(const QString& sex);
+    Q_ENUM_NS(Values)
 
-        QString toIcon(const QString& sex);
-    }
+    const QHash<Values, KLazyLocalizedString> nameOriginToString = {
+        {Unknown, kli18n("Unknown")},
+        {Male, kli18n("Male")},
+        {Female, kli18n("Female")},
+    };
+
+    const std::function toDisplayString = [](const QString& databaseValue) {
+        return genericToDisplayString<Values>(databaseValue, nameOriginToString);
+    };
+
+    QString toIcon(const QString& sex);
 }
 
 namespace DisplayNameModel {

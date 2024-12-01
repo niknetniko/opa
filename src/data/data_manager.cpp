@@ -87,8 +87,13 @@ QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
 
     // We want to add a column, where the name is produced based on other columns.
     auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setColumns({.titles = 1, .givenNames = 2, .prefix = 3, .surname = 4});
     combinedModel->setSourceModel(baseModel);
+    combinedModel->setColumns({
+        .titles = 1,
+        .givenNames = 2,
+        .prefix = 3,
+        .surname = 4,
+    });
 
     // We want to re-arrange the columns and hide most of them.
     auto* rearrangedModel = new KRearrangeColumnsProxyModel(parent);
@@ -103,17 +108,16 @@ QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
 }
 
 QAbstractProxyModel* DataManager::personDetailsModel(QObject* parent, IntegerPrimaryKey personId) {
-    auto rawQuery = QStringLiteral("SELECT people.id, names.titles, names.given_names, "
-                                   "names.prefix, names.surname, people.root, people.sex "
-                                   "FROM people "
-                                   "JOIN names on people.id = names.person_id "
-                                   "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE "
-                                   "n2.person_id = people.id) AND people.id = :id");
+    auto rawQuery = QStringLiteral(
+        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex "
+        "FROM people "
+        "JOIN names on people.id = names.person_id "
+        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) AND people.id = :id"
+    );
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);
     query.exec();
-    qDebug() << "DETAILS OK";
 
     auto* baseModel = new QSqlQueryModel(parent);
     baseModel->setQuery(std::move(query));
@@ -128,6 +132,12 @@ QAbstractProxyModel* DataManager::personDetailsModel(QObject* parent, IntegerPri
     // We want to add a column, where the name is produced based on other columns.
     auto* combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
+    combinedModel->setColumns({
+        PersonDetailModel::TITLES,
+        PersonDetailModel::GIVEN_NAMES,
+        PersonDetailModel::PREFIXES,
+        PersonDetailModel::SURNAME,
+    });
 
     propagateToModel<QSqlQueryModel>(
         baseModel,
@@ -231,15 +241,15 @@ QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerP
     // Hide the original role column.
     auto* hidden = new KRearrangeColumnsProxyModel(parent);
     hidden->setSourceModel(proxy);
-    hidden->setSourceColumns(
-        {PersonEventsModel::ROLE,
-         // These are all one further than we want.
-         PersonEventsModel::TYPE + 1,
-         PersonEventsModel::DATE + 1,
-         PersonEventsModel::NAME + 1,
-         PersonEventsModel::ID + 1,
-         PersonEventsModel::ROLE_ID + 1}
-    );
+    hidden->setSourceColumns({
+        PersonEventsModel::ROLE,
+        // These are all one further than we want.
+        PersonEventsModel::TYPE + 1,
+        PersonEventsModel::DATE + 1,
+        PersonEventsModel::NAME + 1,
+        PersonEventsModel::ID + 1,
+        PersonEventsModel::ROLE_ID + 1,
+    });
 
     return hidden;
 }
@@ -267,38 +277,79 @@ QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimary
 
     propagateToModel<FamilyProxyModel>(
         proxyModel,
-        {Schema::EventsTable,
-         Schema::EventTypesTable,
-         Schema::EventRolesTable,
-         Schema::EventRelationsTable,
-         Schema::NamesTable,
-         Schema::PeopleTable},
+        {
+            Schema::EventsTable,
+            Schema::EventTypesTable,
+            Schema::EventRolesTable,
+            Schema::EventRelationsTable,
+            Schema::NamesTable,
+            Schema::PeopleTable,
+        },
         [](auto* model) { model->resetAndLoadData(); }
     );
 
     auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setColumns(
-        {.givenNames = FamilyProxyModel::GIVEN_NAMES,
-         .prefix = FamilyProxyModel::PREFIX,
-         .surname = FamilyProxyModel::SURNAME}
-    );
     combinedModel->setSourceModel(proxyModel);
+    combinedModel->setColumns({
+        .titles = FamilyProxyModel::TITLES,
+        .givenNames = FamilyProxyModel::GIVEN_NAMES,
+        .prefix = FamilyProxyModel::PREFIX,
+        .surname = FamilyProxyModel::SURNAME,
+    });
 
     auto* columnModel = new KRearrangeColumnsProxyModel(parent);
     columnModel->setSourceModel(combinedModel);
-    columnModel->setSourceColumns(
-        {FamilyProxyModel::TYPE,
-         FamilyProxyModel::DATE,
-         proxyModel->columnCount(),
-         FamilyProxyModel::ROLE,
-         FamilyProxyModel::EVENT_ID}
-    );
+    columnModel->setSourceColumns({
+        FamilyProxyModel::TYPE,
+        FamilyProxyModel::DATE,
+        combinedModel->columnCount() - 1,
+        FamilyProxyModel::ROLE,
+        FamilyProxyModel::EVENT_ID,
+    });
 
     auto* dateModel = new GenealogicalDateProxyModel(parent);
     dateModel->setSourceModel(columnModel);
     dateModel->setDateColumn(FamilyDisplayModel::DATE);
 
     return dateModel;
+}
+
+QAbstractItemModel* DataManager::ancestorModelFor(QObject* parent, IntegerPrimaryKey person) {
+    auto* ancestorQueryModel = new AncestorQueryModel(person, parent);
+    propagateToModel<AncestorQueryModel>(
+        ancestorQueryModel,
+        {
+            Schema::EventsTable,
+            Schema::EventTypesTable,
+            Schema::EventRolesTable,
+            Schema::EventRelationsTable,
+            Schema::NamesTable,
+            Schema::PeopleTable,
+        },
+        [](auto* model) { model->resetAndLoadData(); }
+    );
+
+    auto* combinedModel = new DisplayNameProxyModel(parent);
+    combinedModel->setSourceModel(ancestorQueryModel);
+    combinedModel->setColumns({
+        .titles = AncestorQueryModel::TITLES,
+        .givenNames = AncestorQueryModel::GIVEN_NAMES,
+        .prefix = AncestorQueryModel::PREFIX,
+        .surname = AncestorQueryModel::SURNAME,
+    });
+
+    auto* columnModel = new KRearrangeColumnsProxyModel(parent);
+    columnModel->setSourceModel(combinedModel);
+    columnModel->setSourceColumns({
+        AncestorQueryModel::CHILD_ID,
+        AncestorQueryModel::FATHER_ID,
+        AncestorQueryModel::MOTHER_ID,
+        AncestorQueryModel::VISITED,
+        AncestorQueryModel::LEVEL,
+        combinedModel->columnCount() - 1,
+    });
+
+    return columnModel;
 }
 
 void DataManager::listenToModel(const QSqlTableModel* model) const {
@@ -379,7 +430,6 @@ template<class ModelType>
 void DataManager::propagateToModel(
     ModelType* model, QStringList tables, std::function<void(ModelType*)> updater // NOLINT(*-unnecessary-value-param)
 ) {
-    // auto name = model->metaObject()->className();
     connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString& table) {
         if (tables.contains(table) && updatingFromDataManagerSource != model) {
             updater(model);

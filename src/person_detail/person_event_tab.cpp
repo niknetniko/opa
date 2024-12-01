@@ -85,10 +85,6 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     container->addWidget(toolbar);
     container->addWidget(treeView);
 
-    qDebug() << "Custom EVENT Margins:" << this->contentsMargins();
-    qDebug() << "  treeView Margins:" << treeView->contentsMargins();
-    qDebug() << "  Layout Spacing:" << container->spacing();
-
     // Connect the buttons and stuff.
     connect(addAction, &QAction::triggered, this, &PersonEventTab::onAddNewEvent);
     connect(editAction, &QAction::triggered, this, &PersonEventTab::onEditSelectedEvent);

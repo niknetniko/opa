@@ -14,6 +14,17 @@
 
 constexpr int BASTARD_CHILDREN_ROW_ID = std::numeric_limits<int>::max();
 
+// Query to get all (child, father, mother) pairs.
+// SELECT child_relation.person_id  AS child_id,
+//        father_relation.person_id AS father_id,
+//        mother_relation.person_id AS mother_id
+// FROM event_relations AS child_relation
+//        LEFT JOIN event_relations AS father_relation ON child_relation.event_id = father_relation.event_id
+//        LEFT JOIN event_relations AS mother_relation ON child_relation.event_id = mother_relation.event_id
+// WHERE father_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Father')
+//   AND mother_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Mother')
+//   AND child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary');
+
 
 FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) :
     QAbstractProxyModel(parent),
@@ -58,6 +69,7 @@ SELECT DISTINCT events.id        AS event_id,
                 event_types.id   AS event_type_id,
                 event_types.type AS event_type,
                 events.date,
+                names.titles,
                 names.given_names,
                 names.prefix,
                 names.surname
@@ -288,4 +300,78 @@ bool FamilyProxyModel::isBastardParentRow(const QModelIndex& index) const {
 
 bool FamilyProxyModel::hasBastardParent(const QModelIndex& parent) const {
     return hasBastardChildren() && parent.row() + 1 == mapping.size();
+}
+
+AncestorQueryModel::AncestorQueryModel(IntegerPrimaryKey person, QObject* parent) :
+    QSqlQueryModel(parent),
+    person(person) {
+    this->query_ = QStringLiteral(R"-(
+WITH RECURSIVE
+  parent_of(child_id, father_id, mother_id) AS
+    (SELECT child_relation.person_id  AS child_id,
+            father_relation.person_id AS father_id,
+            mother_relation.person_id AS mother_id
+     FROM event_relations AS child_relation
+            LEFT JOIN event_relations AS father_relation
+                      ON child_relation.event_id = father_relation.event_id
+                        AND father_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Father')
+            LEFT JOIN event_relations AS mother_relation
+                      ON child_relation.event_id = mother_relation.event_id
+                        AND mother_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Mother')
+     WHERE child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
+     GROUP BY child_relation.person_id),
+  ancestor_tree(child_id, father_id, mother_id, visited) AS
+    (SELECT child_id,
+            father_id,
+            mother_id,
+            CAST(child_id AS TEXT) AS visited
+     FROM parent_of
+     WHERE child_id = :person
+
+     UNION ALL
+
+     SELECT parent_of.child_id                                 AS child_id,
+            parent_of.father_id                                AS father_id,
+            parent_of.mother_id                                AS mother_id,
+            ancestor_tree.visited || ',' || parent_of.child_id AS visited
+     FROM ancestor_tree
+            LEFT JOIN parent_of
+                      ON parent_of.child_id = ancestor_tree.father_id
+                        OR parent_of.child_id = ancestor_tree.mother_id
+     WHERE parent_of.child_id IS NOT NULL
+       AND ',' || ancestor_tree.visited || ',' NOT LIKE '%,' || parent_of.child_id || ',%')
+SELECT child_id,
+       father_id,
+       mother_id,
+       visited,
+       json_array_length('[' || visited || ']') AS level,
+       names.titles,
+       names.given_names,
+       names.prefix,
+       names.surname
+FROM ancestor_tree
+       LEFT JOIN names ON ancestor_tree.child_id = names.person_id
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = ancestor_tree.child_id)
+ORDER BY ancestor_tree.child_id
+    )-");
+    resetAndLoadData();
+}
+
+void AncestorQueryModel::resetAndLoadData() {
+    QSqlQuery query;
+    query.prepare(query_);
+    query.bindValue(QStringLiteral(":person"), person);
+
+    if (!query.exec()) {
+        qWarning() << "Something went wrong...";
+        qDebug() << query.lastError();
+    }
+
+    setQuery(std::move(query));
+
+    setHeaderData(CHILD_ID, Qt::Horizontal, i18n("Child ID"));
+    setHeaderData(FATHER_ID, Qt::Horizontal, i18n("Father ID"));
+    setHeaderData(MOTHER_ID, Qt::Horizontal, i18n("Mother ID"));
+    setHeaderData(VISITED, Qt::Horizontal, i18n("Visited"));
+    setHeaderData(LEVEL, Qt::Horizontal, i18n("Level"));
 }

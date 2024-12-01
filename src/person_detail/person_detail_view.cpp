@@ -51,8 +51,8 @@ void PersonDetailView::populate() {
     ui->displayName->setText(this->getDisplayName());
 
     auto sex = model->index(0, PersonDetailModel::SEX).data().toString();
-    auto sexSymbol = Data::Person::Sex::toIcon(sex);
-    auto sexDescription = Data::Person::Sex::toDisplay(sex);
+    auto sexSymbol = Sex::toIcon(sex);
+    auto sexDescription = Sex::toDisplayString(sex);
     ui->sexIcon->setText(sexSymbol);
     ui->sexIcon->setToolTip(sexDescription);
 

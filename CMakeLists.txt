@@ -51,10 +51,14 @@ find_package(
 find_package(SQLite3)
 include_directories(${SQLite3_INCLUDE_DIRS})
 
+find_package(QtNodes)
+include_directories(${QtNodes_INCLUDE_DIRS})
+
 kde_enable_exceptions()
 
 add_subdirectory(src)
 add_subdirectory(icons)
+add_subdirectory(example)
 
 if(BUILD_TESTING)
   find_package(Qt6 ${QT_MIN_VERSION} NO_MODULE COMPONENTS Test)

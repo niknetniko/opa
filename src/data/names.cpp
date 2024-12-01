@@ -59,6 +59,10 @@ DisplayNameProxyModel::DisplayNameProxyModel(QObject* parent) : KExtraColumnsPro
 
 void DisplayNameProxyModel::setColumns(NameColumns columns) {
     this->columns = columns;
+    assert(columns.prefix >= 0 && columns.prefix < sourceModel()->columnCount());
+    assert(columns.givenNames >= 0 && columns.givenNames < sourceModel()->columnCount());
+    assert(columns.titles >= 0 && columns.titles < sourceModel()->columnCount());
+    assert(columns.surname >= 0 && columns.surname < sourceModel()->columnCount());
 }
 
 QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const {

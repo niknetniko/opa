@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+// ReSharper disable CppParameterMayBeConstPtrOrRef
 #include "database.h"
 
 #include <sqlite3.h>
@@ -26,23 +27,24 @@ void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
             continue;
         }
         if (command.startsWith(QStringLiteral("--"))) {
-            qDebug() << "Skipping comment" << command;
-            continue;
+            qCritical() << "Comments are not supported at the moment.";
+            abort();
         }
         qDebug() << "Executing" << command;
         QSqlQuery theQuery(database);
         theQuery.prepare(command);
         if (!theQuery.exec()) {
-            qDebug("Error occurred running SQL query.");
-            qWarning("%s", qPrintable(theQuery.lastError().text()));
+            qCritical() << "Error occurred running SQL query.";
+            qCritical() << theQuery.lastError().text();
             abort();
         }
     }
 }
 
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
 // NOLINTNEXTLINE(*-use-internal-linkage)
-int sql_trace_callback(unsigned int type, [[maybe_unused]] void* context, void* p, [[maybe_unused]] void* x) {
+int sql_trace_callback(unsigned int type, void* context, void* p, void* x) {
+    Q_UNUSED(context);
+    Q_UNUSED(x);
     if (type == SQLITE_TRACE_PROFILE) {
         auto* statement = static_cast<sqlite3_stmt*>(p);
         const auto* sql = sqlite3_expanded_sql(statement);

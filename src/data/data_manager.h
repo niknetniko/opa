@@ -102,6 +102,8 @@ public:
      */
     QAbstractProxyModel* familyModelFor(QObject* parent, IntegerPrimaryKey person);
 
+    QAbstractItemModel* ancestorModelFor(QObject* parent, IntegerPrimaryKey person);
+
 Q_SIGNALS:
     /**
      * Called when a change has occurred in a certain model, and other models depending on data

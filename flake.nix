@@ -49,6 +49,7 @@
           qt6.qtbase
           qt6.qtwayland
           qt6.qtdeclarative
+          qtnodes
         ];
         native-build-inputs = with pkgs; [
           qt6.wrapQtAppsHook
@@ -69,11 +70,30 @@
           buildInputs = build-inputs;
           nativeBuildInputs = native-build-inputs;
         };
+        qtnodes = pkgs.clangStdenv.mkDerivation rec {
+          pname = "qtnodes";
+          version = "3.0.11";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "paceholder";
+            repo = "nodeeditor";
+            rev = "${version}";
+            hash = "sha256-Duy9Z+9d12sqwkHQ2eyMI4WrcXCte4M90xNxyrGcOCw=";
+          };
+
+          cmakeFlags = [ "-DUSE_QT6=ON" ];
+
+          dontWrapQtApps = true;
+
+          nativeBuildInputs = with pkgs; [ cmake ];
+          buildInputs = with pkgs; [ qt6.qtbase ];
+        };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
       {
-        packages = rec {
+        packages = {
           default = opa;
+          qtnodes = qtnodes;
         };
         checks = rec {
           ctests = opa.overrideAttrs (

@@ -23,6 +23,8 @@ public:
 public Q_SLOTS:
     // TODO: allow selecting people.
 
+    void showPedigreeChart();
+
 private:
     IntegerPrimaryKey personId;
     QTreeView* treeView;
