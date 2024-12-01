@@ -20,58 +20,55 @@ FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) :
     person(person) {
     // TODO: is it needed to remove the hard-coded roles and relationships?
     query_ = QStringLiteral(R"-(
-WITH parent_events(event_id) AS
-       (SELECT events.id
+WITH parent_events AS
+       (SELECT events.id AS event_id
         FROM events
-               LEFT JOIN event_relations on events.id = event_relations.event_id
-               LEFT JOIN event_roles on event_relations.role_id = event_roles.id
-        WHERE person_id = :id
+               JOIN event_relations ON events.id = event_relations.event_id
+               JOIN event_roles ON event_relations.role_id = event_roles.id
+        WHERE event_relations.person_id = :id
           AND event_roles.role IN ('Father', 'Mother')),
-     children(event_id) AS
-       (SELECT events.id
+     children AS
+       (SELECT event_relations.person_id AS child_id, events.id AS event_id
         FROM events
-               LEFT JOIN event_relations on events.id = event_relations.event_id
-               LEFT JOIN event_roles on event_relations.role_id = event_roles.id
-               LEFT JOIN event_types on event_types.id = events.type_id
+               JOIN event_relations ON events.id = event_relations.event_id
+               JOIN event_roles ON event_relations.role_id = event_roles.id
+               JOIN event_types ON events.type_id = event_types.id
         WHERE event_types.type = 'Birth'
           AND event_roles.role = 'Primary'
-          AND events.id IN parent_events),
-     parents_of_children(person_id) AS
-       (SELECT event_relations.person_id
+          AND events.id IN (SELECT event_id FROM parent_events)),
+     parents_of_children AS
+       (SELECT DISTINCT event_relations.person_id AS parent_id
+        FROM event_relations
+               JOIN event_roles ON event_relations.role_id = event_roles.id
+        WHERE event_relations.event_id IN (SELECT event_id FROM parent_events)
+          AND event_roles.role IN ('Father', 'Mother')
+          AND event_relations.person_id != :id),
+     relationships AS
+       (SELECT events.id AS event_id, event_relations.person_id AS partner_id
         FROM events
-               LEFT JOIN event_relations on events.id = event_relations.event_id
-               LEFT JOIN event_roles on event_relations.role_id = event_roles.id
-               LEFT JOIN event_types on event_types.id = events.type_id
-        WHERE event_roles.role IN ('Father', 'Mother')
-          AND event_relations.person_id != :id
-          AND events.id IN parent_events),
-     relationships(event_id) AS
-       (SELECT events.id
-        FROM events
-               LEFT JOIN event_relations on events.id = event_relations.event_id
-               LEFT JOIN event_roles on event_relations.role_id = event_roles.id
-               LEFT JOIN event_types on event_types.id = events.type_id
-        WHERE event_types.type IN ('Marriage')
-          AND event_roles.role IN ('Primary', 'Partner')
-          AND event_relations.person_id IN parents_of_children)
-SELECT events.id,
-       event_roles.id,
-       event_roles.role,
-       event_relations.person_id,
-       event_types.id,
-       event_types.type,
-       events.date,
-       names.given_names,
-       names.prefix,
-       names.surname
+               JOIN event_relations ON events.id = event_relations.event_id
+               JOIN event_roles ON event_relations.role_id = event_roles.id
+               JOIN event_types ON events.type_id = event_types.id
+        WHERE event_types.type = 'Marriage'
+          AND event_relations.person_id IN (SELECT parent_id FROM parents_of_children))
+SELECT DISTINCT events.id        AS event_id,
+                event_roles.id   AS role_id,
+                event_roles.role,
+                event_relations.person_id,
+                event_types.id   AS event_type_id,
+                event_types.type AS event_type,
+                events.date,
+                names.given_names,
+                names.prefix,
+                names.surname
 FROM events
-       LEFT JOIN event_relations ON events.id = event_relations.event_id
-       LEFT JOIN event_roles ON event_roles.id = event_relations.role_id
-       LEFT JOIN event_types ON events.type_id = event_types.id
-       LEFT JOIN names on event_relations.person_id = names.person_id
+       JOIN event_relations ON events.id = event_relations.event_id
+       JOIN event_roles ON event_relations.role_id = event_roles.id
+       JOIN event_types ON events.type_id = event_types.id
+       LEFT JOIN names ON event_relations.person_id = names.person_id
 WHERE event_relations.person_id != :id
-  AND (events.id IN children OR events.id IN relationships)
-  AND (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = event_relations.person_id));
+  AND (events.id IN (SELECT event_id FROM children) OR events.id IN (SELECT event_id FROM relationships))
+  AND names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = event_relations.person_id);
 )-");
     resetAndLoadData();
 }
