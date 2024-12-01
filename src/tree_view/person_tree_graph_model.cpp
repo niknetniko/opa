@@ -25,14 +25,12 @@ inline ConnectionId create(NodeId out, NodeId in) {
 }
 
 PersonTreeGraphModel::PersonTreeGraphModel(IntegerPrimaryKey person) {
-    this->sourceModel = DataManager::get().ancestorModelFor(this, person);
+    this->sourceModel_ = DataManager::get().ancestorModelFor(this, person);
 
-    connect(sourceModel, &QAbstractItemModel::modelReset, this, [this] {
+    connect(sourceModel_, &QAbstractItemModel::modelReset, this, [this] {
         Q_EMIT this->modelReset();
         calculateNodePositions();
     });
-
-    qDebug() << "Model for tree view contains..." << sourceModel->rowCount();
 
     calculateNodePositions();
 }
@@ -44,8 +42,8 @@ QtNodes::NodeFlags PersonTreeGraphModel::nodeFlags(NodeId nodeId) const {
 
 std::unordered_set<NodeId> PersonTreeGraphModel::allNodeIds() const {
     std::unordered_set<NodeId> result;
-    for (int row = 0; row < sourceModel->rowCount(); ++row) {
-        result.insert(sourceModel->index(row, AncestorDisplayModel::CHILD_ID).data().toUInt());
+    for (int row = 0; row < sourceModel_->rowCount(); ++row) {
+        result.insert(sourceModel_->index(row, AncestorDisplayModel::CHILD_ID).data().toUInt());
     }
     return result;
 }
@@ -66,28 +64,28 @@ PersonTreeGraphModel::connections(NodeId nodeId, PortType portType, PortIndex in
     Q_UNUSED(index);
     if (portType == PortType::In) {
         auto matches =
-            sourceModel->match(sourceModel->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, nodeId, -1);
+            sourceModel_->match(sourceModel_->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, nodeId, -1);
         for (auto matchedIndex: std::as_const(matches)) {
-            auto fatherData = sourceModel->index(matchedIndex.row(), AncestorDisplayModel::FATHER_ID).data();
+            auto fatherData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::FATHER_ID).data();
             if (!fatherData.isNull()) {
                 result.insert(create(fatherData.toUInt(), nodeId));
             }
-            auto motherData = sourceModel->index(matchedIndex.row(), AncestorDisplayModel::MOTHER_ID).data();
+            auto motherData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::MOTHER_ID).data();
             if (!motherData.isNull()) {
                 result.insert(create(motherData.toUInt(), nodeId));
             }
         }
     } else if (portType == PortType::Out) {
         auto fatherMatches =
-            sourceModel->match(sourceModel->index(0, AncestorDisplayModel::FATHER_ID), Qt::DisplayRole, nodeId, -1);
+            sourceModel_->match(sourceModel_->index(0, AncestorDisplayModel::FATHER_ID), Qt::DisplayRole, nodeId, -1);
         for (auto matchedIndex: std::as_const(fatherMatches)) {
-            auto childData = sourceModel->index(matchedIndex.row(), AncestorDisplayModel::CHILD_ID).data();
+            auto childData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::CHILD_ID).data();
             result.insert(create(nodeId, childData.toUInt()));
         }
         auto motherMatches =
-            sourceModel->match(sourceModel->index(0, AncestorDisplayModel::MOTHER_ID), Qt::DisplayRole, nodeId, -1);
+            sourceModel_->match(sourceModel_->index(0, AncestorDisplayModel::MOTHER_ID), Qt::DisplayRole, nodeId, -1);
         for (auto matchedIndex: std::as_const(motherMatches)) {
-            auto childData = sourceModel->index(matchedIndex.row(), AncestorDisplayModel::CHILD_ID).data();
+            auto childData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::CHILD_ID).data();
             result.insert(create(nodeId, childData.toUInt()));
         }
     }
@@ -96,15 +94,15 @@ PersonTreeGraphModel::connections(NodeId nodeId, PortType portType, PortIndex in
 }
 
 bool PersonTreeGraphModel::connectionExists(const ConnectionId connectionId) const {
-    auto matches = sourceModel->match(
-        sourceModel->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, connectionId.inNodeId, -1
+    auto matches = sourceModel_->match(
+        sourceModel_->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, connectionId.inNodeId, -1
     );
     for (auto matchedIndex: std::as_const(matches)) {
-        auto fatherData = sourceModel->index(matchedIndex.row(), AncestorDisplayModel::FATHER_ID).data();
+        auto fatherData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::FATHER_ID).data();
         if (!fatherData.isNull() && fatherData.toUInt() == connectionId.outNodeId) {
             return true;
         }
-        auto motherData = sourceModel->index(matchedIndex.row(), AncestorDisplayModel::MOTHER_ID).data();
+        auto motherData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::MOTHER_ID).data();
         if (!motherData.isNull() && motherData.toUInt() == connectionId.outNodeId) {
             return true;
         }
@@ -141,7 +139,7 @@ QVariant PersonTreeGraphModel::nodeData(NodeId nodeId, NodeRole role) const {
         case NodeRole::Caption: {
             // TODO: show more data here.
             auto index = findByChildId(nodeId);
-            auto name = sourceModel->index(index.first().row(), AncestorDisplayModel::DISPLAY_NAME).data().toString();
+            auto name = sourceModel_->index(index.first().row(), AncestorDisplayModel::DISPLAY_NAME).data().toString();
             auto id = format_id(FormattedIdentifierDelegate::PERSON, nodeId);
             return QStringLiteral("%1 (%2)").arg(name, id);
         }
@@ -214,7 +212,7 @@ bool PersonTreeGraphModel::setPortData(
 }
 
 NodeId PersonTreeGraphModel::newNodeId() {
-    return sourceModel->rowCount();
+    return sourceModel_->rowCount();
 }
 
 NodeId PersonTreeGraphModel::addNode(const QString nodeType) {
@@ -240,9 +238,9 @@ void PersonTreeGraphModel::calculateNodePositions() const {
     // TODO: use a proper algorithm for this.
     // TODO: do not do a double pass.
     QMap<int, QList<NodeId>> levelToNodes;
-    for (int row = 0; row < sourceModel->rowCount(); ++row) {
-        auto nodeId = sourceModel->index(row, AncestorDisplayModel::CHILD_ID).data().toUInt();
-        auto level = sourceModel->index(row, AncestorDisplayModel::LEVEL).data().toInt();
+    for (int row = 0; row < sourceModel_->rowCount(); ++row) {
+        auto nodeId = sourceModel_->index(row, AncestorDisplayModel::CHILD_ID).data().toUInt();
+        auto level = sourceModel_->index(row, AncestorDisplayModel::LEVEL).data().toInt();
         auto yValue = (level - 1) * 150;
         _nodeGeometryData[nodeId].pos.setY(-yValue);
         levelToNodes[level].append(nodeId);
@@ -263,5 +261,5 @@ void PersonTreeGraphModel::calculateNodePositions() const {
 }
 QModelIndexList PersonTreeGraphModel::findByChildId(NodeId childId) const {
     // TODO: should we support multiple parents somehow?
-    return sourceModel->match(sourceModel->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, childId);
+    return sourceModel_->match(sourceModel_->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, childId);
 }

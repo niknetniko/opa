@@ -8,11 +8,12 @@
 #pragma once
 #include "database/schema.h"
 
+#include <QMainWindow>
 #include <QWidget>
 
 class QAbstractItemModel;
 
-class TreeViewWindow : public QWidget {
+class TreeViewWindow : public QMainWindow {
     Q_OBJECT
 
 public:

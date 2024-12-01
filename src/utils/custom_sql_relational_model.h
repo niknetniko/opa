@@ -100,7 +100,7 @@ public:
      * Set the relation for a certain column.
      *
      * This indicates that foreignKeyColumn contains a foreign key to the given foreign model.
-     * The foreignKeyColumn refers to the sourceModel column in the foreign model.
+     * The foreignKeyColumn refers to the sourceModel_ column in the foreign model.
      * An additional column with the displayColumn (in the foreign model) will be added to this
      * model.
      *

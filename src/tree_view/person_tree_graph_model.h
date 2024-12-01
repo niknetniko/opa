@@ -63,11 +63,11 @@ public:
     bool deleteConnection(ConnectionId connectionId) override;
     bool deleteNode(NodeId nodeId) override;
 
+    QModelIndexList findByChildId(NodeId childId) const;
+
 private:
-    QAbstractItemModel* sourceModel;
+    QAbstractItemModel* sourceModel_;
     mutable std::unordered_map<NodeId, NodeGeometryData> _nodeGeometryData;
 
     void calculateNodePositions() const;
-
-    QModelIndexList findByChildId(NodeId childId) const;
 };

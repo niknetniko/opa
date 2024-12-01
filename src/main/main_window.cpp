@@ -190,6 +190,7 @@ void MainWindow::settingsConfigure() {
     m_settings = new Ui::Settings();
     m_settings->setupUi(generalSettingsPage);
     dialog->addPage(generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting"));
+    // TODO: handle this
     //    connect(dialog, &KConfigDialog::settingsChanged, m_opaView,
     //    &opaView::handleSettingsChanged);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -198,8 +199,6 @@ void MainWindow::settingsConfigure() {
 
 
 void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
-    qDebug() << "Selecting person... " << personId;
-
     // First, check if we already have a tab for the person in question.
     auto existingTab = this->findTabFor(personId);
     if (existingTab >= 0) {
