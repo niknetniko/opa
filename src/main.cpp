@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
         const KSharedConfigPtr config = KSharedConfig::openConfig();
         const KConfigGroup generalGroup(config, QStringLiteral("General"));
         const bool shouldShowWelcomeScreen = generalGroup.readEntry("showWelcome", true);
-        const QString existingFile = generalGroup.readPathEntry("currentFile", QStringLiteral());
+        const QString existingFile = generalGroup.readPathEntry("currentFile", QStringLiteral(""));
         const QFileInfo info(existingFile);
         if (!shouldShowWelcomeScreen && info.exists() && info.isFile()) {
             window->openUrl(QUrl::fromLocalFile(existingFile));
