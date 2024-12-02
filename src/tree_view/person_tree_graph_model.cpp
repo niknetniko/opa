@@ -9,7 +9,7 @@
 
 #include "data/data_manager.h"
 #include "data/family.h"
-#include <utils/formatted_identifier_delegate.h>
+#include "utils/formatted_identifier_delegate.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -97,17 +97,13 @@ bool PersonTreeGraphModel::connectionExists(const ConnectionId connectionId) con
     auto matches = sourceModel_->match(
         sourceModel_->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, connectionId.inNodeId, -1
     );
-    for (auto matchedIndex: std::as_const(matches)) {
+
+    return std::ranges::any_of(matches, [&](const QModelIndex& matchedIndex) {
         auto fatherData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::FATHER_ID).data();
-        if (!fatherData.isNull() && fatherData.toUInt() == connectionId.outNodeId) {
-            return true;
-        }
         auto motherData = sourceModel_->index(matchedIndex.row(), AncestorDisplayModel::MOTHER_ID).data();
-        if (!motherData.isNull() && motherData.toUInt() == connectionId.outNodeId) {
-            return true;
-        }
-    }
-    return false;
+        return (!fatherData.isNull() && fatherData.toUInt() == connectionId.outNodeId) ||
+               (!motherData.isNull() && motherData.toUInt() == connectionId.outNodeId);
+    });
 }
 
 
@@ -253,7 +249,8 @@ void PersonTreeGraphModel::calculateNodePositions() const {
             NodeId nodeId = nodes[nodeIndex];
             double dIndex = nodeIndex;
             int max = static_cast<int>(nodes.count()) - 1;
-            double centeredIndex = dIndex - (max / 2) + (nodes.count() % 2 ? 0 : -0.5);
+            double centeredIndex =
+                dIndex - max / 2 + (nodes.count() % 2 ? 0 : -0.5); // NOLINT(bugprone-integer-division)
             double xValue = 300 * centeredIndex;
             _nodeGeometryData[nodeId].pos.setX(xValue);
         }
@@ -261,5 +258,6 @@ void PersonTreeGraphModel::calculateNodePositions() const {
 }
 QModelIndexList PersonTreeGraphModel::findByChildId(NodeId childId) const {
     // TODO: should we support multiple parents somehow?
-    return sourceModel_->match(sourceModel_->index(0, AncestorDisplayModel::CHILD_ID), Qt::DisplayRole, childId);
+    auto start = sourceModel_->index(0, AncestorDisplayModel::CHILD_ID);
+    return sourceModel_->match(start, Qt::DisplayRole, childId);
 }

@@ -53,7 +53,7 @@ NameOriginTableModel::NameOriginTableModel(QObject* parent) : QSqlTableModel(par
     QSqlTableModel::setHeaderData(BUILTIN, Qt::Horizontal, i18n("Ingebouwd"));
 }
 
-DisplayNameProxyModel::DisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent) {
+DisplayNameProxyModel::DisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent), columns({}) {
     this->appendColumn(i18n("Name"));
 }
 
