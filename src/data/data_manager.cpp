@@ -302,6 +302,7 @@ QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimary
     columnModel->setSourceColumns({
         FamilyProxyModel::TYPE,
         FamilyProxyModel::DATE,
+        FamilyProxyModel::PERSON_ID,
         combinedModel->columnCount() - 1,
         FamilyProxyModel::ROLE,
         FamilyProxyModel::EVENT_ID,
@@ -354,6 +355,18 @@ QAbstractProxyModel* DataManager::ancestorModelFor(QObject* parent, IntegerPrima
 
 QAbstractProxyModel* DataManager::parentsModelFor(QObject* parent, IntegerPrimaryKey person) {
     auto* sourceModel = new ParentQueryModel(person, parent);
+    propagateToModel<ParentQueryModel>(
+        sourceModel,
+        {
+            Schema::EventsTable,
+            Schema::EventTypesTable,
+            Schema::EventRolesTable,
+            Schema::EventRelationsTable,
+            Schema::NamesTable,
+            Schema::PeopleTable,
+        },
+        [](auto* model) { model->resetAndLoadData(); }
+    );
 
     auto* combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(sourceModel);

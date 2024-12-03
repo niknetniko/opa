@@ -20,6 +20,15 @@ namespace Ui {
 class opaView;
 
 /**
+ * Open a person in the main window from anywhere.
+ *
+ * TODO: is this the best way of doing this?
+ *
+ * @param personId The ID to open.
+ */
+void openOrSelectPerson(IntegerPrimaryKey personId);
+
+/**
  * The main window of the program.
  *
  * This window is responsible for putting together the various views,
@@ -49,11 +58,10 @@ public Q_SLOTS:
     void openFile();
     void openUrl(const QUrl& url);
     void closeFile();
+    void openOrSelectPerson(IntegerPrimaryKey personId);
 
 private Q_SLOTS:
     void settingsConfigure();
-
-    void openOrSelectPerson(IntegerPrimaryKey personId);
 
     void closeTab(int tabIndex) const;
 

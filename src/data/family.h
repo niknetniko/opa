@@ -66,9 +66,10 @@ private:
 namespace FamilyDisplayModel {
     constexpr int TYPE = 0;
     constexpr int DATE = 1;
-    constexpr int DISPLAY_NAME = 2;
-    constexpr int ROLE = 3;
-    constexpr int EVENT_ID = 4;
+    constexpr int PERSON_ID = 2;
+    constexpr int DISPLAY_NAME = 3;
+    constexpr int ROLE = 4;
+    constexpr int EVENT_ID = 5;
 }
 
 class AncestorQueryModel : public QSqlQueryModel {
@@ -126,7 +127,7 @@ private:
 };
 
 namespace DisplayParentModel {
-    static constexpr int ROLE = 2;
-    static constexpr int PERSON_ID = 0;
-    static constexpr int DISPLAY_NAME = 4;
+    static constexpr int ROLE = 0;
+    static constexpr int PERSON_ID = 1;
+    static constexpr int DISPLAY_NAME = 2;
 }

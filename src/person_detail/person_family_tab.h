@@ -6,6 +6,7 @@
 
 #pragma once
 #include "database/schema.h"
+#include <utils/builtin_model.h>
 
 #include <QWidget>
 
@@ -21,9 +22,9 @@ public:
     explicit PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent);
 
 public Q_SLOTS:
-    // TODO: allow selecting people.
-
-    void showPedigreeChart() const;
+    void onShowPedigreeChart() const;
+    void onParentClicked(const QModelIndex& index) const;
+    void onPartnerOrChildClicked(const QModelIndex& index) const;
 
 private:
     IntegerPrimaryKey personId;

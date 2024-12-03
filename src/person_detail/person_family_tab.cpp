@@ -8,8 +8,10 @@
 
 #include "data/data_manager.h"
 #include "data/family.h"
+#include "main/main_window.h"
+#include "tree_view/tree_view_window.h"
 #include "utils/model_utils_find_source_model_of_type.h"
-#include <tree_view/tree_view_window.h>
+#include <utils/formatted_identifier_delegate.h>
 
 #include <KLocalizedString>
 #include <QGroupBox>
@@ -34,9 +36,16 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     partnerAndDescendantTreeView->setModel(familyModel);
     partnerAndDescendantTreeView->setUniformRowHeights(true);
     partnerAndDescendantTreeView->expandAll();
+    partnerAndDescendantTreeView->setItemDelegateForColumn(
+        FamilyDisplayModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
+    );
+    partnerAndDescendantTreeView->setItemDelegateForColumn(
+        FamilyDisplayModel::EVENT_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::EVENT)
+    );
     if (sourceModel->hasBastardChildren()) {
         partnerAndDescendantTreeView->setFirstColumnSpanned(sourceModel->rowCount() - 1, {}, true);
     }
+    connect(partnerAndDescendantTreeView, &QTreeView::doubleClicked, this, &PersonFamilyTab::onPartnerOrChildClicked);
 
     auto* toolbar = new QToolBar(familyGroupBox);
 
@@ -60,6 +69,10 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     parentsTreeView->setModel(parentsModel);
     parentsTreeView->setRootIsDecorated(false);
     parentsTreeView->setSortingEnabled(false);
+    parentsTreeView->setItemDelegateForColumn(
+        DisplayParentModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
+    );
+    connect(parentsTreeView, &QTreeView::doubleClicked, this, &PersonFamilyTab::onParentClicked);
 
     auto* parentsToolbar = new QToolBar(parentsGroupBox);
 
@@ -67,7 +80,7 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     showPedigreeChart->setText(i18n("Show pedigree chart"));
     showPedigreeChart->setIcon(QIcon::fromTheme(QStringLiteral("distribute-graph-directed")));
     parentsToolbar->addAction(showPedigreeChart);
-    connect(showPedigreeChart, &QAction::triggered, this, &PersonFamilyTab::showPedigreeChart);
+    connect(showPedigreeChart, &QAction::triggered, this, &PersonFamilyTab::onShowPedigreeChart);
 
     auto* parentsLayout = new QVBoxLayout(parentsGroupBox);
     parentsLayout->addWidget(parentsToolbar);
@@ -81,7 +94,21 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     mainLayout->setStretch(1, 1);
 }
 
-void PersonFamilyTab::showPedigreeChart() const {
+void PersonFamilyTab::onShowPedigreeChart() const {
     auto* pedigree = new TreeViewWindow(personId);
     pedigree->show();
+}
+
+void PersonFamilyTab::onParentClicked(const QModelIndex& index) const {
+    assert(index.model() == parentsTreeView->model());
+    auto personId = index.model()->index(index.row(), DisplayParentModel::PERSON_ID, index.parent()).data();
+    qDebug() << "Parent double clicked results in" << personId;
+    openOrSelectPerson(personId.toLongLong());
+}
+
+void PersonFamilyTab::onPartnerOrChildClicked(const QModelIndex& index) const {
+    assert(index.model() == partnerAndDescendantTreeView->model());
+    auto personId = index.model()->index(index.row(), FamilyDisplayModel::PERSON_ID, index.parent()).data();
+    qDebug() << "Partner or child double clicked results in" << personId;
+    openOrSelectPerson(personId.toLongLong());
 }

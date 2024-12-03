@@ -23,6 +23,22 @@
 #include <QDockWidget>
 #include <QFileDialog>
 
+void openOrSelectPerson(IntegerPrimaryKey personId) {
+    auto allWindows = QApplication::topLevelWidgets();
+    const auto it = std::find_if(allWindows.constBegin(), allWindows.constEnd(), [](QWidget* element) {
+        return qobject_cast<MainWindow*>(element) != nullptr;
+    });
+
+    if (it == allWindows.constEnd()) {
+        qCritical() << "There does not seem to be a main window. How is that possible?";
+        return;
+    }
+
+    auto* mainWindow = qobject_cast<MainWindow*>(*it);
+    assert(mainWindow != nullptr);
+    mainWindow->openOrSelectPerson(personId);
+}
+
 MainWindow::MainWindow() {
     const KSharedConfigPtr config = KSharedConfig::openConfig();
 

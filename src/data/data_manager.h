@@ -114,6 +114,8 @@ public:
 
     /**
      * Model which returns all parents of a person.
+     *
+     * See DisplayParentModel for an overview of the returned columns.
      */
     [[nodiscard]] QAbstractProxyModel* parentsModelFor(QObject* parent, IntegerPrimaryKey person);
 
