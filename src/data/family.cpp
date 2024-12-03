@@ -393,7 +393,8 @@ FROM event_relations AS child_relation
 WHERE child_relation.person_id = :person
   AND child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
   AND event_roles.role IN ('Father', 'Mother')
-  AND names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id);
+  AND names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id)
+ORDER BY parent_relation.person_id;
     )-");
     resetAndLoadData();
 }

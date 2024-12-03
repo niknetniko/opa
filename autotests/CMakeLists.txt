@@ -20,5 +20,6 @@ ecm_add_tests(
     event_editor_dialog.cpp
     family_proxy_model_test.cpp
     ancestor_model_test.cpp
+    parent_query_model_test.cpp
     LINK_LIBRARIES opa-lib Qt::Test
 )
