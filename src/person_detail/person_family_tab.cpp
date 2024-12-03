@@ -100,15 +100,19 @@ void PersonFamilyTab::onShowPedigreeChart() const {
 }
 
 void PersonFamilyTab::onParentClicked(const QModelIndex& index) const {
+    if (!index.isValid()) {
+        return;
+    }
     assert(index.model() == parentsTreeView->model());
     auto personId = index.model()->index(index.row(), DisplayParentModel::PERSON_ID, index.parent()).data();
-    qDebug() << "Parent double clicked results in" << personId;
     openOrSelectPerson(personId.toLongLong());
 }
 
 void PersonFamilyTab::onPartnerOrChildClicked(const QModelIndex& index) const {
+    if (!index.isValid()) {
+        return;
+    }
     assert(index.model() == partnerAndDescendantTreeView->model());
     auto personId = index.model()->index(index.row(), FamilyDisplayModel::PERSON_ID, index.parent()).data();
-    qDebug() << "Partner or child double clicked results in" << personId;
     openOrSelectPerson(personId.toLongLong());
 }
