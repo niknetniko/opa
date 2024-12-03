@@ -22,6 +22,9 @@ $ make install
 
 where `$KDEDIRS` points to your KDE installation prefix.
 
+If running manually, you should ensure all required dependencies are present.
+For example, we use [QtNodes](https://github.com/paceholder/nodeeditor).
+
 ## Licence
 
 Unless otherwise noted, the code of this project is available under GPLv3 or later.
