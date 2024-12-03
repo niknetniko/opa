@@ -27,5 +27,6 @@ public Q_SLOTS:
 
 private:
     IntegerPrimaryKey personId;
-    QTreeView* treeView;
+    QTreeView* partnerAndDescendantTreeView;
+    QTreeView* parentsTreeView;
 };

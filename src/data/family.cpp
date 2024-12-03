@@ -375,3 +375,44 @@ void AncestorQueryModel::resetAndLoadData() {
     setHeaderData(VISITED, Qt::Horizontal, i18n("Visited"));
     setHeaderData(LEVEL, Qt::Horizontal, i18n("Level"));
 }
+
+ParentQueryModel::ParentQueryModel(IntegerPrimaryKey person, QObject* parent) : QSqlQueryModel(parent), person(person) {
+    this->query_ = QStringLiteral(R"-(
+SELECT parent_relation.person_id,
+       parent_relation.role_id,
+       event_roles.role,
+       names.titles,
+       names.given_names,
+       names.prefix,
+       names.surname
+FROM event_relations AS child_relation
+       LEFT JOIN event_relations AS parent_relation ON child_relation.event_id = parent_relation.event_id
+       LEFT JOIN event_roles ON parent_relation.role_id = event_roles.id
+       LEFT JOIN names ON parent_relation.person_id = names.person_id
+WHERE child_relation.person_id = :person
+  AND child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
+  AND event_roles.role IN ('Father', 'Mother')
+  AND names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id);
+    )-");
+    resetAndLoadData();
+}
+
+void ParentQueryModel::resetAndLoadData() {
+    QSqlQuery query;
+    query.prepare(query_);
+    query.bindValue(QStringLiteral(":person"), person);
+
+    if (!query.exec()) {
+        qWarning() << "Something went wrong...";
+        qDebug() << query.lastError();
+    }
+
+    setQuery(std::move(query));
+
+    setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Role ID"));
+    setHeaderData(ROLE, Qt::Horizontal, i18n("Role"));
+    setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Person ID"));
+    setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Given names"));
+    setHeaderData(PREFIX, Qt::Horizontal, i18n("Prefixes"));
+    setHeaderData(SURNAME, Qt::Horizontal, i18n("Surnames"));
+}

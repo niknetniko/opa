@@ -10,6 +10,7 @@
 #include "event.h"
 
 #include <QAbstractProxyModel>
+#include <QSqlQueryModel>
 
 /**
  * Renders all spouses and children of a single person into a tree view of families.
@@ -100,4 +101,32 @@ namespace AncestorDisplayModel {
     static constexpr int VISITED = 3;
     static constexpr int LEVEL = 4;
     static constexpr int DISPLAY_NAME = 5;
+}
+
+class ParentQueryModel : public QSqlQueryModel {
+    Q_OBJECT
+
+public:
+    static constexpr int PERSON_ID = 0;
+    static constexpr int ROLE_ID = 1;
+    static constexpr int ROLE = 2;
+    static constexpr int TITLES = 3;
+    static constexpr int GIVEN_NAMES = 4;
+    static constexpr int PREFIX = 5;
+    static constexpr int SURNAME = 6;
+
+    explicit ParentQueryModel(IntegerPrimaryKey person, QObject* parent = nullptr);
+
+public Q_SLOTS:
+    void resetAndLoadData();
+
+private:
+    IntegerPrimaryKey person;
+    QString query_;
+};
+
+namespace DisplayParentModel {
+    static constexpr int ROLE = 2;
+    static constexpr int PERSON_ID = 0;
+    static constexpr int DISPLAY_NAME = 4;
 }

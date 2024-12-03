@@ -17,6 +17,8 @@ concept QSqlTableModelConcept = std::is_base_of_v<QSqlTableModel, M>;
 
 /**
  * The centralized point to get models for data access from the database.
+ *
+ * All models returned by this class are "live": they will update if the underlying data changes.
  */
 class DataManager : public QObject {
     Q_OBJECT
@@ -49,7 +51,7 @@ public:
      * @param parent The parent for the returned model.
      * @param personId The ID of the person to filter on.
      */
-    QAbstractProxyModel* namesModelForPerson(QObject* parent, IntegerPrimaryKey personId) const;
+    [[nodiscard]] QAbstractProxyModel* namesModelForPerson(QObject* parent, IntegerPrimaryKey personId) const;
 
     /**
      * Model for a single name.
@@ -57,52 +59,63 @@ public:
      * @param parent The parent for the returned model.
      * @param nameId The ID of the name.
      */
-    QAbstractProxyModel* singleNameModel(QObject* parent, const QVariant& nameId) const;
+    [[nodiscard]] QAbstractProxyModel* singleNameModel(QObject* parent, const QVariant& nameId) const;
 
     /**
      * Model showing only the primary names for each person.
      *
      * @param parent The parent of the model.
      */
-    QAbstractProxyModel* primaryNamesModel(QObject* parent);
+    [[nodiscard]] QAbstractProxyModel* primaryNamesModel(QObject* parent);
 
     /**
      * Model for the details view of a person.
      */
-    QAbstractProxyModel* personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
+    [[nodiscard]] QAbstractProxyModel* personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
 
-    QAbstractProxyModel* eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
+    /**
+     * Model of events for one person (including all roles).
+     *
+     * The events are grouped under the role of the given person in the event.
+     *
+     * See PersonEventsModel for an overview of the returned columns.
+     */
+    [[nodiscard]] QAbstractProxyModel* eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
 
     /**
      * Model for a single event.
-     *
-     * @param parent The parent for the returned model.
-     * @param eventId The ID of the event.
      */
-    QAbstractProxyModel* singleEventModel(QObject* parent, const QVariant& eventId) const;
+    [[nodiscard]] QAbstractProxyModel* singleEventModel(QObject* parent, const QVariant& eventId) const;
 
     /**
      * Model for a single event relation.
-     *
-     * @param parent The parent for the returned model.
-     * @param eventId The ID of the event.
-     * @param roleId The ID of the role.
-     * @param personId The ID of the person.
      */
-    QAbstractProxyModel* singleEventRelationModel(
+    [[nodiscard]] QAbstractProxyModel* singleEventRelationModel(
         QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
     ) const;
 
     /**
-     * Get a tree model of all partners and children of a certain person.
-     * The children are modeled as child rows of parents.
-     * Children without other parent are added under a synthetic "other" parent.
+     * Tree model of all partners and all children of the given person.
+     * The person itself is not included.
+     * The children itself are arranged in a tree, with the partner being the root, and every child with that partner
+     * being a child item.
+     * Children without another parent are added under a synthetic "other" parent.
      *
-     * TODO: include add partners.
+     * See FamilyDisplayModel for an overview of the returned columns.
      */
-    QAbstractProxyModel* familyModelFor(QObject* parent, IntegerPrimaryKey person);
+    [[nodiscard]] QAbstractProxyModel* familyModelFor(QObject* parent, IntegerPrimaryKey person);
 
-    QAbstractItemModel* ancestorModelFor(QObject* parent, IntegerPrimaryKey person);
+    /**
+     * Model which will return all ancestors of the given person, including the person itself.
+     *
+     * See AncestorDisplayModel for an overview of the returned columns.
+     */
+    [[nodiscard]] QAbstractProxyModel* ancestorModelFor(QObject* parent, IntegerPrimaryKey person);
+
+    /**
+     * Model which returns all parents of a person.
+     */
+    [[nodiscard]] QAbstractProxyModel* parentsModelFor(QObject* parent, IntegerPrimaryKey person);
 
 Q_SIGNALS:
     /**

@@ -12,6 +12,7 @@
 #include <tree_view/tree_view_window.h>
 
 #include <KLocalizedString>
+#include <QGroupBox>
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -23,33 +24,61 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     auto* familyModel = DataManager::get().familyModelFor(this, personId);
     auto* sourceModel = findSourceModelOfType<FamilyProxyModel>(familyModel);
 
+    auto* familyGroupBox = new QGroupBox(i18n("Partners and children"), this);
+    familyGroupBox->setFlat(true);
+
     // Create the tree view.
-    treeView = new QTreeView(this);
-    treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    treeView->setModel(familyModel);
-    treeView->setUniformRowHeights(true);
-    treeView->expandAll();
+    partnerAndDescendantTreeView = new QTreeView(familyGroupBox);
+    partnerAndDescendantTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    partnerAndDescendantTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    partnerAndDescendantTreeView->setModel(familyModel);
+    partnerAndDescendantTreeView->setUniformRowHeights(true);
+    partnerAndDescendantTreeView->expandAll();
     if (sourceModel->hasBastardChildren()) {
-        treeView->setFirstColumnSpanned(sourceModel->rowCount() - 1, {}, true);
+        partnerAndDescendantTreeView->setFirstColumnSpanned(sourceModel->rowCount() - 1, {}, true);
     }
 
-    auto* toolbar = new QToolBar(this);
-
-    auto* showPedigreeChart = new QAction(toolbar);
-    showPedigreeChart->setText(i18n("Show pedigree chart"));
-    showPedigreeChart->setIcon(QIcon::fromTheme(QStringLiteral("distribute-graph-directed")));
-    toolbar->addAction(showPedigreeChart);
-    connect(showPedigreeChart, &QAction::triggered, this, &PersonFamilyTab::showPedigreeChart);
+    auto* toolbar = new QToolBar(familyGroupBox);
 
     auto* addPartnerAction = new QAction(toolbar);
     addPartnerAction->setText(i18n("Add new partner"));
     addPartnerAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
     toolbar->addAction(addPartnerAction);
 
-    auto* nameTabContainerLayout = new QVBoxLayout(this);
-    nameTabContainerLayout->addWidget(toolbar);
-    nameTabContainerLayout->addWidget(treeView);
+    auto* familyLayout = new QVBoxLayout(familyGroupBox);
+    familyLayout->addWidget(toolbar);
+    familyLayout->addWidget(partnerAndDescendantTreeView);
+
+    auto* parentsGroupBox = new QGroupBox(i18n("Parents"), this);
+    parentsGroupBox->setFlat(true);
+
+    auto* parentsModel = DataManager::get().parentsModelFor(this, person);
+    parentsTreeView = new QTreeView(parentsGroupBox);
+    parentsTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    parentsTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    parentsTreeView->setUniformRowHeights(true);
+    parentsTreeView->setModel(parentsModel);
+    parentsTreeView->setRootIsDecorated(false);
+    parentsTreeView->setSortingEnabled(false);
+
+    auto* parentsToolbar = new QToolBar(parentsGroupBox);
+
+    auto* showPedigreeChart = new QAction(parentsToolbar);
+    showPedigreeChart->setText(i18n("Show pedigree chart"));
+    showPedigreeChart->setIcon(QIcon::fromTheme(QStringLiteral("distribute-graph-directed")));
+    parentsToolbar->addAction(showPedigreeChart);
+    connect(showPedigreeChart, &QAction::triggered, this, &PersonFamilyTab::showPedigreeChart);
+
+    auto* parentsLayout = new QVBoxLayout(parentsGroupBox);
+    parentsLayout->addWidget(parentsToolbar);
+    parentsLayout->addWidget(parentsTreeView);
+
+    // Main layout
+    auto* mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(parentsGroupBox);
+    mainLayout->addWidget(familyGroupBox);
+    mainLayout->setStretch(0, 0);
+    mainLayout->setStretch(1, 1);
 }
 
 void PersonFamilyTab::showPedigreeChart() {
