@@ -23,7 +23,7 @@ public:
 public Q_SLOTS:
     // TODO: allow selecting people.
 
-    void showPedigreeChart();
+    void showPedigreeChart() const;
 
 private:
     IntegerPrimaryKey personId;

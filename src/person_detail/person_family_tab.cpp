@@ -81,7 +81,7 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     mainLayout->setStretch(1, 1);
 }
 
-void PersonFamilyTab::showPedigreeChart() {
-    auto* pedigree = new TreeViewWindow(personId, this);
+void PersonFamilyTab::showPedigreeChart() const {
+    auto* pedigree = new TreeViewWindow(personId);
     pedigree->show();
 }
