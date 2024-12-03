@@ -5,9 +5,9 @@
  */
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
+// ReSharper disable CppDFAUnreachableFunctionCall
 #include "./test_utils.h"
 #include "data/family.h"
-#include "data/names.h"
 #include "database/database.h"
 #include "database/schema.h"
 
@@ -15,7 +15,6 @@
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlQuery>
-#include <QSqlRecord>
 #include <QTest>
 
 using namespace Qt::Literals::StringLiterals;
@@ -23,7 +22,6 @@ using namespace Qt::Literals::StringLiterals;
 class TestFamilyProxyModel : public QObject {
     Q_OBJECT
 
-private:
     IntegerPrimaryKey addPerson(const QString& firstName, const QString& lastName, const QString& sex) {
         QSqlQuery query;
         auto personId = insertQuery(u"INSERT INTO people (root, sex) VALUES (true, '%1')"_s.arg(sex));
@@ -104,10 +102,8 @@ private:
 
 private Q_SLOTS:
     void init() {
-        // Without this, we cannot test anything.
         QVERIFY(QSqlDatabase::isDriverAvailable(u"QSQLITE"_s));
 
-        // Open the database.
         openDatabase(u":memory:"_s, false);
         addParentAndChild();
     }

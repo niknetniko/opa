@@ -352,7 +352,8 @@ SELECT child_id,
 FROM ancestor_tree
        LEFT JOIN names ON ancestor_tree.child_id = names.person_id
 WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = ancestor_tree.child_id)
-ORDER BY ancestor_tree.child_id
+GROUP BY child_id
+ORDER BY level, child_id
     )-");
     resetAndLoadData();
 }

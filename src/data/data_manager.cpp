@@ -68,13 +68,12 @@ QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVarian
 }
 
 QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
-    auto query = QStringLiteral(
-        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
-        "people.root "
-        "FROM people "
-        "JOIN names on people.id = names.person_id "
-        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)"
-    );
+    auto query =
+        QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
+                       "people.root "
+                       "FROM people "
+                       "JOIN names on people.id = names.person_id "
+                       "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)");
     auto* baseModel = new QSqlQueryModel(parent);
 
     // These positions are hardcoded from the query above.
@@ -192,15 +191,13 @@ QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) con
 }
 
 QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
-    auto rawQuery = QStringLiteral(
-        "SELECT er.role, et.type, events.date, events.name, events.id, er.id "
-        "FROM events "
-        "LEFT JOIN event_types AS et ON events.type_id = et.id "
-        "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-        "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-        "WHERE erel.person_id = :id "
-        "ORDER BY events.date ASC"
-    );
+    auto rawQuery = QStringLiteral("SELECT er.role, et.type, events.date, events.name, events.id, er.id "
+                                   "FROM events "
+                                   "LEFT JOIN event_types AS et ON events.type_id = et.id "
+                                   "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+                                   "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+                                   "WHERE erel.person_id = :id "
+                                   "ORDER BY events.date ASC");
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);

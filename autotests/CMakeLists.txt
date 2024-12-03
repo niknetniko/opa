@@ -19,5 +19,6 @@ ecm_add_tests(
     model_utils_find_source_model_of_type.cpp
     event_editor_dialog.cpp
     family_proxy_model_test.cpp
+    ancestor_model_test.cpp
     LINK_LIBRARIES opa-lib Qt::Test
 )

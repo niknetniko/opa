@@ -1,22 +1,13 @@
 INSERT INTO people (id, root, sex)
-VALUES (1, TRUE, 'Male');
-
-INSERT INTO people (id, root, sex)
-VALUES (2, FALSE, 'Female');
-
-INSERT INTO people (id, root, sex)
-VALUES (3, FALSE, 'Male');
-INSERT INTO people (id, root, sex)
-VALUES (4, FALSE, 'Female');
-
-INSERT INTO people (id, root, sex)
-VALUES (5, FALSE, 'Male');
-INSERT INTO people (id, root, sex)
-VALUES (6, FALSE, 'Female');
-INSERT INTO people (id, root, sex)
-VALUES (7, FALSE, 'Male');
-INSERT INTO people (id, root, sex)
-VALUES (8, FALSE, 'Female');
+VALUES (1, TRUE, 'Male'),
+       (2, FALSE, 'Female'),
+       (3, FALSE, 'Male'),
+       (4, FALSE, 'Female'),
+       (5, FALSE, 'Male'),
+       (6, FALSE, 'Female'),
+       (7, FALSE, 'Male'),
+       (8, FALSE, 'Female'),
+       (9, FALSE, 'Male');
 
 INSERT INTO names (id, person_id, sort, titles, given_names, prefix, surname, note, origin_id)
 VALUES (1, 1, 1, '', 'John', '', 'Doe', '', 1),
@@ -26,7 +17,8 @@ VALUES (1, 1, 1, '', 'John', '', 'Doe', '', 1),
        (5, 5, 1, '', 'William', '', 'Doe', '', 1),
        (6, 6, 1, '', 'Elizabeth', '', 'Brown', '', 1),
        (7, 7, 1, '', 'George', '', 'Smith', '', 1),
-       (8, 8, 1, '', 'Mary', '', 'Taylor', '', 1);
+       (8, 8, 1, '', 'Mary', '', 'Taylor', '', 1),
+       (9, 9, 1, '', 'Ebenezer', '', 'No name', '', 1);
 
 INSERT INTO events (id, type_id, date, name, note)
 VALUES (1, 1,
@@ -52,7 +44,10 @@ VALUES (1, 1,
         'Birth of George', ''),
        (11, 1,
         '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
-        'Birth of Mary', '');
+        'Birth of Mary', ''),
+       (16, 1,
+        '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+        'Birth of Ebenezer', '');
 
 INSERT INTO event_relations (event_id, person_id, role_id)
 VALUES (1, 1, 1),
@@ -62,7 +57,8 @@ VALUES (1, 1, 1),
        (8, 5, 1),
        (9, 6, 1),
        (10, 7, 1),
-       (11, 8, 1);
+       (11, 8, 1),
+       (16, 9, 1);
 
 INSERT INTO event_relations (event_id, person_id, role_id)
 VALUES (1, 3, 5),
@@ -72,7 +68,9 @@ VALUES (1, 3, 5),
        (6, 5, 5),
        (6, 6, 4),
        (7, 7, 5),
-       (7, 8, 4);
+       (7, 8, 4),
+       (9, 9, 5),
+       (10, 9, 5);
 
 INSERT INTO events (id, type_id, date, name, note)
 VALUES (3, 3,

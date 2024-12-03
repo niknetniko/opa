@@ -6,12 +6,13 @@
 #pragma once
 
 #include "database/schema.h"
-#include <qtestcase.h>
 
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTest>
 #include <source_location>
+
+using namespace Qt::Literals::StringLiterals;
 
 
 inline QByteArray printError(const QSqlQuery& query) {
