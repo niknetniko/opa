@@ -14,17 +14,6 @@
 
 constexpr int BASTARD_CHILDREN_ROW_ID = std::numeric_limits<int>::max();
 
-// Query to get all (child, father, mother) pairs.
-// SELECT child_relation.person_id  AS child_id,
-//        father_relation.person_id AS father_id,
-//        mother_relation.person_id AS mother_id
-// FROM event_relations AS child_relation
-//        LEFT JOIN event_relations AS father_relation ON child_relation.event_id = father_relation.event_id
-//        LEFT JOIN event_relations AS mother_relation ON child_relation.event_id = mother_relation.event_id
-// WHERE father_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Father')
-//   AND mother_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Mother')
-//   AND child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary');
-
 
 FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) :
     QAbstractProxyModel(parent),

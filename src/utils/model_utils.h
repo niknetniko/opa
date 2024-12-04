@@ -8,7 +8,12 @@
 #pragma once
 #include <QSqlTableModel>
 
-
+/**
+ * Execute a "transaction" on a model.
+ *
+ * Concretely, it will set the model to manual submit, submit all changes
+ * and finally restore the original submit policy.
+ */
 template<typename T>
 bool modelTransaction(QSqlTableModel* model, T&& transaction) {
     auto originalStrategy = model->editStrategy();

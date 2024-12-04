@@ -21,18 +21,16 @@
 EventEditorDialog::EventEditorDialog(
     QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
 ) :
-    QDialog(parent),
-    eventRelationModel(eventRelationModel),
-    eventModel(eventModel),
-    newEvent(newEvent),
-    form(new Ui::EventEditorForm) {
+    AbstractEditorDialog(parent),
+    form(new Ui::EventEditorForm),
+    newEvent(newEvent) {
     form->setupUi(this);
 
     // Connect the buttons.
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditorDialog::editDateWithEditor);
     connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
+    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     connectComboBox(eventModel, EventsModel::TYPE, form->eventTypeComboBox);
@@ -44,28 +42,27 @@ EventEditorDialog::EventEditorDialog(
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
 
-    eventRelationMapper = new QDataWidgetMapper(this);
-    eventRelationMapper->setModel(this->eventRelationModel);
+
+    auto* eventRelationMapper = new QDataWidgetMapper(this);
+    eventRelationMapper->setModel(eventRelationModel);
+    eventRelationMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     eventRelationMapper->addMapping(form->eventRoleComboBox, EventRelationsModel::ROLE);
     eventRelationMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventRelationMapper->toFirst();
+    this->mappers.append(eventRelationMapper);
 
     form->noteEdit->enableRichTextMode();
 
-    // TODO: investigate why this does not work with manual submit.
-    //  Possibly since the model uses auto-submit?
-    eventMapper = new QDataWidgetMapper(this);
-    eventMapper->setModel(this->eventModel);
+    auto* eventMapper = new QDataWidgetMapper(this);
+    eventMapper->setModel(eventModel);
+    eventMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     eventMapper->addMapping(form->eventDatePicker, EventsModel::DATE);
     eventMapper->addMapping(form->eventNameEdit, EventsModel::NAME);
     eventMapper->addMapping(form->eventTypeComboBox, EventsModel::TYPE);
     eventMapper->addMapping(form->noteEdit, EventsModel::NOTE);
     eventMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
     eventMapper->toFirst();
-}
-
-EventEditorDialog::~EventEditorDialog() {
-    delete this->form;
+    this->mappers.append(eventMapper);
 }
 
 void EventEditorDialog::showDialogForNewEvent(
@@ -82,47 +79,23 @@ void EventEditorDialog::showDialogForExistingEvent(
     dialog->show();
 }
 
-void EventEditorDialog::accept() {
-    // Attempt to submit the mapper changes.
-    bool eventSubmit = eventMapper->submit();
-    bool relationSubmit = eventRelationMapper->submit();
-    if (eventSubmit && relationSubmit) {
-        QDialog::accept();
-    } else {
-        qDebug() << "Event submit" << eventSubmit << ", relation submit" << relationSubmit;
-        // Find the original model.
-        auto* eventSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventModel);
-        assert(eventSqlModel != nullptr);
-        auto* relationSqlModel = findSourceModelOfType<QSqlQueryModel>(this->eventRelationModel);
-        assert(relationSqlModel != nullptr);
-        auto eventError = eventSqlModel->lastError();
-        auto relationError = relationSqlModel->lastError();
-        qWarning() << "Event error was:" << eventError.text();
-        qWarning() << "Event relation error was:" << relationError.text();
-        qDebug() << "Raw event error: " << eventError.text();
-        qDebug() << "Raw event relation error: " << relationError.text();
-        // TODO: how to show this error to the user somehow?
+void EventEditorDialog::revert() {
+    if (!newEvent) {
+        return;
     }
-}
-
-void EventEditorDialog::reject() {
-    this->eventRelationModel->revert();
-    this->eventModel->revert();
-    if (this->newEvent) {
-        if (!this->eventRelationModel->removeRow(this->eventRelationModel->rowCount() - 1)) {
-            qWarning() << "Could not revert event relation model?";
-        }
-        if (!this->eventModel->removeRow(this->eventModel->rowCount() - 1)) {
-            qWarning() << "Could not revert event model?";
-        }
+    auto* eventRelationsModel = mappers[EVENT_RELATION_MAPPER]->model();
+    if (!eventRelationsModel->removeRow(eventRelationsModel->rowCount() - 1)) {
+        qWarning() << "Could not revert event relation model?";
     }
-    QDialog::reject();
+    auto* eventsModel = mappers[EVENT_MAPPER]->model();
+    if (!eventsModel->removeRow(eventsModel->rowCount() - 1)) {
+        qWarning() << "Could not revert event model?";
+    }
 }
 
 void EventEditorDialog::editDateWithEditor() {
     auto currentText = form->eventDatePicker->text();
     auto startDate = GenealogicalDate::fromDisplayText(currentText);
-
     if (auto date = GenealogicalDateEditorDialog::editDate(startDate, this); date.isValid()) {
         form->eventDatePicker->setText(date.toDisplayText());
     }
@@ -130,7 +103,6 @@ void EventEditorDialog::editDateWithEditor() {
 
 void EventEditorDialog::editNoteWithEditor() {
     auto currentText = form->noteEdit->textOrHtml();
-
     if (auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }

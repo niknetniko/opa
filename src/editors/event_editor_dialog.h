@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <QDialog>
+#include "editor_dialog.h"
 
 namespace Ui {
     class EventEditorForm;
@@ -14,8 +14,7 @@ namespace Ui {
 class QAbstractItemModel;
 class QDataWidgetMapper;
 
-
-class EventEditorDialog : public QDialog {
+class EventEditorDialog : public AbstractEditorDialog {
     Q_OBJECT
 
 public:
@@ -23,26 +22,21 @@ public:
         QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
     );
 
-    ~EventEditorDialog() override;
-
     static void
     showDialogForNewEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
     static void
     showDialogForExistingEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
 
 public Q_SLOTS:
-    void accept() override;
-    void reject() override;
+    void revert() override;
 
     void editDateWithEditor();
     void editNoteWithEditor();
 
 private:
-    QAbstractItemModel* eventRelationModel;
-    QAbstractItemModel* eventModel;
-    QDataWidgetMapper* eventMapper;
-    QDataWidgetMapper* eventRelationMapper;
-    bool newEvent;
+    static constexpr int EVENT_RELATION_MAPPER = 0;
+    static constexpr int EVENT_MAPPER = 1;
 
     Ui::EventEditorForm* form;
+    bool newEvent;
 };

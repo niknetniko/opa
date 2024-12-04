@@ -83,6 +83,8 @@ add_library(opa-lib STATIC
     tree_view/tree_view_window.h
     tree_view/person_tree_graph_model.cpp
     tree_view/person_tree_graph_model.h
+    editors/editor_dialog.cpp
+    editors/editor_dialog.h
 )
 
 ecm_qt_declare_logging_category(opa-lib
