@@ -10,8 +10,8 @@
 #include "data/family.h"
 #include "main/main_window.h"
 #include "tree_view/tree_view_window.h"
+#include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils_find_source_model_of_type.h"
-#include <utils/formatted_identifier_delegate.h>
 
 #include <KLocalizedString>
 #include <QGroupBox>
