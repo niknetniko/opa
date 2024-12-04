@@ -447,13 +447,10 @@ DataManager& DataManager::get() {
 template<QSqlTableModelConcept ModelType, typename... Args>
 ModelType* DataManager::makeModel(Args&&... args) {
     auto* model = new ModelType(this, std::forward<Args>(args)...);
-    model->setEditStrategy(QSqlTableModel::OnFieldChange);
+    model->setEditStrategy(QSqlTableModel::OnRowChange);
     if (!model->select()) {
-        qWarning() << "Problem while getting data for model" << model->metaObject()->className();
-        auto lastError = model->lastError();
-        auto errorText = lastError.text();
-        qWarning() << "Error was:" << errorText;
-        qDebug() << "Raw error: " << lastError;
+        qCritical() << "Problem while getting data for model" << model->metaObject()->className();
+        qWarning() << "Error was:" << model->lastError();
     }
 
     // Link the model to the DataManager.
