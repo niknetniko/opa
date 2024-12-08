@@ -19,23 +19,20 @@ class FamilyProxyModel : public QAbstractProxyModel {
     Q_OBJECT
 
 public:
-    static constexpr int EVENT_ID = 0;
-    static constexpr int ROLE_ID = 1;
-    static constexpr int ROLE = 2;
-    static constexpr int PERSON_ID = 3;
-    static constexpr int TYPE_ID = 4;
-    static constexpr int TYPE = 5;
-    static constexpr int DATE = 6;
-    static constexpr int TITLES = 7;
-    static constexpr int GIVEN_NAMES = 8;
-    static constexpr int PREFIX = 9;
-    static constexpr int SURNAME = 10;
-    static constexpr int DISPLAY_NAME = 11;
+    static constexpr int EVENT_TYPE = 0;
+    static constexpr int EVENT_TYPE_ID = 1;
+    static constexpr int PERSON_ID = 2;
+    static constexpr int PARTNER_ID = 3;
+    static constexpr int EVENT_ID = 4;
+    static constexpr int DATE = 5;
+    static constexpr int TITLES = 6;
+    static constexpr int GIVEN_NAMES = 7;
+    static constexpr int PREFIX = 8;
+    static constexpr int SURNAME = 9;
 
     explicit FamilyProxyModel(IntegerPrimaryKey person, QObject* parent = nullptr);
 
     [[nodiscard]] QModelIndex parent(const QModelIndex& child) const override;
-    [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
 
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
@@ -46,7 +43,7 @@ public:
     [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
-
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     [[nodiscard]] bool hasBastardChildren() const;
 public Q_SLOTS:
     void resetAndLoadData();
@@ -68,8 +65,7 @@ namespace FamilyDisplayModel {
     constexpr int DATE = 1;
     constexpr int PERSON_ID = 2;
     constexpr int DISPLAY_NAME = 3;
-    constexpr int ROLE = 4;
-    constexpr int EVENT_ID = 5;
+    constexpr int EVENT_ID = 4;
 }
 
 class AncestorQueryModel : public QSqlQueryModel {

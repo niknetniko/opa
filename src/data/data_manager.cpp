@@ -300,11 +300,10 @@ QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimary
     auto* columnModel = new KRearrangeColumnsProxyModel(parent);
     columnModel->setSourceModel(combinedModel);
     columnModel->setSourceColumns({
-        FamilyProxyModel::TYPE,
+        FamilyProxyModel::EVENT_TYPE,
         FamilyProxyModel::DATE,
         FamilyProxyModel::PERSON_ID,
         combinedModel->columnCount() - 1,
-        FamilyProxyModel::ROLE,
         FamilyProxyModel::EVENT_ID,
     });
 

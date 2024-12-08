@@ -23,53 +23,76 @@ FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) :
 WITH parent_events AS
        (SELECT events.id AS event_id
         FROM events
-               JOIN event_relations ON events.id = event_relations.event_id
-               JOIN event_roles ON event_relations.role_id = event_roles.id
-        WHERE event_relations.person_id = :id
+               JOIN event_relations AS parent_relation ON events.id = parent_relation.event_id
+               JOIN event_roles ON parent_relation.role_id = event_roles.id
+        WHERE parent_relation.person_id = :id
           AND event_roles.role IN ('Father', 'Mother')),
      children AS
-       (SELECT event_relations.person_id AS child_id, events.id AS event_id
+       (SELECT child_relation.person_id AS child_id,
+               events.id                AS birth_event_id,
+               events.date              AS birth_date,
+               events.type_id           AS birth_type_id,
+               event_types.type         AS birth_type
         FROM events
-               JOIN event_relations ON events.id = event_relations.event_id
-               JOIN event_roles ON event_relations.role_id = event_roles.id
+               JOIN event_relations AS child_relation ON events.id = child_relation.event_id
+               JOIN event_roles ON child_relation.role_id = event_roles.id
                JOIN event_types ON events.type_id = event_types.id
         WHERE event_types.type = 'Birth'
           AND event_roles.role = 'Primary'
           AND events.id IN (SELECT event_id FROM parent_events)),
      parents_of_children AS
-       (SELECT DISTINCT event_relations.person_id AS parent_id
-        FROM event_relations
-               JOIN event_roles ON event_relations.role_id = event_roles.id
-        WHERE event_relations.event_id IN (SELECT event_id FROM parent_events)
+       (SELECT DISTINCT parent_relation.person_id AS partner_id,
+                        child_relation.person_id  AS child_id
+        FROM event_relations AS parent_relation
+               JOIN event_relations AS child_relation ON parent_relation.event_id = child_relation.event_id
+               JOIN event_roles ON parent_relation.role_id = event_roles.id
+        WHERE parent_relation.event_id IN (SELECT event_id FROM parent_events)
           AND event_roles.role IN ('Father', 'Mother')
-          AND event_relations.person_id != :id),
+          AND parent_relation.person_id != :id),
      relationships AS
-       (SELECT events.id AS event_id, event_relations.person_id AS partner_id
+       (SELECT events.id                 AS marriage_event_id,
+               events.date               AS marriage_date,
+               parent_relation.person_id AS partner_id,
+               events.type_id            AS marriage_type_id,
+               event_types.type          AS marriage_type
         FROM events
-               JOIN event_relations ON events.id = event_relations.event_id
-               JOIN event_roles ON event_relations.role_id = event_roles.id
+               JOIN event_relations AS parent_relation ON events.id = parent_relation.event_id
+               JOIN event_roles ON parent_relation.role_id = event_roles.id
                JOIN event_types ON events.type_id = event_types.id
         WHERE event_types.type = 'Marriage'
-          AND event_relations.person_id IN (SELECT parent_id FROM parents_of_children))
-SELECT DISTINCT events.id        AS event_id,
-                event_roles.id   AS role_id,
-                event_roles.role,
-                event_relations.person_id,
-                event_types.id   AS event_type_id,
-                event_types.type AS event_type,
-                events.date,
-                names.titles,
-                names.given_names,
-                names.prefix,
-                names.surname
-FROM events
-       JOIN event_relations ON events.id = event_relations.event_id
-       JOIN event_roles ON event_relations.role_id = event_roles.id
-       JOIN event_types ON events.type_id = event_types.id
-       LEFT JOIN names ON event_relations.person_id = names.person_id
-WHERE event_relations.person_id != :id
-  AND (events.id IN (SELECT event_id FROM children) OR events.id IN (SELECT event_id FROM relationships))
-  AND names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = event_relations.person_id);
+          AND parent_relation.person_id IN (SELECT partner_id FROM parents_of_children))
+SELECT child.birth_type     AS event_type,
+       child.birth_event_id AS event_type_id,
+       child.child_id       AS person_id,
+       parent.partner_id    AS partner_id,
+       child.birth_event_id AS event_id,
+       child.birth_date     AS event_date,
+       names.titles         AS titles,
+       names.given_names    AS given_names,
+       names.prefix         AS prefix,
+       names.surname        AS surname
+FROM children AS child
+       LEFT JOIN parents_of_children AS parent ON child.child_id = parent.child_id
+       LEFT JOIN names ON child.child_id = names.person_id
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = child.child_id)
+
+UNION ALL
+
+SELECT marriage.marriage_type     AS event_type,
+       marriage.marriage_type_id  AS event_type_id,
+       marriage.partner_id        AS person_id,
+       NULL                       AS partner_id,
+       marriage.marriage_event_id AS event_id,
+       marriage.marriage_date     AS event_date,
+       names.titles               AS titles,
+       names.given_names          AS given_names,
+       names.prefix               AS prefix,
+       names.surname              AS surname
+FROM relationships AS marriage
+       LEFT JOIN names ON marriage.partner_id = names.person_id
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = marriage.partner_id)
+
+ORDER BY event_type, event_date;
 )-");
     resetAndLoadData();
 }
@@ -91,10 +114,6 @@ QModelIndex FamilyProxyModel::parent(const QModelIndex& child) const {
     }
 
     return {};
-}
-
-bool FamilyProxyModel::hasChildren(const QModelIndex& parent) const {
-    return rowCount(parent) > 0;
 }
 
 QModelIndex FamilyProxyModel::mapFromSource(const QModelIndex& sourceIndex) const {
@@ -143,7 +162,7 @@ int FamilyProxyModel::rowCount(const QModelIndex& parent) const {
         return static_cast<int>(mapping.size());
     }
 
-    const int sourceParentRow = hasBastardParent(parent) ? BASTARD_CHILDREN_ROW_ID : mapToSource(parent).row();
+    const int sourceParentRow = isBastardParentRow(parent) ? BASTARD_CHILDREN_ROW_ID : mapToSource(parent).row();
 
     // If the parent is one of the keys, it is a child.
     if (parent.column() == 0 && mapping.contains(sourceParentRow)) {
@@ -155,7 +174,8 @@ int FamilyProxyModel::rowCount(const QModelIndex& parent) const {
     return 0;
 }
 
-int FamilyProxyModel::columnCount([[maybe_unused]] const QModelIndex& parent) const {
+int FamilyProxyModel::columnCount(const QModelIndex& parent) const {
+    Q_UNUSED(parent);
     return sourceModel()->columnCount();
 }
 
@@ -188,10 +208,10 @@ QVariant FamilyProxyModel::data(const QModelIndex& index, int role) const {
     if (isBastardParentRow(index)) {
         if (role == Qt::DisplayRole) {
             switch (index.column()) {
-                case TYPE:
+                case EVENT_TYPE:
                     return QStringLiteral("Children with no other parent");
                 default:
-                    return {};
+                    return QStringLiteral("");
             }
         } else {
             return {};
@@ -208,6 +228,16 @@ Qt::ItemFlags FamilyProxyModel::flags(const QModelIndex& index) const {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
+QVariant FamilyProxyModel::headerData(int section, Qt::Orientation orientation, int role) const {
+    if (orientation == Qt::Horizontal && mapping.size() == 1) {
+        auto nonBastardRowIndex = index(0, section, index(0, 0));
+        int sourceSection = mapToSource(nonBastardRowIndex).column();
+        return sourceModel()->headerData(sourceSection, orientation, role);
+    }
+
+    return QAbstractProxyModel::headerData(section, orientation, role);
+}
+
 void FamilyProxyModel::resetAndLoadData() {
     QSqlQuery query;
     query.prepare(query_);
@@ -220,13 +250,13 @@ void FamilyProxyModel::resetAndLoadData() {
 
     auto* baseModel = new QSqlQueryModel(QObject::parent());
     baseModel->setQuery(std::move(query));
-    baseModel->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Event ID"));
-    baseModel->setHeaderData(ROLE_ID, Qt::Horizontal, i18n("Role ID"));
-    baseModel->setHeaderData(ROLE, Qt::Horizontal, i18n("Role"));
+    baseModel->setHeaderData(EVENT_TYPE, Qt::Horizontal, i18n("Event type"));
+    baseModel->setHeaderData(EVENT_TYPE_ID, Qt::Horizontal, i18n("Event type ID"));
     baseModel->setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Person ID"));
-    baseModel->setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Type ID"));
-    baseModel->setHeaderData(TYPE, Qt::Horizontal, i18n("Type"));
+    baseModel->setHeaderData(PARTNER_ID, Qt::Horizontal, i18n("Partner ID"));
+    baseModel->setHeaderData(EVENT_ID, Qt::Horizontal, i18n("Event ID"));
     baseModel->setHeaderData(DATE, Qt::Horizontal, i18n("Date"));
+    baseModel->setHeaderData(TITLES, Qt::Horizontal, i18n("Titles"));
     baseModel->setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Given names"));
     baseModel->setHeaderData(PREFIX, Qt::Horizontal, i18n("Prefixes"));
     baseModel->setHeaderData(SURNAME, Qt::Horizontal, i18n("Surnames"));
@@ -245,35 +275,30 @@ void FamilyProxyModel::updateMapping() {
         return; // There is no data.
     }
 
-    // First, map all parents to their index.
-    QHash<IntegerPrimaryKey, QModelIndex> parentIdToRelationshipIndex;
+    // Mapping of person ID -> row of the marriage event.
+    QHash<IntegerPrimaryKey, int> personIdToRelationshipRow;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
-        auto eventType = enumFromString<EventTypes::Values>(sourceModel()->index(row, TYPE).data().toString());
+        auto eventType = enumFromString<EventTypes::Values>(sourceModel()->index(row, EVENT_TYPE).data().toString());
         if (EventTypes::relationshipStartingEvents().contains(eventType)) {
             auto personId = sourceModel()->index(row, PERSON_ID).data().toLongLong();
-            parentIdToRelationshipIndex[personId] = sourceModel()->index(row, 0);
+            personIdToRelationshipRow[personId] = row;
         }
     }
 
-    // Now, we can map every birth event to a relationship index.
-    QHash<IntegerPrimaryKey, int> birthEventToParentRelationshipIndex;
-    for (int row = 0; row < sourceModel()->rowCount(); ++row) {
-        auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(row, ROLE).data().toString());
-        if (EventRoles::parentRoles().contains(eventRole)) {
-            auto eventId = sourceModel()->index(row, EVENT_ID).data().toLongLong();
-            auto personId = sourceModel()->index(row, PERSON_ID).data().toLongLong();
-            auto parentRelationshipIndex = parentIdToRelationshipIndex[personId];
-            birthEventToParentRelationshipIndex[eventId] = parentRelationshipIndex.row();
-        }
-    }
-
-    // Finally, we map every parent to their children.
+    // Now map each birth event to their parent.
     for (int sourceRow = 0; sourceRow < sourceModel()->rowCount(); ++sourceRow) {
-        auto eventType = enumFromString<EventTypes::Values>(sourceModel()->index(sourceRow, TYPE).data().toString());
-        auto eventRole = enumFromString<EventRoles::Values>(sourceModel()->index(sourceRow, ROLE).data().toString());
-        if (eventType == EventTypes::Birth && eventRole == EventRoles::Primary) {
-            auto eventId = sourceModel()->index(sourceRow, EVENT_ID).data().toLongLong();
-            auto parentRelationshipRow = birthEventToParentRelationshipIndex.value(eventId, BASTARD_CHILDREN_ROW_ID);
+        auto eventType =
+            enumFromString<EventTypes::Values>(sourceModel()->index(sourceRow, EVENT_TYPE).data().toString());
+        if (eventType == EventTypes::Birth) {
+            auto partnerIdData = sourceModel()->index(sourceRow, PARTNER_ID).data();
+            int partnerId;
+            if (partnerIdData.isNull()) {
+                partnerId = -1;
+            } else {
+                partnerId = partnerIdData.toInt();
+                assert(personIdToRelationshipRow.contains(partnerId));
+            }
+            auto parentRelationshipRow = personIdToRelationshipRow.value(partnerId, BASTARD_CHILDREN_ROW_ID);
             mapping[parentRelationshipRow].append(sourceRow);
         }
     }
