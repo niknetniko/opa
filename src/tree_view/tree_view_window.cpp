@@ -8,6 +8,7 @@
 #include "tree_view_window.h"
 
 #include "data/family.h"
+#include "main/main_window.h"
 #include "person_tree_graph_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
@@ -51,16 +52,10 @@ TreeViewWindow::TreeViewWindow(IntegerPrimaryKey person, QWidget* parent) : QMai
     setCentralWidget(view);
     toolbar->setMovable(false);
 
-    view->setContextMenuPolicy(Qt::ActionsContextMenu);
-    auto* openPersonAction = new QAction(view);
-    openPersonAction->setText(i18n("Open person details"));
-    connect(openPersonAction, &QAction::triggered, [&]() {
-        // TODO: how can we get the current model here?
-        // Mouse position in scene coordinates.
-        // QPointF posView = view->mapToScene(view->mapFromGlobal(QCursor::pos()));
-        // const NodeId newId = graphModel.addNode();
-        // graphModel.setNodeData(newId, NodeRole::Position, posView);
+    connect(scene, &QtNodes::BasicGraphicsScene::nodeDoubleClicked, this, [](NodeId nodeId) {
+        openOrSelectPerson(nodeId, true);
     });
-    // TODO: remove some existing actions
-    view->addAction(openPersonAction);
+
+    // // TODO: remove some existing actions
+    // view->addAction(openPersonAction);
 }

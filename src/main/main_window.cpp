@@ -23,7 +23,7 @@
 #include <QDockWidget>
 #include <QFileDialog>
 
-void openOrSelectPerson(IntegerPrimaryKey personId) {
+void openOrSelectPerson(IntegerPrimaryKey personId, bool activate) {
     auto allWindows = QApplication::topLevelWidgets();
     const auto it = std::find_if(allWindows.constBegin(), allWindows.constEnd(), [](QWidget* element) {
         return qobject_cast<MainWindow*>(element) != nullptr;
@@ -37,6 +37,9 @@ void openOrSelectPerson(IntegerPrimaryKey personId) {
     auto* mainWindow = qobject_cast<MainWindow*>(*it);
     assert(mainWindow != nullptr);
     mainWindow->openOrSelectPerson(personId);
+    if (activate) {
+        mainWindow->activateWindow();
+    }
 }
 
 MainWindow::MainWindow() {

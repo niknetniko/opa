@@ -25,8 +25,9 @@ class opaView;
  * TODO: is this the best way of doing this?
  *
  * @param personId The ID to open.
+ * @param activate If the window with the person should be activated.
  */
-void openOrSelectPerson(IntegerPrimaryKey personId);
+void openOrSelectPerson(IntegerPrimaryKey personId, bool activate = false);
 
 /**
  * The main window of the program.
