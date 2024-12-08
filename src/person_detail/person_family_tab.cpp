@@ -69,6 +69,8 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     parentsTreeView->setModel(parentsModel);
     parentsTreeView->setRootIsDecorated(false);
     parentsTreeView->setSortingEnabled(false);
+    parentsTreeView->setMinimumHeight(100);
+    parentsTreeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     parentsTreeView->setItemDelegateForColumn(
         DisplayParentModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
     );
