@@ -3,9 +3,10 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+#include "person_list_widget.h"
+
 #include "data/data_manager.h"
 #include "data/person.h"
-#include "person_list_widget.h"
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KConfigGroup>
