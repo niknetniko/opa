@@ -7,14 +7,12 @@
 #pragma once
 
 #include "database/schema.h"
-#include <qabstractitemmodel.h>
 
+#include <QAbstractItemModel>
 #include <QPointF>
 #include <QSizeF>
 #include <QtNodes/AbstractGraphModel>
 
-
-class QAbstractItemModel;
 using QtNodes::ConnectionId;
 using QtNodes::ConnectionPolicy;
 using QtNodes::NodeFlag;
