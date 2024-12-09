@@ -29,8 +29,8 @@ public:
     static constexpr int GIVEN_NAMES = 4;
     static constexpr int PREFIX = 5;
     static constexpr int SURNAME = 6;
-    static constexpr int ORIGIN_ID = 7;
-    static constexpr int NOTE = 8;
+    static constexpr int NOTE = 7;
+    static constexpr int ORIGIN_ID = 8;
     // Extra columns added by the relation.
     static constexpr int ORIGIN = 9;
 
