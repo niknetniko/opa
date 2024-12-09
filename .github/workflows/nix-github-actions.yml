@@ -5,16 +5,6 @@ on:
   push:
 
 jobs:
-  build:
-    name: Build targets
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/flake-checker-action@v9
-      - uses: nixbuild/nix-quick-install-action@v29
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - run: nix build
-
   nix-matrix:
     runs-on: ubuntu-latest
     outputs:
