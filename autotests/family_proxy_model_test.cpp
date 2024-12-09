@@ -139,7 +139,7 @@ private Q_SLOTS:
         // The ID of the first parent.
         QCOMPARE(model.index(0, FamilyProxyModel::PERSON_ID).data(), 2);
         // The parent of the bastard children.
-        QCOMPARE(model.index(1, FamilyProxyModel::PERSON_ID).data(), QVariant{});
+        QCOMPARE(model.index(1, FamilyProxyModel::PERSON_ID).data(), QVariant(QStringLiteral("")));
 
         QCOMPARE(model.rowCount(model.index(0, 0)), 1);
         QCOMPARE(model.rowCount(model.index(1, 0)), 1);

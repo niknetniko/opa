@@ -33,6 +33,7 @@ public:
     explicit FamilyProxyModel(IntegerPrimaryKey person, QObject* parent = nullptr);
 
     [[nodiscard]] QModelIndex parent(const QModelIndex& child) const override;
+    [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
 
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
@@ -43,7 +44,8 @@ public:
     [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
     [[nodiscard]] bool hasBastardChildren() const;
 public Q_SLOTS:
     void resetAndLoadData();

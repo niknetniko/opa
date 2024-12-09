@@ -116,6 +116,11 @@ QModelIndex FamilyProxyModel::parent(const QModelIndex& child) const {
     return {};
 }
 
+bool FamilyProxyModel::hasChildren(const QModelIndex& parent) const {
+    // TODO: investigate why this needs to be overridden
+    return rowCount(parent) > 0;
+}
+
 QModelIndex FamilyProxyModel::mapFromSource(const QModelIndex& sourceIndex) const {
     // qDebug() << "Mapping source index" << sourceIndex << "to proxy index.";
     if (!sourceIndex.isValid()) {
