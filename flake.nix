@@ -72,13 +72,13 @@
         };
         qtnodes = pkgs.clangStdenv.mkDerivation rec {
           pname = "qtnodes";
-          version = "3.0.11";
+          version = "34b6f81031ad75e64313bf14048bb3dc782c7894";
 
           src = pkgs.fetchFromGitHub {
             owner = "paceholder";
             repo = "nodeeditor";
             rev = "${version}";
-            hash = "sha256-Duy9Z+9d12sqwkHQ2eyMI4WrcXCte4M90xNxyrGcOCw=";
+            hash = "sha256-wqc6ZfMa0Kzhv2h4M0GogmWCBXsJ/cgZGHQ/65hD8YI=";
           };
 
           cmakeFlags = [ "-DUSE_QT6=ON" ];

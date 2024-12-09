@@ -11,6 +11,11 @@
 #include <QMainWindow>
 #include <QWidget>
 
+
+namespace QtNodes {
+    class BasicGraphicsScene;
+    class GraphicsView;
+}
 class QAbstractItemModel;
 
 class TreeViewWindow : public QMainWindow {
@@ -18,4 +23,15 @@ class TreeViewWindow : public QMainWindow {
 
 public:
     explicit TreeViewWindow(IntegerPrimaryKey person, QWidget* parent = nullptr);
+
+    QString generateConnectionStyle() const;
+    QString generateNodeStyle() const;
+    QString generateGraphicsViewStyle() const;
+
+protected:
+    void changeEvent(QEvent* event) override;
+
+private:
+    QtNodes::BasicGraphicsScene* scene;
+    QtNodes::GraphicsView* graphicsView;
 };
