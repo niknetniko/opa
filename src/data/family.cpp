@@ -296,10 +296,8 @@ void FamilyProxyModel::updateMapping() {
             enumFromString<EventTypes::Values>(sourceModel()->index(sourceRow, EVENT_TYPE).data().toString());
         if (eventType == EventTypes::Birth) {
             auto partnerIdData = sourceModel()->index(sourceRow, PARTNER_ID).data();
-            int partnerId;
-            if (partnerIdData.isNull()) {
-                partnerId = -1;
-            } else {
+            int partnerId = -1;
+            if (!partnerIdData.isNull()) {
                 partnerId = partnerIdData.toInt();
                 assert(personIdToRelationshipRow.contains(partnerId));
             }
