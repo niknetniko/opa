@@ -5,8 +5,8 @@
  */
 
 #pragma once
-#include "choose_existing_reference_window.h"
 
+#include "choose_existing_reference_window.h"
 
 class QComboBox;
 
@@ -14,9 +14,7 @@ struct ExistingEventSelection {
     QVariant eventId;
     QVariant roleId;
 
-    [[nodiscard]] bool isValid() const {
-        return eventId.isValid() && roleId.isValid();
-    }
+    [[nodiscard]] bool isValid() const;
 };
 
 QDebug operator<<(QDebug dbg, const ExistingEventSelection& selection);

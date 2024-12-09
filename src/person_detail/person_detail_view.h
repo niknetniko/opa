@@ -8,7 +8,6 @@
 #include "database/schema.h"
 
 #include <QFrame>
-#include <QSqlRecord>
 
 
 class QAbstractProxyModel;

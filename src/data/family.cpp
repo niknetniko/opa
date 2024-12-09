@@ -14,7 +14,6 @@
 
 constexpr int BASTARD_CHILDREN_ROW_ID = std::numeric_limits<int>::max();
 
-
 FamilyProxyModel::FamilyProxyModel(IntegerPrimaryKey person, QObject* parent) :
     QAbstractProxyModel(parent),
     person(person) {

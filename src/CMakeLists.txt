@@ -6,8 +6,8 @@ add_library(opa-lib STATIC
     database/database.h
     database/database.cpp
     database/schema.h
-    main_person_tab/person_list.h
-    main_person_tab/person_list.cpp
+    main/person_list_widget.h
+    main/person_list_widget.cpp
     data/person.h
     data/person.cpp
     data/event.h
@@ -16,19 +16,16 @@ add_library(opa-lib STATIC
     person_detail/person_detail_view.cpp
     editors/name_editor_dialog.h
     editors/name_editor_dialog.cpp
-    utils/single_row_model.h
-    utils/single_row_model.cpp
+    utils/multi_filter_proxy_model.h
+    utils/multi_filter_proxy_model.cpp
     data/data_manager.h
     data/data_manager.cpp
     data/names.h
     data/names.cpp
     utils/formatted_identifier_delegate.h
     utils/formatted_identifier_delegate.cpp
-    utils/model_utils_find_source_model_of_type.h
     person_detail/person_name_tab.h
     person_detail/person_name_tab.cpp
-    utils/proxy_enabled_relational_delegate.h
-    utils/proxy_enabled_relational_delegate.cpp
     lists/name_origins_management_window.h
     lists/name_origins_management_window.cpp
     dates/genealogical_date.h
@@ -43,8 +40,8 @@ add_library(opa-lib STATIC
     utils/grouped_items_proxy_model.cpp
     utils/custom_sql_relational_model.h
     utils/custom_sql_relational_model.cpp
-    utils/edit_proxy_model.h
-    utils/edit_proxy_model.cpp
+    utils/read_only_proxy_model.h
+    utils/read_only_proxy_model.cpp
     utils/builtin_model.cpp
     utils/builtin_model.h
     utils/builtin_text_translating_delegate.h
@@ -69,8 +66,6 @@ add_library(opa-lib STATIC
     utils/placeholder_widget.cpp
     main/person_placeholder_widget.h
     main/person_placeholder_widget.cpp
-    utils/proxy_delegate.h
-    utils/proxy_delegate.cpp
     editors/note_editor_dialog.h
     editors/note_editor_dialog.cpp
     data/family.h

@@ -10,7 +10,7 @@
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
-#include "main_person_tab/person_list.h"
+#include "main/person_list_widget.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
 #include "ui_settings.h"

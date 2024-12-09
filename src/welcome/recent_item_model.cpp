@@ -17,14 +17,14 @@ QVariant RecentItemsModel::data(const QModelIndex& index, int role) const {
     if (index.isValid()) {
         const size_t row = index.row();
         if (row < m_recentItems.size()) {
-            const RecentItemInfo& recentItem = m_recentItems.at(row);
+            const auto& [icon, name, url] = m_recentItems.at(row);
             switch (role) {
                 case Qt::DisplayRole:
-                    return recentItem.name;
+                    return name;
                 case Qt::DecorationRole:
-                    return recentItem.icon;
+                    return icon;
                 case Qt::ToolTipRole:
-                    return recentItem.url.toString(QUrl::PreferLocalFile);
+                    return url.toString(QUrl::PreferLocalFile);
                 default:
                     break;
             }

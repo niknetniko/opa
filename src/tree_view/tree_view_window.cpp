@@ -18,7 +18,6 @@
 #include <QtNodes/GraphicsView>
 #include <QtNodes/StyleCollection>
 
-
 TreeViewWindow::TreeViewWindow(IntegerPrimaryKey person, QWidget* parent) : QMainWindow(parent) {
     auto* graphModel = new PersonTreeGraphModel(person);
     auto rootIndex = graphModel->findByChildId(person).constFirst();

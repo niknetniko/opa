@@ -27,7 +27,6 @@ struct NodeGeometryData {
     QPointF pos;
 };
 
-class QSqlQueryModel;
 /**
  * Maps a normal Qt model from the database to one that graph can use.
  */

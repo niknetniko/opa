@@ -8,8 +8,8 @@
 #include "database/database.h"
 
 #include "data/event.h"
+#include "data/names.h"
 #include "database/schema.h"
-#include <data/names.h>
 
 #include <QSqlDatabase>
 #include <QSqlDriver>

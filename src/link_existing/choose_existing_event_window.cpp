@@ -7,17 +7,22 @@
 
 #include "choose_existing_event_window.h"
 
-#include <data/data_manager.h>
-#include <data/event.h>
-#include <utils/formatted_identifier_delegate.h>
+#include "data/data_manager.h"
+#include "data/event.h"
+#include "utils/formatted_identifier_delegate.h"
 
 #include <KRearrangeColumnsProxyModel>
+#include <QComboBox>
 #include <QDebug>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHeaderView>
 #include <QLabel>
 #include <QTableView>
+
+bool ExistingEventSelection::isValid() const {
+    return eventId.isValid() && roleId.isValid();
+}
 
 QDebug operator<<(QDebug dbg, const ExistingEventSelection& selection) {
     const QDebugStateSaver saver(dbg);

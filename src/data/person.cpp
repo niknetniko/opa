@@ -5,8 +5,6 @@
  */
 #include "person.h"
 
-#include "names.h"
-
 #include <QString>
 
 QString Sex::toIcon(const QString& sex) {

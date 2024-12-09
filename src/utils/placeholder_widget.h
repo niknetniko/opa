@@ -8,7 +8,6 @@
 
 #include <QStackedWidget>
 
-
 class QTabWidget;
 class QStackedLayout;
 

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "database/schema.h"
-#include <utils/builtin_text_translating_delegate.h>
+#include "utils/builtin_text_translating_delegate.h"
 
 #include <QIdentityProxyModel>
 #include <QMainWindow>

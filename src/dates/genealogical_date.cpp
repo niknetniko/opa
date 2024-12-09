@@ -5,7 +5,7 @@
  */
 #include "genealogical_date.h"
 
-#include "utils/model_utils_find_source_model_of_type.h"
+#include "utils/model_utils.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>

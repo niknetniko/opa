@@ -7,7 +7,7 @@
 
 #include "editor_dialog.h"
 
-#include "utils/model_utils_find_source_model_of_type.h"
+#include "utils/model_utils.h"
 
 #include <QDataWidgetMapper>
 #include <QDialogButtonBox>

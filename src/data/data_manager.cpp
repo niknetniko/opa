@@ -11,8 +11,8 @@
 #include "family.h"
 #include "person.h"
 #include "utils/grouped_items_proxy_model.h"
-#include "utils/model_utils_find_source_model_of_type.h"
-#include "utils/single_row_model.h"
+#include "utils/model_utils.h"
+#include "utils/multi_filter_proxy_model.h"
 
 #include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>
@@ -38,7 +38,7 @@ QSqlTableModel* DataManager::namesModel() const {
 }
 
 QAbstractProxyModel* DataManager::namesModelForPerson(QObject* parent, const IntegerPrimaryKey personId) const {
-    auto* baseProxy = new CellFilteredProxyModel(parent);
+    auto* baseProxy = new MultiFilterProxyModel(parent);
     baseProxy->setSourceModel(this->namesModel());
     baseProxy->addFilter(NamesTableModel::PERSON_ID, personId);
 
@@ -61,7 +61,7 @@ QAbstractProxyModel* DataManager::namesModelForPerson(QObject* parent, const Int
 }
 
 QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVariant& nameId) const {
-    auto* proxy = new CellFilteredProxyModel(parent);
+    auto* proxy = new MultiFilterProxyModel(parent);
     proxy->setSourceModel(this->namesModel());
     proxy->addFilter(NamesTableModel::ID, nameId);
     return proxy;
@@ -255,7 +255,7 @@ QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerP
 }
 
 QAbstractProxyModel* DataManager::singleEventModel(QObject* parent, const QVariant& eventId) const {
-    auto* proxy = new CellFilteredProxyModel(parent);
+    auto* proxy = new MultiFilterProxyModel(parent);
     proxy->setSourceModel(this->eventsModelWithDateSupport(parent));
     proxy->addFilter(EventsModel::ID, eventId);
     return proxy;
@@ -264,7 +264,7 @@ QAbstractProxyModel* DataManager::singleEventModel(QObject* parent, const QVaria
 QAbstractProxyModel* DataManager::singleEventRelationModel(
     QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
 ) const {
-    auto* proxy = new CellFilteredProxyModel(parent);
+    auto* proxy = new MultiFilterProxyModel(parent);
     proxy->setSourceModel(this->eventRelationsModel());
     proxy->addFilter(EventRelationsModel::EVENT_ID, eventId);
     proxy->addFilter(EventRelationsModel::ROLE_ID, roleId);

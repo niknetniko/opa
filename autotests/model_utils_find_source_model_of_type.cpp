@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include "utils/model_utils_find_source_model_of_type.h"
+#include "utils/model_utils.h"
 
 #include <QIdentityProxyModel>
 #include <QStandardItemModel>

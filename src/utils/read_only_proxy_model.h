@@ -8,15 +8,19 @@
 #include <QIdentityProxyModel>
 
 /**
- * A proxy model that makes some columns or rows read-only, regardless of what the source models
- * says.
+ * A proxy model that makes some columns or rows read-only, regardless of what the source models says.
  */
-class EditProxyModel : public QIdentityProxyModel {
+class ReadOnlyProxyModel : public QIdentityProxyModel {
     Q_OBJECT
 
 public:
-    explicit EditProxyModel(QObject* parent = nullptr);
+    explicit ReadOnlyProxyModel(QObject* parent = nullptr);
 
+    /**
+     * Add columns to make read-only.
+     *
+     * @param columns The columns to make read-only.
+     */
     void addReadOnlyColumns(const QList<int>& columns);
 
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;

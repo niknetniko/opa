@@ -149,6 +149,7 @@ QVariant PersonTreeGraphModel::nodeData(NodeId nodeId, NodeRole role) const {
             return {};
     }
 }
+
 bool PersonTreeGraphModel::setNodeData(NodeId nodeId, NodeRole role, QVariant value) {
     switch (role) {
         case NodeRole::Position: {
@@ -172,6 +173,7 @@ bool PersonTreeGraphModel::setNodeData(NodeId nodeId, NodeRole role, QVariant va
             return false;
     }
 }
+
 QVariant PersonTreeGraphModel::portData(NodeId nodeId, PortType portType, PortIndex index, PortRole role) const {
     Q_UNUSED(index);
     Q_UNUSED(nodeId);
@@ -255,6 +257,7 @@ void PersonTreeGraphModel::calculateNodePositions() const {
         }
     }
 }
+
 QModelIndexList PersonTreeGraphModel::findByChildId(NodeId childId) const {
     // TODO: should we support multiple parents somehow?
     auto start = sourceModel_->index(0, AncestorDisplayModel::CHILD_ID);

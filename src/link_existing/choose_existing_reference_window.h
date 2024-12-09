@@ -5,8 +5,8 @@
  */
 
 #pragma once
-#include <QDialog>
 
+#include <QDialog>
 
 class QItemSelection;
 class QDialogButtonBox;

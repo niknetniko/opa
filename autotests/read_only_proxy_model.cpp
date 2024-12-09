@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // ReSharper disable CppMemberFunctionMayBeStatic
-#include "utils/edit_proxy_model.h"
+#include "utils/read_only_proxy_model.h"
 
 #include "utils/builtin_model.h"
 
@@ -51,7 +51,7 @@ private Q_SLOTS:
         QSqlTableModel model;
         model.setTable(u"test_table"_s);
         QVERIFY(model.select());
-        EditProxyModel builtinModel;
+        ReadOnlyProxyModel builtinModel;
         builtinModel.setSourceModel(&model);
         builtinModel.addReadOnlyColumns({1, 2});
         auto tester = QAbstractItemModelTester(&builtinModel, QAbstractItemModelTester::FailureReportingMode::QtTest);
@@ -70,7 +70,7 @@ private Q_SLOTS:
         QVERIFY(model.index(2, 1).flags().testFlag(Qt::ItemIsEditable));
         QVERIFY(model.index(2, 2).flags().testFlag(Qt::ItemIsEditable));
 
-        EditProxyModel builtinModel;
+        ReadOnlyProxyModel builtinModel;
         builtinModel.setSourceModel(&model);
         builtinModel.addReadOnlyColumns({0, 2});
 

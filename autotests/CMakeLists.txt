@@ -15,7 +15,7 @@ ecm_add_tests(
     grouping_model.cpp
     custom_sql_relational_model.cpp
     builtin_model.cpp
-    edit_proxy_model.cpp
+    read_only_proxy_model.cpp
     model_utils_find_source_model_of_type.cpp
     event_editor_dialog.cpp
     family_proxy_model_test.cpp

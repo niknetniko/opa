@@ -11,9 +11,9 @@
 #include "dates/genealogical_date_editor_dialog.h"
 #include "note_editor_dialog.h"
 #include "ui_event_editor_dialog.h"
+#include "utils/custom_sql_relational_model.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/model_utils_find_source_model_of_type.h"
-#include "utils/proxy_enabled_relational_delegate.h"
+#include "utils/model_utils.h"
 
 #include <QDataWidgetMapper>
 #include <QSqlError>
@@ -47,7 +47,7 @@ EventEditorDialog::EventEditorDialog(
     eventRelationMapper->setModel(eventRelationModel);
     eventRelationMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     eventRelationMapper->addMapping(form->eventRoleComboBox, EventRelationsModel::ROLE);
-    eventRelationMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
+    eventRelationMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     eventRelationMapper->toFirst();
     this->mappers.append(eventRelationMapper);
 
@@ -60,7 +60,7 @@ EventEditorDialog::EventEditorDialog(
     eventMapper->addMapping(form->eventNameEdit, EventsModel::NAME);
     eventMapper->addMapping(form->eventTypeComboBox, EventsModel::TYPE);
     eventMapper->addMapping(form->noteEdit, EventsModel::NOTE);
-    eventMapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
+    eventMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     eventMapper->toFirst();
     this->mappers.append(eventMapper);
 }

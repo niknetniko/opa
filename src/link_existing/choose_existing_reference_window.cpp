@@ -7,8 +7,8 @@
 
 #include "choose_existing_reference_window.h"
 
-#include <person_detail/person_event_tab.h>
-#include <utils/model_utils_find_source_model_of_type.h>
+#include "person_detail/person_event_tab.h"
+#include "utils/model_utils.h"
 
 #include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>

@@ -6,9 +6,10 @@
 
 #include "custom_sql_relational_model.h"
 
-#include "model_utils_find_source_model_of_type.h"
+#include "model_utils.h"
 
-#include <QIdentityProxyModel>
+#include <QComboBox>
+#include <QSqlError>
 
 ForeignKey::ForeignKey(
     const int foreignKeyColumn, QSqlTableModel* foreignModel, const int displayColumn, const int primaryKeyColumn
@@ -97,7 +98,7 @@ void CustomSqlRelationalModel::setRelation(
 
 QModelIndex CustomSqlRelationalModel::index(const int row, const int column, const QModelIndex& parent) const {
     // Taken from KExtraColumnProxyModel
-    if (const int extraCol = asExtraColumn(column); extraCol >= 0) {
+    if (int extraCol = asExtraColumn(column); extraCol >= 0) {
         // We store the internal pointer of the index for column 0 in the proxy index for extra
         // columns. This will be useful in the parent method.
         return createIndex(row, column, QSqlTableModel::index(row, 0, parent).internalPointer());
@@ -170,7 +171,8 @@ ForeignKeyAndColumn CustomSqlRelationalModel::getFkFromForeignKeyColumn(int colu
 }
 
 void connectComboBox(const QAbstractItemModel* model, int relationColumn, QComboBox* comboBox) {
-    const auto* rootModel = findSourceModelOfType<CustomSqlRelationalModel>(model);
+    auto* rootModel = findSourceModelOfType<CustomSqlRelationalModel>(model);
+    assert(rootModel != nullptr);
     QSqlTableModel* childModel = rootModel->relationModel(relationColumn);
     comboBox->setEditable(true);
     comboBox->setModel(childModel);
@@ -183,14 +185,101 @@ void CustomSqlRelationalModel::constructForeignCache(const int extraColumn) {
     this->_foreignValues[extraColumn].clear();
 
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
-        auto pk = foreignModel->index(r, fk.primaryKeyColumn()).data();
-        const auto value = foreignModel->index(r, fk.displayColumn()).data();
-        this->_foreignValues[extraColumn][pk.toLongLong()] =
-            QPersistentModelIndex(foreignModel->index(r, fk.displayColumn()));
+        auto pk = foreignModel->index(r, fk.primaryKeyColumn()).data().toLongLong();
+        this->_foreignValues[extraColumn][pk] = QPersistentModelIndex(foreignModel->index(r, fk.displayColumn()));
     }
 
-    // The data changed, so notify that extra column has been updated.
+    // The data changed, so notify that the extra column has been updated.
     const auto start = this->index(0, QSqlTableModel::columnCount() + extraColumn);
     const auto end = this->index(rowCount(), QSqlTableModel::columnCount() + extraColumn);
     Q_EMIT this->dataChanged(start, end);
+}
+
+CustomSqlRelationalDelegate::CustomSqlRelationalDelegate(QObject* parent) : QStyledItemDelegate(parent) {
+}
+
+QWidget* CustomSqlRelationalDelegate::createEditor(
+    QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index
+) const {
+    const auto* proxyModel = qobject_cast<const QAbstractProxyModel*>(index.model());
+    if (proxyModel == nullptr) {
+        // Nothing to do for us.
+        return QStyledItemDelegate::createEditor(parent, option, index);
+    }
+
+    const auto* sourceModel = findSourceModelOfType<CustomSqlRelationalModel>(proxyModel);
+    if (sourceModel == nullptr) {
+        // Nothing to do for us.
+        return QStyledItemDelegate::createEditor(parent, option, index);
+    }
+
+    QSqlTableModel* childModel = sourceModel->relationModel(index.column());
+    if (childModel == nullptr) {
+        // Nothing to do for us.
+        return QStyledItemDelegate::createEditor(parent, option, index);
+    }
+
+    auto* comboBox = new QComboBox(parent);
+    connectComboBox(sourceModel, index.column(), comboBox);
+    comboBox->installEventFilter(const_cast<CustomSqlRelationalDelegate*>(this));
+
+    return comboBox;
+}
+
+void CustomSqlRelationalDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index)
+    const {
+    if (!index.isValid()) {
+        return;
+    }
+
+    const auto* proxyModel = qobject_cast<const QAbstractProxyModel*>(model);
+    if (proxyModel == nullptr) {
+        // Nothing to do for us.
+        QStyledItemDelegate::setModelData(editor, model, index);
+        return;
+    }
+
+    auto* sqlModel = const_cast<CustomSqlRelationalModel*>(findSourceModelOfType<CustomSqlRelationalModel>(proxyModel));
+    if (sqlModel == nullptr) {
+        // Nothing to do for us.
+        QStyledItemDelegate::setModelData(editor, model, index);
+        return;
+    }
+    auto sqlIndex = mapToSourceModel(index);
+    Q_ASSERT(sqlModel->checkIndex(sqlIndex));
+    qDebug() << "For SQL model, index is" << index << "->" << sqlIndex;
+
+    QSqlTableModel* childModel = sqlModel->relationModel(sqlIndex.column());
+    if (childModel == nullptr) {
+        // Nothing to do for us.
+        QStyledItemDelegate::setModelData(editor, model, index);
+        return;
+    }
+
+    auto* combo = qobject_cast<QComboBox*>(editor);
+    if (combo == nullptr) {
+        // Nothing to do for us.
+        QStyledItemDelegate::setModelData(editor, model, index);
+        return;
+    }
+    const int currentItem = combo->currentIndex();
+
+    // When the user enters new data, ensure it is committed to the database.
+    if (!childModel->submitAll()) {
+        qWarning() << "Could not add new data for child model in delegate!";
+        qWarning() << childModel->lastError();
+        return;
+    }
+
+    // Column with the primary key of the combobox.
+    const int childEditIndex = sqlModel->relation(sqlIndex.column()).primaryKeyColumn();
+
+    // Both are the same, so update the foreign key column instead.
+    const int fkColumn = sqlModel->relation(sqlIndex.column()).foreignKeyColumn();
+    // Index for the fk in the parent model.
+    auto fkIndex = sqlModel->index(sqlIndex.row(), fkColumn);
+    // Index for the pk in the foreign model.
+    auto pkIndex = childModel->index(currentItem, childEditIndex);
+    sqlModel->setData(fkIndex, pkIndex.data(Qt::DisplayRole), Qt::DisplayRole);
+    sqlModel->setData(fkIndex, pkIndex.data(Qt::EditRole), Qt::EditRole);
 }

@@ -7,8 +7,8 @@
 
 #include "database/schema.h"
 #include "utils/builtin_model.h"
-#include "utils/edit_proxy_model.h"
-#include "utils/model_utils_find_source_model_of_type.h"
+#include "utils/model_utils.h"
+#include "utils/read_only_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QHBoxLayout>
@@ -211,7 +211,7 @@ void SimpleListManagementWindow::initializeLayout() {
     builtinIconModel->setColumns(builtinColumn, displayColumn);
 
     // Make only the ID column not editable.
-    auto* editableModel = new EditProxyModel(centralWidget);
+    auto* editableModel = new ReadOnlyProxyModel(centralWidget);
     editableModel->setSourceModel(builtinIconModel);
     editableModel->addReadOnlyColumns({idColumn});
 

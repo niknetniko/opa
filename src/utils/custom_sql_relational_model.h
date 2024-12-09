@@ -7,8 +7,10 @@
 
 #include "database/schema.h"
 
-#include <QComboBox>
 #include <QSqlTableModel>
+#include <QStyledItemDelegate>
+
+class QComboBox;
 
 class ForeignKey {
 public:
@@ -141,4 +143,33 @@ private:
     [[nodiscard]] ForeignKeyAndColumn getFkFromForeignKeyColumn(int column) const;
 };
 
+/**
+ * Connect a combobox to a model with a foreign key.
+ *
+ * @param model The model itself or proxy model which resolves to a CustomSqlRelationalModel.
+ * @param relationColumn The column of the CustomSqlRelationalModel with the relation.
+ * @param comboBox The combobox to link.
+ */
 void connectComboBox(const QAbstractItemModel* model, int relationColumn, QComboBox* comboBox);
+
+/**
+ * Version of a QSqlRelationalDelegate that works with CustomSqlRelationalModel, with support for
+ * proxy models.
+ *
+ * It also supports the following:
+ *
+ * - Supports working through proxy models, by using "findSourceModelOfType".
+ * - If an item to set does not exist in the other table, it will be added, and then linked to the
+ * current table.
+ *
+ */
+class CustomSqlRelationalDelegate : public QStyledItemDelegate {
+    Q_OBJECT
+
+public:
+    explicit CustomSqlRelationalDelegate(QObject* parent);
+
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+};

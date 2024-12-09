@@ -10,7 +10,6 @@
 #include <QMainWindow>
 #include <QWidget>
 
-
 namespace QtNodes {
     class BasicGraphicsScene;
     class GraphicsView;

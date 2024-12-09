@@ -5,7 +5,6 @@
  */
 #include "data/data_manager.h"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "logging.h"
 #include "main/main_window.h"
 
 #include <KAboutData>
@@ -19,7 +18,6 @@
 #include <QIcon>
 #include <QLoggingCategory>
 #include <QString>
-#include <QTableView>
 #include <QtLogging>
 
 int main(int argc, char** argv) {

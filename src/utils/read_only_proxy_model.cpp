@@ -3,20 +3,17 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "edit_proxy_model.h"
+#include "read_only_proxy_model.h"
 
-EditProxyModel::EditProxyModel(QObject* parent) : QIdentityProxyModel(parent) {
+ReadOnlyProxyModel::ReadOnlyProxyModel(QObject* parent) : QIdentityProxyModel(parent) {
 }
 
-void EditProxyModel::addReadOnlyColumns(const QList<int>& columns) {
+void ReadOnlyProxyModel::addReadOnlyColumns(const QList<int>& columns) {
     this->columns.append(columns);
 }
 
-Qt::ItemFlags EditProxyModel::flags(const QModelIndex& index) const {
+Qt::ItemFlags ReadOnlyProxyModel::flags(const QModelIndex& index) const {
     auto flags = QIdentityProxyModel::flags(index);
-    if (!index.isValid()) {
-        return flags;
-    }
 
     if (columns.contains(index.column())) {
         flags = flags.setFlag(Qt::ItemIsEditable, false);

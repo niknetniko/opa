@@ -5,8 +5,8 @@
  */
 #pragma once
 
-// ReSharper disable once CppUnusedIncludeDirective
 #include <QLoggingCategory>
+// ReSharper disable once CppUnusedIncludeDirective
 #include <QString>
 
 Q_DECLARE_LOGGING_CATEGORY(OPA_SQL);

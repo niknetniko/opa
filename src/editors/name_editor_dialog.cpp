@@ -10,8 +10,7 @@
 #include "note_editor_dialog.h"
 #include "ui_name_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/model_utils_find_source_model_of_type.h"
-#include "utils/proxy_enabled_relational_delegate.h"
+#include "utils/model_utils.h"
 
 #include <KLocalizedString>
 #include <QCompleter>
@@ -74,7 +73,7 @@ NamesEditorDialog::NamesEditorDialog(QAbstractProxyModel* model, bool newRow, QW
     mapper->addMapping(form->surname, NamesTableModel::SURNAME);
     mapper->addMapping(form->origin, NamesTableModel::ORIGIN);
     mapper->addMapping(form->noteEdit, NamesTableModel::NOTE);
-    mapper->setItemDelegate(new SuperSqlRelationalDelegate(this));
+    mapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     mapper->toFirst();
 }
 

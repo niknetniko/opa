@@ -6,7 +6,6 @@
 
 #pragma once
 #include "database/schema.h"
-#include <utils/builtin_model.h>
 
 #include <QWidget>
 

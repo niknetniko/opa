@@ -31,9 +31,6 @@ protected:
 
 private Q_SLOTS:
     void onRecentItemsContextMenuRequested(const QPoint& pos);
-    bool shouldClose() {
-        return true;
-    }
 
 private:
     void updateButtons() const;
