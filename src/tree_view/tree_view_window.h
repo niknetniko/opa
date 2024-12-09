@@ -24,9 +24,9 @@ class TreeViewWindow : public QMainWindow {
 public:
     explicit TreeViewWindow(IntegerPrimaryKey person, QWidget* parent = nullptr);
 
-    QString generateConnectionStyle() const;
-    QString generateNodeStyle() const;
-    QString generateGraphicsViewStyle() const;
+    [[nodiscard]] QString generateConnectionStyle() const;
+    [[nodiscard]] QString generateNodeStyle() const;
+    [[nodiscard]] QString generateGraphicsViewStyle() const;
 
 protected:
     void changeEvent(QEvent* event) override;
