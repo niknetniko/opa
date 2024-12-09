@@ -28,7 +28,7 @@ jobs:
           git add -A
           if [[ `git status --porcelain` ]]; then
             git commit -m "Link TODO's to issues"
-            git push origin main
+            git push origin master
           else
             echo "No changes to commit"
           fi
