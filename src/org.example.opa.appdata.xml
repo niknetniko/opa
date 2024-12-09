@@ -8,6 +8,7 @@
   <description>
     <p>Hallo</p>
   </description>
+  <url type="homepage">https://site.strijbol.be/</url>
   <provides>
     <binary>opa</binary>
   </provides>
