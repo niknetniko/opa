@@ -15,21 +15,12 @@
 #include <KLocalizedString>
 #include <QCompleter>
 #include <QDataWidgetMapper>
-#include <QDialog>
-#include <QSqlError>
-#include <QSqlQuery>
 #include <QString>
 
 NamesEditorDialog::NamesEditorDialog(QAbstractProxyModel* model, bool newRow, QWidget* parent) :
-    QDialog(parent),
-    model(model),
-    newRow(newRow),
+    AbstractEditorDialog(newRow, parent),
     form(new Ui::NameEditorForm()) {
     form->setupUi(this);
-
-    // Connect the buttons.
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept); // NOLINT(*-unused-return-value)
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
 
     // Set up the name origin combobox.
     connectComboBox(model, NamesTableModel::ORIGIN, form->origin);
@@ -62,12 +53,9 @@ NamesEditorDialog::NamesEditorDialog(QAbstractProxyModel* model, bool newRow, QW
     form->noteEdit->enableRichTextMode();
     connect(form->noteEditButton, &QPushButton::clicked, this, &NamesEditorDialog::editNoteWithEditor);
 
-    // TODO: investigate why this does not work with manual submit.
-    //  Possibly since the model uses auto-submit?
-    //  This means cancel does not work.
-    this->mapper = new QDataWidgetMapper(this);
+    auto* mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    mapper->setModel(this->model);
+    mapper->setModel(model);
     mapper->addMapping(form->titles, NamesTableModel::TITLES);
     mapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     mapper->addMapping(form->prefix, NamesTableModel::PREFIX);
@@ -76,33 +64,7 @@ NamesEditorDialog::NamesEditorDialog(QAbstractProxyModel* model, bool newRow, QW
     mapper->addMapping(form->noteEdit, NamesTableModel::NOTE);
     mapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     mapper->toFirst();
-}
-
-void NamesEditorDialog::accept() {
-    // Attempt to submit the mapper changes.
-    if (mapper->submit()) {
-        // We are done.
-        QDialog::accept();
-    } else {
-        // Find the original model.
-        auto* sqlModel = findSourceModelOfType<QSqlQueryModel>(model);
-        assert(sqlModel != nullptr);
-        auto lastError = sqlModel->lastError();
-        qWarning() << "Error was:" << lastError.text();
-        qDebug() << "Native error code is " << lastError.nativeErrorCode();
-        qDebug() << "Last query is " << sqlModel->query().lastQuery();
-    }
-}
-
-void NamesEditorDialog::reject() {
-    this->model->revert();
-    if (this->newRow) {
-        qDebug() << "Removing cancelled addition...";
-        if (!this->model->removeRow(this->model->rowCount() - 1)) {
-            qWarning() << "Could not revert name...";
-        }
-    }
-    QDialog::reject();
+    addMapper(mapper);
 }
 
 void NamesEditorDialog::editNoteWithEditor() {
@@ -114,7 +76,7 @@ void NamesEditorDialog::editNoteWithEditor() {
 }
 
 NamesEditorDialog::~NamesEditorDialog() {
-    delete this->form;
+    delete form;
 }
 
 void NamesEditorDialog::showDialogForNewName(QAbstractProxyModel* model, QWidget* parent) {

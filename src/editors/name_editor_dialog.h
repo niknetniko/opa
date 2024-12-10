@@ -5,6 +5,8 @@
  */
 #pragma once
 
+#include "editor_dialog.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -17,7 +19,7 @@ class QDataWidgetMapper;
 /**
  * Editor for names.
  */
-class NamesEditorDialog : public QDialog {
+class NamesEditorDialog : public AbstractEditorDialog {
     Q_OBJECT
 
 public:
@@ -29,16 +31,8 @@ public:
     static void showDialogForExistingName(QAbstractProxyModel* model, QWidget* parent);
 
 public Q_SLOTS:
-    void accept() override;
-    void reject() override;
-
     void editNoteWithEditor();
 
 private:
-    QAbstractProxyModel* model;
-    QDataWidgetMapper* mapper;
-
-    bool newRow;
-
     Ui::NameEditorForm* form;
 };

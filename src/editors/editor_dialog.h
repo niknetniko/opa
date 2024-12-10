@@ -16,7 +16,7 @@ class QDataWidgetMapper;
 /**
  * Common editor behaviour with special support for reversing changes if rejected.
  *
- * Notable, the class requires each mapper to have a model with a single row.
+ * Notably, the class requires each mapper to have a model with a single row.
  */
 class AbstractEditorDialog : public QDialog {
     Q_OBJECT

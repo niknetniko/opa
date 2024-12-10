@@ -102,3 +102,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     auto* sexesModel = DataManager::get().sexesModel(this);
     form->sexComboBox->setModel(sexesModel);
 }
+
+NewPersonEditorDialog::~NewPersonEditorDialog() {
+    delete form;
+}

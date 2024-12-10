@@ -22,6 +22,7 @@ class NewPersonEditorDialog : public AbstractEditorDialog {
 
 public:
     explicit NewPersonEditorDialog(QWidget* parent);
+    ~NewPersonEditorDialog() override;
 
 private:
     Ui::NewPersonEditorForm* form;
