@@ -68,6 +68,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     auto* singlePersonModel = DataManager::get().singlePersonModel(this, newPersonId);
 
     // TODO: Reduce duplication between this and NameEditorDialog.
+    // Issue URL: https://github.com/niknetniko/opa/issues/57
     auto* surnameCompleter = new QCompleter(namesModel, this);
     surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
@@ -88,6 +89,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     nameMapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     nameMapper->addMapping(form->surname, NamesTableModel::SURNAME);
     // TODO: why is this not working?
+    // Issue URL: https://github.com/niknetniko/opa/issues/56
     nameMapper->addMapping(form->origin, NamesTableModel::ORIGIN);
     nameMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     nameMapper->toFirst();
@@ -100,6 +102,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     addMapper(sexMapper);
 
     // TODO: Support translatable dropdown values here
+    // Issue URL: https://github.com/niknetniko/opa/issues/55
     auto* sexesModel = DataManager::get().sexesModel(this);
     form->sexComboBox->setModel(sexesModel);
 }
