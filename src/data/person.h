@@ -29,6 +29,10 @@ namespace Sex {
     QString toIcon(const QString& sex);
 }
 
+namespace SexesModel {
+    constexpr int SEX = 0;
+}
+
 namespace DisplayNameModel {
     constexpr int ID = 0;
     constexpr int NAME = 1;

@@ -73,13 +73,13 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     auto* singlePersonModel = DataManager::get().singlePersonModel(this, newPersonId);
 
     // TODO: Reduce duplication between this and NameEditorDialog.
-    auto* surnameCompleter = new QCompleter(namesModel);
+    auto* surnameCompleter = new QCompleter(namesModel, this);
     surnameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     surnameCompleter->setCompletionColumn(NamesTableModel::SURNAME);
     surnameCompleter->setCompletionMode(QCompleter::PopupCompletion);
     form->surname->setCompleter(surnameCompleter);
 
-    auto* givenNameCompleter = new QCompleter(namesModel);
+    auto* givenNameCompleter = new QCompleter(namesModel, this);
     givenNameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     givenNameCompleter->setCompletionColumn(NamesTableModel::GIVEN_NAMES);
     givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
@@ -101,6 +101,10 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     sexMapper->addMapping(form->sexBomboBox, PeopleTableModel::SEX);
     sexMapper->toFirst();
     mappers.append(sexMapper);
+
+    // TODO: Support translatable dropdown values here
+    auto* sexesModel = DataManager::get().sexesModel(this);
+    form->sexBomboBox->setModel(sexesModel);
 }
 
 void NewPersonEditorDialog::revert() {

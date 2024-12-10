@@ -75,6 +75,16 @@ QAbstractProxyModel* DataManager::singlePersonModel(QObject* parent, IntegerPrim
     return proxy;
 }
 
+QAbstractItemModel* DataManager::sexesModel(QObject* parent) {
+    auto query = QStringLiteral("SELECT DISTINCT sex FROM people");
+    auto* baseModel = new QSqlQueryModel(parent);
+    baseModel->setQuery(query);
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable}, [query](auto* model) {
+        model->setQuery(query);
+    });
+    return baseModel;
+}
+
 QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
     auto query =
         QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "

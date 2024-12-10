@@ -72,6 +72,13 @@ public:
     [[nodiscard]] QAbstractProxyModel* singlePersonModel(QObject* parent, IntegerPrimaryKey personId) const;
 
     /**
+     * Model that returns the sexes in the database.
+     *
+     * @param parent The parent for the model
+     */
+    [[nodiscard]] QAbstractItemModel* sexesModel(QObject* parent);
+
+    /**
      * Model showing only the primary names for each person.
      *
      * @param parent The parent of the model.
