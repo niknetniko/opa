@@ -10,6 +10,7 @@
 #include "data/event.h"
 #include "database/database.h"
 
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QPushButton>

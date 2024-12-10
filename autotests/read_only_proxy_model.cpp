@@ -86,4 +86,4 @@ private Q_SLOTS:
 
 QTEST_MAIN(TestEditProxyModel)
 
-#include "edit_proxy_model.moc"
+#include "read_only_proxy_model.moc"
