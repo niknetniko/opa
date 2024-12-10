@@ -45,3 +45,14 @@ namespace PersonDetailModel {
     constexpr int SEX = 6;
     constexpr int DISPLAY_NAME = 7;
 }
+
+class PeopleTableModel : public QSqlTableModel {
+    Q_OBJECT
+
+public:
+    static constexpr int ID = 0;
+    static constexpr int ROOT = 1;
+    static constexpr int SEX = 2;
+
+    explicit PeopleTableModel(QObject* parent = nullptr);
+};

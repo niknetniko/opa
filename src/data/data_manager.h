@@ -29,6 +29,8 @@ public:
 
     static DataManager& get();
 
+    [[nodiscard]] QSqlTableModel* peopleModel() const;
+
     [[nodiscard]] QSqlTableModel* namesModel() const;
 
     [[nodiscard]] QSqlTableModel* nameOriginsModel() const;
@@ -60,6 +62,14 @@ public:
      * @param nameId The ID of the name.
      */
     [[nodiscard]] QAbstractProxyModel* singleNameModel(QObject* parent, const QVariant& nameId) const;
+
+    /**
+     * Model for a single person.
+     *
+     * @param parent The parent for the returned model.
+     * @param personId The ID of the person to filter on.
+     */
+    [[nodiscard]] QAbstractProxyModel* singlePersonModel(QObject* parent, IntegerPrimaryKey personId) const;
 
     /**
      * Model showing only the primary names for each person.
@@ -146,6 +156,7 @@ private:
     void* updatingFromDataManagerSource = nullptr;
 
     // Base models that allow editing.
+    QSqlTableModel* basePeopleModel;
     CustomSqlRelationalModel* baseNamesModel;
     QSqlTableModel* baseNameOriginModel;
     QSqlTableModel* baseEventRolesModel;

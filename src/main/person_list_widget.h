@@ -25,6 +25,7 @@ public:
 
 public Q_SLOTS:
     void handleSelectedNewRow(const QItemSelection& selected);
+    void onAddNewPerson();
 
 Q_SIGNALS:
     /**

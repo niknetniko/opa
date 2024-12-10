@@ -5,6 +5,8 @@
  */
 #include "person.h"
 
+#include "database/schema.h"
+
 #include <QString>
 
 QString Sex::toIcon(const QString& sex) {
@@ -21,4 +23,12 @@ QString Sex::toIcon(const QString& sex) {
         default:
             return QStringLiteral("?");
     }
+}
+
+PeopleTableModel::PeopleTableModel(QObject* parent) : QSqlTableModel(parent) {
+    QSqlTableModel::setTable(Schema::PeopleTable);
+
+    QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
+    QSqlTableModel::setHeaderData(ROOT, Qt::Horizontal, i18n("Root"));
+    QSqlTableModel::setHeaderData(SEX, Qt::Horizontal, i18n("Sex"));
 }

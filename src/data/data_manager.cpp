@@ -30,6 +30,7 @@ DataManager::DataManager(QObject* parent) : QObject(parent) {
     baseEventRelationsModel = makeModel<EventRelationsModel>(baseEventRolesModel);
     baseEventTypesModel = makeModel<EventTypesModel>();
     baseEventsModel = makeModel<EventsModel>(baseEventTypesModel);
+    basePeopleModel = makeModel<PeopleTableModel>();
 }
 // NOLINTEND(*-prefer-member-initializer)
 
@@ -64,6 +65,13 @@ QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVarian
     auto* proxy = new MultiFilterProxyModel(parent);
     proxy->setSourceModel(this->namesModel());
     proxy->addFilter(NamesTableModel::ID, nameId);
+    return proxy;
+}
+
+QAbstractProxyModel* DataManager::singlePersonModel(QObject* parent, IntegerPrimaryKey personId) const {
+    auto* proxy = new MultiFilterProxyModel(parent);
+    proxy->setSourceModel(this->peopleModel());
+    proxy->addFilter(PeopleTableModel::ID, personId);
     return proxy;
 }
 
@@ -441,6 +449,10 @@ void DataManager::reset() {
 
 DataManager& DataManager::get() {
     return *instance;
+}
+
+QSqlTableModel* DataManager::peopleModel() const {
+    return basePeopleModel;
 }
 
 template<QSqlTableModelConcept ModelType, typename... Args>
