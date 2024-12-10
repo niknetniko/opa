@@ -18,7 +18,7 @@
 #include <QSqlRecord>
 
 NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
-    AbstractEditorDialog(parent),
+    AbstractEditorDialog(true, parent),
     form(new Ui::NewPersonEditorForm) {
     form->setupUi(this);
 
@@ -40,7 +40,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
         return;
     }
 
-    newPersonId = lastInsertedPeopleId.toLongLong();
+    IntegerPrimaryKey newPersonId = lastInsertedPeopleId.toLongLong();
 
     auto* namesModel = DataManager::get().namesModel();
     auto newNameRecord = namesModel->record();
@@ -60,7 +60,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
         return;
     }
 
-    newNameId = lastInsertedNameId.toLongLong();
+    IntegerPrimaryKey newNameId = lastInsertedNameId.toLongLong();
 
     this->setWindowTitle(i18n("Add new person"));
 
@@ -90,36 +90,15 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     nameMapper->addMapping(form->origin, NamesTableModel::ORIGIN);
     nameMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     nameMapper->toFirst();
-    mappers.append(nameMapper);
+    addMapper(nameMapper);
 
     auto* sexMapper = new QDataWidgetMapper(this);
     sexMapper->setModel(singlePersonModel);
     sexMapper->addMapping(form->sexComboBox, PeopleTableModel::SEX);
     sexMapper->toFirst();
-    mappers.append(sexMapper);
+    addMapper(sexMapper);
 
     // TODO: Support translatable dropdown values here
     auto* sexesModel = DataManager::get().sexesModel(this);
     form->sexComboBox->setModel(sexesModel);
-}
-
-void NewPersonEditorDialog::revert() {
-    if (newNameId != -1) {
-        auto* nameMapper = mappers[NAME_MAPPER];
-        if (!nameMapper->model()->removeRow(0)) {
-            qWarning() << "Could not remove newly inserted name row?";
-            if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(nameMapper->model())) {
-                qDebug() << sourceModel->lastError();
-            }
-        }
-    }
-    if (newPersonId != -1) {
-        auto* personMapper = mappers[PERSON_MAPPER];
-        if (!personMapper->model()->removeRow(0)) {
-            qWarning() << "Could not remove newly inserted person row?";
-            if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(personMapper->model())) {
-                qDebug() << sourceModel->lastError();
-            }
-        }
-    }
 }

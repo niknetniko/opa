@@ -28,15 +28,10 @@ public:
     showDialogForExistingEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
 
 public Q_SLOTS:
-    void revert() override;
-
     void editDateWithEditor();
     void editNoteWithEditor();
 
 private:
-    static constexpr int EVENT_RELATION_MAPPER = 0;
-    static constexpr int EVENT_MAPPER = 1;
-
     Ui::EventEditorForm* form;
     bool newEvent;
 };

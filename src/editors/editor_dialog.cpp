@@ -14,17 +14,33 @@
 #include <QSqlError>
 #include <QSqlQueryModel>
 
-AbstractEditorDialog::AbstractEditorDialog(QWidget* parent) : QDialog(parent) {
+AbstractEditorDialog::AbstractEditorDialog(bool isNewItem, QWidget* parent) : QDialog(parent), isNewItem(isNewItem) {
 }
 
 void AbstractEditorDialog::reject() {
     for (auto* mapper: std::as_const(this->mappers)) {
         mapper->revert();
+        if (isNewItem) {
+            if (!mapper->model()->removeRow(0)) {
+                qWarning() << "Could not remove newly row for mapper" << mapper;
+                if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(mapper->model())) {
+                    qDebug() << sourceModel->lastError();
+                }
+            }
+        }
     }
 
     this->revert();
 
     QDialog::reject();
+}
+
+void AbstractEditorDialog::revert() {
+}
+
+void AbstractEditorDialog::addMapper(QDataWidgetMapper* mapper) {
+    Q_ASSERT(mapper->model()->rowCount() == 1);
+    this->mappers.append(mapper);
 }
 
 void AbstractEditorDialog::accept() {

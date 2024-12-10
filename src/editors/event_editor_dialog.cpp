@@ -21,7 +21,7 @@
 EventEditorDialog::EventEditorDialog(
     QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
 ) :
-    AbstractEditorDialog(parent),
+    AbstractEditorDialog(newEvent, parent),
     form(new Ui::EventEditorForm),
     newEvent(newEvent) {
     form->setupUi(this);
@@ -46,7 +46,7 @@ EventEditorDialog::EventEditorDialog(
     eventRelationMapper->addMapping(form->eventRoleComboBox, EventRelationsModel::ROLE);
     eventRelationMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     eventRelationMapper->toFirst();
-    this->mappers.append(eventRelationMapper);
+    addMapper(eventRelationMapper);
 
     form->noteEdit->enableRichTextMode();
 
@@ -59,7 +59,7 @@ EventEditorDialog::EventEditorDialog(
     eventMapper->addMapping(form->noteEdit, EventsModel::NOTE);
     eventMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     eventMapper->toFirst();
-    this->mappers.append(eventMapper);
+    addMapper(eventMapper);
 }
 
 void EventEditorDialog::showDialogForNewEvent(
@@ -74,20 +74,6 @@ void EventEditorDialog::showDialogForExistingEvent(
 ) {
     auto* dialog = new EventEditorDialog(eventRelationModel, eventModel, false, parent);
     dialog->show();
-}
-
-void EventEditorDialog::revert() {
-    if (!newEvent) {
-        return;
-    }
-    auto* eventRelationsModel = mappers[EVENT_RELATION_MAPPER]->model();
-    if (!eventRelationsModel->removeRow(eventRelationsModel->rowCount() - 1)) {
-        qWarning() << "Could not revert event relation model?";
-    }
-    auto* eventsModel = mappers[EVENT_MAPPER]->model();
-    if (!eventsModel->removeRow(eventsModel->rowCount() - 1)) {
-        qWarning() << "Could not revert event model?";
-    }
 }
 
 void EventEditorDialog::editDateWithEditor() {
