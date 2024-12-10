@@ -66,6 +66,7 @@ NamesEditorDialog::NamesEditorDialog(QAbstractProxyModel* model, bool newRow, QW
     //  Possibly since the model uses auto-submit?
     //  This means cancel does not work.
     this->mapper = new QDataWidgetMapper(this);
+    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->setModel(this->model);
     mapper->addMapping(form->titles, NamesTableModel::TITLES);
     mapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);

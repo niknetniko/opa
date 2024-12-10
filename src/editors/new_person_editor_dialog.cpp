@@ -22,25 +22,20 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     form(new Ui::NewPersonEditorForm) {
     form->setupUi(this);
 
-    // Connect the buttons.
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept); // NOLINT(*-unused-return-value)
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject); // NOLINT(*-unused-return-value)
-
-
     // Get a new person.
     auto* peopleModel = DataManager::get().peopleModel();
     auto newPersonRecord = peopleModel->record();
     newPersonRecord.setGenerated(PeopleTableModel::ID, false);
     newPersonRecord.setValue(PeopleTableModel::ROOT, false);
     if (!peopleModel->insertRecord(-1, newPersonRecord)) {
-        qFatal() << "Could inserted new person for some reason:";
+        qFatal() << "Could inserted new person for some reason";
         qWarning() << peopleModel->lastError();
         return;
     }
 
     auto lastInsertedPeopleId = peopleModel->query().lastInsertId();
     if (!lastInsertedPeopleId.isValid()) {
-        qFatal() << "Could not get last inserted ID for some reason:";
+        qFatal() << "Could not get last inserted ID for some reason";
         qWarning() << peopleModel->lastError();
         return;
     }
@@ -87,6 +82,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
 
     auto* nameMapper = new QDataWidgetMapper(this);
     nameMapper->setModel(singleNameModel);
+    nameMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     nameMapper->addMapping(form->titles, NamesTableModel::TITLES);
     nameMapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     nameMapper->addMapping(form->prefix, NamesTableModel::PREFIX);
@@ -98,13 +94,13 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
 
     auto* sexMapper = new QDataWidgetMapper(this);
     sexMapper->setModel(singlePersonModel);
-    sexMapper->addMapping(form->sexBomboBox, PeopleTableModel::SEX);
+    sexMapper->addMapping(form->sexComboBox, PeopleTableModel::SEX);
     sexMapper->toFirst();
     mappers.append(sexMapper);
 
     // TODO: Support translatable dropdown values here
     auto* sexesModel = DataManager::get().sexesModel(this);
-    form->sexBomboBox->setModel(sexesModel);
+    form->sexComboBox->setModel(sexesModel);
 }
 
 void NewPersonEditorDialog::revert() {
@@ -112,12 +108,18 @@ void NewPersonEditorDialog::revert() {
         auto* nameMapper = mappers[NAME_MAPPER];
         if (!nameMapper->model()->removeRow(0)) {
             qWarning() << "Could not remove newly inserted name row?";
+            if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(nameMapper->model())) {
+                qDebug() << sourceModel->lastError();
+            }
         }
     }
     if (newPersonId != -1) {
         auto* personMapper = mappers[PERSON_MAPPER];
         if (!personMapper->model()->removeRow(0)) {
             qWarning() << "Could not remove newly inserted person row?";
+            if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(personMapper->model())) {
+                qDebug() << sourceModel->lastError();
+            }
         }
     }
 }
