@@ -87,6 +87,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     nameMapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     nameMapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     nameMapper->addMapping(form->surname, NamesTableModel::SURNAME);
+    // TODO: why is this not working?
     nameMapper->addMapping(form->origin, NamesTableModel::ORIGIN);
     nameMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     nameMapper->toFirst();
