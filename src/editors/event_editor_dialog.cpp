@@ -29,8 +29,6 @@ EventEditorDialog::EventEditorDialog(
     // Connect the buttons.
     connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditorDialog::editDateWithEditor);
     connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
-    connect(form->dialogButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(form->dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     connectComboBox(eventRelationModel, EventRelationsModel::ROLE, form->eventRoleComboBox);
     connectComboBox(eventModel, EventsModel::TYPE, form->eventTypeComboBox);
@@ -41,7 +39,6 @@ EventEditorDialog::EventEditorDialog(
         auto nameId = format_id(FormattedIdentifierDelegate::EVENT, eventModel->index(0, 0).data());
         this->setWindowTitle(i18n("%1 bewerken", nameId));
     }
-
 
     auto* eventRelationMapper = new QDataWidgetMapper(this);
     eventRelationMapper->setModel(eventRelationModel);
