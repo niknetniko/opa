@@ -11,5 +11,10 @@ class PersonPlaceholderWidget : public QWidget {
     Q_OBJECT
 
 public:
+    static const inline auto OPEN_PERSON_ANCHOR = QStringLiteral("opa:new_person");
+
     explicit PersonPlaceholderWidget(QWidget* parent = nullptr);
+
+public Q_SLOTS:
+    void onLinkActivated(const QString& link);
 };
