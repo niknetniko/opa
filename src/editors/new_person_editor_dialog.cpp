@@ -81,6 +81,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     givenNameCompleter->setCompletionMode(QCompleter::PopupCompletion);
     form->givenNames->setCompleter(surnameCompleter);
 
+    connectComboBox(singleNameModel, NamesTableModel::ORIGIN, form->origin);
     auto* nameMapper = new QDataWidgetMapper(this);
     nameMapper->setModel(singleNameModel);
     nameMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -88,8 +89,6 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     nameMapper->addMapping(form->givenNames, NamesTableModel::GIVEN_NAMES);
     nameMapper->addMapping(form->prefix, NamesTableModel::PREFIX);
     nameMapper->addMapping(form->surname, NamesTableModel::SURNAME);
-    // TODO: why is this not working?
-    // Issue URL: https://github.com/niknetniko/opa/issues/56
     nameMapper->addMapping(form->origin, NamesTableModel::ORIGIN);
     nameMapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
     nameMapper->toFirst();
