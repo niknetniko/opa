@@ -5,7 +5,7 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   -->
 <gui name="opa"
-     version="2"
+     version="3"
      xmlns="https://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="https://www.kde.org/standards/kxmlgui/1.0
@@ -13,6 +13,8 @@
   <MenuBar>
     <Menu name="edit">
       <Action name="switch_action"/>
+      <Action name="person_add_new"/>
+      <Action name="person_delete_existing"/>
     </Menu>
     <Menu name="manage">
       <text>Manage</text>

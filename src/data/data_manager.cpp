@@ -86,12 +86,13 @@ QAbstractItemModel* DataManager::sexesModel(QObject* parent) {
 }
 
 QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
-    auto query =
-        QStringLiteral("SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
-                       "people.root "
-                       "FROM people "
-                       "JOIN names on people.id = names.person_id "
-                       "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id)");
+    auto query = QStringLiteral(
+        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
+        "people.root "
+        "FROM people "
+        "LEFT JOIN names on people.id = names.person_id "
+        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) OR names.sort IS NULL"
+    );
     auto* baseModel = new QSqlQueryModel(parent);
 
     // These positions are hardcoded from the query above.
@@ -126,12 +127,13 @@ QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
 }
 
 QAbstractProxyModel* DataManager::personDetailsModel(QObject* parent, IntegerPrimaryKey personId) {
-    auto rawQuery = QStringLiteral(
-        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex "
-        "FROM people "
-        "JOIN names on people.id = names.person_id "
-        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) AND people.id = :id"
-    );
+    auto rawQuery = QStringLiteral(R"-(
+SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex
+FROM people
+       LEFT JOIN names on people.id = names.person_id
+WHERE (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) OR names.sort IS NULL)
+  AND people.id = :id
+)-");
     QSqlQuery query;
     query.prepare(rawQuery);
     query.bindValue(QStringLiteral(":id"), personId);

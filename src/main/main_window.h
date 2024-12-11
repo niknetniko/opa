@@ -54,6 +54,13 @@ protected:
     void saveProperties(KConfigGroup& config) override;
     void readProperties(const KConfigGroup& config) override;
 
+Q_SIGNALS:
+    /**
+     * Called when a new person has been opened in the main view, or an existing person has been closed.
+     * Note that selecting an existing open person does not trigger this.
+     */
+    void onPersonOpenedOrClosed();
+
 public Q_SLOTS:
     void newFile();
     void openFile();
@@ -64,7 +71,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void settingsConfigure();
 
-    void closeTab(int tabIndex) const;
+    void closeTab(int tabIndex);
 
     void openNameOriginManager() const;
 
@@ -73,6 +80,12 @@ private Q_SLOTS:
     void openEventTypesManager() const;
 
     bool queryClose() override;
+
+    void syncRemoveAction() const;
+
+    void onOpenNewPersonEditor();
+
+    void onDeleteCurrentPerson();
 
 private:
     QString currentFile;
@@ -90,6 +103,8 @@ private:
     QAction* openAction_ = nullptr;
     QAction* quitAction_ = nullptr;
     QAction* closeAction_ = nullptr;
+    QAction* addNewPersonAction_ = nullptr;
+    QAction* removePersonAction_ = nullptr;
 
     [[nodiscard]] int findTabFor(IntegerPrimaryKey personId) const;
 

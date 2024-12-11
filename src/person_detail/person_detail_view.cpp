@@ -18,7 +18,7 @@
 #include <KLocalizedString>
 #include <QDate>
 
-PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFrame(parent) {
+PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFrame(parent), id(id) {
     this->ui = new Ui::PersonDetailView();
     ui->setupUi(this);
 
@@ -42,10 +42,9 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
 }
 
 void PersonDetailView::populate() {
-    assert(model->rowCount() == 1);
+    assert(model->rowCount() <= 1);
 
-    auto rawPersonId = model->index(0, PersonDetailModel::ID).data();
-    auto personId = format_id(FormattedIdentifierDelegate::PERSON, rawPersonId);
+    auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     ui->id->setText(personId);
     ui->displayName->setText(this->getDisplayName());
 
@@ -55,7 +54,7 @@ void PersonDetailView::populate() {
     ui->sexIcon->setText(sexSymbol);
     ui->sexIcon->setToolTip(sexDescription);
 
-    Q_EMIT this->dataChanged(rawPersonId.toLongLong());
+    Q_EMIT this->dataChanged(id);
 }
 
 PersonDetailView::~PersonDetailView() {
@@ -63,9 +62,13 @@ PersonDetailView::~PersonDetailView() {
 }
 
 bool PersonDetailView::hasId(IntegerPrimaryKey id) const {
-    return model->index(0, PersonDetailModel::ID).data() == id;
+    return getId() == id;
 }
 
 QString PersonDetailView::getDisplayName() const {
     return model->index(0, PersonDetailModel::DISPLAY_NAME).data().toString();
+}
+
+IntegerPrimaryKey PersonDetailView::getId() const {
+    return model->index(0, PersonDetailModel::ID).data().toLongLong();
 }

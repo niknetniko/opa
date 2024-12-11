@@ -26,6 +26,8 @@ public:
 
     [[nodiscard]] QString getDisplayName() const;
 
+    [[nodiscard]] IntegerPrimaryKey getId() const;
+
     ~PersonDetailView() override;
 
 public Q_SLOTS:
@@ -43,4 +45,5 @@ Q_SIGNALS:
 private:
     QAbstractProxyModel* model;
     Ui::PersonDetailView* ui;
+    IntegerPrimaryKey id;
 };

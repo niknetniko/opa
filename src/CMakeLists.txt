@@ -128,6 +128,7 @@ target_link_libraries(
          KF6::KIOFileWidgets
          KF6::KIOWidgets
          KF6::TextWidgets
+         KF6::WidgetsAddons
          ${SQLite3_LIBRARIES}
          ${QtNodes_LIBRARIES})
 

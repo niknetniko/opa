@@ -46,7 +46,8 @@ find_package(
              ItemModels
              Kirigami
              KIO
-             TextWidgets)
+             TextWidgets
+             WidgetsAddons)
 
 find_package(SQLite3)
 include_directories(${SQLite3_INCLUDE_DIRS})
