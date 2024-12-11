@@ -73,7 +73,7 @@ SELECT child.birth_type     AS event_type,
 FROM children AS child
        LEFT JOIN parents_of_children AS parent ON child.child_id = parent.child_id
        LEFT JOIN names ON child.child_id = names.person_id
-WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = child.child_id)
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = child.child_id) OR names.sort = NULL
 
 UNION ALL
 
@@ -89,7 +89,7 @@ SELECT marriage.marriage_type     AS event_type,
        names.surname              AS surname
 FROM relationships AS marriage
        LEFT JOIN names ON marriage.partner_id = names.person_id
-WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = marriage.partner_id)
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = marriage.partner_id) OR names.sort = NULL
 
 ORDER BY event_type, event_date;
 )-");
@@ -367,7 +367,7 @@ SELECT child_id,
        names.surname
 FROM ancestor_tree
        LEFT JOIN names ON ancestor_tree.child_id = names.person_id
-WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = ancestor_tree.child_id)
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = ancestor_tree.child_id) OR names.sort = NULL
 GROUP BY child_id
 ORDER BY level, child_id
     )-");
@@ -409,7 +409,7 @@ FROM event_relations AS child_relation
 WHERE child_relation.person_id = :person
   AND child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
   AND event_roles.role IN ('Father', 'Mother')
-  AND names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id)
+  AND (names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id) OR names.sort = NULL)
 ORDER BY parent_relation.person_id;
     )-");
     resetAndLoadData();
