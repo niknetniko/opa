@@ -93,6 +93,7 @@ NewFamilyEditorDialog::~NewFamilyEditorDialog() {
 
 void NewFamilyEditorDialog::accept() {
     // TODO: add family if accepted
+    // Issue URL: https://github.com/niknetniko/opa/issues/61
     QDialog::accept();
 }
 
