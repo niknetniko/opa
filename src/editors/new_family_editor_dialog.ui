@@ -218,7 +218,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="parentRelationRole"/>
       </item>
       <item>
        <widget class="QLabel" name="label">

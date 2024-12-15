@@ -143,6 +143,13 @@ public:
     [[nodiscard]] QAbstractItemModel* parentEventRolesModel(QObject* parent) const;
 
     /**
+     * Model returning all relationship event types.
+     *
+     * Returns the same columns as EventTypesModel.
+     */
+    [[nodiscard]] QAbstractItemModel* relationshipEventTypes(QObject* parent) const;
+
+    /**
      * Tree model of all partners and all children of the given person.
      * The person itself is not included.
      * The children itself are arranged in a tree, with the partner being the root, and every child with that partner

@@ -78,6 +78,19 @@ bool ParentEventRolesModel::filterAcceptsRow(int sourceRow, const QModelIndex& s
     return parentRoles.contains(asEnumValue);
 }
 
+RelationshipEventTypesModel::RelationshipEventTypesModel(QObject* parent) : QSortFilterProxyModel(parent) {
+    auto list = EventTypes::relationshipStartingEvents();
+    this->relationshipTypes = QSet(list.constBegin(), list.constEnd());
+    QSortFilterProxyModel::setSourceModel(DataManager::get().eventTypesModel());
+}
+
+bool RelationshipEventTypesModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+    Q_UNUSED(sourceParent);
+    auto rawValue = sourceModel()->index(sourceRow, EventTypesModel::TYPE).data();
+    auto asEnumValue = enumFromString<EventTypes::Values>(rawValue.toString());
+    return relationshipTypes.contains(asEnumValue);
+}
+
 NewEventInformation addEventToPerson(EventTypes::Values eventType, IntegerPrimaryKey person) {
     auto* typeModel = DataManager::get().eventTypesModel();
     auto typeId = getTypeId(typeModel, eventType, EventTypes::typeToString, EventTypesModel::TYPE, EventTypesModel::ID);

@@ -18,9 +18,7 @@ struct FamilyData {
     IntegerPrimaryKey childId;
     bool hasNewBirthEvent;
     QVariant birthEventId;
-    bool hasNewMotherRelationEvent;
     QVariant motherId;
-    bool hasNewFatherRelationEvent;
     QVariant fatherId;
 };
 
@@ -57,4 +55,5 @@ private:
 
     void setMother(const QVariant& motherId);
     void setFather(const QVariant& fatherId);
+    void setParentRelationIfPossible() const;
 };

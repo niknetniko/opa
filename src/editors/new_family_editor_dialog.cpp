@@ -12,7 +12,6 @@
 #include "link_existing/choose_existing_person_window.h"
 #include "new_person_editor_dialog.h"
 #include "ui_new_family_editor_dialog.h"
-#include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "welcome/welcome_view.h"
 
@@ -20,19 +19,21 @@
 #include <QDataWidgetMapper>
 #include <QSqlError>
 
-struct BirthEventDetails {
-    QVariant eventId;
-    bool isNew;
-};
+namespace {
+    struct BirthEventDetails {
+        QVariant eventId;
+        bool isNew;
+    };
 
-static BirthEventDetails getOrCreateBirthEvent(QObject* parent, IntegerPrimaryKey personId) {
-    auto* birthEventModel = DataManager::get().birthEventModelForPerson(parent, personId);
-    if (birthEventModel->rowCount() == 0) {
-        auto newEvent = addEventToPerson(EventTypes::Birth, personId);
-        return {newEvent.eventId, true};
-    } else {
-        QVariant birthEventId = birthEventModel->index(0, PersonEventsModel::ID).data();
-        return {birthEventId, false};
+    BirthEventDetails getOrCreateBirthEvent(QObject* parent, IntegerPrimaryKey personId) {
+        auto* birthEventModel = DataManager::get().birthEventModelForPerson(parent, personId);
+        if (birthEventModel->rowCount() == 0) {
+            auto newEvent = addEventToPerson(EventTypes::Birth, personId);
+            return {newEvent.eventId, true};
+        } else {
+            QVariant birthEventId = birthEventModel->index(0, PersonEventsModel::ID).data();
+            return {birthEventId, false};
+        }
     }
 }
 
@@ -53,7 +54,7 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
     connect(form->motherNewPerson, &QPushButton::clicked, this, &NewFamilyEditorDialog::onSelectNewMother);
     connect(form->fatherNewPerson, &QPushButton::clicked, this, &NewFamilyEditorDialog::onSelectNewFather);
 
-    auto parentRolesModel = DataManager::get().parentEventRolesModel(this);
+    auto* parentRolesModel = DataManager::get().parentEventRolesModel(this);
 
     form->motherRelation->setEnabled(false);
     motherIdMapper = new QDataWidgetMapper(this);
@@ -78,6 +79,10 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
     form->fatherRelation->setModelColumn(EventRolesModel::ROLE);
 
     parentRelationMapper = new QDataWidgetMapper(this);
+    form->parentRelationRole->setEnabled(false);
+    auto* relationshipEventTypes = DataManager::get().relationshipEventTypes(this);
+    form->parentRelationRole->setModel(relationshipEventTypes);
+    form->parentRelationRole->setModelColumn(EventTypesModel::TYPE);
 
     this->setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -87,6 +92,7 @@ NewFamilyEditorDialog::~NewFamilyEditorDialog() {
 }
 
 void NewFamilyEditorDialog::accept() {
+    // TODO: add family if accepted
     QDialog::accept();
 }
 
@@ -167,6 +173,8 @@ void NewFamilyEditorDialog::setMother(const QVariant& motherId) {
     motherBirthMapper->setModel(birthEvent);
     motherBirthMapper->addMapping(form->motherBirth, PersonEventsModel::DATE, "text");
     motherBirthMapper->toFirst();
+
+    setParentRelationIfPossible();
 }
 
 void NewFamilyEditorDialog::setFather(const QVariant& fatherId) {
@@ -190,4 +198,10 @@ void NewFamilyEditorDialog::setFather(const QVariant& fatherId) {
     fatherBirthMapper->setModel(birthEvent);
     fatherBirthMapper->addMapping(form->fatherBirth, PersonEventsModel::DATE, "text");
     fatherBirthMapper->toFirst();
+
+    setParentRelationIfPossible();
+}
+
+void NewFamilyEditorDialog::setParentRelationIfPossible() const {
+    form->parentRelationRole->setEnabled(data.motherId.isValid() && data.fatherId.isValid());
 }

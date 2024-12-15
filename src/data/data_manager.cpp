@@ -323,6 +323,10 @@ QAbstractItemModel* DataManager::parentEventRolesModel(QObject* parent) const {
     return new ParentEventRolesModel(parent);
 }
 
+QAbstractItemModel* DataManager::relationshipEventTypes(QObject* parent) const {
+    return new RelationshipEventTypesModel(parent);
+}
+
 QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimaryKey person) {
     auto* proxyModel = new FamilyProxyModel(person, parent);
 

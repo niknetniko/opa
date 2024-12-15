@@ -203,10 +203,22 @@ class ParentEventRolesModel : public QSortFilterProxyModel {
 public:
     explicit ParentEventRolesModel(QObject* parent);
 
-    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+    [[nodiscard]] bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
 
 private:
     QSet<EventRoles::Values> parentRoles;
+};
+
+class RelationshipEventTypesModel : public QSortFilterProxyModel {
+    Q_OBJECT
+
+public:
+    explicit RelationshipEventTypesModel(QObject* parent);
+
+    [[nodiscard]] bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+
+private:
+    QSet<EventTypes::Values> relationshipTypes;
 };
 
 struct NewEventInformation {
