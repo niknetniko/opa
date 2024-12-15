@@ -386,7 +386,7 @@ void MainWindow::onDeleteCurrentPerson() {
         qDebug() << "Aborting deleting person";
         return;
     }
-    auto personModel = DataManager::get().peopleModel();
+    auto* personModel = DataManager::get().peopleModel();
     if (!personModel->submit()) {
         qWarning() << "Could not save person changes.";
         qDebug() << personModel->lastError();
