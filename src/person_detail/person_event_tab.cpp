@@ -102,6 +102,7 @@ void PersonEventTab::onEventSelected(const QItemSelection& selected) const {
 
 void PersonEventTab::onAddNewEvent() {
     // TODO: Choose the default new event type intelligently.
+    // Issue URL: https://github.com/niknetniko/opa/issues/60
     auto newEvent = addEventToPerson(EventTypes::Birth, person);
 
     auto* singleEventModel = DataManager::get().singleEventModel(this, newEvent.eventId);

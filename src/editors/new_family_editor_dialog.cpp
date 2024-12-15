@@ -62,8 +62,10 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
     motherRelationMapper = new QDataWidgetMapper(this);
 
     // TODO: Support translatable enums in the QComboxBox.
+    // Issue URL: https://github.com/niknetniko/opa/issues/59
     form->motherRelation->setModel(parentRolesModel);
     // TODO: intelligently select a default role.
+    // Issue URL: https://github.com/niknetniko/opa/issues/58
     form->motherRelation->setModelColumn(EventRolesModel::ROLE);
 
     form->fatherRelation->setEnabled(false);
