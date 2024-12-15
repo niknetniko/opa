@@ -47,8 +47,9 @@ int sql_trace_callback(unsigned int type, void* context, void* p, void* x) {
     Q_UNUSED(x);
     if (type == SQLITE_TRACE_PROFILE) {
         auto* statement = static_cast<sqlite3_stmt*>(p);
-        const auto* sql = sqlite3_expanded_sql(statement);
+        auto* sql = sqlite3_expanded_sql(statement);
         qDebug(OPA_SQL) << sql;
+        sqlite3_free(sql);
     }
 
     return 0;
