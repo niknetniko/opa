@@ -33,14 +33,14 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
         return;
     }
 
-    auto lastInsertedPeopleId = peopleModel->query().lastInsertId();
-    if (!lastInsertedPeopleId.isValid()) {
+    addedPersonId = peopleModel->query().lastInsertId();
+    if (!addedPersonId.isValid()) {
         qFatal() << "Could not get last inserted ID for some reason";
         qWarning() << peopleModel->lastError();
         return;
     }
 
-    IntegerPrimaryKey newPersonId = lastInsertedPeopleId.toLongLong();
+    IntegerPrimaryKey newPersonId = addedPersonId.toLongLong();
 
     auto* namesModel = DataManager::get().namesModel();
     auto newNameRecord = namesModel->record();
@@ -108,4 +108,9 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
 
 NewPersonEditorDialog::~NewPersonEditorDialog() {
     delete form;
+}
+
+void NewPersonEditorDialog::reject() {
+    addedPersonId = {};
+    AbstractEditorDialog::reject();
 }

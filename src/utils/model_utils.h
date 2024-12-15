@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "database/schema.h"
+
 #include <KLazyLocalizedString>
 #include <QAbstractProxyModel>
 #include <QSqlTableModel>
@@ -133,4 +135,28 @@ QString genericToDisplayString(const QString& databaseValue, QHash<E, KLazyLocal
     auto enumValue = static_cast<E>(result);
     Q_ASSERT(mapping.contains(enumValue));
     return mapping[enumValue].toString();
+}
+
+/**
+ * Get the database ID of a built-in type value.
+ *
+ * @tparam E The type.
+ * @param model The model for the types.
+ * @param eventType The actual type.
+ * @param enumMapping Mapping of the enum to database strings.
+ * @param typeColumn The column containing the type.
+ * @param idColumn The column containing the ID.
+ * @return
+ */
+template<typename E>
+IntegerPrimaryKey getTypeId(
+    QAbstractItemModel* model, E eventType, QHash<E, KLazyLocalizedString> enumMapping, int typeColumn, int idColumn
+) {
+    auto databaseValue = QString::fromLatin1(enumMapping[eventType].untranslatedText());
+    auto defaultEventRoleIndex = model->match(model->index(0, typeColumn), Qt::DisplayRole, databaseValue).constFirst();
+    Q_ASSERT(defaultEventRoleIndex.isValid());
+
+    auto idVariant = model->index(defaultEventRoleIndex.row(), idColumn).data();
+    Q_ASSERT(idVariant.isValid());
+    return idVariant.toLongLong();
 }

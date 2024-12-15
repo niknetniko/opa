@@ -24,6 +24,7 @@ public Q_SLOTS:
     void onShowPedigreeChart() const;
     void onParentClicked(const QModelIndex& index) const;
     void onPartnerOrChildClicked(const QModelIndex& index) const;
+    void onAddParent();
 
 private:
     IntegerPrimaryKey personId;

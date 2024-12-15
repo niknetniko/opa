@@ -24,7 +24,7 @@
 
 PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     this->person = person;
-    this->baseModel = DataManager::get().eventsModelForPerson(this, person);
+    this->baseModel = DataManager::get().treeEventsModelForPerson(this, person);
 
     this->treeView = new QTreeView(this);
     treeView->setModel(baseModel);
@@ -101,74 +101,12 @@ void PersonEventTab::onEventSelected(const QItemSelection& selected) const {
 }
 
 void PersonEventTab::onAddNewEvent() {
-    // First, look up the ID for the "default" event role just to be sure.
-    auto defaultRoleId = EventRolesModel::getDefaultRole();
-    if (!defaultRoleId.isValid()) {
-        qWarning() << "Default role not found, aborting new event.";
-        return;
-    }
+    // TODO: Choose the default new event type intelligently.
+    auto newEvent = addEventToPerson(EventTypes::Birth, person);
 
-    // Also lookup the ID for a first event.
-    // TODO: do this intelligently.
-    auto* typeModel = DataManager::get().eventTypesModel();
-    auto defaultType = QString::fromUtf8(EventTypes::typeToString[EventTypes::Birth].untranslatedText());
-    auto defaultEventTypeIndex =
-        typeModel->match(typeModel->index(0, EventTypesModel::TYPE), Qt::DisplayRole, defaultType);
-
-    if (!defaultEventTypeIndex.first().isValid()) {
-        qWarning() << "Default type not found, aborting new event.";
-        return;
-    }
-    auto defaultTypeId = typeModel->index(defaultEventTypeIndex.first().row(), EventTypesModel::ID).data();
-
-    if (!QSqlDatabase::database().transaction()) {
-        qWarning() << "Could not get transaction on database for some reason.";
-        qDebug() << QSqlDatabase::database().lastError();
-        return;
-    }
-
-    // Second, insert a new event.
-    auto* eventModel = DataManager::get().eventsModel();
-    auto newEventRecord = eventModel->record();
-    newEventRecord.setGenerated(EventsModel::ID, false);
-    newEventRecord.setValue(EventsModel::TYPE_ID, defaultTypeId);
-
-    if (!eventModel->insertRecord(-1, newEventRecord)) {
-        qDebug() << "Could not get last inserted ID for some reason:";
-        qDebug() << eventModel->lastError();
-        return;
-    }
-
-    auto newEventId = eventModel->query().lastInsertId();
-    if (!newEventId.isValid()) {
-        qDebug() << "Could not get last inserted ID for some reason:";
-        qDebug() << eventModel->lastError();
-        QSqlDatabase::database().rollback();
-        return;
-    }
-
-    // Finally, link the event to our person.
-    auto* eventRelationModel = DataManager::get().eventRelationsModel();
-    auto eventRelationRecord = eventRelationModel->record();
-    eventRelationRecord.setValue(EventRelationsModel::EVENT_ID, newEventId);
-    eventRelationRecord.setValue(EventRelationsModel::PERSON_ID, person);
-    eventRelationRecord.setValue(EventRelationsModel::ROLE_ID, defaultRoleId);
-
-    if (!eventRelationModel->insertRecord(-1, eventRelationRecord)) {
-        qDebug() << "Could not insert event relation for some reason:";
-        qDebug() << eventRelationModel->lastError();
-        QSqlDatabase::database().rollback();
-        return;
-    }
-
-    if (!QSqlDatabase::database().commit()) {
-        qWarning() << "Could not commit transaction on database for some reason.";
-        qDebug() << QSqlDatabase::database().lastError();
-        return;
-    }
-
-    auto* singleEventModel = DataManager::get().singleEventModel(this, newEventId);
-    auto* singleRelationModel = DataManager::get().singleEventRelationModel(this, newEventId, defaultRoleId, person);
+    auto* singleEventModel = DataManager::get().singleEventModel(this, newEvent.eventId);
+    auto* singleRelationModel =
+        DataManager::get().singleEventRelationModel(this, newEvent.eventId, newEvent.roleId, person);
 
     EventEditorDialog::showDialogForNewEvent(singleRelationModel, singleEventModel, this);
 }

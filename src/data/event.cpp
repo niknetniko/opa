@@ -9,6 +9,9 @@
 #include "database/schema.h"
 
 #include <KLocalizedString>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
 
 EventRolesModel::EventRolesModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setTable(Schema::EventRolesTable);
@@ -25,15 +28,9 @@ QList<EventRoles::Values> EventRoles::parentRoles() {
     return {Mother, Father, AdoptiveParent, Stepparent, FosterParent, SurrogateMother, GeneticDonor, RecognizedParent};
 }
 
-QVariant EventRolesModel::getDefaultRole() {
+IntegerPrimaryKey EventRolesModel::getDefaultRole() {
     auto* roleModel = DataManager::get().eventRolesModel();
-    auto defaultRole = EventRoles::nameOriginToString[EventRoles::Primary].toString();
-    auto defaultEventRoleIndex = roleModel->match(roleModel->index(0, ROLE), Qt::DisplayRole, defaultRole).constFirst();
-    if (!defaultEventRoleIndex.isValid()) {
-        qWarning() << "Default role not found, aborting new event.";
-        return {};
-    }
-    return roleModel->index(defaultEventRoleIndex.row(), ID).data();
+    return getTypeId(roleModel, EventRoles::Primary, EventRoles::nameOriginToString, ROLE, ID);
 }
 
 EventTypesModel::EventTypesModel(QObject* parent) : QSqlTableModel(parent) {
@@ -66,4 +63,83 @@ EventsModel::EventsModel(QObject* parent, QSqlTableModel* typesModel) : CustomSq
     CustomSqlRelationalModel::setHeaderData(NAME, Qt::Horizontal, i18n("Naam"));
     CustomSqlRelationalModel::setHeaderData(TYPE, Qt::Horizontal, i18n("Soort"));
     CustomSqlRelationalModel::setHeaderData(NOTE, Qt::Horizontal, i18n("Notitie"));
+}
+
+ParentEventRolesModel::ParentEventRolesModel(QObject* parent) : QSortFilterProxyModel(parent) {
+    auto list = EventRoles::parentRoles();
+    this->parentRoles = QSet(list.constBegin(), list.constEnd());
+    QSortFilterProxyModel::setSourceModel(DataManager::get().eventRolesModel());
+}
+
+bool ParentEventRolesModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+    Q_UNUSED(sourceParent);
+    auto rawValue = sourceModel()->index(sourceRow, EventRolesModel::ROLE).data();
+    auto asEnumValue = enumFromString<EventRoles::Values>(rawValue.toString());
+    return parentRoles.contains(asEnumValue);
+}
+
+NewEventInformation addEventToPerson(EventTypes::Values eventType, IntegerPrimaryKey person) {
+    auto* typeModel = DataManager::get().eventTypesModel();
+    auto typeId = getTypeId(typeModel, eventType, EventTypes::typeToString, EventTypesModel::TYPE, EventTypesModel::ID);
+    auto roleId = EventRolesModel::getDefaultRole();
+
+    if (!QSqlDatabase::database().transaction()) {
+        qFatal() << "Could not get transaction on database:";
+        qFatal() << QSqlDatabase::database().lastError();
+        return {};
+    }
+
+    auto* eventModel = DataManager::get().eventsModel();
+    auto newEventRecord = eventModel->record();
+    newEventRecord.setGenerated(EventsModel::ID, false);
+    newEventRecord.setValue(EventsModel::TYPE_ID, typeId);
+
+    if (!eventModel->insertRecord(-1, newEventRecord)) {
+        qWarning() << "Could not insert new event:";
+        qWarning() << eventModel->lastError();
+        if (!QSqlDatabase::database().rollback()) {
+            qFatal() << "Additionally, could not revert transaction:";
+            qFatal() << eventModel->lastError();
+        }
+        return {};
+    }
+
+    auto newEventId = eventModel->query().lastInsertId();
+    if (!newEventId.isValid()) {
+        qWarning() << "Could not get last inserted ID:";
+        qWarning() << eventModel->lastError();
+        if (!QSqlDatabase::database().rollback()) {
+            qFatal() << "Additionally, could not revert transaction:";
+            qFatal() << eventModel->lastError();
+        }
+        return {};
+    }
+
+    auto* eventRelationModel = DataManager::get().eventRelationsModel();
+    auto eventRelationRecord = eventRelationModel->record();
+    eventRelationRecord.setValue(EventRelationsModel::EVENT_ID, newEventId);
+    eventRelationRecord.setValue(EventRelationsModel::PERSON_ID, person);
+    eventRelationRecord.setValue(EventRelationsModel::ROLE_ID, roleId);
+
+    if (!eventRelationModel->insertRecord(-1, eventRelationRecord)) {
+        qWarning() << "Could not insert event relation:";
+        qWarning() << eventRelationModel->lastError();
+        if (!QSqlDatabase::database().rollback()) {
+            qFatal() << "Additionally, could not revert transaction:";
+            qFatal() << eventModel->lastError();
+        }
+        return {};
+    }
+
+    if (!QSqlDatabase::database().commit()) {
+        qFatal() << "Could not commit transaction:";
+        qFatal() << QSqlDatabase::database().lastError();
+        if (!QSqlDatabase::database().rollback()) {
+            qFatal() << "Additionally, could not revert transaction:";
+            qFatal() << eventModel->lastError();
+        }
+        return {};
+    }
+
+    return {.eventId = newEventId, .roleId = roleId, .typeId = typeId};
 }

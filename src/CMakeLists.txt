@@ -82,7 +82,11 @@ add_library(
   editors/editor_dialog.cpp
   editors/editor_dialog.h
   editors/new_person_editor_dialog.cpp
-  editors/new_person_editor_dialog.h)
+  editors/new_person_editor_dialog.h
+  editors/new_family_editor_dialog.cpp
+  editors/new_family_editor_dialog.h
+  link_existing/choose_existing_person_window.cpp
+  link_existing/choose_existing_person_window.h)
 
 ecm_qt_declare_logging_category(
   opa-lib

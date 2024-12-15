@@ -210,7 +210,31 @@ QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) con
     return dateModel;
 }
 
-QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
+QAbstractProxyModel* DataManager::treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
+    auto* dateModel = flatEventsModelForPerson(parent, personId);
+
+    auto* proxy = new GroupedItemsProxyModel(parent);
+    proxy->setSourceModel(dateModel);
+    proxy->setGroups({PersonEventsModel::ROLE});
+    proxy->setGroupHeaderTitle(i18n("Rol"));
+
+    // Hide the original role column.
+    auto* hidden = new KRearrangeColumnsProxyModel(parent);
+    hidden->setSourceModel(proxy);
+    hidden->setSourceColumns({
+        PersonEventsModel::ROLE,
+        // These are all one further than we want.
+        PersonEventsModel::TYPE + 1,
+        PersonEventsModel::DATE + 1,
+        PersonEventsModel::NAME + 1,
+        PersonEventsModel::ID + 1,
+        PersonEventsModel::ROLE_ID + 1,
+    });
+
+    return hidden;
+}
+
+QAbstractItemModel* DataManager::flatEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
     auto rawQuery = QStringLiteral("SELECT er.role, et.type, events.date, events.name, events.id, er.id "
                                    "FROM events "
                                    "LEFT JOIN event_types AS et ON events.type_id = et.id "
@@ -253,25 +277,18 @@ QAbstractProxyModel* DataManager::eventsModelForPerson(QObject* parent, IntegerP
     dateModel->setSourceModel(baseModel);
     dateModel->setDateColumn(PersonEventsModel::DATE);
 
-    auto* proxy = new GroupedItemsProxyModel(parent);
-    proxy->setSourceModel(dateModel);
-    proxy->setGroups({PersonEventsModel::ROLE});
-    proxy->setGroupHeaderTitle(i18n("Rol"));
+    return dateModel;
+}
 
-    // Hide the original role column.
-    auto* hidden = new KRearrangeColumnsProxyModel(parent);
-    hidden->setSourceModel(proxy);
-    hidden->setSourceColumns({
-        PersonEventsModel::ROLE,
-        // These are all one further than we want.
-        PersonEventsModel::TYPE + 1,
-        PersonEventsModel::DATE + 1,
-        PersonEventsModel::NAME + 1,
-        PersonEventsModel::ID + 1,
-        PersonEventsModel::ROLE_ID + 1,
-    });
+QAbstractItemModel* DataManager::birthEventModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
+    auto* sourceModel = flatEventsModelForPerson(parent, personId);
+    auto birthDatabaseValue = QString::fromUtf8(EventTypes::typeToString[EventTypes::Birth].untranslatedText());
 
-    return hidden;
+    auto* proxy = new MultiFilterProxyModel(parent);
+    proxy->setSourceModel(sourceModel);
+    proxy->addFilter(PersonEventsModel::TYPE, birthDatabaseValue);
+
+    return proxy;
 }
 
 QAbstractProxyModel* DataManager::singleEventModel(QObject* parent, const QVariant& eventId) const {
@@ -290,6 +307,20 @@ QAbstractProxyModel* DataManager::singleEventRelationModel(
     proxy->addFilter(EventRelationsModel::ROLE_ID, roleId);
     proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
     return proxy;
+}
+
+QAbstractProxyModel* DataManager::eventRelationModelByPersonAndEvent(
+    QObject* parent, const QVariant& personId, const QVariant& eventId
+) const {
+    auto* proxy = new MultiFilterProxyModel(parent);
+    proxy->setSourceModel(this->eventRelationsModel());
+    proxy->addFilter(EventRelationsModel::EVENT_ID, eventId);
+    proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
+    return proxy;
+}
+
+QAbstractItemModel* DataManager::parentEventRolesModel(QObject* parent) const {
+    return new ParentEventRolesModel(parent);
 }
 
 QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimaryKey person) {

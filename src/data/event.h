@@ -8,6 +8,7 @@
 #include "utils/custom_sql_relational_model.h"
 #include "utils/model_utils.h"
 
+#include <QSortFilterProxyModel>
 #include <QString>
 
 namespace EventRoles {
@@ -117,7 +118,7 @@ public:
     static constexpr int ROLE = 1;
     static constexpr int BUILTIN = 2;
 
-    static QVariant getDefaultRole();
+    static IntegerPrimaryKey getDefaultRole();
 
     explicit EventRolesModel(QObject* parent);
 };
@@ -195,3 +196,31 @@ namespace PersonEventsModel {
     constexpr int ID = 4;
     constexpr int ROLE_ID = 5;
 }
+
+class ParentEventRolesModel : public QSortFilterProxyModel {
+    Q_OBJECT
+
+public:
+    explicit ParentEventRolesModel(QObject* parent);
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+
+private:
+    QSet<EventRoles::Values> parentRoles;
+};
+
+struct NewEventInformation {
+    QVariant eventId;
+    QVariant roleId;
+    QVariant typeId;
+};
+
+/**
+ * Add an event to a given person, who will be linked to the event as primary.
+ *
+ * @param eventType The type of the event.
+ * @param person The person to add the event to.
+ *
+ * @return The ID of the added event, or invalid if the event could not be added for some reason.
+ */
+NewEventInformation addEventToPerson(EventTypes::Values eventType, IntegerPrimaryKey person);

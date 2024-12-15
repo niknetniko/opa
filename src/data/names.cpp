@@ -66,7 +66,7 @@ void DisplayNameProxyModel::setColumns(NameColumns columns) {
 }
 
 QVariant DisplayNameProxyModel::extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const {
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (extraColumn == 0) {
             const auto titles = this->index(row, columns.titles, parent).data(role).toString();
             const auto givenNames = this->index(row, columns.givenNames, parent).data(role).toString();

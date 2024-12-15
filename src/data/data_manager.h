@@ -94,10 +94,28 @@ public:
      * Model of events for one person (including all roles).
      *
      * The events are grouped under the role of the given person in the event.
+     * See flatEventsModelForPerson for a flat model.
      *
      * See PersonEventsModel for an overview of the returned columns.
      */
-    [[nodiscard]] QAbstractProxyModel* eventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
+    [[nodiscard]] QAbstractProxyModel* treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
+
+    /**
+     * Model of events for one person (including all roles).
+     *
+     * The events are just a list of events.
+     * See treeEventsModelForPerson for a tree model.
+     *
+     * See PersonEventsModel for an overview of the returned columns.
+     */
+    [[nodiscard]] QAbstractItemModel* flatEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
+
+    /**
+     * Model of the birth event for a person.
+     *
+     * See PersonEventsModel for an overview of the returned columns.
+     */
+    [[nodiscard]] QAbstractItemModel* birthEventModelForPerson(QObject* parent, IntegerPrimaryKey personId);
 
     /**
      * Model for a single event.
@@ -110,6 +128,19 @@ public:
     [[nodiscard]] QAbstractProxyModel* singleEventRelationModel(
         QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
     ) const;
+
+    /**
+     * Model for event relation for a given person and event.
+     */
+    [[nodiscard]] QAbstractProxyModel*
+    eventRelationModelByPersonAndEvent(QObject* parent, const QVariant& personId, const QVariant& eventId) const;
+
+    /**
+     * Model which returns all parent roles.
+     *
+     * Returns the same columns as EventRolesModel.
+     */
+    [[nodiscard]] QAbstractItemModel* parentEventRolesModel(QObject* parent) const;
 
     /**
      * Tree model of all partners and all children of the given person.

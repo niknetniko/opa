@@ -21,8 +21,13 @@ class NewPersonEditorDialog : public AbstractEditorDialog {
     Q_OBJECT
 
 public:
+    QVariant addedPersonId;
+
     explicit NewPersonEditorDialog(QWidget* parent);
     ~NewPersonEditorDialog() override;
+
+public Q_SLOTS:
+    void reject() override;
 
 private:
     Ui::NewPersonEditorForm* form;

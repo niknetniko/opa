@@ -8,6 +8,7 @@
 
 #include "data/data_manager.h"
 #include "data/family.h"
+#include "editors/new_family_editor_dialog.h"
 #include "main/main_window.h"
 #include "tree_view/tree_view_window.h"
 #include "utils/formatted_identifier_delegate.h"
@@ -15,6 +16,7 @@
 
 #include <KLocalizedString>
 #include <QGroupBox>
+#include <QSqlRecord>
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -84,6 +86,12 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     parentsToolbar->addAction(showPedigreeChart);
     connect(showPedigreeChart, &QAction::triggered, this, &PersonFamilyTab::onShowPedigreeChart);
 
+    auto* addParentAction = new QAction(parentsToolbar);
+    addParentAction->setText(i18n("Add new parent"));
+    addParentAction->setIcon(QIcon::fromTheme(QStringLiteral("list-add-user")));
+    parentsToolbar->addAction(addParentAction);
+    connect(addParentAction, &QAction::triggered, this, &PersonFamilyTab::onAddParent);
+
     auto* parentsLayout = new QVBoxLayout(parentsGroupBox);
     parentsLayout->addWidget(parentsToolbar);
     parentsLayout->addWidget(parentsTreeView);
@@ -117,4 +125,9 @@ void PersonFamilyTab::onPartnerOrChildClicked(const QModelIndex& index) const {
     assert(index.model() == partnerAndDescendantTreeView->model());
     auto personId = index.model()->index(index.row(), FamilyDisplayModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
+}
+
+void PersonFamilyTab::onAddParent() {
+    auto* dialog = new NewFamilyEditorDialog(personId, this);
+    dialog->show();
 }

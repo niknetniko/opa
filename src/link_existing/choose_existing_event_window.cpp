@@ -81,10 +81,6 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
 
     auto* comboBoxModel = DataManager::get().eventRolesModel();
     auto defaultRoleId = EventRolesModel::getDefaultRole();
-    if (!defaultRoleId.isValid()) {
-        qWarning() << "Default role not found, aborting new event.";
-        return;
-    }
     auto defaultRoleIndex =
         comboBoxModel->match(comboBoxModel->index(0, EventRolesModel::ID), Qt::DisplayRole, defaultRoleId).constFirst();
 
