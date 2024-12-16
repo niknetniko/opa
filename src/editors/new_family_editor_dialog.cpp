@@ -96,6 +96,7 @@ NewFamilyEditorDialog::~NewFamilyEditorDialog() {
 
 bool NewFamilyEditorDialog::saveNewFamily() const {
     // TODO: allow linking parents without adding a new marriage.
+    // Issue URL: https://github.com/niknetniko/opa/issues/63
     Q_ASSERT(hasActiveTransaction());
     Q_ASSERT(data.birthEventId.isValid());
 
