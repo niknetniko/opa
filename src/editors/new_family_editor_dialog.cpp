@@ -9,6 +9,7 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "data/person.h"
+#include "database/database.h"
 #include "link_existing/choose_existing_person_window.h"
 #include "new_person_editor_dialog.h"
 #include "ui_new_family_editor_dialog.h"
@@ -18,6 +19,8 @@
 #include <QCompleter>
 #include <QDataWidgetMapper>
 #include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
 
 namespace {
     struct BirthEventDetails {
@@ -91,10 +94,116 @@ NewFamilyEditorDialog::~NewFamilyEditorDialog() {
     delete form;
 }
 
+bool NewFamilyEditorDialog::saveNewFamily() const {
+    // TODO: allow linking parents without adding a new marriage.
+    Q_ASSERT(hasActiveTransaction());
+    Q_ASSERT(data.birthEventId.isValid());
+
+    auto* eventRelationModel = DataManager::get().eventRelationsModel();
+
+    auto chosenMotherId = data.motherId;
+    auto chosenFatherId = data.fatherId;
+
+    if (chosenMotherId.isValid() && chosenFatherId.isValid()) {
+        auto* eventModel = DataManager::get().eventsModel();
+
+        auto selectedTypeRow = form->parentRelationRole->currentIndex();
+        auto chosenType = form->parentRelationRole->model()->index(selectedTypeRow, EventTypesModel::ID).data();
+        auto record = eventModel->record();
+        record.setGenerated(EventsModel::ID, false);
+        record.setValue(EventsModel::TYPE_ID, chosenType);
+
+        if (!eventModel->insertRecord(-1, record)) {
+            qWarning() << "Could not insert relationship model:";
+            qWarning() << eventModel->lastError();
+            return false;
+        }
+
+        auto eventId = eventModel->query().lastInsertId();
+        if (!eventId.isValid()) {
+            qWarning() << "Could not get inserted relationship model:";
+            qWarning() << eventModel->lastError();
+            return false;
+        }
+
+        auto primaryId = EventRolesModel::getRoleId(EventRoles::Primary);
+        auto motherRelationshipRecord = eventRelationModel->record();
+        motherRelationshipRecord.setValue(EventRelationsModel::PERSON_ID, chosenMotherId);
+        motherRelationshipRecord.setValue(EventRelationsModel::EVENT_ID, eventId);
+        motherRelationshipRecord.setValue(EventRelationsModel::ROLE_ID, primaryId);
+
+        if (!eventRelationModel->insertRecord(-1, motherRelationshipRecord)) {
+            qWarning() << "Could not insert mother to father event relationship:";
+            qWarning() << eventRelationModel->lastError();
+            return false;
+        }
+
+        auto partnerId = EventRolesModel::getRoleId(EventRoles::Partner);
+        auto fatherRelationshipRecord = eventRelationModel->record();
+        fatherRelationshipRecord.setValue(EventRelationsModel::PERSON_ID, chosenFatherId);
+        fatherRelationshipRecord.setValue(EventRelationsModel::EVENT_ID, eventId);
+        fatherRelationshipRecord.setValue(EventRelationsModel::ROLE_ID, partnerId);
+
+        if (!eventRelationModel->insertRecord(-1, fatherRelationshipRecord)) {
+            qWarning() << "Could not insert father to mother event relationship:";
+            qWarning() << eventRelationModel->lastError();
+            return false;
+        }
+    }
+
+    // Now, link the parents to the child.
+    if (chosenMotherId.isValid()) {
+        auto motherRole = EventRolesModel::getRoleId(EventRoles::Mother);
+        auto newRecord = eventRelationModel->record();
+        newRecord.setValue(EventRelationsModel::PERSON_ID, chosenMotherId);
+        newRecord.setValue(EventRelationsModel::EVENT_ID, data.birthEventId);
+        newRecord.setValue(EventRelationsModel::ROLE_ID, motherRole);
+
+        if (!eventRelationModel->insertRecord(-1, newRecord)) {
+            qWarning() << "Could not insert mother to birth event relationship:";
+            qWarning() << eventRelationModel->lastError();
+            return false;
+        }
+    }
+
+    if (chosenFatherId.isValid()) {
+        auto fatherRole = EventRolesModel::getRoleId(EventRoles::Father);
+        auto newRecord = eventRelationModel->record();
+        newRecord.setValue(EventRelationsModel::PERSON_ID, chosenFatherId);
+        newRecord.setValue(EventRelationsModel::EVENT_ID, data.birthEventId);
+        newRecord.setValue(EventRelationsModel::ROLE_ID, fatherRole);
+
+        if (!eventRelationModel->insertRecord(-1, newRecord)) {
+            qWarning() << "Could not insert father to birth event relationship:";
+            qWarning() << eventRelationModel->lastError();
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void NewFamilyEditorDialog::accept() {
-    // TODO: add family if accepted
-    // Issue URL: https://github.com/niknetniko/opa/issues/61
-    QDialog::accept();
+    if (!QSqlDatabase::database().transaction()) {
+        qFatal() << "Could not get transaction on database:";
+        qFatal() << QSqlDatabase::database().lastError();
+        return;
+    }
+
+    if (this->saveNewFamily()) {
+        if (!QSqlDatabase::database().commit()) {
+            qFatal() << "Could not commit transaction on database:";
+            qFatal() << QSqlDatabase::database().lastError();
+            return;
+        }
+        QDialog::accept();
+    } else {
+        qWarning() << "Something went wrong while saving a family, aborting transaction.";
+        if (!QSqlDatabase::database().rollback()) {
+            qFatal() << "Could not rollback transaction on database:";
+            qFatal() << QSqlDatabase::database().lastError();
+        }
+    }
 }
 
 void NewFamilyEditorDialog::reject() {

@@ -17,3 +17,8 @@ Q_DECLARE_LOGGING_CATEGORY(OPA_SQL);
 void openDatabase(const QString& file, bool seed = true, bool initialise = true);
 
 void closeDatabase();
+
+/**
+ * Return true if the database is currently in a transaction, false otherwise.
+ */
+bool hasActiveTransaction();

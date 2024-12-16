@@ -119,6 +119,7 @@ public:
     static constexpr int BUILTIN = 2;
 
     static IntegerPrimaryKey getDefaultRole();
+    static IntegerPrimaryKey getRoleId(EventRoles::Values role);
 
     explicit EventRolesModel(QObject* parent);
 };

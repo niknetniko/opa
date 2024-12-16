@@ -56,4 +56,9 @@ private:
     void setMother(const QVariant& motherId);
     void setFather(const QVariant& fatherId);
     void setParentRelationIfPossible() const;
+
+    /**
+     * Basically accept, but will be run inside a db transaction.
+     */
+    [[nodiscard]] bool saveNewFamily() const;
 };

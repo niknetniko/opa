@@ -223,7 +223,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Relationship between the parents. When two people have children togheter, they always need a relationship type, even if that type is none.</string>
+         <string>Relationship between the parents. When two people have children togheter, they always need a relationship type, even if that type is none. In the future, selecting an existing marriage will be possible.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

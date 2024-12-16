@@ -151,3 +151,16 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
 void closeDatabase() {
     QSqlDatabase::database().close();
 }
+
+bool hasActiveTransaction() {
+    auto database = QSqlDatabase::database();
+    auto qtHandle = database.driver()->handle();
+    if (qtHandle.isValid() && qstrcmp(qtHandle.typeName(), "sqlite3*") == 0) {
+        // v.data() returns a pointer to the handle
+        if (sqlite3* handle = *static_cast<sqlite3**>(qtHandle.data())) {
+            return sqlite3_get_autocommit(handle) == 0;
+        }
+    }
+
+    return false;
+}

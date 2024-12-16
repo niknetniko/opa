@@ -29,8 +29,12 @@ QList<EventRoles::Values> EventRoles::parentRoles() {
 }
 
 IntegerPrimaryKey EventRolesModel::getDefaultRole() {
+    return getRoleId(EventRoles::Primary);
+}
+
+IntegerPrimaryKey EventRolesModel::getRoleId(EventRoles::Values role) {
     auto* roleModel = DataManager::get().eventRolesModel();
-    return getTypeId(roleModel, EventRoles::Primary, EventRoles::nameOriginToString, ROLE, ID);
+    return getTypeId(roleModel, role, EventRoles::nameOriginToString, ROLE, ID);
 }
 
 EventTypesModel::EventTypesModel(QObject* parent) : QSqlTableModel(parent) {
