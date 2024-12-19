@@ -175,14 +175,14 @@ BirthEventsModel::BirthEventsModel(IntegerPrimaryKey person, QObject* parent) :
 
     auto birthEventTypes = EventTypes::birthEventsInOrder();
     QStringList stringTypes;
-    for (auto birthEventType: birthEventTypes) {
+    for (auto birthEventType: std::as_const(birthEventTypes)) {
         auto asString = QString::fromUtf8(EventTypes::typeToString[birthEventType].untranslatedText());
         stringTypes.append(QStringLiteral("'%1'").arg(asString));
     }
 
     // Generate the sort query.
     QStringList sortQueryParts;
-    for (auto stringType: stringTypes) {
+    for (const auto& stringType: stringTypes) {
         sortQueryParts.append(QStringLiteral("type = %1 DESC").arg(stringType));
     }
     auto sortQuery = sortQueryParts.join(QStringLiteral(", "));
@@ -230,14 +230,14 @@ DeathEventsModel::DeathEventsModel(IntegerPrimaryKey person, QObject* parent) :
 
     auto deathEventTypes = EventTypes::deathEventsInOrder();
     QStringList stringTypes;
-    for (auto birthEventType: deathEventTypes) {
+    for (auto birthEventType: std::as_const(deathEventTypes)) {
         auto asString = QString::fromUtf8(EventTypes::typeToString[birthEventType].untranslatedText());
         stringTypes.append(QStringLiteral("'%1'").arg(asString));
     }
 
     // Generate the sort query.
     QStringList sortQueryParts;
-    for (auto stringType: stringTypes) {
+    for (const auto& stringType: stringTypes) {
         sortQueryParts.append(QStringLiteral("type = %1 DESC").arg(stringType));
     }
     auto sortQuery = sortQueryParts.join(QStringLiteral(", "));
