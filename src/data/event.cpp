@@ -24,6 +24,14 @@ QList<EventTypes::Values> EventTypes::relationshipStartingEvents() {
     return {Marriage};
 }
 
+QList<EventTypes::Values> EventTypes::birthEventsInOrder() {
+    return {Birth, Baptism};
+}
+
+QList<EventTypes::Values> EventTypes::deathEventsInOrder() {
+    return {Death, Funeral};
+}
+
 QList<EventRoles::Values> EventRoles::parentRoles() {
     return {Mother, Father, AdoptiveParent, Stepparent, FosterParent, SurrogateMother, GeneticDonor, RecognizedParent};
 }
@@ -159,4 +167,113 @@ NewEventInformation addEventToPerson(EventTypes::Values eventType, IntegerPrimar
     }
 
     return {.eventId = newEventId, .roleId = roleId, .typeId = typeId};
+}
+
+BirthEventsModel::BirthEventsModel(IntegerPrimaryKey person, QObject* parent) :
+    QSqlQueryModel(parent),
+    personId(person) {
+
+    auto birthEventTypes = EventTypes::birthEventsInOrder();
+    QStringList stringTypes;
+    for (auto birthEventType: birthEventTypes) {
+        auto asString = QString::fromUtf8(EventTypes::typeToString[birthEventType].untranslatedText());
+        stringTypes.append(QStringLiteral("'%1'").arg(asString));
+    }
+
+    // Generate the sort query.
+    QStringList sortQueryParts;
+    for (auto stringType: stringTypes) {
+        sortQueryParts.append(QStringLiteral("type = %1 DESC").arg(stringType));
+    }
+    auto sortQuery = sortQueryParts.join(QStringLiteral(", "));
+    auto filterQuery = stringTypes.join(QStringLiteral(", "));
+
+    query_ = QStringLiteral(R"-(
+SELECT events.id, type_id, type, date, name, note
+FROM events
+       LEFT JOIN event_types on event_types.id = events.type_id
+       LEFT JOIN event_relations ON events.id = event_relations.event_id
+       LEFT JOIN event_roles ON event_roles.id = event_relations.role_id
+WHERE event_roles.role = 'Primary'
+  AND event_types.type IN (%1)
+  AND person_id = :id
+  AND LENGTH(date) != 0
+ORDER BY %2;
+)-")
+                 .arg(filterQuery, sortQuery);
+}
+
+void BirthEventsModel::resetAndLoadData() {
+    QSqlQuery query;
+    query.prepare(query_);
+    qDebug() << "query is" << query_;
+    query.bindValue(QStringLiteral(":id"), personId);
+
+    if (!query.exec()) {
+        qWarning() << "Something went wrong in person birth events query.";
+        qDebug() << query.lastError();
+    }
+
+    setQuery(std::move(query));
+
+    setHeaderData(ID, Qt::Horizontal, i18n("ID"));
+    setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Type ID"));
+    setHeaderData(TYPE, Qt::Horizontal, i18n("Type"));
+    setHeaderData(DATE, Qt::Horizontal, i18n("Date"));
+    setHeaderData(NAME, Qt::Horizontal, i18n("Name"));
+    setHeaderData(NOTE, Qt::Horizontal, i18n("Note"));
+}
+
+DeathEventsModel::DeathEventsModel(IntegerPrimaryKey person, QObject* parent) :
+    QSqlQueryModel(parent),
+    personId(person) {
+
+    auto deathEventTypes = EventTypes::deathEventsInOrder();
+    QStringList stringTypes;
+    for (auto birthEventType: deathEventTypes) {
+        auto asString = QString::fromUtf8(EventTypes::typeToString[birthEventType].untranslatedText());
+        stringTypes.append(QStringLiteral("'%1'").arg(asString));
+    }
+
+    // Generate the sort query.
+    QStringList sortQueryParts;
+    for (auto stringType: stringTypes) {
+        sortQueryParts.append(QStringLiteral("type = %1 DESC").arg(stringType));
+    }
+    auto sortQuery = sortQueryParts.join(QStringLiteral(", "));
+    auto filterQuery = stringTypes.join(QStringLiteral(", "));
+
+    query_ = QStringLiteral(R"-(
+SELECT events.id, type_id, type, date, name, note
+FROM events
+       LEFT JOIN event_types on event_types.id = events.type_id
+       LEFT JOIN event_relations ON events.id = event_relations.event_id
+       LEFT JOIN event_roles ON event_roles.id = event_relations.role_id
+WHERE event_roles.role = 'Primary'
+  AND event_types.type IN (%1)
+  AND person_id = :id
+ORDER BY %2;
+)-")
+                 .arg(filterQuery, sortQuery);
+}
+
+void DeathEventsModel::resetAndLoadData() {
+    QSqlQuery query;
+    query.prepare(query_);
+    qDebug() << "query is" << query_;
+    query.bindValue(QStringLiteral(":id"), personId);
+
+    if (!query.exec()) {
+        qWarning() << "Something went wrong in person death events query.";
+        qDebug() << query.lastError();
+    }
+
+    setQuery(std::move(query));
+
+    setHeaderData(ID, Qt::Horizontal, i18n("ID"));
+    setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Type ID"));
+    setHeaderData(TYPE, Qt::Horizontal, i18n("Type"));
+    setHeaderData(DATE, Qt::Horizontal, i18n("Date"));
+    setHeaderData(NAME, Qt::Horizontal, i18n("Name"));
+    setHeaderData(NOTE, Qt::Horizontal, i18n("Note"));
 }

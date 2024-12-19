@@ -91,6 +91,16 @@ public:
     [[nodiscard]] QAbstractProxyModel* personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
 
     /**
+     * Model for the birth-like events of a person.
+     */
+    [[nodiscard]] QAbstractItemModel* personBirthEventsModel(QObject* parent, IntegerPrimaryKey personId);
+
+    /**
+     * Model for the death-like events of a person.
+     */
+    [[nodiscard]] QAbstractItemModel* personDeathEventsModel(QObject* parent, IntegerPrimaryKey personId);
+
+    /**
      * Model of events for one person (including all roles).
      *
      * The events are grouped under the role of the given person in the event.

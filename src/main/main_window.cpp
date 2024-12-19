@@ -255,7 +255,7 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
     getTabWidget()->setCurrentIndex(addedIndex);
 
     // Connect to the detail view to update the name of the person when needed.
-    connect(detailView, &PersonDetailView::dataChanged, detailView, [this](IntegerPrimaryKey id) {
+    connect(detailView, &PersonDetailView::nameChanged, detailView, [this](IntegerPrimaryKey id) {
         const int tabIndex = this->findTabFor(id);
         if (tabIndex < 0) {
             return; // Do nothing as the tab no longer exists for some reason.

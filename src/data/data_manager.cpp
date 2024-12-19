@@ -181,6 +181,46 @@ WHERE (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = p
     return combinedModel;
 }
 
+QAbstractItemModel* DataManager::personBirthEventsModel(QObject* parent, IntegerPrimaryKey personId) {
+    auto* source = new BirthEventsModel(personId, parent);
+    propagateToModel<BirthEventsModel>(
+        source,
+        {
+            Schema::EventsTable,
+            Schema::EventTypesTable,
+            Schema::EventRolesTable,
+            Schema::EventRelationsTable,
+        },
+        [](auto* model) { model->resetAndLoadData(); }
+    );
+    source->resetAndLoadData();
+
+    auto* dateModel = new GenealogicalDateProxyModel(parent);
+    dateModel->setSourceModel(source);
+    dateModel->setDateColumn(BirthEventsModel::DATE);
+    return dateModel;
+}
+
+QAbstractItemModel* DataManager::personDeathEventsModel(QObject* parent, IntegerPrimaryKey personId) {
+    auto* source = new DeathEventsModel(personId, parent);
+    propagateToModel<DeathEventsModel>(
+        source,
+        {
+            Schema::EventsTable,
+            Schema::EventTypesTable,
+            Schema::EventRolesTable,
+            Schema::EventRelationsTable,
+        },
+        [](auto* model) { model->resetAndLoadData(); }
+    );
+    source->resetAndLoadData();
+
+    auto* dateModel = new GenealogicalDateProxyModel(parent);
+    dateModel->setSourceModel(source);
+    dateModel->setDateColumn(DeathEventsModel::DATE);
+    return dateModel;
+}
+
 QSqlTableModel* DataManager::nameOriginsModel() const {
     return this->baseNameOriginModel;
 }

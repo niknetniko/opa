@@ -149,6 +149,18 @@ namespace EventTypes {
      */
     QList<Values> relationshipStartingEvents();
 
+    /**
+     * Get the "birth" events type in the order they should be considered.
+     * For example, if there is no birth event, a baptism event may be considered.
+     */
+    QList<Values> birthEventsInOrder();
+
+    /**
+     * Get the "death" events type in the order they should be considered.
+     * For example, if there is no death event, a burial event may be considered.
+     */
+    QList<Values> deathEventsInOrder();
+
 }
 
 class EventTypesModel : public QSqlTableModel {
@@ -237,3 +249,45 @@ struct NewEventInformation {
  * @return The ID of the added event, or invalid if the event could not be added for some reason.
  */
 NewEventInformation addEventToPerson(EventTypes::Values eventType, IntegerPrimaryKey person);
+
+class BirthEventsModel : public QSqlQueryModel {
+    Q_OBJECT
+
+public:
+    static constexpr int ID = 0;
+    static constexpr int TYPE_ID = 1;
+    static constexpr int TYPE = 2;
+    static constexpr int DATE = 3;
+    static constexpr int NAME = 4;
+    static constexpr int NOTE = 5;
+
+    explicit BirthEventsModel(IntegerPrimaryKey person, QObject* parent);
+
+public Q_SLOTS:
+    void resetAndLoadData();
+
+private:
+    IntegerPrimaryKey personId;
+    QString query_;
+};
+
+class DeathEventsModel : public QSqlQueryModel {
+    Q_OBJECT
+
+public:
+    static constexpr int ID = 0;
+    static constexpr int TYPE_ID = 1;
+    static constexpr int TYPE = 2;
+    static constexpr int DATE = 3;
+    static constexpr int NAME = 4;
+    static constexpr int NOTE = 5;
+
+    explicit DeathEventsModel(IntegerPrimaryKey person, QObject* parent);
+
+public Q_SLOTS:
+    void resetAndLoadData();
+
+private:
+    IntegerPrimaryKey personId;
+    QString query_;
+};
