@@ -6,6 +6,7 @@
 #include "data/data_manager.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "main/main_window.h"
+#include <kddockwidgets/Config.h>
 #include <kddockwidgets/MainWindow.h>
 
 #include <KAboutData>
@@ -25,14 +26,14 @@ int main(int argc, char** argv) {
     qSetMessagePattern(QStringLiteral("%{if-category}[%{category}] %{endif}%{file}(%{line}): %{message}"));
     const QApplication application(argc, argv);
 
-    initFrontend(KDDockWidgets::FrontendType::QtWidgets);
-
     // Ensure proper icons and styles on non-plasma sessions.
     KIconTheme::initTheme();
     KStyleManager::initStyle();
 
     KLocalizedString::setApplicationDomain("opa");
     KCrash::initialize();
+
+    initFrontend(KDDockWidgets::FrontendType::QtWidgets);
 
     KAboutData aboutData(
         QStringLiteral("opa"),

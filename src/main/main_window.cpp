@@ -40,10 +40,6 @@ PersonDock::PersonDock(IntegerPrimaryKey personId) :
     connect(detailWidget, &PersonDetailView::nameChanged, this, [this, detailWidget] {
         setTitle(detailWidget->getDisplayName());
     });
-
-    // TODO: can we use theme icons here?
-    // toggleAction()->setIcon(QIcon::fromTheme(QStringLiteral("tab-close")));
-    // floatAction()->setIcon(QIcon::fromTheme(QStringLiteral("window-new")));
 }
 
 void openOrSelectPerson(IntegerPrimaryKey personId, bool activate) {
