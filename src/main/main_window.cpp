@@ -138,6 +138,7 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
 
     auto* dockContainer = new KDDockWidgets::QtWidgets::MainWindow(QStringLiteral("MyMainWindow"), {}, this);
     // TODO: is this needed
+    // Issue URL: https://github.com/niknetniko/opa/issues/65
     // connect(dockContainer, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
 
     auto* placeholderWidget = new KDDockPlaceholderWidget;
