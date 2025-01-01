@@ -7,6 +7,7 @@
 
 #include "database/schema.h"
 #include "opaSettings.h"
+#include <kddockwidgets/DockWidget.h>
 
 #include <KXmlGuiWindow>
 #include <QAction>
@@ -17,7 +18,20 @@ namespace Ui {
     class Settings;
 }
 
+namespace KDDockWidgets::QtWidgets {
+    class MainWindow;
+}
+
 class opaView;
+
+class PersonDock : public KDDockWidgets::QtWidgets::DockWidget {
+    Q_OBJECT
+
+public:
+    const IntegerPrimaryKey personId;
+
+    explicit PersonDock(IntegerPrimaryKey personId);
+};
 
 /**
  * Open a person in the main window from anywhere.
@@ -71,8 +85,6 @@ public Q_SLOTS:
 private Q_SLOTS:
     void settingsConfigure();
 
-    void closeTab(int tabIndex);
-
     void openNameOriginManager() const;
 
     void openEventRolesManager() const;
@@ -106,7 +118,7 @@ private:
     QAction* addNewPersonAction_ = nullptr;
     QAction* removePersonAction_ = nullptr;
 
-    [[nodiscard]] int findTabFor(IntegerPrimaryKey personId) const;
+    [[nodiscard]] PersonDock* findDockFor(IntegerPrimaryKey personId) const;
 
     void loadFile(const QString& filename, bool isNew = false);
 
@@ -114,5 +126,5 @@ private:
 
     void syncActions();
 
-    [[nodiscard]] QTabWidget* getTabWidget() const;
+    [[nodiscard]] KDDockWidgets::QtWidgets::MainWindow* getMainDockHost() const;
 };

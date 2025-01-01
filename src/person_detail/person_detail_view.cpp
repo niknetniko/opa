@@ -170,8 +170,6 @@ void PersonDetailView::populateDates() const {
     ui->birth->setText(birthDate);
 
     auto [deathSymbol, deathDate] = constructDeathText(birthModel, deathModel);
-    qDebug() << "Is DS" << deathSymbol << "empty?" << deathSymbol.isEmpty();
-    qDebug() << "Is DD" << deathDate << "empty?" << deathDate.isEmpty();
     layout->setRowVisible(2, !deathSymbol.isEmpty() || !deathDate.trimmed().isEmpty());
     ui->deathLabel->setText(deathSymbol);
     ui->death->setText(deathDate);
@@ -186,7 +184,9 @@ bool PersonDetailView::hasId(IntegerPrimaryKey id) const {
 }
 
 QString PersonDetailView::getDisplayName() const {
-    return model->index(0, PersonDetailModel::DISPLAY_NAME).data().toString();
+    auto name = model->index(0, PersonDetailModel::DISPLAY_NAME).data().toString();
+    auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
+    return QStringLiteral("%1 [%2]").arg(name, personId);
 }
 
 IntegerPrimaryKey PersonDetailView::getId() const {

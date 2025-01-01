@@ -6,6 +6,7 @@
 #include "data/data_manager.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "main/main_window.h"
+#include <kddockwidgets/MainWindow.h>
 
 #include <KAboutData>
 #include <KCrash>
@@ -23,6 +24,8 @@
 int main(int argc, char** argv) {
     qSetMessagePattern(QStringLiteral("%{if-category}[%{category}] %{endif}%{file}(%{line}): %{message}"));
     const QApplication application(argc, argv);
+
+    initFrontend(KDDockWidgets::FrontendType::QtWidgets);
 
     // Ensure proper icons and styles on non-plasma sessions.
     KIconTheme::initTheme();
@@ -63,7 +66,7 @@ int main(int argc, char** argv) {
         const KSharedConfigPtr config = KSharedConfig::openConfig();
         const KConfigGroup generalGroup(config, QStringLiteral("General"));
         const bool shouldShowWelcomeScreen = generalGroup.readEntry("showWelcome", true);
-        const QString existingFile = generalGroup.readPathEntry("currentFile", QStringLiteral(""));
+        const QString existingFile = generalGroup.readPathEntry("currentFile", QString());
         const QFileInfo info(existingFile);
         if (!shouldShowWelcomeScreen && info.exists() && info.isFile()) {
             window->openUrl(QUrl::fromLocalFile(existingFile));

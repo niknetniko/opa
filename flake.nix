@@ -50,6 +50,7 @@
           qt6.qtwayland
           qt6.qtdeclarative
           qtnodes
+          kddockwidgets6
         ];
         native-build-inputs = with pkgs; [
           qt6.wrapQtAppsHook
@@ -87,6 +88,41 @@
 
           nativeBuildInputs = with pkgs; [ cmake ];
           buildInputs = with pkgs; [ qt6.qtbase ];
+        };
+        # We need a Qt6 version
+        # Based on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/libraries/kddockwidgets/default.nix
+        kddockwidgets6 = pkgs.clangStdenv.mkDerivation rec {
+          pname = "KDDockWidgets";
+          version = "2.2.0";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "KDAB";
+            repo = pname;
+            rev = "v${version}";
+            sha256 = "sha256-BqgoCFEIy9E1GPPwLQrJcAHysm4R2JpCevCnWO8tEYk=";
+          };
+
+          nativeBuildInputs = [ pkgs.cmake ];
+
+          buildInputs = [
+            pkgs.spdlog
+            pkgs.fmt
+            pkgs.nlohmann_json
+          ];
+
+          cmakeFlags = [
+            "-DKDDockWidgets_QT6=ON"
+            # We do not use QtQuick at the moment
+            "-DKDDockWidgets_FRONTENDS='qtwidgets'"
+          ];
+
+          propagatedBuildInputs = [
+            pkgs.qt6.qtbase
+            pkgs.qt6.qtdeclarative
+            pkgs.qt6.qtwayland
+          ];
+
+          dontWrapQtApps = true;
         };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in

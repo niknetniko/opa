@@ -6,7 +6,9 @@
 
 #include "placeholder_widget.h"
 
-#include <QTabWidget>
+#include <kddockwidgets/MainWindow.h>
+
+using namespace KDDockWidgets;
 
 static constexpr int PLACEHOLDER_POSITION = 0;
 static constexpr int MAIN_POSITION = 1;
@@ -51,17 +53,19 @@ QWidget* PlaceholderWidget::getMainWidget() const {
     return widget(MAIN_POSITION);
 }
 
-void TabWidgetPlaceholderWidget::setTabWidget(QTabWidget* mainWidget) {
+void KDDockPlaceholderWidget::setDockContainer(QtWidgets::MainWindow* mainWidget) {
     setMainWidget(mainWidget);
-    connect(mainWidget, &QTabWidget::currentChanged, this, &TabWidgetPlaceholderWidget::currentTabChanged);
+    connect(mainWidget, &QtWidgets::MainWindow::groupCountChanged, this, &KDDockPlaceholderWidget::groupCountChanged);
 }
 
-QTabWidget* TabWidgetPlaceholderWidget::getTabWidget() const {
-    return qobject_cast<QTabWidget*>(getMainWidget());
+QtWidgets::MainWindow* KDDockPlaceholderWidget::getDockContainer() const {
+    auto* container = qobject_cast<QtWidgets::MainWindow*>(getMainWidget());
+    Q_ASSERT(container != nullptr);
+    return container;
 }
 
-void TabWidgetPlaceholderWidget::currentTabChanged(int index) {
-    if (index == -1) {
+void KDDockPlaceholderWidget::groupCountChanged(int count) {
+    if (count == 0) {
         setCurrentIndex(PLACEHOLDER_POSITION);
     } else {
         setCurrentIndex(MAIN_POSITION);

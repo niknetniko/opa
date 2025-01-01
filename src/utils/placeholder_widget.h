@@ -11,6 +11,10 @@
 class QTabWidget;
 class QStackedLayout;
 
+namespace KDDockWidgets::QtWidgets {
+    class MainWindow;
+}
+
 class PlaceholderWidget : public QStackedWidget {
     Q_OBJECT
 
@@ -32,13 +36,13 @@ protected:
     [[nodiscard]] QWidget* getMainWidget() const;
 };
 
-class TabWidgetPlaceholderWidget : public PlaceholderWidget {
+class KDDockPlaceholderWidget : public PlaceholderWidget {
     Q_OBJECT
 
 public:
-    void setTabWidget(QTabWidget* mainWidget);
-    [[nodiscard]] QTabWidget* getTabWidget() const;
+    void setDockContainer(KDDockWidgets::QtWidgets::MainWindow* mainWidget);
+    [[nodiscard]] KDDockWidgets::QtWidgets::MainWindow* getDockContainer() const;
 
 protected Q_SLOTS:
-    void currentTabChanged(int index);
+    void groupCountChanged(int count);
 };

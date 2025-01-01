@@ -134,7 +134,8 @@ target_link_libraries(
          KF6::TextWidgets
          KF6::WidgetsAddons
          ${SQLite3_LIBRARIES}
-         ${QtNodes_LIBRARIES})
+         ${QtNodes_LIBRARIES}
+         KDAB::kddockwidgets)
 
 qt_add_resources(
   opa-lib "opa-database"

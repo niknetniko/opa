@@ -49,11 +49,14 @@ find_package(
              TextWidgets
              WidgetsAddons)
 
-find_package(SQLite3)
+find_package(SQLite3 REQUIRED)
 include_directories(${SQLite3_INCLUDE_DIRS})
 
-find_package(QtNodes)
+find_package(QtNodes REQUIRED)
 include_directories(${QtNodes_INCLUDE_DIRS})
+
+find_package(KDDockWidgets-qt6 REQUIRED)
+include_directories(${KDDockWidgets_INCLUDE_DIRS})
 
 kde_enable_exceptions()
 
