@@ -137,16 +137,12 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     );
 
     auto* dockContainer = new KDDockWidgets::QtWidgets::MainWindow(QStringLiteral("MyMainWindow"), {}, this);
-    // TODO: is this needed
-    // Issue URL: https://github.com/niknetniko/opa/issues/65
-    // connect(dockContainer, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
-
     auto* placeholderWidget = new KDDockPlaceholderWidget;
     placeholderWidget->setDockContainer(dockContainer);
     placeholderWidget->setPlaceholder(new PersonPlaceholderWidget);
     setCentralWidget(placeholderWidget);
 
-    // Initialise the dock by default.
+    // Initialize the dock by default.
     auto* dockWidget = new QDockWidget(tr("People"), this);
     dockWidget->setObjectName("person_dock");
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
