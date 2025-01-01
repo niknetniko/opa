@@ -335,7 +335,11 @@ WITH RECURSIVE
                       ON child_relation.event_id = mother_relation.event_id
                         AND mother_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Mother')
      WHERE child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
-     GROUP BY child_relation.person_id),
+     GROUP BY child_relation.person_id
+
+     UNION ALL
+
+     SELECT :person, NULL, NULL),
   ancestor_tree(child_id, father_id, mother_id, visited) AS
     (SELECT child_id,
             father_id,
@@ -367,7 +371,7 @@ SELECT child_id,
        names.surname
 FROM ancestor_tree
        LEFT JOIN names ON ancestor_tree.child_id = names.person_id
-WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = ancestor_tree.child_id) OR names.sort = NULL
+WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = ancestor_tree.child_id) OR names.sort IS NULL
 GROUP BY child_id
 ORDER BY level, child_id
     )-");
