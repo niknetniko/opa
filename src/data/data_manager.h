@@ -260,7 +260,7 @@ private:
      * @param updater Called when the model must update.
      */
     template<class ModelType>
-    void propagateToModel(ModelType* model, QStringList tables, std::function<void(ModelType*)> updater);
+    void propagateToModel(ModelType* model, const QStringList& tables, std::function<void(ModelType*)> updater);
 
     template<QSqlTableModelConcept ModelType, typename... Args>
     ModelType* makeModel(Args&&... args);

@@ -14,13 +14,15 @@
 #include <QSqlQuery>
 #include <QtNodes/StyleCollection>
 
-inline ConnectionId create(NodeId out, NodeId in) {
-    return {
-        .outNodeId = out,
-        .outPortIndex = 0,
-        .inNodeId = in,
-        .inPortIndex = 0,
-    };
+namespace {
+    ConnectionId create(NodeId out, NodeId in) {
+        return {
+            .outNodeId = out,
+            .outPortIndex = 0,
+            .inNodeId = in,
+            .inPortIndex = 0,
+        };
+    }
 }
 
 PersonTreeGraphModel::PersonTreeGraphModel(IntegerPrimaryKey person) {
@@ -251,7 +253,7 @@ void PersonTreeGraphModel::calculateNodePositions() const {
             double dIndex = nodeIndex;
             int max = static_cast<int>(nodes.count()) - 1;
             double centeredIndex =
-                dIndex - max / 2 + (nodes.count() % 2 ? 0 : -0.5); // NOLINT(bugprone-integer-division)
+                dIndex - (max / 2) + (nodes.count() % 2 ? 0 : -0.5); // NOLINT(bugprone-integer-division)
             double xValue = 300 * centeredIndex;
             _nodeGeometryData[nodeId].pos.setX(xValue);
         }

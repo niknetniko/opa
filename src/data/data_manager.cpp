@@ -153,10 +153,10 @@ WHERE (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = p
     auto* combinedModel = new DisplayNameProxyModel(parent);
     combinedModel->setSourceModel(baseModel);
     combinedModel->setColumns({
-        PersonDetailModel::TITLES,
-        PersonDetailModel::GIVEN_NAMES,
-        PersonDetailModel::PREFIXES,
-        PersonDetailModel::SURNAME,
+        .titles = PersonDetailModel::TITLES,
+        .givenNames = PersonDetailModel::GIVEN_NAMES,
+        .prefix = PersonDetailModel::PREFIXES,
+        .surname = PersonDetailModel::SURNAME,
     });
 
     propagateToModel<QSqlQueryModel>(
@@ -559,7 +559,9 @@ ModelType* DataManager::makeModel(Args&&... args) {
 
 template<class ModelType>
 void DataManager::propagateToModel(
-    ModelType* model, QStringList tables, std::function<void(ModelType*)> updater // NOLINT(*-unnecessary-value-param)
+    ModelType* model,
+    const QStringList& tables,
+    std::function<void(ModelType*)> updater // NOLINT(*-unnecessary-value-param)
 ) {
     connect(this, &DataManager::dataChanged, model, [model, tables, updater, this](const QString& table) {
         if (tables.contains(table) && updatingFromDataManagerSource != model) {

@@ -97,7 +97,8 @@ public:
 
     void setColumns(NameColumns columns);
 
-    QVariant extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const override;
+    [[nodiscard]] QVariant
+    extraColumnData(const QModelIndex& parent, int row, int extraColumn, int role) const override;
 
 private:
     NameColumns columns;

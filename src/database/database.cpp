@@ -18,25 +18,27 @@ Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
 
 const static auto driver = QStringLiteral("QSQLITE");
 
-void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
-    for (auto& command: script.split(QStringLiteral(";"))) {
-        command.replace(QStringLiteral("\n"), QStringLiteral(" "));
-        command = command.trimmed();
-        if (command.isEmpty()) {
-            qDebug() << "Skipping command" << command;
-            continue;
-        }
-        if (command.startsWith(QStringLiteral("--"))) {
-            qCritical() << "Comments are not supported at the moment.";
-            abort();
-        }
-        qDebug() << "Executing" << command;
-        QSqlQuery theQuery(database);
-        theQuery.prepare(command);
-        if (!theQuery.exec()) {
-            qCritical() << "Error occurred running SQL query.";
-            qCritical() << theQuery.lastError().text();
-            abort();
+namespace {
+    void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
+        for (auto& command: script.split(QStringLiteral(";"))) {
+            command.replace(QStringLiteral("\n"), QStringLiteral(" "));
+            command = command.trimmed();
+            if (command.isEmpty()) {
+                qDebug() << "Skipping command" << command;
+                continue;
+            }
+            if (command.startsWith(QStringLiteral("--"))) {
+                qCritical() << "Comments are not supported at the moment.";
+                abort();
+            }
+            qDebug() << "Executing" << command;
+            QSqlQuery theQuery(database);
+            theQuery.prepare(command);
+            if (!theQuery.exec()) {
+                qCritical() << "Error occurred running SQL query.";
+                qCritical() << theQuery.lastError().text();
+                abort();
+            }
         }
     }
 }

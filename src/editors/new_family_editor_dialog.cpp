@@ -32,10 +32,10 @@ namespace {
         auto* birthEventModel = DataManager::get().birthEventModelForPerson(parent, personId);
         if (birthEventModel->rowCount() == 0) {
             auto newEvent = addEventToPerson(EventTypes::Birth, personId);
-            return {newEvent.eventId, true};
+            return {.eventId = newEvent.eventId, .isNew = true};
         } else {
             QVariant birthEventId = birthEventModel->index(0, PersonEventsModel::ID).data();
-            return {birthEventId, false};
+            return {.eventId = birthEventId, .isNew = false};
         }
     }
 }

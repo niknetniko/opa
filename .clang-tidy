@@ -29,6 +29,7 @@ Checks: "*,
         -*-prefer-member-initializer,
         -*-pro-type-const-cast,
         -*-const-correctness,
+        -boost-use-*,
 "
 CheckOptions:
   # Default without connect function

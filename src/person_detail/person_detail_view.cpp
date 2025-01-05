@@ -38,7 +38,7 @@ BirthInformation constructBirthText(const QAbstractItemModel* model) {
         Q_UNREACHABLE();
     }
 
-    return {symbol, dateString};
+    return {.symbol = symbol, .date = dateString};
 }
 
 DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const QAbstractItemModel* deathModel) {
@@ -51,7 +51,7 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
         auto index = deathModel->index(0, BirthEventsModel::DATE);
         deathDate = index.data(GenealogicalDateProxyModel::RawDateRole).value<GenealogicalDate>();
         if (!deathDate.isValid()) {
-            return {QStringLiteral("✝︎"), i18n("unknown date")};
+            return {.symbol = QStringLiteral("✝︎"), .date = i18n("unknown date")};
         }
         string = index.data().toString();
         auto type = enumFromString<EventTypes::Values>(deathModel->index(0, BirthEventsModel::TYPE).data().toString());
@@ -113,7 +113,7 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
         string += QStringLiteral("(%1)").arg(ageText);
     }
 
-    return {symbol, string};
+    return {.symbol = symbol, .date = string};
 }
 
 PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFrame(parent), id(id) {
