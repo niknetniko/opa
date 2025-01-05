@@ -93,13 +93,13 @@
         # Based on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/libraries/kddockwidgets/default.nix
         kddockwidgets6 = pkgs.clangStdenv.mkDerivation rec {
           pname = "KDDockWidgets";
-          version = "2.2.0";
+          version = "2.2.1";
 
           src = pkgs.fetchFromGitHub {
             owner = "KDAB";
             repo = pname;
             rev = "v${version}";
-            sha256 = "sha256-BqgoCFEIy9E1GPPwLQrJcAHysm4R2JpCevCnWO8tEYk=";
+            sha256 = "sha256-DxRySKhQ15OpstjCO6FJ9edV7z8/rECN2+o5T63vFzQ=";
           };
 
           nativeBuildInputs = [ pkgs.cmake ];
