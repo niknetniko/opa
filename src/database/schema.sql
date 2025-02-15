@@ -76,13 +76,18 @@ CREATE TABLE repository_properties
 
 CREATE TABLE sources
 (
-  id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  repository_id INTEGER REFERENCES repositories (id) ON DELETE SET NULL,
-  title         TEXT    NOT NULL,
-  author        TEXT,
-  source_date   TEXT,
-  confidence    TEXT,
-  parent_id     INTEGER REFERENCES sources (id) ON DELETE SET NULL
+  id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  title       TEXT    NOT NULL,
+  author      TEXT,
+  source_date TEXT,
+  confidence  TEXT,
+  parent_id   INTEGER REFERENCES sources (id) ON DELETE SET NULL
+);
+
+CREATE TABLE source_repositories
+(
+  source_id     INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+  repository_id INTEGER NOT NULL REFERENCES repositories (id) ON DELETE CASCADE
 );
 
 CREATE TABLE source_properties
