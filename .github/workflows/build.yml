@@ -11,6 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/flake-checker-action@v9
-      - uses: nixbuild/nix-quick-install-action@v29
+      - uses: nixbuild/nix-quick-install-action@v30
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: nix build
