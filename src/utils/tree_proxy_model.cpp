@@ -151,6 +151,8 @@ QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent
         }
     }
 
-
     return {};
+}
+bool TreeProxyModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    return QIdentityProxyModel::setData(index, value, role);
 }

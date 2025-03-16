@@ -33,10 +33,12 @@ public:
      */
     void setParentIdColumn(int parentIdColumn);
 
-    bool hasChildren(const QModelIndex& parent) const override;
-    int rowCount(const QModelIndex& parent) const override;
-    QModelIndex parent(const QModelIndex& child) const override;
-    QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+    [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
+    [[nodiscard]] int rowCount(const QModelIndex& parent) const override;
+    [[nodiscard]] QModelIndex parent(const QModelIndex& child) const override;
+    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
 private:
     int idColumn = 0;
