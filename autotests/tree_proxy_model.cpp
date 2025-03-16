@@ -1,0 +1,47 @@
+/*
+ * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+// ReSharper disable CppMemberFunctionMayBeConst
+#include "utils/tree_proxy_model.h"
+
+#include <QAbstractItemModelTester>
+#include <QStandardItemModel>
+#include <QTest>
+
+using namespace Qt::Literals::StringLiterals;
+
+class TestTreeProxyModel : public QObject {
+    Q_OBJECT
+
+private Q_SLOTS:
+    void testWithModelTester() {
+        QStandardItemModel rootModel(6, 3); // NOLINT(*-avoid-magic-numbers)
+        for (int row = 0; row < rootModel.rowCount(); ++row) {
+            auto* id = new QStandardItem(u"ID %0"_s.arg(row));
+            auto* name = new QStandardItem(u"Naam %0"_s.arg(row));
+            rootModel.setItem(row, 0, id);
+            rootModel.setItem(row, 1, name);
+            // Ugly I know
+            if (row == 5) {
+                auto* parentId = new QStandardItem(u"ID 0"_s);
+                rootModel.setItem(row, 2, parentId);
+            }
+            if (row == 6) {
+                auto* parentId = new QStandardItem(u"ID 5"_s);
+                rootModel.setItem(row, 2, parentId);
+            }
+        }
+        TreeProxyModel proxy;
+        proxy.setSourceModel(&rootModel);
+        proxy.setIdColumn(0);
+        proxy.setParentIdColumn(2);
+        auto tester = QAbstractItemModelTester(&proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
+    }
+};
+
+QTEST_MAIN(TestTreeProxyModel)
+
+#include "tree_proxy_model.moc"

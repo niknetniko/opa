@@ -13,4 +13,5 @@ ecm_add_tests(
   family_proxy_model_test.cpp
   ancestor_model_test.cpp
   parent_query_model_test.cpp
+  tree_proxy_model.cpp
   LINK_LIBRARIES opa-lib Qt::Test)
