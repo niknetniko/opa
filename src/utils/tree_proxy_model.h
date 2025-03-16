@@ -14,8 +14,6 @@
  *
  * - An "ID" column that uniquely identifies the item.
  * - A "parent ID" column that references the ID column of the parent if the item is a child.
- *
- * TODO: The model supports editing.
  */
 class TreeProxyModel : public QIdentityProxyModel {
     Q_OBJECT
