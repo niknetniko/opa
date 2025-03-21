@@ -1,14 +1,15 @@
+
 /*
  * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#pragma once
 
+#pragma once
 #include "database/schema.h"
+#include <kddockwidgets/DockWidget.h>
 
 #include <QTableView>
-#include <QWidget>
 
 /**
  * Show a filterable list of people.
@@ -25,7 +26,6 @@ public:
 
 public Q_SLOTS:
     void handleSelectedNewRow(const QItemSelection& selected);
-    void onAddNewPerson();
 
 Q_SIGNALS:
     /**
@@ -35,4 +35,20 @@ Q_SIGNALS:
 
 private:
     QTableView* tableView;
+};
+
+/**
+ * Wrapper around a person list view, allowing it to act as a dock.
+ */
+class PersonListDock : public KDDockWidgets::QtWidgets::DockWidget {
+    Q_OBJECT
+
+public:
+    explicit PersonListDock();
+
+Q_SIGNALS:
+    /**
+     * Called when a new person is selected by the table view.
+     */
+    void handlePersonSelected(IntegerPrimaryKey personId);
 };

@@ -9,11 +9,11 @@
 #include "data/event.h"
 #include "data/names.h"
 #include "database/database.h"
+#include "docks/person_list_dock.h"
 #include "editors/new_person_editor_dialog.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
-#include "main/person_list_widget.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
 #include "ui_settings.h"
@@ -27,7 +27,6 @@
 #include <KConfigDialog>
 #include <KLocalizedString>
 #include <KMessageBox>
-#include <QDockWidget>
 #include <QFileDialog>
 #include <QSqlError>
 
@@ -142,16 +141,9 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     placeholderWidget->setPlaceholder(new PersonPlaceholderWidget);
     setCentralWidget(placeholderWidget);
 
-    // Initialize the dock by default.
-    auto* dockWidget = new QDockWidget(tr("People"), this);
-    dockWidget->setObjectName("person_dock");
-    dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
-    auto* tableView = new PersonListWidget(this);
-    dockWidget->setWidget(tableView);
-    addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-    // Connect stuff.
-    connect(tableView, &PersonListWidget::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
+    auto* personListDock = new PersonListDock();
+    dockContainer->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
+    connect(personListDock, &PersonListDock::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
     syncActions();
 }
 
@@ -266,7 +258,7 @@ void MainWindow::openOrSelectPerson(IntegerPrimaryKey personId) {
     auto* dock = new PersonDock(personId);
     auto* container = getMainDockHost();
 
-    // Attempt to find a non-floating dock
+    // Attempt to find a non-floating dock to add new person tab next to.
     PersonDock* nonFloating = nullptr;
     auto theChildren = findChildren<PersonDock*>();
     for (auto* personDock: std::as_const(theChildren)) {

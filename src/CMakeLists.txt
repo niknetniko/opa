@@ -7,9 +7,7 @@ add_library(
   database/database.h
   database/database.cpp
   database/schema.h
-  main/person_list_widget.h
-  main/person_list_widget.cpp
-  data/person.h
+    data/person.h
   data/person.cpp
   data/event.h
   data/event.cpp
@@ -88,7 +86,9 @@ add_library(
   link_existing/choose_existing_person_window.cpp
   link_existing/choose_existing_person_window.h
     utils/tree_proxy_model.cpp
-    utils/tree_proxy_model.h)
+    utils/tree_proxy_model.h
+    docks/person_list_dock.cpp
+    docks/person_list_dock.h)
 
 ecm_qt_declare_logging_category(
   opa-lib

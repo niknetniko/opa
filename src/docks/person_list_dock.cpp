@@ -3,21 +3,25 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "person_list_widget.h"
+
+#include "person_list_dock.h"
 
 #include "data/data_manager.h"
 #include "data/person.h"
-#include "editors/new_person_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 
-#include <KConfigGroup>
-#include <KLocalizedString>
-#include <QDebug>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
+
+PersonListDock::PersonListDock(): DockWidget(QStringLiteral("People")) {
+    auto* tableView = new PersonListWidget(this);
+    setWidget(tableView);
+
+    connect(tableView, &PersonListWidget::handlePersonSelected, this, &PersonListDock::handlePersonSelected);
+}
 
 PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
     auto* baseModel = DataManager::get().primaryNamesModel(this);
@@ -51,14 +55,10 @@ PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
         DisplayNameModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
     );
 
-    auto* addNewPersonButton = new QPushButton(QStringLiteral("&Add new person"), this);
-    connect(addNewPersonButton, &QPushButton::clicked, this, &PersonListWidget::onAddNewPerson);
-
     // Wrap in a VBOX for layout reasons.
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(searchBox);
     layout->addWidget(tableView);
-    layout->addWidget(addNewPersonButton);
 
     connect(
         tableView->selectionModel(),
@@ -78,9 +78,4 @@ void PersonListWidget::handleSelectedNewRow(const QItemSelection& selected) {
         this->tableView->model()->index(selected.indexes().first().row(), DisplayNameModel::ID).data().toLongLong();
 
     Q_EMIT handlePersonSelected(personId);
-}
-
-void PersonListWidget::onAddNewPerson() {
-    auto* dialog = new NewPersonEditorDialog(this);
-    dialog->show();
 }
