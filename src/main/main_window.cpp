@@ -404,7 +404,7 @@ void MainWindow::onDeleteCurrentPerson() {
 void MainWindow::showPeopleList() {
     auto dockWidgets = findChildren<PersonListDock*>();
     if (!dockWidgets.empty()) {
-        auto *dock = dockWidgets.first();
+        auto* dock = dockWidgets.first();
         if (dock->isFloating()) {
             dock->raise();
             dock->activateWindow();
