@@ -413,8 +413,6 @@ void MainWindow::showPeopleList() {
         return;
     }
 
-    qDebug() << "No person list dock found, creating one..." << dockWidgets;
-
     auto* container = getMainDockHost();
     auto* personListDock = new PersonListDock();
     container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
