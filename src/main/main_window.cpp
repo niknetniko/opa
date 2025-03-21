@@ -31,7 +31,7 @@
 #include <QSqlError>
 
 PersonDock::PersonDock(IntegerPrimaryKey personId) :
-    DockWidget(QStringLiteral("Person %1").arg(personId)),
+    DockWidget(QStringLiteral("Person %1").arg(personId), KDDockWidgets::DockWidgetOption_DeleteOnClose),
     personId(personId) {
     auto* detailWidget = new PersonDetailView(personId, this);
     setWidget(detailWidget);
@@ -87,12 +87,18 @@ MainWindow::MainWindow() {
     removePersonAction_->setIcon(QIcon::fromTheme(QStringLiteral("list-remove-user")));
     connect(removePersonAction_, &QAction::triggered, this, &MainWindow::onDeleteCurrentPerson);
 
+    showPeopleListAction_ = new QAction(this);
+    showPeopleListAction_->setText(i18n("Show people list"));
+    showPeopleListAction_->setIcon(QIcon::fromTheme(QStringLiteral("system-user-list")));
+    connect(showPeopleListAction_, &QAction::triggered, this, &MainWindow::showPeopleList);
+
     auto* actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
     actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes_);
     actionCollection->addAction(QStringLiteral("person_add_new"), addNewPersonAction_);
     actionCollection->addAction(QStringLiteral("person_delete_existing"), removePersonAction_);
+    actionCollection->addAction(QStringLiteral("show_people_list"), showPeopleListAction_);
 
     openNewAction_ = KStandardAction::openNew(this, &MainWindow::newFile, actionCollection);
     openAction_ = KStandardAction::open(this, &MainWindow::openFile, actionCollection);
@@ -141,7 +147,7 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     placeholderWidget->setPlaceholder(new PersonPlaceholderWidget);
     setCentralWidget(placeholderWidget);
 
-    auto* personListDock = new PersonListDock();
+    auto* personListDock = new PersonListDock;
     dockContainer->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
     connect(personListDock, &PersonListDock::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
     syncActions();
@@ -156,8 +162,10 @@ void MainWindow::clearUi() {
 }
 
 void MainWindow::syncActions() {
-    const QList manageActions{manageEventRoles_, manageEventTypes_, manageNameOrigins_, addNewPersonAction_};
-    for (auto* manageAction: manageActions) {
+    const QList fileActions = {
+        manageEventRoles_, manageEventTypes_, manageNameOrigins_, addNewPersonAction_, showPeopleListAction_
+    };
+    for (auto* manageAction: fileActions) {
         manageAction->setEnabled(!currentFile.isEmpty());
     }
     closeAction_->setEnabled(!currentFile.isEmpty());
@@ -391,4 +399,26 @@ void MainWindow::onDeleteCurrentPerson() {
     //     qWarning() << "Could not save person changes.";
     //     qDebug() << personModel->lastError();
     // }
+}
+
+void MainWindow::showPeopleList() {
+    auto dockWidgets = findChildren<PersonListDock*>();
+    if (!dockWidgets.empty()) {
+        auto *dock = dockWidgets.first();
+        if (dock->isFloating()) {
+            dock->raise();
+            dock->activateWindow();
+        }
+        dock->setAsCurrentTab();
+        return;
+    }
+
+    qDebug() << "No person list dock found, creating one..." << dockWidgets;
+
+    auto* container = getMainDockHost();
+    auto* personListDock = new PersonListDock();
+    container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
+    connect(personListDock, &PersonListDock::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
+
+    syncActions();
 }

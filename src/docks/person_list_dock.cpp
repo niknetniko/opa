@@ -16,7 +16,7 @@
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
-PersonListDock::PersonListDock(): DockWidget(QStringLiteral("People")) {
+PersonListDock::PersonListDock(): DockWidget(QStringLiteral("People"), KDDockWidgets::DockWidgetOption_DeleteOnClose) {
     auto* tableView = new PersonListWidget(this);
     setWidget(tableView);
 

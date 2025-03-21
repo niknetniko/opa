@@ -16,6 +16,12 @@
       <Action name="person_add_new"/>
       <Action name="person_delete_existing"/>
     </Menu>
+
+    <Menu name="view">
+      <text>Manage</text>
+      <Action name="show_people_list"/>
+    </Menu>
+
     <Menu name="manage">
       <text>Manage</text>
       <Action name="manage_name_origins"/>
