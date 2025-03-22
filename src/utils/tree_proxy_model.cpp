@@ -70,6 +70,15 @@ bool TreeProxyModel::hasChildren(const QModelIndex& parent) const {
     return rowCount(parent) > 0;
 }
 
+QModelIndex TreeProxyModel::sibling(int row, int column, const QModelIndex& idx) const {
+    // Implementation stolen from QAbstractItemModel
+    if (row == idx.row() && column == idx.column()) {
+        return idx;
+    } else {
+        return index(row, column, parent(idx));
+    }
+}
+
 QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent) const {
     if (parent.isValid() && parent.column() != 0) {
         return {};
