@@ -64,13 +64,12 @@ private Q_SLOTS:
         proxy.setParentIdColumn(2);
 
         auto firstParent = proxy.index(0, 0, {});
-        auto secondParent = proxy.index(4, 0, firstParent);
-        auto index = proxy.index(4, 1, secondParent);
+        auto secondParent = proxy.index(0, 0, firstParent);
+        auto index = proxy.index(0, 1, secondParent);
         proxy.setData(index, u"New name"_s);
 
         // Now check that the data in the original model changed.
-        auto originalIndex = rootModel.index(4, 1);
-        qDebug() << originalIndex.data();
+        auto originalIndex = rootModel.index(5, 1);
         QCOMPARE(originalIndex.data(), u"New name"_s);
     }
 };
