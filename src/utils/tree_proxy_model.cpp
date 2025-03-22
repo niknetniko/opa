@@ -66,6 +66,10 @@ QModelIndex TreeProxyModel::parent(const QModelIndex& child) const {
     return index(proxyParentIndex.row(), 0, proxyParentIndex.parent());
 }
 
+bool TreeProxyModel::hasChildren(const QModelIndex& parent) const {
+    return rowCount(parent) > 0;
+}
+
 QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent) const {
     if (parent.isValid() && parent.column() != 0) {
         return {};
@@ -150,13 +154,10 @@ int TreeProxyModel::findSourceRowNumberByNumberInParent(int proxyRowInParent, in
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        qDebug() << "Checking row " << row << "    rowParentId=" << rowParentId;
         if ((parentId.isValid() && rowParentId == parentId) || (parentId.isNull() && rowParentId.isNull())) {
             if (rowsWithParentCount == proxyRowInParent) {
-                qDebug() << "Found row " << row;
                 return row;
             }
-            qDebug() << "Did not find row " << row << "    rowsWithParentCount=" << rowsWithParentCount;
             rowsWithParentCount++;
         }
     }

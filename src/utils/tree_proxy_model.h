@@ -39,6 +39,7 @@ public:
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
 
     [[nodiscard]] QModelIndex parent(const QModelIndex& child) const override;
+    [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
 
     [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent) const override;
 
