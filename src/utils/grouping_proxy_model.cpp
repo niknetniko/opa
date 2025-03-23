@@ -11,6 +11,7 @@
 
 VirtualParentsModel::VirtualParentsModel(QObject* parent) : KExtraColumnsProxyModel(parent) {
     // TODO: allow setting translations for this?
+    // Issue URL: https://github.com/niknetniko/opa/issues/70
     appendColumn(QStringLiteral("group"));
 }
 
