@@ -10,7 +10,7 @@
 #include "event.h"
 #include "family.h"
 #include "person.h"
-#include "utils/grouped_items_proxy_model.h"
+#include "utils/grouping_proxy_model.h"
 #include "utils/model_utils.h"
 #include "utils/multi_filter_proxy_model.h"
 
@@ -253,10 +253,9 @@ QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) con
 QAbstractProxyModel* DataManager::treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
     auto* dateModel = flatEventsModelForPerson(parent, personId);
 
-    auto* proxy = new GroupedItemsProxyModel(parent);
-    proxy->setSourceModel(dateModel);
-    proxy->setGroups({PersonEventsModel::ROLE});
-    proxy->setGroupHeaderTitle(i18n("Rol"));
+    auto* proxy = createGroupingProxyModel(dateModel, PersonEventsModel::ROLE, parent);
+    // TODO: fix header
+    // proxy->setGroupHeaderTitle(i18n("Rol"));
 
     // Hide the original role column.
     auto* hidden = new KRearrangeColumnsProxyModel(parent);

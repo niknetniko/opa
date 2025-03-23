@@ -160,3 +160,5 @@ IntegerPrimaryKey getTypeId(
     Q_ASSERT(idVariant.isValid());
     return idVariant.toLongLong();
 }
+
+void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent = QModelIndex(), int level = 0);

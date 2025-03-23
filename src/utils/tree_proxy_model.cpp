@@ -55,7 +55,7 @@ QModelIndex TreeProxyModel::parent(const QModelIndex& child) const {
     auto sourceModelIndex = mapToSource(child);
     auto parentId = sourceModel()->index(sourceModelIndex.row(), parentIdColumn).data();
 
-    if (parentId.isNull()) {
+    if (!parentId.isValid()) {
         return {};
     }
 
@@ -84,6 +84,10 @@ QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent
         return {};
     }
 
+    if (sourceModel()->rowCount() <= row || sourceModel()->columnCount() <= column) {
+        return {};
+    }
+
     int parentSourceRow = parent.isValid() ? static_cast<int>(parent.internalId()) : -1;
     int sourceRow = findSourceRowNumberByNumberInParent(row, parentSourceRow);
 
@@ -105,7 +109,7 @@ int TreeProxyModel::rowCount(const QModelIndex& parent) const {
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        if ((parentId.isValid() && rowParentId == parentId) || (parentId.isNull() && rowParentId.isNull())) {
+        if ((parentId.isValid() && rowParentId == parentId) || (!parentId.isValid() && !rowParentId.isValid())) {
             rowsWithParentCount++;
         }
     }
@@ -121,18 +125,18 @@ int TreeProxyModel::columnCount(const QModelIndex& parent) const {
 QModelIndex TreeProxyModel::findSourceItemById(const QVariant& id) const {
     Q_ASSERT(sourceModel());
 
-    if (!id.isValid() || id.isNull()) {
+    if (!id.isValid()) {
         return {};
     }
 
-    auto start = sourceModel()->index(0, this->idColumn);
-    auto result = sourceModel()->match(start, Qt::DisplayRole, id, 1, Qt::MatchExactly);
-
-    if (result.isEmpty()) {
-        return {};
+    for (int row = 0; row < sourceModel()->rowCount(); ++row) {
+        auto rowIndex = sourceModel()->index(row, this->idColumn);
+        if (rowIndex.data() == id) {
+            return rowIndex;
+        }
     }
 
-    return result.first();
+    throw std::runtime_error("Did not find source row with ID.");
 }
 
 int TreeProxyModel::findSourceRowNumberInParent(const QVariant& id, const QVariant& parentId) const {
@@ -141,7 +145,7 @@ int TreeProxyModel::findSourceRowNumberInParent(const QVariant& id, const QVaria
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        if ((parentId.isValid() && rowParentId == parentId) || (parentId.isNull() && rowParentId.isNull())) {
+        if ((parentId.isValid() && rowParentId == parentId) || (!parentId.isValid() && !rowParentId.isValid())) {
             if (sourceModel()->data(sourceModel()->index(row, this->idColumn)) == id) {
                 return rowsWithParentCount;
             }
@@ -163,7 +167,7 @@ int TreeProxyModel::findSourceRowNumberByNumberInParent(int proxyRowInParent, in
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        if ((parentId.isValid() && rowParentId == parentId) || (parentId.isNull() && rowParentId.isNull())) {
+        if ((parentId.isValid() && rowParentId == parentId) || (!parentId.isValid() && !rowParentId.isValid())) {
             if (rowsWithParentCount == proxyRowInParent) {
                 return row;
             }

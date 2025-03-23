@@ -35,8 +35,6 @@ add_library(
   dates/genealogical_date_editor_dialog.cpp
   person_detail/person_event_tab.h
   person_detail/person_event_tab.cpp
-  utils/grouped_items_proxy_model.h
-  utils/grouped_items_proxy_model.cpp
   utils/custom_sql_relational_model.h
   utils/custom_sql_relational_model.cpp
   utils/read_only_proxy_model.h
@@ -88,7 +86,9 @@ add_library(
   docks/person_list_dock.cpp
   docks/person_list_dock.h
   utils/tree_proxy_model.cpp
-  utils/tree_proxy_model.h)
+  utils/tree_proxy_model.h
+  utils/grouping_proxy_model.cpp
+  utils/grouping_proxy_model.h)
 
 ecm_qt_declare_logging_category(
   opa-lib
