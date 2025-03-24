@@ -10,11 +10,11 @@
 using IntegerPrimaryKey = qlonglong;
 
 namespace Schema {
-    const auto PeopleTable = QStringLiteral("people");
-    const auto NamesTable = QStringLiteral("names");
-    const auto NameOriginsTable = QStringLiteral("name_origins");
-    const auto EventsTable = QStringLiteral("events");
-    const auto EventRolesTable = QStringLiteral("event_roles");
-    const auto EventTypesTable = QStringLiteral("event_types");
-    const auto EventRelationsTable = QStringLiteral("event_relations");
+    constexpr auto PeopleTable = QLatin1String("people");
+    constexpr auto NamesTable = QLatin1String("names");
+    constexpr auto NameOriginsTable = QLatin1String("name_origins");
+    constexpr auto EventsTable = QLatin1String("events");
+    constexpr auto EventRolesTable = QLatin1String("event_roles");
+    constexpr auto EventTypesTable = QLatin1String("event_types");
+    constexpr auto EventRelationsTable = QLatin1String("event_relations");
 }
