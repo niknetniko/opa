@@ -19,7 +19,7 @@
 using namespace Qt::Literals::StringLiterals;
 
 template<typename Enum>
-void runEnumValueCheck(QString tableName, int nameColumn = 1, int builtinColumn = 2) {
+void runEnumValueCheck(const QString& tableName, int nameColumn = 1, int builtinColumn = 2) {
     auto database = QSqlDatabase::database();
     QSqlQuery eventTypesQuery{u"SELECT * FROM %1"_s.arg(tableName)};
     QVERIFY(eventTypesQuery.exec());
