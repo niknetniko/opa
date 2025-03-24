@@ -17,4 +17,6 @@ namespace Schema {
     constexpr auto EventRolesTable = QLatin1String("event_roles");
     constexpr auto EventTypesTable = QLatin1String("event_types");
     constexpr auto EventRelationsTable = QLatin1String("event_relations");
+    constexpr auto SourcesTable = QLatin1String("sources");
+    constexpr auto CitationsTable = QLatin1String("citations");
 }

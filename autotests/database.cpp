@@ -18,37 +18,36 @@
 
 using namespace Qt::Literals::StringLiterals;
 
+template<typename Enum>
+    void runEnumValueCheck(QString tableName, int nameColumn = 1, int builtinColumn = 2) {
+    auto database = QSqlDatabase::database();
+    QSqlQuery eventTypesQuery{u"SELECT * FROM %1"_s.arg(tableName)};
+    QVERIFY(eventTypesQuery.exec());
+
+    auto metaTypeObject = QMetaEnum::fromType<Enum>();
+    QStringList possibilities;
+    for (int i = 0; i < metaTypeObject.keyCount(); ++i) {
+        auto value = metaTypeObject.key(i);
+        possibilities.append(QString::fromLatin1(value));
+    }
+
+    QSet<Enum> valuesInDatabase;
+    while (eventTypesQuery.next()) {
+        auto databaseValue = eventTypesQuery.value(nameColumn).toString();
+        auto errorMessage = qPrintable(
+            u"%1 is not a valid enum, possibilities are %2"_s.arg(databaseValue).arg(possibilities.join(u", "_s))
+        );
+        QVERIFY2(isValidEnum<Enum>(databaseValue), errorMessage);
+        valuesInDatabase.insert(enumFromString<Enum>(databaseValue));
+        auto isBuiltin = eventTypesQuery.value(builtinColumn).toBool();
+        QVERIFY(isBuiltin);
+    }
+
+    QCOMPARE(valuesInDatabase.size(), metaTypeObject.keyCount());
+}
+
 class TestDatabase : public QObject {
     Q_OBJECT
-
-private:
-    template<typename Enum>
-    void runEnumValueCheck(QString tableName, int nameColumn = 1, int builtinColumn = 2) {
-        auto database = QSqlDatabase::database();
-        QSqlQuery eventTypesQuery{u"SELECT * FROM %1"_s.arg(tableName)};
-        QVERIFY(eventTypesQuery.exec());
-
-        auto metaTypeObject = QMetaEnum::fromType<Enum>();
-        QStringList possibilities;
-        for (int i = 0; i < metaTypeObject.keyCount(); ++i) {
-            auto value = metaTypeObject.key(i);
-            possibilities.append(QString::fromLatin1(value));
-        }
-
-        QSet<Enum> valuesInDatabase;
-        while (eventTypesQuery.next()) {
-            auto databaseValue = eventTypesQuery.value(nameColumn).toString();
-            auto errorMessage = qPrintable(
-                u"%1 is not a valid enum, possibilities are %2"_s.arg(databaseValue).arg(possibilities.join(u", "_s))
-            );
-            QVERIFY2(isValidEnum<Enum>(databaseValue), errorMessage);
-            valuesInDatabase.insert(enumFromString<Enum>(databaseValue));
-            auto isBuiltin = eventTypesQuery.value(builtinColumn).toBool();
-            QVERIFY(isBuiltin);
-        }
-
-        QCOMPARE(valuesInDatabase.size(), metaTypeObject.keyCount());
-    }
 
 private Q_SLOTS:
 
@@ -82,6 +81,8 @@ private Q_SLOTS:
             Schema::EventRolesTable,
             Schema::EventTypesTable,
             Schema::EventsTable,
+            Schema::SourcesTable,
+            Schema::CitationsTable,
             // Special SQLite tables...
             u"sqlite_sequence"_s
         };
