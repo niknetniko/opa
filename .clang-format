@@ -62,4 +62,5 @@ TabWidth: 4
 QualifierAlignment: Left
 PointerAlignment: Left
 FixNamespaceComments: false
+PenaltyBreakAssignment: 50
 ...

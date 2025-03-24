@@ -34,8 +34,8 @@ void runEnumValueCheck(QString tableName, int nameColumn = 1, int builtinColumn 
     QSet<Enum> valuesInDatabase;
     while (eventTypesQuery.next()) {
         auto databaseValue = eventTypesQuery.value(nameColumn).toString();
-        auto errorMessage = qPrintable(
-            u"%1 is not a valid enum, possibilities are %2"_s.arg(databaseValue).arg(possibilities.join(u", "_s))
+        const auto* const errorMessage = qPrintable(
+            u"%1 is not a valid enum, possibilities are %2"_s.arg(databaseValue, possibilities.join(u", "_s))
         );
         QVERIFY2(isValidEnum<Enum>(databaseValue), errorMessage);
         valuesInDatabase.insert(enumFromString<Enum>(databaseValue));
