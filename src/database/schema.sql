@@ -56,62 +56,23 @@ CREATE TABLE event_relations
   PRIMARY KEY (event_id, person_id, role_id)
 );
 
-CREATE TABLE repositories
-(
-  id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name          TEXT    NOT NULL,
-  homepage      TEXT,
-  address       TEXT,
-  note          TEXT,
-  link_template TEXT
-);
-
-CREATE TABLE repository_properties
-(
-  id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  source_id INTEGER REFERENCES repositories (id) ON DELETE CASCADE,
-  type      TEXT    NOT NULL,
-  value     TEXT
-);
-
 CREATE TABLE sources
 (
   id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   title       TEXT    NOT NULL,
+  type        TEXT    NOT NULL,
   author      TEXT,
+  publication TEXT,
   source_date TEXT,
   confidence  TEXT,
   parent_id   INTEGER REFERENCES sources (id) ON DELETE SET NULL
 );
 
-CREATE TABLE source_repositories
-(
-  source_id     INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  repository_id INTEGER NOT NULL REFERENCES repositories (id) ON DELETE CASCADE
-);
-
-CREATE TABLE source_properties
-(
-  id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  source_id INTEGER REFERENCES sources (id) ON DELETE CASCADE,
-  type      TEXT    NOT NULL,
-  value     TEXT
-);
-
 CREATE TABLE citations
 (
-  id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  source_id   INTEGER REFERENCES sources (id) ON DELETE CASCADE,
-  location    TEXT    NOT NULL,
-  confidence  TEXT,
-  description TEXT,
-  source_text TEXT
-);
-
-CREATE TABLE citation_properties
-(
-  id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  source_id INTEGER REFERENCES citations (id) ON DELETE CASCADE,
-  type      TEXT    NOT NULL,
-  value     TEXT
+  id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  source_id  INTEGER REFERENCES sources (id) ON DELETE CASCADE,
+  location   TEXT    NOT NULL,
+  confidence TEXT,
+  note       TEXT
 );
