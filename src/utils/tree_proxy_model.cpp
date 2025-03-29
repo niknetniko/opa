@@ -6,7 +6,9 @@
 
 #include "tree_proxy_model.h"
 
-TreeProxyModel::TreeProxyModel(QObject* parent) : QIdentityProxyModel(parent) {
+#include "model_utils.h"
+
+TreeProxyModel::TreeProxyModel(QObject* parent) : QAbstractProxyModel(parent) {
 }
 
 void TreeProxyModel::setIdColumn(int idColumn) {
@@ -55,7 +57,7 @@ QModelIndex TreeProxyModel::parent(const QModelIndex& child) const {
     auto sourceModelIndex = mapToSource(child);
     auto parentId = sourceModel()->index(sourceModelIndex.row(), parentIdColumn).data();
 
-    if (!parentId.isValid()) {
+    if (isInvalid(parentId)) {
         return {};
     }
 
@@ -71,16 +73,15 @@ bool TreeProxyModel::hasChildren(const QModelIndex& parent) const {
 }
 
 QModelIndex TreeProxyModel::sibling(int row, int column, const QModelIndex& idx) const {
-    // Implementation stolen from QAbstractItemModel
     if (row == idx.row() && column == idx.column()) {
         return idx;
-    } else {
-        return index(row, column, parent(idx));
     }
+
+    return index(row, column, parent(idx));
 }
 
 QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent) const {
-    if (parent.isValid() && parent.column() != 0) {
+    if (!isInvalid(parent) && parent.column() != 0) {
         return {};
     }
 
@@ -88,7 +89,7 @@ QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent
         return {};
     }
 
-    int parentSourceRow = parent.isValid() ? static_cast<int>(parent.internalId()) : -1;
+    int parentSourceRow = !parent.isValid() ? -1 : static_cast<int>(parent.internalId());
     int sourceRow = findSourceRowNumberByNumberInParent(row, parentSourceRow);
 
     return createIndex(row, column, sourceRow);
@@ -109,7 +110,7 @@ int TreeProxyModel::rowCount(const QModelIndex& parent) const {
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        if ((parentId.isValid() && rowParentId == parentId) || (!parentId.isValid() && !rowParentId.isValid())) {
+        if (isEqualOrInvalid(parentId, rowParentId)) {
             rowsWithParentCount++;
         }
     }
@@ -125,7 +126,7 @@ int TreeProxyModel::columnCount(const QModelIndex& parent) const {
 QModelIndex TreeProxyModel::findSourceItemById(const QVariant& id) const {
     Q_ASSERT(sourceModel());
 
-    if (!id.isValid()) {
+    if (isInvalid(id)) {
         return {};
     }
 
@@ -145,7 +146,7 @@ int TreeProxyModel::findSourceRowNumberInParent(const QVariant& id, const QVaria
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        if ((parentId.isValid() && rowParentId == parentId) || (!parentId.isValid() && !rowParentId.isValid())) {
+        if (isEqualOrInvalid(parentId, rowParentId)) {
             if (sourceModel()->data(sourceModel()->index(row, this->idColumn)) == id) {
                 return rowsWithParentCount;
             }
@@ -167,7 +168,7 @@ int TreeProxyModel::findSourceRowNumberByNumberInParent(int proxyRowInParent, in
     int rowsWithParentCount = 0;
     for (int row = 0; row < sourceModel()->rowCount(); ++row) {
         auto rowParentId = sourceModel()->index(row, this->parentIdColumn).data();
-        if ((parentId.isValid() && rowParentId == parentId) || (!parentId.isValid() && !rowParentId.isValid())) {
+        if (isEqualOrInvalid(parentId, rowParentId)) {
             if (rowsWithParentCount == proxyRowInParent) {
                 return row;
             }
@@ -176,4 +177,16 @@ int TreeProxyModel::findSourceRowNumberByNumberInParent(int proxyRowInParent, in
     }
 
     throw std::runtime_error("Could not find findSourceRowNumberByNumberInParent");
+}
+
+bool TreeProxyModel::isEqualOrInvalid(const QVariant& one, const QVariant& two) const {
+    auto isOneInvalid = isInvalid(one);
+    auto isTwoInvalid = isInvalid(two);
+
+    if (!isOneInvalid || !isTwoInvalid) {
+        return one == two;
+    } else {
+        // ReSharper disable once CppDFAConstantConditions
+        return isOneInvalid && isTwoInvalid;
+    }
 }

@@ -5,7 +5,12 @@
  */
 #pragma once
 
+#include "database/schema.h"
+
 #include <QStyledItemDelegate>
+
+
+class QItemSelection;
 
 QString format_id(const QString& pattern, const QVariant& id);
 
@@ -13,9 +18,10 @@ class FormattedIdentifierDelegate : public QStyledItemDelegate {
     Q_OBJECT
 
 public:
-    inline static const auto PERSON = QStringLiteral("P%1");
-    inline static const auto NAME = QStringLiteral("N%1");
-    inline static const auto EVENT = QStringLiteral("E%1");
+    static constexpr auto PERSON = QLatin1String("P%1");
+    static constexpr auto NAME = QLatin1String("N%1");
+    static constexpr auto EVENT = QLatin1String("E%1");
+    static constexpr auto SOURCE = QLatin1String("S%1");
 
     FormattedIdentifierDelegate(QObject* parent, QString pattern);
 
@@ -24,3 +30,5 @@ public:
 private:
     QString pattern;
 };
+
+IntegerPrimaryKey getIdFromSelection(const QItemSelection& selected, const QAbstractItemModel* model, int column);

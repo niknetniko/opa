@@ -6,6 +6,7 @@
 #include "formatted_identifier_delegate.h"
 
 #include "database/schema.h"
+#include <qitemselectionmodel.h>
 
 #include <utility>
 
@@ -25,4 +26,10 @@ QString FormattedIdentifierDelegate::displayText(const QVariant& value, const QL
     }
 
     return QStyledItemDelegate::displayText(finalValue, locale);
+}
+
+IntegerPrimaryKey getIdFromSelection(const QItemSelection& selected, const QAbstractItemModel* model, int column) {
+    Q_ASSERT(!selected.indexes().isEmpty());
+    auto selectedIndex = selected.indexes().first();
+    return model->index(selectedIndex.row(), column, selectedIndex.parent()).data().toLongLong();
 }

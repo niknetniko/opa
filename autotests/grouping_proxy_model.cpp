@@ -7,6 +7,7 @@
 #include "utils/grouping_proxy_model.h"
 
 #include "database/database.h"
+#include "utils/model_utils.h"
 
 #include <QAbstractItemModelTester>
 #include <QStandardItemModel>
@@ -14,54 +15,65 @@
 
 using namespace Qt::Literals::StringLiterals;
 
+namespace {
+    // ReSharper disable once CppDFAUnreachableFunctionCall
+    QStandardItemModel* createRootModel() {
+        auto* rootModel = new QStandardItemModel(6, 2); // NOLINT(*-avoid-magic-numbers)
+        for (int row = 0; row < rootModel->rowCount(); ++row) {
+            auto* value = new QStandardItem(u"row %0-column %1"_s.arg(row).arg(1));
+            auto* group = new QStandardItem(u"group %1"_s.arg(row / 2));
+            rootModel->setItem(row, 0, group);
+            rootModel->setItem(row, 1, value);
+        }
+
+        return rootModel;
+    }
+}
+
 class TestGroupingProxyModel : public QObject {
     Q_OBJECT
 
 private Q_SLOTS:
-    void virtualRowsModelTest() const {
-        auto rootModel = QStandardItemModel(6, 2); // NOLINT(*-avoid-magic-numbers)
-        for (int row = 0; row < rootModel.rowCount(); ++row) {
-            auto* value = new QStandardItem(u"row %0-column %1"_s.arg(row).arg(1));
-            auto* group = new QStandardItem(u"group %1"_s.arg(row / 2));
-            rootModel.setItem(row, 0, group);
-            rootModel.setItem(row, 1, value);
-        }
+    void virtualRowsManualTest() const {
+        auto* rootModel = createRootModel();
 
-        auto proxy = VirtualParentsModel();
-        proxy.setSourceModel(&rootModel);
+        VirtualParentsModel proxy;
+        proxy.setSourceModel(rootModel);
         proxy.setGroupedByColumn(0);
 
-        QCOMPARE(proxy.rowCount(), rootModel.rowCount() + 3);
-        QCOMPARE(proxy.columnCount(), rootModel.columnCount() + 1);
+        QCOMPARE(proxy.rowCount(), rootModel->rowCount() + 3);
+        QCOMPARE(proxy.columnCount(), rootModel->columnCount() + 1);
 
         // Check normal data.
-        for (int row = 0; row < rootModel.rowCount(); ++row) {
-            for (int col = 0; col < rootModel.columnCount(); ++col) {
-                QCOMPARE(proxy.index(row, col).data(), rootModel.index(row, col).data());
+        for (int row = 0; row < rootModel->rowCount(); ++row) {
+            for (int col = 0; col < rootModel->columnCount(); ++col) {
+                QCOMPARE(proxy.index(row, col).data(), rootModel->index(row, col).data());
             }
             // The last column should be empty for these rows.
-            QCOMPARE(proxy.index(row, proxy.columnCount() - 1).data(), row);
+            QCOMPARE(proxy.index(row, rootModel->columnCount()).data(), u"Virtual row %1"_s.arg(row));
         }
 
         // Check virtual rows.
-        for (int row = rootModel.rowCount(); row < proxy.rowCount(); ++row) {
-            for (int col = 0; col < rootModel.columnCount(); ++col) {
-                QCOMPARE(proxy.index(row, col).data(), QVariant());
+        for (int row = rootModel->rowCount(); row < proxy.rowCount(); ++row) {
+            for (int col = 0; col < rootModel->columnCount(); ++col) {
+                QCOMPARE(proxy.index(row, col).data(), QString());
             }
-            QCOMPARE(proxy.index(row, proxy.columnCount() - 1).data(), u"group %1"_s.arg(row - rootModel.rowCount()));
+            QCOMPARE(proxy.index(row, rootModel->columnCount()).data(), u"group %1"_s.arg(row - rootModel->rowCount()));
         }
     }
 
-    void modelTest() const {
-        auto rootModel = QStandardItemModel(6, 2); // NOLINT(*-avoid-magic-numbers)
-        for (int row = 0; row < rootModel.rowCount(); ++row) {
-            auto* value = new QStandardItem(u"row %0-column %1"_s.arg(row).arg(1));
-            auto* group = new QStandardItem(u"group %1"_s.arg(row / 2));
-            rootModel.setItem(row, 0, group);
-            rootModel.setItem(row, 1, value);
-        }
+    void virtualRowsModelTest() const {
+        auto* rootModel = createRootModel();
+        VirtualParentsModel proxy;
+        proxy.setSourceModel(rootModel);
+        proxy.setGroupedByColumn(0);
 
-        auto* proxy = createGroupingProxyModel(&rootModel, 0);
+        QAbstractItemModelTester(&proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
+    }
+
+    void groupingModelTest() const {
+        auto* rootModel = createRootModel();
+        auto* proxy = createGroupingProxyModel(rootModel, 0);
 
         QCOMPARE(proxy->rowCount(), 3);
         QCOMPARE(proxy->columnCount(), 3);

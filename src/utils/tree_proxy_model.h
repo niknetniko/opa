@@ -16,7 +16,7 @@
  * - An "ID" column that uniquely identifies the item.
  * - A "parent ID" column that references the ID column of the parent if the item is a child.
  */
-class TreeProxyModel : public QIdentityProxyModel {
+class TreeProxyModel : public QAbstractProxyModel {
     Q_OBJECT
 
 public:
@@ -74,4 +74,6 @@ private:
      * @param parentSourceRow The source row number of the parent or -1 if no parent.
      */
     [[nodiscard]] int findSourceRowNumberByNumberInParent(int proxyRowInParent, int parentSourceRow) const;
+
+    [[nodiscard]] bool isEqualOrInvalid(const QVariant& one, const QVariant& two) const;
 };

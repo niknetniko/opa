@@ -162,3 +162,8 @@ IntegerPrimaryKey getTypeId(
 }
 
 void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent = QModelIndex(), int level = 0);
+
+/**
+ * Return true if a variant is "practically" invalid, meaning it is null, invalid or the empty string.
+ */
+bool isInvalid(const QVariant& variant);

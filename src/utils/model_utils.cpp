@@ -7,8 +7,16 @@
 #include "model_utils.h"
 
 void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent, int level) {
-    if (!model || level == 20) {
+    if (!model || level == 10) {
         return;
+    }
+
+    // Print the columns if in the first row.
+    if (level == 0) {
+        auto deb = qDebug();
+        for (int c = 0; c < model->columnCount(parent); ++c) {
+            deb.quote() << model->headerData(c, Qt::Horizontal) << ",";
+        }
     }
 
     for (int r = 0; r < model->rowCount(parent); ++r) {
@@ -25,4 +33,8 @@ void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent,
             debugPrintModel(model, potentialParent, level + 1);
         }
     }
+}
+
+bool isInvalid(const QVariant& variant) {
+    return !variant.isValid() || variant.isNull() || variant.toString().isEmpty();
 }
