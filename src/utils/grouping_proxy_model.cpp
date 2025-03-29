@@ -111,6 +111,7 @@ QVariant VirtualParentsModel::data(const QModelIndex& index, int role) const {
 QVariant VirtualParentsModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && section == sourceModel()->columnCount()) {
         // TODO: let this be configurable.
+        // Issue URL: https://github.com/niknetniko/opa/issues/71
         return QStringLiteral("Group");
     }
 
