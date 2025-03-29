@@ -20,6 +20,7 @@
     <Menu name="view">
       <text>Manage</text>
       <Action name="show_people_list"/>
+      <Action name="show_sources_list"/>
     </Menu>
 
     <Menu name="manage">

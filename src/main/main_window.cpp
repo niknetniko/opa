@@ -10,6 +10,7 @@
 #include "data/names.h"
 #include "database/database.h"
 #include "docks/person_list_dock.h"
+#include "docks/source_list_dock.h"
 #include "editors/new_person_editor_dialog.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
@@ -92,6 +93,11 @@ MainWindow::MainWindow() {
     showPeopleListAction_->setIcon(QIcon::fromTheme(QStringLiteral("system-user-list")));
     connect(showPeopleListAction_, &QAction::triggered, this, &MainWindow::showPeopleList);
 
+    showSourcesListAction_ = new QAction(this);
+    showSourcesListAction_->setText(i18n("Show sources list"));
+    showSourcesListAction_->setIcon(QIcon::fromTheme(QStringLiteral("view-calendar-list")));
+    connect(showSourcesListAction_, &QAction::triggered, this, &MainWindow::showSourcesList);
+
     auto* actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
@@ -99,6 +105,7 @@ MainWindow::MainWindow() {
     actionCollection->addAction(QStringLiteral("person_add_new"), addNewPersonAction_);
     actionCollection->addAction(QStringLiteral("person_delete_existing"), removePersonAction_);
     actionCollection->addAction(QStringLiteral("show_people_list"), showPeopleListAction_);
+    actionCollection->addAction(QStringLiteral("show_sources_list"), showSourcesListAction_);
 
     openNewAction_ = KStandardAction::openNew(this, &MainWindow::newFile, actionCollection);
     openAction_ = KStandardAction::open(this, &MainWindow::openFile, actionCollection);
@@ -163,7 +170,12 @@ void MainWindow::clearUi() {
 
 void MainWindow::syncActions() {
     const QList fileActions = {
-        manageEventRoles_, manageEventTypes_, manageNameOrigins_, addNewPersonAction_, showPeopleListAction_
+        manageEventRoles_,
+        manageEventTypes_,
+        manageNameOrigins_,
+        addNewPersonAction_,
+        showPeopleListAction_,
+        showSourcesListAction_,
     };
     for (auto* manageAction: fileActions) {
         manageAction->setEnabled(!currentFile.isEmpty());
@@ -417,6 +429,26 @@ void MainWindow::showPeopleList() {
     auto* personListDock = new PersonListDock();
     container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
     connect(personListDock, &PersonListDock::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
+
+    syncActions();
+}
+
+void MainWindow::showSourcesList() {
+    auto dockWidgets = findChildren<SourceListDock*>();
+    if (!dockWidgets.empty()) {
+        auto* dock = dockWidgets.first();
+        if (dock->isFloating()) {
+            dock->raise();
+            dock->activateWindow();
+        }
+        dock->setAsCurrentTab();
+        return;
+    }
+
+    auto* container = getMainDockHost();
+    auto* personListDock = new SourceListDock();
+    container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
+    // connect(personListDock, &SourceListDock::handleSourceSelected, this, &MainWindow::openOrSelectPerson);
 
     syncActions();
 }

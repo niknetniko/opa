@@ -5,7 +5,6 @@
  */
 
 #pragma once
-#include <QIdentityProxyModel>
 #include <QSqlTableModel>
 
 /**
@@ -19,10 +18,12 @@ class SourcesTableModel : public QSqlTableModel {
 public:
     static constexpr int ID = 0;
     static constexpr int TITLE = 1;
-    static constexpr int AUTHOR = 2;
-    static constexpr int SOURCE_DATE = 3;
-    static constexpr int CONFIDENCE = 4;
-    static constexpr int PARENT_ID = 5;
+    static constexpr int TYPE = 2;
+    static constexpr int AUTHOR = 3;
+    static constexpr int PUBLICATION = 4;
+    static constexpr int CONFIDENCE = 5;
+    static constexpr int NOTE = 6;
+    static constexpr int PARENT_ID = 7;
 
     explicit SourcesTableModel(QObject* parent = nullptr);
 };

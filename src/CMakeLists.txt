@@ -87,8 +87,12 @@ add_library(
   docks/person_list_dock.h
   utils/tree_proxy_model.cpp
   utils/tree_proxy_model.h
+  data/source.cpp
+  data/source.h
   utils/grouping_proxy_model.cpp
-  utils/grouping_proxy_model.h)
+  utils/grouping_proxy_model.h
+    docks/source_list_dock.cpp
+    docks/source_list_dock.h)
 
 ecm_qt_declare_logging_category(
   opa-lib

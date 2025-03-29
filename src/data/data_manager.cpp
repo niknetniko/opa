@@ -10,9 +10,11 @@
 #include "event.h"
 #include "family.h"
 #include "person.h"
+#include "source.h"
 #include "utils/grouping_proxy_model.h"
 #include "utils/model_utils.h"
 #include "utils/multi_filter_proxy_model.h"
+#include "utils/tree_proxy_model.h"
 
 #include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>
@@ -31,6 +33,7 @@ DataManager::DataManager(QObject* parent) : QObject(parent) {
     baseEventTypesModel = makeModel<EventTypesModel>();
     baseEventsModel = makeModel<EventsModel>(baseEventTypesModel);
     basePeopleModel = makeModel<PeopleTableModel>();
+    baseSourcesModel = makeModel<SourcesTableModel>();
 }
 // NOLINTEND(*-prefer-member-initializer)
 
@@ -248,6 +251,10 @@ QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) con
     dateModel->setSourceModel(model);
     dateModel->setDateColumn(EventsModel::DATE);
     return dateModel;
+}
+
+QAbstractItemModel* DataManager::sourcesModel() const {
+    return this->baseSourcesModel;
 }
 
 QAbstractProxyModel* DataManager::treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
@@ -480,6 +487,15 @@ QAbstractProxyModel* DataManager::parentsModelFor(QObject* parent, IntegerPrimar
     });
 
     return columnModel;
+}
+
+QAbstractItemModel* DataManager::sourcesTreeModel(QObject* parent) const {
+    auto* treeModel = new TreeProxyModel(parent);
+    treeModel->setSourceModel(this->sourcesModel());
+    treeModel->setIdColumn(SourcesTableModel::ID);
+    treeModel->setParentIdColumn(SourcesTableModel::PARENT_ID);
+
+    return treeModel;
 }
 
 void DataManager::listenToModel(const QSqlTableModel* model) const {

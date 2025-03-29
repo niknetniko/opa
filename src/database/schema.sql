@@ -63,16 +63,7 @@ CREATE TABLE sources
   type        TEXT    NOT NULL,
   author      TEXT,
   publication TEXT,
-  source_date TEXT,
   confidence  TEXT,
+  note        TEXT,
   parent_id   INTEGER REFERENCES sources (id) ON DELETE SET NULL
-);
-
-CREATE TABLE citations
-(
-  id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  source_id  INTEGER REFERENCES sources (id) ON DELETE CASCADE,
-  location   TEXT    NOT NULL,
-  confidence TEXT,
-  note       TEXT
 );

@@ -100,6 +100,7 @@ private Q_SLOTS:
     void onDeleteCurrentPerson();
 
     void showPeopleList();
+    void showSourcesList();
 
 private:
     QString currentFile;
@@ -120,6 +121,7 @@ private:
     QAction* addNewPersonAction_ = nullptr;
     QAction* removePersonAction_ = nullptr;
     QAction* showPeopleListAction_ = nullptr;
+    QAction* showSourcesListAction_ = nullptr;
 
     [[nodiscard]] PersonDock* findDockFor(IntegerPrimaryKey personId) const;
 

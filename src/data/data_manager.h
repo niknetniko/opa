@@ -45,6 +45,8 @@ public:
 
     [[nodiscard]] QAbstractItemModel* eventsModelWithDateSupport(QObject* parent) const;
 
+    [[nodiscard]] QAbstractItemModel* sourcesModel() const;
+
     /**
      * Get a model representing all names for a single person.
      *
@@ -184,6 +186,11 @@ public:
      */
     [[nodiscard]] QAbstractProxyModel* parentsModelFor(QObject* parent, IntegerPrimaryKey person);
 
+    /**
+     * Model of all sources but in tree form. Returns the same columns as the base sources model.
+     */
+    [[nodiscard]] QAbstractItemModel* sourcesTreeModel(QObject* parent) const;
+
 Q_SIGNALS:
     /**
      * Called when a change has occurred in a certain model, and other models depending on data
@@ -218,6 +225,7 @@ private:
     QSqlTableModel* baseEventTypesModel;
     CustomSqlRelationalModel* baseEventRelationsModel;
     CustomSqlRelationalModel* baseEventsModel;
+    QSqlTableModel* baseSourcesModel;
 
     /**
      * Connect the given model to the DataManager. All updates in
