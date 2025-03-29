@@ -91,8 +91,8 @@ add_library(
   data/source.h
   utils/grouping_proxy_model.cpp
   utils/grouping_proxy_model.h
-    docks/source_list_dock.cpp
-    docks/source_list_dock.h)
+  docks/source_list_dock.cpp
+  docks/source_list_dock.h)
 
 ecm_qt_declare_logging_category(
   opa-lib
