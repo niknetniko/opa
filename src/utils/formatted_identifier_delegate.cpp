@@ -23,7 +23,7 @@ FormattedIdentifierDelegate::FormattedIdentifierDelegate(QObject* parent, QStrin
 QString FormattedIdentifierDelegate::displayText(const QVariant& value, const QLocale& locale) const {
     QVariant finalValue = value;
 
-    bool canBeId;
+    bool canBeId = false;
     value.toString().toLongLong(&canBeId);
 
     if (!isInvalid(value) && canBeId && value.canConvert<IntegerPrimaryKey>()) {
