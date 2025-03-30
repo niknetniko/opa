@@ -21,7 +21,6 @@
 #include "utils/placeholder_widget.h"
 #include "welcome/welcome_view.h"
 #include <kddockwidgets/Config.h>
-#include <kddockwidgets/DockWidget.h>
 #include <kddockwidgets/MainWindow.h>
 
 #include <KActionCollection>
@@ -426,7 +425,7 @@ void MainWindow::showPeopleList() {
     }
 
     auto* container = getMainDockHost();
-    auto* personListDock = new PersonListDock();
+    auto* personListDock = new PersonListDock;
     container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
     connect(personListDock, &PersonListDock::handlePersonSelected, this, &MainWindow::openOrSelectPerson);
 
@@ -446,7 +445,7 @@ void MainWindow::showSourcesList() {
     }
 
     auto* container = getMainDockHost();
-    auto* personListDock = new SourceListDock();
+    auto* personListDock = new SourceListDock;
     container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
     // connect(personListDock, &SourceListDock::handleSourceSelected, this, &MainWindow::openOrSelectPerson);
 

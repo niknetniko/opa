@@ -116,7 +116,6 @@ QModelIndex FamilyProxyModel::parent(const QModelIndex& child) const {
 }
 
 bool FamilyProxyModel::hasChildren(const QModelIndex& parent) const {
-    // TODO: investigate why this needs to be overridden
     return rowCount(parent) > 0;
 }
 
@@ -207,7 +206,7 @@ QModelIndex FamilyProxyModel::index(int row, int column, const QModelIndex& pare
 }
 
 QVariant FamilyProxyModel::data(const QModelIndex& index, int role) const {
-    assert(checkIndex(index, CheckIndexOption::IndexIsValid));
+    Q_ASSERT(checkIndex(index, CheckIndexOption::IndexIsValid));
 
     if (isBastardParentRow(index)) {
         if (role == Qt::DisplayRole) {

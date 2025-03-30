@@ -95,6 +95,12 @@ QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent
     return createIndex(row, column, sourceRow);
 }
 
+Qt::ItemFlags TreeProxyModel::flags(const QModelIndex& index) const {
+    auto flags = QAbstractProxyModel::flags(index);
+    flags = flags.setFlag(Qt::ItemNeverHasChildren, false);
+    return flags;
+}
+
 int TreeProxyModel::rowCount(const QModelIndex& parent) const {
     Q_ASSERT(checkIndex(parent));
 

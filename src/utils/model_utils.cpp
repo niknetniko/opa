@@ -20,15 +20,23 @@ void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent,
     }
 
     for (int r = 0; r < model->rowCount(parent); ++r) {
-        auto deb = qDebug();
-        deb.noquote() << QString(level, QLatin1Char(' '));
+        {
+            auto deb = qDebug();
+            deb.noquote() << QString(level, QLatin1Char(' '));
 
-        for (int c = 0; c < model->columnCount(parent); ++c) {
-            QModelIndex index = model->index(r, c, parent);
-            deb.quote() << index.data() << ",";
+            for (int c = 0; c < model->columnCount(parent); ++c) {
+                QModelIndex index = model->index(r, c, parent);
+                deb.quote() << index.data() << ",";
+            }
         }
 
         auto potentialParent = model->index(r, 0, parent);
+        {
+            auto deb = qDebug();
+            deb.noquote() << QString(level, QLatin1Char(' '));
+            deb << "-> Parent is valid? " << potentialParent.isValid();
+            deb << "-> Parent hasChildren? " << model->hasChildren(potentialParent);
+        }
         if (potentialParent.isValid()) {
             debugPrintModel(model, potentialParent, level + 1);
         }

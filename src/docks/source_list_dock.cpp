@@ -1,24 +1,25 @@
-
 /*
  * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
 #include "source_list_dock.h"
 
 #include "data/data_manager.h"
 #include "data/source.h"
 #include "utils/formatted_identifier_delegate.h"
-#include <klocalizedstring.h>
+#include "utils/model_utils.h"
 
+#include <KLocalizedString>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
-SourceTreeWidget::SourceTreeWidget(QWidget* parent) {
+SourceTreeWidget::SourceTreeWidget(QWidget* parent) : QWidget(parent) {
     auto* treeModel = DataManager::get().sourcesTreeModel(this);
+
+    debugPrintModel(treeModel);
 
     // Create a searchable model.
     auto* filtered = new QSortFilterProxyModel(this);
@@ -38,18 +39,14 @@ SourceTreeWidget::SourceTreeWidget(QWidget* parent) {
     treeView->setSelectionMode(QTreeView::SelectionMode::SingleSelection);
     treeView->setSortingEnabled(true);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    treeView->header()->resizeSections(QHeaderView::Stretch);
-    treeView->header()->setSectionResizeMode(SourcesTableModel::ID, QHeaderView::ResizeToContents);
     treeView->header()->setSectionResizeMode(SourcesTableModel::TITLE, QHeaderView::Stretch);
-    treeView->header()->setHighlightSections(false);
     treeView->setItemDelegateForColumn(
         SourcesTableModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::SOURCE)
     );
+    treeView->hideColumn(SourcesTableModel::PARENT_ID);
     treeView->setUniformRowHeights(true);
     treeView->expandAll();
-    treeView->setItemsExpandable(true);
 
-    // Wrap in a VBOX for layout reasons.
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(searchBox);
     layout->addWidget(treeView);

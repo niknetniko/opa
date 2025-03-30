@@ -55,7 +55,6 @@ PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
         DisplayNameModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
     );
 
-    // Wrap in a VBOX for layout reasons.
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(searchBox);
     layout->addWidget(tableView);

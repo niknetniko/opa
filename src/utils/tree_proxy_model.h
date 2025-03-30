@@ -43,6 +43,7 @@ public:
     [[nodiscard]] QModelIndex sibling(int row, int column, const QModelIndex& idx) const override;
 
     [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
