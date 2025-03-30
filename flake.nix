@@ -8,10 +8,6 @@
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
     };
-    nix-github-actions = {
-      url = "github:nix-community/nix-github-actions";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -176,8 +172,5 @@
         };
         formatter = treefmtEval.config.build.wrapper;
       }
-    )
-    // utils.lib.eachDefaultSystemPassThrough (system: {
-      githubActions = nix-github-actions.lib.mkGithubMatrix { inherit (self) checks; };
-    });
+    );
 }
