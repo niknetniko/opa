@@ -247,7 +247,6 @@ void CustomSqlRelationalDelegate::setModelData(QWidget* editor, QAbstractItemMod
     }
     auto sqlIndex = mapToSourceModel(index);
     Q_ASSERT(sqlModel->checkIndex(sqlIndex));
-    qDebug() << "For SQL model, index is" << index << "->" << sqlIndex;
 
     QSqlTableModel* childModel = sqlModel->relationModel(sqlIndex.column());
     if (childModel == nullptr) {
