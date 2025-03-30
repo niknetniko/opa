@@ -119,7 +119,7 @@ void PersonEventTab::onEditSelectedEvent() {
         return;
     }
 
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
     auto selectedIndex = selection->selectedRows().first();
     auto* model = selectedIndex.model();
 
@@ -139,7 +139,7 @@ void PersonEventTab::onRemoveSelectedEvent() const {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
     }
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
 
     qDebug() << "Selection itself is " << selection;
 
@@ -148,9 +148,9 @@ void PersonEventTab::onRemoveSelectedEvent() const {
 
     // Look up where it is linked.
     auto* relationModel = DataManager::get().eventRelationsModel();
-    auto usedCount =
-        relationModel->match(relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1)
-            .size();
+    auto usedCount = relationModel
+                         ->match(relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1)
+                         .size();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -188,7 +188,7 @@ void PersonEventTab::onUnlinkSelectedEvent() {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
     }
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
 
     auto selectRow = selection->selectedIndexes().first();
     auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();

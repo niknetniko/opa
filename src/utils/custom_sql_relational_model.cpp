@@ -172,7 +172,7 @@ ForeignKeyAndColumn CustomSqlRelationalModel::getFkFromForeignKeyColumn(int colu
 
 void connectComboBox(const QAbstractItemModel* model, int relationColumn, QComboBox* comboBox) {
     auto* rootModel = findSourceModelOfType<CustomSqlRelationalModel>(model);
-    assert(rootModel != nullptr);
+    Q_ASSERT(rootModel != nullptr);
     QSqlTableModel* childModel = rootModel->relationModel(relationColumn);
     comboBox->setEditable(true);
     comboBox->setModel(childModel);

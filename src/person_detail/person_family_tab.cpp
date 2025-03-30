@@ -113,7 +113,7 @@ void PersonFamilyTab::onParentClicked(const QModelIndex& index) const {
     if (!index.isValid()) {
         return;
     }
-    assert(index.model() == parentsTreeView->model());
+    Q_ASSERT(index.model() == parentsTreeView->model());
     auto personId = index.model()->index(index.row(), DisplayParentModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
 }
@@ -122,7 +122,7 @@ void PersonFamilyTab::onPartnerOrChildClicked(const QModelIndex& index) const {
     if (!index.isValid()) {
         return;
     }
-    assert(index.model() == partnerAndDescendantTreeView->model());
+    Q_ASSERT(index.model() == partnerAndDescendantTreeView->model());
     auto personId = index.model()->index(index.row(), FamilyDisplayModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
 }

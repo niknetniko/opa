@@ -507,10 +507,10 @@ void DataManager::listenToModel(const QSqlTableModel* model) const {
 
 void DataManager::onSourceModelChanged() {
     QObject* sender = QObject::sender();
-    assert(sender != nullptr);
+    Q_ASSERT(sender != nullptr);
 
     auto* const sendingModel = qobject_cast<QSqlTableModel*>(sender);
-    assert(sendingModel != nullptr);
+    Q_ASSERT(sendingModel != nullptr);
 
     const auto metaMethod = sender->metaObject()->method(senderSignalIndex());
 
@@ -541,11 +541,11 @@ void DataManager::propagateToModel(QSqlTableModel* model) {
 }
 
 void DataManager::initialize(QObject* parent) {
-    assert(instance == nullptr);
+    Q_ASSERT(instance == nullptr);
     instance = new DataManager(parent);
 }
 void DataManager::reset() {
-    assert(instance != nullptr);
+    Q_ASSERT(instance != nullptr);
     delete instance;
     instance = nullptr;
 }

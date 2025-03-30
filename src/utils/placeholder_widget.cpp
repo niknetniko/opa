@@ -20,7 +20,7 @@ PlaceholderWidget::PlaceholderWidget(QWidget* parent) : QStackedWidget(parent) {
 }
 
 void PlaceholderWidget::setPlaceholder(QWidget* placeholder) {
-    assert(count() == 2);
+    Q_ASSERT(count() == 2);
     const int index = currentIndex();
     auto* oldWidget = widget(PLACEHOLDER_POSITION);
     insertWidget(PLACEHOLDER_POSITION, placeholder);
@@ -29,7 +29,7 @@ void PlaceholderWidget::setPlaceholder(QWidget* placeholder) {
     oldWidget->deleteLater();
 
     setCurrentIndex(index);
-    assert(count() == 2);
+    Q_ASSERT(count() == 2);
 }
 
 QWidget* PlaceholderWidget::getPlaceholder() const {
@@ -37,7 +37,7 @@ QWidget* PlaceholderWidget::getPlaceholder() const {
 }
 
 void PlaceholderWidget::setMainWidget(QWidget* mainWidget) {
-    assert(count() == 2);
+    Q_ASSERT(count() == 2);
     const int index = currentIndex();
     auto* oldWidget = widget(MAIN_POSITION);
     insertWidget(MAIN_POSITION, mainWidget);
@@ -46,7 +46,7 @@ void PlaceholderWidget::setMainWidget(QWidget* mainWidget) {
     oldWidget->deleteLater();
 
     setCurrentIndex(index);
-    assert(count() == 2);
+    Q_ASSERT(count() == 2);
 }
 
 QWidget* PlaceholderWidget::getMainWidget() const {

@@ -177,7 +177,7 @@ void PersonNameTab::onEditSelectedName() {
         return;
     }
 
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
     auto selectedIndex = selection->selectedIndexes().first();
     auto* model = selectedIndex.model();
 
@@ -193,7 +193,7 @@ void PersonNameTab::onRemoveSelectedName() const {
         return;
     }
 
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
 
     if (!treeView->model()->removeRow(selection->selectedRows().first().row())) {
         qWarning() << "Could not remove row.";
@@ -206,7 +206,7 @@ void PersonNameTab::onMoveSelectedNameDown() const {
         return;
     }
 
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
     auto selectRow = selection->selectedRows().first().row();
     auto newRow = selectRow + 1;
     moveSelectedNameToPosition(selectRow, newRow);
@@ -218,7 +218,7 @@ void PersonNameTab::onMoveSelectedNameUp() const {
         return;
     }
 
-    assert(selection->selectedRows().size() == 1);
+    Q_ASSERT(selection->selectedRows().size() == 1);
     auto selectRow = selection->selectedRows().first().row();
     auto newRow = selectRow - 1;
     moveSelectedNameToPosition(selectRow, newRow);
@@ -227,8 +227,8 @@ void PersonNameTab::onMoveSelectedNameUp() const {
 void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow) const {
     auto* model = treeView->model();
 
-    assert(sourceRow >= 0 && sourceRow < model->rowCount());
-    assert(destinationRow >= 0 && destinationRow < model->rowCount());
+    Q_ASSERT(sourceRow >= 0 && sourceRow < model->rowCount());
+    Q_ASSERT(destinationRow >= 0 && destinationRow < model->rowCount());
 
     QVector<int> vector(model->rowCount());
     std::iota(std::begin(vector), std::end(vector), 1);

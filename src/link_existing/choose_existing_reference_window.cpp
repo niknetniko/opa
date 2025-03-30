@@ -54,10 +54,10 @@ ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
     searchColumn(searchColumn),
     resultColumn(resultColumn),
     sourceModel(sourceModel) {
-    assert(
+    Q_ASSERT(
         sourceModel->checkIndex(sourceModel->index(0, resultColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
     );
-    assert(
+    Q_ASSERT(
         searchColumn == -1 ||
         sourceModel->checkIndex(sourceModel->index(0, searchColumn), QAbstractItemModel::CheckIndexOption::IndexIsValid)
     );

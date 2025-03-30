@@ -18,8 +18,8 @@ int GenealogicalDateProxyModel::dateColumn() const {
 
 void GenealogicalDateProxyModel::setDateColumn(int column) {
     // Verify that the columns exist.
-    assert(0 <= column);
-    assert(column < this->columnCount());
+    Q_ASSERT(0 <= column);
+    Q_ASSERT(column < this->columnCount());
     this->dateColumn_ = column;
 }
 

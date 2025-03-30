@@ -268,7 +268,7 @@ void FamilyProxyModel::resetAndLoadData() {
     connect(this, &FamilyProxyModel::sourceModelChanged, this, &FamilyProxyModel::updateMapping);
 
     // We need at least one extra row.
-    assert(baseModel->rowCount() < BASTARD_CHILDREN_ROW_ID - 1);
+    Q_ASSERT(baseModel->rowCount() < BASTARD_CHILDREN_ROW_ID - 1);
     QAbstractProxyModel::setSourceModel(baseModel);
 }
 
@@ -297,7 +297,7 @@ void FamilyProxyModel::updateMapping() {
             int partnerId = -1;
             if (!partnerIdData.isNull()) {
                 partnerId = partnerIdData.toInt();
-                assert(personIdToRelationshipRow.contains(partnerId));
+                Q_ASSERT(personIdToRelationshipRow.contains(partnerId));
             }
             auto parentRelationshipRow = personIdToRelationshipRow.value(partnerId, BASTARD_CHILDREN_ROW_ID);
             mapping[parentRelationshipRow].append(sourceRow);

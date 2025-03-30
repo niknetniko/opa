@@ -147,7 +147,7 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
 }
 
 void PersonDetailView::populateName() {
-    assert(model->rowCount() <= 1);
+    Q_ASSERT(model->rowCount() <= 1);
 
     auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     ui->id->setText(personId);
