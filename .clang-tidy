@@ -39,4 +39,3 @@ CheckOptions:
 # TODO: enable headers at some point
 HeaderFilterRegex: ''
 WarningsAsErrors: "*"
-#FormatStyle: none
