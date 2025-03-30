@@ -30,6 +30,7 @@ Checks: "*,
         -*-pro-type-const-cast,
         -*-const-correctness,
         -boost-use-*,
+        -*-no-recursion,
 "
 CheckOptions:
   # Default without connect function
