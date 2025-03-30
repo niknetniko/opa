@@ -19,8 +19,6 @@
 SourceTreeWidget::SourceTreeWidget(QWidget* parent) : QWidget(parent) {
     auto* treeModel = DataManager::get().sourcesTreeModel(this);
 
-    debugPrintModel(treeModel);
-
     // Create a searchable model.
     auto* filtered = new QSortFilterProxyModel(this);
     filtered->setSourceModel(treeModel);
