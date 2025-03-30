@@ -19,7 +19,6 @@
       self,
       nixpkgs,
       utils,
-      nix-github-actions,
       treefmt-nix,
       ...
     }:
