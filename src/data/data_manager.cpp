@@ -245,7 +245,6 @@ QSqlTableModel* DataManager::eventsModel() const {
 }
 
 QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) const {
-    // TODO: this should happen in the base model instead.
     auto* model = eventsModel();
     auto* dateModel = new GenealogicalDateProxyModel(parent);
     dateModel->setSourceModel(model);
@@ -259,11 +258,7 @@ QAbstractItemModel* DataManager::sourcesModel() const {
 
 QAbstractProxyModel* DataManager::treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
     auto* dateModel = flatEventsModelForPerson(parent, personId);
-
     auto* proxy = createGroupingProxyModel(dateModel, PersonEventsModel::ROLE, parent);
-    // TODO: fix header
-    // Issue URL: https://github.com/niknetniko/opa/issues/69
-    // proxy->setGroupHeaderTitle(i18n("Rol"));
 
     // Hide the original role column.
     auto* hidden = new KRearrangeColumnsProxyModel(parent);

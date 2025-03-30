@@ -6,8 +6,9 @@
 #include "formatted_identifier_delegate.h"
 
 #include "database/schema.h"
-#include <qitemselectionmodel.h>
+#include "model_utils.h"
 
+#include <QItemSelectionModel>
 #include <utility>
 
 QString format_id(const QString& pattern, const QVariant& id) {
@@ -21,7 +22,10 @@ FormattedIdentifierDelegate::FormattedIdentifierDelegate(QObject* parent, QStrin
 
 QString FormattedIdentifierDelegate::displayText(const QVariant& value, const QLocale& locale) const {
     QVariant finalValue = value;
-    if (value.canConvert<IntegerPrimaryKey>()) {
+
+    if (isInvalid(value)) {
+        finalValue = QString();
+    } else if (value.canConvert<IntegerPrimaryKey>()) {
         finalValue = format_id(this->pattern, value);
     }
 
