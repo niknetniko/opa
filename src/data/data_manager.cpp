@@ -258,19 +258,20 @@ QAbstractItemModel* DataManager::sourcesModel() const {
 
 QAbstractProxyModel* DataManager::treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
     auto* dateModel = flatEventsModelForPerson(parent, personId);
-    auto* proxy = createGroupingProxyModel(dateModel, PersonEventsModel::ROLE, parent);
+    auto* proxy = createGroupingProxyModel(dateModel, PersonEventsModel::ROLE, PersonEventsModel::ID, parent);
 
     // Hide the original role column.
     auto* hidden = new KRearrangeColumnsProxyModel(parent);
     hidden->setSourceModel(proxy);
     hidden->setSourceColumns({
-        PersonEventsModel::ROLE,
-        // These are all one further than we want.
-        PersonEventsModel::TYPE + 1,
-        PersonEventsModel::DATE + 1,
-        PersonEventsModel::NAME + 1,
-        PersonEventsModel::ID + 1,
-        PersonEventsModel::ROLE_ID + 1,
+        // The "ID" column.
+        proxy->sourceModel()->columnCount() - 1,
+        // These other columns from the original model.
+        PersonEventsModel::TYPE,
+        PersonEventsModel::DATE,
+        PersonEventsModel::NAME,
+        PersonEventsModel::ID,
+        PersonEventsModel::ROLE_ID,
     });
 
     return hidden;

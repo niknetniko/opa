@@ -291,3 +291,12 @@ private:
     IntegerPrimaryKey personId;
     QString query_;
 };
+
+namespace PersonEventsTreeModel {
+    constexpr int ID_AND_ROLE = 0;
+    constexpr int TYPE = 1;
+    constexpr int DATE = 2;
+    constexpr int NAME = 3;
+    constexpr int ID = 4;
+    constexpr int ROLE_ID = 5;
+}

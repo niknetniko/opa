@@ -16,9 +16,14 @@ VirtualParentsModel::VirtualParentsModel(QObject* parent) : QIdentityProxyModel(
 void VirtualParentsModel::setGroupedByColumn(int column) {
     Q_ASSERT(0 <= column && column < sourceModel()->columnCount());
     this->groupedByColumn = column;
-    if (sourceModel()) {
-        calculateGroups();
-    }
+    Q_ASSERT(groupedByColumn != idColumn);
+    calculateGroups();
+}
+
+void VirtualParentsModel::setIdColumn(int column) {
+    Q_ASSERT(0 <= column && column < sourceModel()->columnCount());
+    this->idColumn = column;
+    Q_ASSERT(groupedByColumn != idColumn);
 }
 
 void VirtualParentsModel::setSourceModel(QAbstractItemModel* sourceModel) {
@@ -68,7 +73,7 @@ int VirtualParentsModel::columnCount(const QModelIndex& parent) const {
 
 Qt::ItemFlags VirtualParentsModel::flags(const QModelIndex& index) const {
     if (index.row() >= sourceModel()->rowCount() || index.column() >= sourceModel()->columnCount()) {
-        return Qt::ItemIsEnabled;
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
 
     return QIdentityProxyModel::flags(index);
@@ -95,7 +100,7 @@ QVariant VirtualParentsModel::data(const QModelIndex& index, int role) const {
         Q_ASSERT(index.column() <= sourceColumnCount);
         if (role == Qt::DisplayRole) {
             if (index.column() == sourceColumnCount) {
-                return QStringLiteral("Virtual row %1").arg(index.row());
+                return this->index(index.row(), idColumn).data();
             }
             return QString();
         }
@@ -134,10 +139,12 @@ void VirtualParentsModel::calculateGroups() {
     endResetModel();
 }
 
-QAbstractProxyModel* createGroupingProxyModel(QAbstractItemModel* original, int groupedByColumn, QObject* parent) {
+QAbstractProxyModel*
+createGroupingProxyModel(QAbstractItemModel* original, int groupedByColumn, int idColumn, QObject* parent) {
     auto* virtualRowsModel = new VirtualParentsModel(parent);
     virtualRowsModel->setSourceModel(original);
     virtualRowsModel->setGroupedByColumn(groupedByColumn);
+    virtualRowsModel->setIdColumn(idColumn);
 
     auto* treeModel = new TreeProxyModel(parent);
     treeModel->setSourceModel(virtualRowsModel);

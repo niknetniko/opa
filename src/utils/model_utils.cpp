@@ -31,12 +31,6 @@ void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent,
         }
 
         auto potentialParent = model->index(r, 0, parent);
-        {
-            auto deb = qDebug();
-            deb.noquote() << QString(level, QLatin1Char(' '));
-            deb << "-> Parent is valid? " << potentialParent.isValid();
-            deb << "-> Parent hasChildren? " << model->hasChildren(potentialParent);
-        }
         if (potentialParent.isValid()) {
             debugPrintModel(model, potentialParent, level + 1);
         }

@@ -31,11 +31,13 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setUniformRowHeights(true);
-    treeView->hideColumn(PersonEventsModel::ROLE_ID);
+    treeView->hideColumn(PersonEventsTreeModel::ROLE_ID);
+    treeView->hideColumn(PersonEventsTreeModel::ID);
 
     // The ID should be formatted properly.
     treeView->setItemDelegateForColumn(
-        PersonEventsModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
+        PersonEventsTreeModel::ID_AND_ROLE,
+        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
     );
     // Change resizes.
     treeView->header()->setSortIndicatorClearable(false);

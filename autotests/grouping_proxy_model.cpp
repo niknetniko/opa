@@ -40,6 +40,7 @@ private Q_SLOTS:
         VirtualParentsModel proxy;
         proxy.setSourceModel(rootModel);
         proxy.setGroupedByColumn(0);
+        proxy.setIdColumn(1);
 
         QCOMPARE(proxy.rowCount(), rootModel->rowCount() + 3);
         QCOMPARE(proxy.columnCount(), rootModel->columnCount() + 1);
@@ -50,7 +51,7 @@ private Q_SLOTS:
                 QCOMPARE(proxy.index(row, col).data(), rootModel->index(row, col).data());
             }
             // The last column should be empty for these rows.
-            QCOMPARE(proxy.index(row, rootModel->columnCount()).data(), u"Virtual row %1"_s.arg(row));
+            QCOMPARE(proxy.index(row, rootModel->columnCount()).data(), u"row %1-column 1"_s.arg(row));
         }
 
         // Check virtual rows.
@@ -67,13 +68,14 @@ private Q_SLOTS:
         VirtualParentsModel proxy;
         proxy.setSourceModel(rootModel);
         proxy.setGroupedByColumn(0);
+        proxy.setIdColumn(1);
 
         QAbstractItemModelTester(&proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void groupingModelTest() const {
         auto* rootModel = createRootModel();
-        auto* proxy = createGroupingProxyModel(rootModel, 0);
+        auto* proxy = createGroupingProxyModel(rootModel, 0, 1);
 
         QCOMPARE(proxy->rowCount(), 3);
         QCOMPARE(proxy->columnCount(), 3);

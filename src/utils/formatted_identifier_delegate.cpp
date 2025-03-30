@@ -23,9 +23,10 @@ FormattedIdentifierDelegate::FormattedIdentifierDelegate(QObject* parent, QStrin
 QString FormattedIdentifierDelegate::displayText(const QVariant& value, const QLocale& locale) const {
     QVariant finalValue = value;
 
-    if (isInvalid(value)) {
-        finalValue = QString();
-    } else if (value.canConvert<IntegerPrimaryKey>()) {
+    bool canBeId;
+    value.toString().toLongLong(&canBeId);
+
+    if (!isInvalid(value) && canBeId && value.canConvert<IntegerPrimaryKey>()) {
         finalValue = format_id(this->pattern, value);
     }
 

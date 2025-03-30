@@ -32,7 +32,6 @@ QModelIndex TreeProxyModel::mapFromSource(const QModelIndex& sourceIndex) const 
         return {};
     }
 
-    // Check if the source has a parent, in which case we must move it under the parent.
     auto parentId = sourceModel()->index(sourceIndex.row(), parentIdColumn).data();
     auto itemId = sourceModel()->index(sourceIndex.row(), idColumn).data();
     auto rowInParent = findSourceRowNumberInParent(itemId, parentId);

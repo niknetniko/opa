@@ -7,6 +7,8 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "utils/tree_proxy_model.h"
 
+#include "utils/model_utils.h"
+
 #include <QAbstractItemModelTester>
 #include <QStandardItemModel>
 #include <QTest>
@@ -28,8 +30,7 @@ private Q_SLOTS:
             if (row == 4) {
                 auto* parentId = new QStandardItem(u"ID 0"_s);
                 rootModel.setItem(row, 2, parentId);
-            }
-            if (row == 5) {
+            } else if (row == 5) {
                 auto* parentId = new QStandardItem(u"ID 4"_s);
                 rootModel.setItem(row, 2, parentId);
             }
