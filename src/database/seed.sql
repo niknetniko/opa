@@ -118,18 +118,18 @@ VALUES ('Smith Family Papers', 'Collection Abstract', 'Archivist, Local Historic
 INSERT INTO sources (title, type, author, publication, confidence, note, parent_id)
 VALUES ('Letter from Mary Smith to John Smith Sr.', 'Letter', 'Mary Smith', 'Smith Family Papers (Collection)', 'High',
         'Dated July 10, 1870. Mentions the upcoming marriage of "our John" and "dear Jane."',
-        1); -- parent_id references the collection
+        1);
 INSERT INTO sources (title, type, author, publication, confidence, note, parent_id)
 VALUES ('Marriage Mention in Letter', 'Citation', 'Mary Smith',
         'Letter from Mary Smith to John Smith Sr., Page 2, Line 5', 'High',
         'Exact quote: "...we are all so excited for John and Jane''s wedding next week."',
-        2); -- parent_id references the letter
+        2);
 INSERT INTO sources (title, type, author, publication, confidence, note, parent_id)
 VALUES ('Birth Certificate of John Doe', 'Birth Certificate', 'County Clerk''s Office', 'County Records, Jamestown, USA',
         'High', 'Original document, certified copy.', NULL);
 INSERT INTO sources (title, type, author, publication, confidence, note, parent_id)
 VALUES ('John Doe Birth Date', 'Citation', 'County Clerk', 'Birth Certificate of John Doe, Entry 456', 'High',
-        'Date of Birth: January 15, 1872', 4); -- parent_id references the birth certificate
+        'Date of Birth: January 15, 1872', 4);
 INSERT INTO sources (title, type, author, publication, confidence, note, parent_id)
 VALUES ('Father''s Name: John Doe Sr.', 'Citation', 'County Clerk', 'Birth Certificate of John Doe, Entry 456', 'High',
         'Father''s name listed as John Doe Sr.', 4);
