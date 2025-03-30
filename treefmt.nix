@@ -16,6 +16,6 @@
   ];
   # SQL
   # Enable once https://github.com/numtide/treefmt-nix/pull/328 has been merged.
-  programs.sql-formatter.enable = false;
-  settings.formatter.sql-formatter.dialect = "sqlite";
+  #  programs.sql-formatter.enable = false;
+  #  settings.formatter.sql-formatter.dialect = "sqlite";
 }
