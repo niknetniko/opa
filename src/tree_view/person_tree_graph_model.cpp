@@ -252,8 +252,8 @@ void PersonTreeGraphModel::calculateNodePositions() const {
             NodeId nodeId = nodes[nodeIndex];
             double dIndex = nodeIndex;
             int max = static_cast<int>(nodes.count()) - 1;
-            double centeredIndex =
-                dIndex - (max / 2) + (nodes.count() % 2 ? 0 : -0.5); // NOLINT(bugprone-integer-division)
+            double centeredIndex = dIndex - (max / 2) +
+                                   (nodes.count() % 2 ? 0 : -0.5); // NOLINT(bugprone-integer-division)
             double xValue = 300 * centeredIndex;
             _nodeGeometryData[nodeId].pos.setX(xValue);
         }
