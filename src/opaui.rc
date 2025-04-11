@@ -15,6 +15,8 @@
       <Action name="switch_action"/>
       <Action name="person_add_new"/>
       <Action name="person_delete_existing"/>
+      <Separator/>
+      <Action name="source_add_new"/>
     </Menu>
 
     <Menu name="view">

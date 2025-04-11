@@ -81,6 +81,8 @@ add_library(
   editors/new_person_editor_dialog.h
   editors/new_family_editor_dialog.cpp
   editors/new_family_editor_dialog.h
+  editors/source_editor_dialog.h
+  editors/source_editor_dialog.cpp
   link_existing/choose_existing_person_window.cpp
   link_existing/choose_existing_person_window.h
   docks/person_list_dock.cpp

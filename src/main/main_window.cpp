@@ -12,6 +12,7 @@
 #include "docks/person_list_dock.h"
 #include "docks/source_list_dock.h"
 #include "editors/new_person_editor_dialog.h"
+#include "editors/source_editor_dialog.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
@@ -87,6 +88,10 @@ MainWindow::MainWindow() {
     removePersonAction_->setIcon(QIcon::fromTheme(QStringLiteral("list-remove-user")));
     connect(removePersonAction_, &QAction::triggered, this, &MainWindow::onDeleteCurrentPerson);
 
+    addNewSourceAction_ = new QAction(this);
+    addNewSourceAction_->setText(i18n("Add new source"));
+    connect(addNewSourceAction_, &QAction::triggered, this, &MainWindow::onOpenNewSourceEditor);
+
     showPeopleListAction_ = new QAction(this);
     showPeopleListAction_->setText(i18n("Show people list"));
     showPeopleListAction_->setIcon(QIcon::fromTheme(QStringLiteral("system-user-list")));
@@ -103,6 +108,7 @@ MainWindow::MainWindow() {
     actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes_);
     actionCollection->addAction(QStringLiteral("person_add_new"), addNewPersonAction_);
     actionCollection->addAction(QStringLiteral("person_delete_existing"), removePersonAction_);
+    actionCollection->addAction(QStringLiteral("source_add_new"), addNewSourceAction_);
     actionCollection->addAction(QStringLiteral("show_people_list"), showPeopleListAction_);
     actionCollection->addAction(QStringLiteral("show_sources_list"), showSourcesListAction_);
 
@@ -173,6 +179,7 @@ void MainWindow::syncActions() {
         manageEventTypes_,
         manageNameOrigins_,
         addNewPersonAction_,
+        addNewSourceAction_,
         showPeopleListAction_,
         showSourcesListAction_,
     };
@@ -410,6 +417,37 @@ void MainWindow::onDeleteCurrentPerson() {
     //     qWarning() << "Could not save person changes.";
     //     qDebug() << personModel->lastError();
     // }
+}
+
+void MainWindow::onOpenNewSourceEditor() {
+    // TODO adjust this for sources this
+    // auto* namesModel = DataManager::get().namesModel();
+    //
+    // // Add a new row to the table for editing.
+    // auto newRecord = namesModel->record();
+    // newRecord.setGenerated(NamesTableModel::ID, false);
+    // newRecord.setValue(NamesTableModel::PERSON_ID, this->person);
+    // newRecord.setValue(NamesTableModel::SORT, treeView->model()->rowCount() + 1);
+    // if (!namesModel->insertRecord(-1, newRecord)) {
+    //     QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
+    //     qDebug() << "Could not get last inserted ID for some reason:";
+    //     qDebug() << namesModel->lastError();
+    //     return;
+    // }
+    //
+    // auto lastInsertedId = namesModel->query().lastInsertId();
+    // if (!lastInsertedId.isValid()) {
+    //     QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
+    //     qDebug() << "Could not get last inserted ID for some reason:";
+    //     qDebug() << namesModel->lastError();
+    //     return;
+    // }
+    //
+    // auto theId = lastInsertedId.toLongLong();
+    // auto* singleModel = DataManager::get().singleNameModel(this, theId);
+    //
+    // NamesEditorDialog::showDialogForNewName(singleModel, this);
+    // SourceEditorDialog::showDialogForNewSource(, this);
 }
 
 void MainWindow::showPeopleList() {

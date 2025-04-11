@@ -96,8 +96,9 @@ private Q_SLOTS:
     void syncRemoveAction() const;
 
     void onOpenNewPersonEditor();
-
     void onDeleteCurrentPerson();
+
+    void onOpenNewSourceEditor();
 
     void showPeopleList();
     void showSourcesList();
@@ -120,6 +121,7 @@ private:
     QAction* closeAction_ = nullptr;
     QAction* addNewPersonAction_ = nullptr;
     QAction* removePersonAction_ = nullptr;
+    QAction* addNewSourceAction_ = nullptr;
     QAction* showPeopleListAction_ = nullptr;
     QAction* showSourcesListAction_ = nullptr;
 
