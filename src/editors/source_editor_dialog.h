@@ -20,7 +20,7 @@ class SourceEditorDialog : public AbstractEditorDialog {
 public:
     explicit SourceEditorDialog(QAbstractItemModel* sourceModel, bool newSource, QWidget* parent);
 
-    static void showDialogForNewSource(QAbstractItemModel* sourceModel, QWidget* parent);
+    static void showDialogForNewSource(QWidget* parent);
     static void showDialogForExistingSource(QAbstractItemModel* sourceModel, QWidget* parent);
 
 public Q_SLOTS:

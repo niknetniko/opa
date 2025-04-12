@@ -71,6 +71,13 @@ QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVarian
     return proxy;
 }
 
+QAbstractProxyModel* DataManager::singleSourceModel(QObject* parent, const QVariant& sourceId) const {
+    auto* proxy = new MultiFilterProxyModel(parent);
+    proxy->setSourceModel(this->sourcesModel());
+    proxy->addFilter(SourcesTableModel::ID, sourceId);
+    return proxy;
+}
+
 QAbstractProxyModel* DataManager::singlePersonModel(QObject* parent, IntegerPrimaryKey personId) const {
     auto* proxy = new MultiFilterProxyModel(parent);
     proxy->setSourceModel(this->peopleModel());
@@ -252,7 +259,7 @@ QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) con
     return dateModel;
 }
 
-QAbstractItemModel* DataManager::sourcesModel() const {
+QSqlTableModel* DataManager::sourcesModel() const {
     return this->baseSourcesModel;
 }
 

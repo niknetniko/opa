@@ -5,14 +5,18 @@
  */
 #include "source_editor_dialog.h"
 
+#include "data/data_manager.h"
+#include "data/person.h"
 #include "data/source.h"
 #include "note_editor_dialog.h"
 #include "ui_source_editor_dialog.h"
-#include "utils/custom_sql_relational_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>
 #include <QDataWidgetMapper>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
 
 SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool newSource, QWidget* parent) :
     AbstractEditorDialog(newSource, parent),
@@ -26,8 +30,11 @@ SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool new
         form->sourceParentPickButton, &QPushButton::clicked, this, &SourceEditorDialog::selectExistingSourceAsParent
     );
 
-    connectComboBox(sourceModel, SourcesTableModel::TYPE, form->sourceTypeComboBox);
-    connectComboBox(sourceModel, SourcesTableModel::CONFIDENCE, form->sourceConfidenceCombobox);
+    // connectComboBox(sourceModel, SourcesTableModel::TYPE, form->sourceTypeComboBox);
+    // connectComboBox(sourceModel, SourcesTableModel::CONFIDENCE, form->sourceConfidenceCombobox);
+
+    auto* confidenceModel = getEnumModel<Confidence::Values>(this, Confidence::toDisplayString);
+    form->sourceConfidenceCombobox->setModel(confidenceModel);
 
     if (newSource) {
         this->setWindowTitle(i18n("Add new source"));
@@ -50,10 +57,33 @@ SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool new
     sourceMapper->addMapping(form->noteEdit, SourcesTableModel::NOTE);
     sourceMapper->toFirst();
     addMapper(sourceMapper);
+
+    // TODO: add auto complete for confidences.
 }
 
-void SourceEditorDialog::showDialogForNewSource(QAbstractItemModel* sourceModel, QWidget* parent) {
-    auto* dialog = new SourceEditorDialog(sourceModel, true, parent);
+void SourceEditorDialog::showDialogForNewSource(QWidget* parent) {
+
+    auto* sourcesModel = DataManager::get().sourcesModel();
+    auto newSourceRecord = sourcesModel->record();
+    newSourceRecord.setGenerated(SourcesTableModel::ID, false);
+    auto insertedConfidence = enumToString(Confidence::Values::Normal);
+    newSourceRecord.setValue(SourcesTableModel::CONFIDENCE, insertedConfidence);
+
+    if (!sourcesModel->insertRecord(-1, newSourceRecord)) {
+        qFatal() << "Could insert new name for some reason:";
+        qWarning() << sourcesModel->lastError();
+        return;
+    }
+
+    auto lastInsertedSource = sourcesModel->query().lastInsertId();
+    if (!lastInsertedSource.isValid()) {
+        qFatal() << "Could not get last inserted ID for some reason:";
+        qWarning() << sourcesModel->lastError();
+        return;
+    }
+
+    auto* singleSourceModel = DataManager::get().singleSourceModel(parent, lastInsertedSource);
+    auto* dialog = new SourceEditorDialog(singleSourceModel, true, parent);
     dialog->show();
 }
 

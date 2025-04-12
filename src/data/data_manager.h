@@ -43,9 +43,9 @@ public:
 
     [[nodiscard]] QSqlTableModel* eventsModel() const;
 
-    [[nodiscard]] QAbstractItemModel* eventsModelWithDateSupport(QObject* parent) const;
+    [[nodiscard]] QSqlTableModel* sourcesModel() const;
 
-    [[nodiscard]] QAbstractItemModel* sourcesModel() const;
+    [[nodiscard]] QAbstractItemModel* eventsModelWithDateSupport(QObject* parent) const;
 
     /**
      * Get a model representing all names for a single person.
@@ -64,6 +64,14 @@ public:
      * @param nameId The ID of the name.
      */
     [[nodiscard]] QAbstractProxyModel* singleNameModel(QObject* parent, const QVariant& nameId) const;
+
+    /**
+     * Model for a single source.
+     *
+     * @param parent The parent for the returned model.
+     * @param sourceId The ID of the source.
+     */
+    [[nodiscard]] QAbstractProxyModel* singleSourceModel(QObject* parent, const QVariant& sourceId) const;
 
     /**
      * Model for a single person.

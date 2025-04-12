@@ -51,11 +51,11 @@ CREATE TABLE event_relations (
 
 CREATE TABLE sources (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  title TEXT NOT NULL,
-  type TEXT NOT NULL,
+  title TEXT,
+  type TEXT,
   author TEXT,
   publication TEXT,
-  confidence TEXT,
+  confidence TEXT NOT NULL,
   note TEXT,
   parent_id INTEGER REFERENCES sources (id) ON DELETE SET NULL
 );

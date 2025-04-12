@@ -420,34 +420,7 @@ void MainWindow::onDeleteCurrentPerson() {
 }
 
 void MainWindow::onOpenNewSourceEditor() {
-    // TODO adjust this for sources this
-    // auto* namesModel = DataManager::get().namesModel();
-    //
-    // // Add a new row to the table for editing.
-    // auto newRecord = namesModel->record();
-    // newRecord.setGenerated(NamesTableModel::ID, false);
-    // newRecord.setValue(NamesTableModel::PERSON_ID, this->person);
-    // newRecord.setValue(NamesTableModel::SORT, treeView->model()->rowCount() + 1);
-    // if (!namesModel->insertRecord(-1, newRecord)) {
-    //     QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
-    //     qDebug() << "Could not get last inserted ID for some reason:";
-    //     qDebug() << namesModel->lastError();
-    //     return;
-    // }
-    //
-    // auto lastInsertedId = namesModel->query().lastInsertId();
-    // if (!lastInsertedId.isValid()) {
-    //     QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
-    //     qDebug() << "Could not get last inserted ID for some reason:";
-    //     qDebug() << namesModel->lastError();
-    //     return;
-    // }
-    //
-    // auto theId = lastInsertedId.toLongLong();
-    // auto* singleModel = DataManager::get().singleNameModel(this, theId);
-    //
-    // NamesEditorDialog::showDialogForNewName(singleModel, this);
-    // SourceEditorDialog::showDialogForNewSource(, this);
+    SourceEditorDialog::showDialogForNewSource(this);
 }
 
 void MainWindow::showPeopleList() {

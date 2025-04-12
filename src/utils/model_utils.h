@@ -11,6 +11,7 @@
 #include <KLazyLocalizedString>
 #include <QAbstractProxyModel>
 #include <QSqlTableModel>
+#include <QStandardItemModel>
 
 /**
  * Execute a "transaction" on a model.
@@ -103,6 +104,35 @@ bool isValidEnum(const QString& value) {
 }
 
 /**
+ * Convert an enum to a string.
+ *
+ * @tparam E The enum to use.
+ * @param value The value of the enum to convert.
+ * @return A converted value.
+ */
+template<typename E>
+QString enumToString(const E& value) {
+    auto result = QMetaEnum::fromType<E>().valueToKey(value);
+    return QString::fromUtf8(result);
+}
+
+template<typename E>
+QAbstractItemModel* getEnumModel(QObject* parent, std::function<QString(QString)> toDisplayText) {
+    auto* model = new QStandardItemModel(parent);
+    auto metaEnum = QMetaEnum::fromType<E>();
+    for (auto i = 0; i < metaEnum.keyCount(); ++i) {
+        auto value = metaEnum.value(i);
+        auto displayText = toDisplayText(QString::fromLatin1(metaEnum.key(i)));
+
+        auto* item = new QStandardItem();
+        item->setData(value, Qt::EditRole);
+        item->setData(displayText, Qt::DisplayRole);
+        model->appendRow(item);
+    }
+    return model;
+}
+
+/**
  * Convert a string to an enum.
  *
  * @tparam E The enum to use.
@@ -127,7 +157,7 @@ E enumFromString(const QString& value) {
  */
 template<typename E>
 QString genericToDisplayString(const QString& databaseValue, QHash<E, KLazyLocalizedString> mapping) {
-    auto result = QMetaEnum::fromType<E>().keyToValue(databaseValue.toLatin1().constData());
+    auto result = enumFromString<E>(databaseValue);
     if (result == -1) {
         // This is not a built-in type, so do nothing with it.
         return databaseValue;
