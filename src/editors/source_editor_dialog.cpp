@@ -8,6 +8,7 @@
 #include "data/data_manager.h"
 #include "data/person.h"
 #include "data/source.h"
+#include "link_existing/choose_existing_source_window.h"
 #include "note_editor_dialog.h"
 #include "ui_source_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
@@ -55,6 +56,8 @@ SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool new
     sourceMapper->addMapping(form->sourceTypeComboBox, SourcesTableModel::TYPE);
     sourceMapper->addMapping(form->sourceConfidenceCombobox, SourcesTableModel::CONFIDENCE);
     sourceMapper->addMapping(form->noteEdit, SourcesTableModel::NOTE);
+    // TODO: make this show the parent somehow after it has been selected.
+    sourceMapper->addMapping(form->sourceParentDisplay, SourcesTableModel::PARENT_ID);
     sourceMapper->toFirst();
     addMapper(sourceMapper);
 
@@ -62,7 +65,6 @@ SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool new
 }
 
 void SourceEditorDialog::showDialogForNewSource(QWidget* parent) {
-
     auto* sourcesModel = DataManager::get().sourcesModel();
     auto newSourceRecord = sourcesModel->record();
     newSourceRecord.setGenerated(SourcesTableModel::ID, false);
@@ -101,5 +103,13 @@ void SourceEditorDialog::editNoteWithEditor() {
 
 void SourceEditorDialog::addNewSourceAsParent() {
 }
+
 void SourceEditorDialog::selectExistingSourceAsParent() {
+    auto sourceId = ChooseExistingSourceWindow::selectSource(this);
+    if (sourceId.isValid()) {
+        auto model = mappers.first()->model();
+        auto index = model->index(0, SourcesTableModel::PARENT_ID);
+        model->setData(index, sourceId);
+        qDebug() << "Selected source ID:" << sourceId;
+    }
 }
