@@ -107,7 +107,7 @@ void SourceEditorDialog::addNewSourceAsParent() {
 void SourceEditorDialog::selectExistingSourceAsParent() {
     auto sourceId = ChooseExistingSourceWindow::selectSource(this);
     if (sourceId.isValid()) {
-        auto model = mappers.first()->model();
+        auto* model = mappers.first()->model();
         auto index = model->index(0, SourcesTableModel::PARENT_ID);
         model->setData(index, sourceId);
         qDebug() << "Selected source ID:" << sourceId;
