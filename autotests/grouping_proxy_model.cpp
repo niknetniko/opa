@@ -57,7 +57,7 @@ private Q_SLOTS:
         // Check virtual rows.
         for (int row = rootModel->rowCount(); row < proxy.rowCount(); ++row) {
             for (int col = 0; col < rootModel->columnCount(); ++col) {
-                QCOMPARE(proxy.index(row, col).data(), QString());
+                QCOMPARE(proxy.index(row, col).data(), QVariant::fromValue(nullptr));
             }
             QCOMPARE(proxy.index(row, rootModel->columnCount()).data(), u"group %1"_s.arg(row - rootModel->rowCount()));
         }

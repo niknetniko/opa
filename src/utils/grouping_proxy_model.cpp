@@ -102,7 +102,7 @@ QVariant VirtualParentsModel::data(const QModelIndex& index, int role) const {
             if (index.column() == sourceColumnCount) {
                 return this->index(index.row(), idColumn).data();
             }
-            return QString();
+            return QVariant::fromValue(nullptr);
         }
     }
     // This is the normal data.

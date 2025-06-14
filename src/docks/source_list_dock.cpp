@@ -9,6 +9,7 @@
 #include "data/source.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
+#include "utils/rich_text_plain_delegate.h"
 
 #include <KLocalizedString>
 #include <QHeaderView>
@@ -41,9 +42,11 @@ SourceTreeWidget::SourceTreeWidget(QWidget* parent) : QWidget(parent) {
     treeView->setItemDelegateForColumn(
         SourcesTableModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::SOURCE)
     );
+    treeView->setItemDelegateForColumn(SourcesTableModel::NOTE, new RichTextPlainDelegate(treeView));
     treeView->hideColumn(SourcesTableModel::PARENT_ID);
     treeView->setUniformRowHeights(true);
-    treeView->expandAll();
+    // treeView->expandAll();
+    treeView->expandToDepth(1);
 
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(searchBox);

@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "database/schema.h"
 #include "editor_dialog.h"
 
 namespace Ui {
@@ -20,7 +21,7 @@ class SourceEditorDialog : public AbstractEditorDialog {
 public:
     explicit SourceEditorDialog(QAbstractItemModel* sourceModel, bool newSource, QWidget* parent);
 
-    static void showDialogForNewSource(QWidget* parent);
+    static QVariant showDialogForNewSource(QWidget* parent);
     static void showDialogForExistingSource(QAbstractItemModel* sourceModel, QWidget* parent);
 
 public Q_SLOTS:

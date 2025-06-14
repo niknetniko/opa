@@ -12,7 +12,6 @@
 #include "person.h"
 #include "source.h"
 #include "utils/grouping_proxy_model.h"
-#include "utils/model_utils.h"
 #include "utils/multi_filter_proxy_model.h"
 #include "utils/tree_proxy_model.h"
 
@@ -499,6 +498,16 @@ QAbstractItemModel* DataManager::sourcesTreeModel(QObject* parent) const {
     treeModel->setParentIdColumn(SourcesTableModel::PARENT_ID);
 
     return treeModel;
+}
+
+QAbstractItemModel* DataManager::sourceTypeModel(QObject* parent) {
+    auto query = QStringLiteral("SELECT DISTINCT type FROM sources");
+    auto* baseModel = new QSqlQueryModel(parent);
+    baseModel->setQuery(query);
+    propagateToModel<QSqlQueryModel>(baseModel, {Schema::SourcesTable}, [query](auto* model) {
+        model->setQuery(query);
+    });
+    return baseModel;
 }
 
 void DataManager::listenToModel(const QSqlTableModel* model) const {

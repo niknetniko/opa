@@ -31,8 +31,8 @@ SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool new
         form->sourceParentPickButton, &QPushButton::clicked, this, &SourceEditorDialog::selectExistingSourceAsParent
     );
 
-    // connectComboBox(sourceModel, SourcesTableModel::TYPE, form->sourceTypeComboBox);
-    // connectComboBox(sourceModel, SourcesTableModel::CONFIDENCE, form->sourceConfidenceCombobox);
+    auto* sourceTypeModel = DataManager::get().sourceTypeModel(this);
+    form->sourceTypeComboBox->setModel(sourceTypeModel);
 
     auto* confidenceModel = getEnumModel<Confidence::Values>(this, Confidence::toDisplayString);
     form->sourceConfidenceCombobox->setModel(confidenceModel);
@@ -56,15 +56,13 @@ SourceEditorDialog::SourceEditorDialog(QAbstractItemModel* sourceModel, bool new
     sourceMapper->addMapping(form->sourceTypeComboBox, SourcesTableModel::TYPE);
     sourceMapper->addMapping(form->sourceConfidenceCombobox, SourcesTableModel::CONFIDENCE);
     sourceMapper->addMapping(form->noteEdit, SourcesTableModel::NOTE);
-    // TODO: make this show the parent somehow after it has been selected.
-    sourceMapper->addMapping(form->sourceParentDisplay, SourcesTableModel::PARENT_ID);
     sourceMapper->toFirst();
     addMapper(sourceMapper);
 
     // TODO: add auto complete for confidences.
 }
 
-void SourceEditorDialog::showDialogForNewSource(QWidget* parent) {
+QVariant SourceEditorDialog::showDialogForNewSource(QWidget* parent) {
     auto* sourcesModel = DataManager::get().sourcesModel();
     auto newSourceRecord = sourcesModel->record();
     newSourceRecord.setGenerated(SourcesTableModel::ID, false);
@@ -74,19 +72,25 @@ void SourceEditorDialog::showDialogForNewSource(QWidget* parent) {
     if (!sourcesModel->insertRecord(-1, newSourceRecord)) {
         qFatal() << "Could insert new name for some reason:";
         qWarning() << sourcesModel->lastError();
-        return;
+        return {};
     }
 
     auto lastInsertedSource = sourcesModel->query().lastInsertId();
     if (!lastInsertedSource.isValid()) {
         qFatal() << "Could not get last inserted ID for some reason:";
         qWarning() << sourcesModel->lastError();
-        return;
+        return {};
     }
 
     auto* singleSourceModel = DataManager::get().singleSourceModel(parent, lastInsertedSource);
     auto* dialog = new SourceEditorDialog(singleSourceModel, true, parent);
     dialog->show();
+
+    if (dialog->result() != Accepted) {
+        return {};
+    }
+
+    return lastInsertedSource;
 }
 
 void SourceEditorDialog::showDialogForExistingSource(QAbstractItemModel* sourceModel, QWidget* parent) {
@@ -102,6 +106,15 @@ void SourceEditorDialog::editNoteWithEditor() {
 }
 
 void SourceEditorDialog::addNewSourceAsParent() {
+    qDebug() << "Adding new source as parent...";
+    auto newSourceId = showDialogForNewSource(this);
+    qDebug() << "New source ID:" << newSourceId;
+    if (newSourceId.isValid()) {
+        auto* model = mappers.first()->model();
+        auto index = model->index(0, SourcesTableModel::PARENT_ID);
+        model->setData(index, newSourceId);
+        qDebug() << "Selected new source ID:" << newSourceId;
+    }
 }
 
 void SourceEditorDialog::selectExistingSourceAsParent() {

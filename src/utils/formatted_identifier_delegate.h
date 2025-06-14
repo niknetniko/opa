@@ -23,7 +23,7 @@ public:
     static constexpr auto EVENT = QLatin1String("E%1");
     static constexpr auto SOURCE = QLatin1String("S%1");
 
-    FormattedIdentifierDelegate(QObject* parent, QString pattern);
+    explicit FormattedIdentifierDelegate(QObject* parent, QString pattern);
 
     [[nodiscard]] QString displayText(const QVariant& value, const QLocale& locale) const override;
 

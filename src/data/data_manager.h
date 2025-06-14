@@ -199,6 +199,11 @@ public:
      */
     [[nodiscard]] QAbstractItemModel* sourcesTreeModel(QObject* parent) const;
 
+    /**
+     * A modal giving all the types of the sources.
+     */
+    [[nodiscard]] QAbstractItemModel* sourceTypeModel(QObject* parent);
+
 Q_SIGNALS:
     /**
      * Called when a change has occurred in a certain model, and other models depending on data

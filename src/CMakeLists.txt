@@ -96,7 +96,9 @@ add_library(
   docks/source_list_dock.cpp
   docks/source_list_dock.h
   link_existing/choose_existing_source_window.cpp
-  link_existing/choose_existing_source_window.h)
+  link_existing/choose_existing_source_window.h
+  utils/rich_text_plain_delegate.cpp
+  utils/rich_text_plain_delegate.h)
 
 ecm_qt_declare_logging_category(
   opa-lib

@@ -105,3 +105,7 @@ public:
 
     explicit SourcesTableModel(QObject* parent = nullptr);
 };
+
+namespace SourceTypeModel {
+    static constexpr int TYPE = 0;
+}

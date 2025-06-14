@@ -38,5 +38,5 @@ void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent,
 }
 
 bool isInvalid(const QVariant& variant) {
-    return !variant.isValid() || variant.isNull() || variant.toString().isEmpty();
+    return !variant.isValid() || variant.isNull();
 }
