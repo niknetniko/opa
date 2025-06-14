@@ -11,11 +11,9 @@ RichTextPlainDelegate::RichTextPlainDelegate(QObject* parent) : QStyledItemDeleg
 }
 
 QString RichTextPlainDelegate::displayText(const QVariant& value, const QLocale& locale) const {
-    QVariant finalValue = value;
-
-    if (!finalValue.isValid()) {
+    if (!value.isValid()) {
         return QStyledItemDelegate::displayText(value, locale);
     }
 
-    return QTextDocumentFragment::fromHtml(finalValue.toString()).toPlainText().section(QLatin1Char('\n'), 0, 0);
+    return QTextDocumentFragment::fromHtml(value.toString()).toPlainText().section(QLatin1Char('\n'), 0, 0);
 }
