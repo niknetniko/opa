@@ -84,9 +84,8 @@ QVariant SourceEditorDialog::showDialogForNewSource(QWidget* parent) {
 
     auto* singleSourceModel = DataManager::get().singleSourceModel(parent, lastInsertedSource);
     auto* dialog = new SourceEditorDialog(singleSourceModel, true, parent);
-    dialog->show();
 
-    if (dialog->result() != Accepted) {
+    if (dialog->exec() != Accepted) {
         return {};
     }
 
@@ -114,6 +113,11 @@ void SourceEditorDialog::addNewSourceAsParent() {
         auto index = model->index(0, SourcesTableModel::PARENT_ID);
         model->setData(index, newSourceId);
         qDebug() << "Selected new source ID:" << newSourceId;
+    } else {
+        qDebug() << "Aborting adding new source as parent.";
+        qDebug() << "Full model is now";
+        debugPrintModel(DataManager::get().sourcesModel());
+        qDebug() << "End of full model";
     }
 }
 

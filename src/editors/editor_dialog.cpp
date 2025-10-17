@@ -17,13 +17,25 @@ AbstractEditorDialog::AbstractEditorDialog(bool isNewItem, QWidget* parent) : QD
 }
 
 void AbstractEditorDialog::reject() {
+    qDebug() << "Rejecting" << (isNewItem ? "new" : "existing") << "item";
+
     for (auto* mapper: std::as_const(this->mappers)) {
+        qDebug() << "Reverting mapper" << mapper;
         mapper->revert();
         if (isNewItem) {
+            qDebug() << "Removing newly added row";
             if (!mapper->model()->removeRow(0)) {
                 qWarning() << "Could not remove newly row for mapper" << mapper;
                 if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(mapper->model())) {
                     qDebug() << sourceModel->lastError();
+                } else {
+                    qWarning() << "Could not find source model for mapper" << mapper;
+                }
+            } else {
+                // Refresh the model to remove the removed row if possible.
+                if (auto* sourceModel = findSourceModelOfType<QSqlTableModel>(mapper->model())) {
+                    qDebug() << "Refreshing source model after row deletion";
+                    const_cast<QSqlTableModel*>(sourceModel)->select();
                 }
             }
         }

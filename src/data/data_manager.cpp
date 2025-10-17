@@ -494,8 +494,13 @@ QAbstractProxyModel* DataManager::parentsModelFor(QObject* parent, IntegerPrimar
 QAbstractItemModel* DataManager::sourcesTreeModel(QObject* parent) const {
     auto* treeModel = new TreeProxyModel(parent);
     treeModel->setSourceModel(this->sourcesModel());
+    debugPrintModel(this->sourcesModel());
     treeModel->setIdColumn(SourcesTableModel::ID);
     treeModel->setParentIdColumn(SourcesTableModel::PARENT_ID);
+    // Print when the model changes
+    connect(treeModel, &TreeProxyModel::dataChanged, this, []() {
+        qDebug() << "Source tree model changed";
+    });
 
     return treeModel;
 }
@@ -533,12 +538,12 @@ void DataManager::onSourceModelChanged() {
     qDebug() << "This update is triggered by" << senderName << "for table" << sendingModel->tableName() << "by signal"
              << metaMethod.methodSignature();
     if (this->updatingFromDataManagerSource == nullptr) {
-        // qDebug() << "   Not updating yet";
+        qDebug() << "   Not updating yet";
         updatingFromDataManagerSource = sender;
         Q_EMIT this->dataChanged(sendingModel->tableName());
         updatingFromDataManagerSource = nullptr;
     } else {
-        // qDebug() << "   Already updating in DataManager, so ignoring this signal.";
+        qDebug() << "   Already updating in DataManager, so ignoring this signal.";
         // We are already updating from another model, so do not propagate this.
         // Do nothing.
     }

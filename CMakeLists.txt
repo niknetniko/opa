@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 project(opa)
 
 set(QT_MIN_VERSION "6.0.0")
-set(KF_MIN_VERSION "6.3.0")
+set(KF_MIN_VERSION "6.4.0")
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
