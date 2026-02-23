@@ -69,13 +69,13 @@
         };
         qtnodes = pkgs.clangStdenv.mkDerivation rec {
           pname = "qtnodes";
-          version = "3.0.12";
+          version = "3.0.16";
 
           src = pkgs.fetchFromGitHub {
             owner = "paceholder";
             repo = "nodeeditor";
             rev = "${version}";
-            hash = "sha256-Nt71HVMYXH4F+ijdFPCQLratNx3m97TdC6Y/73mv6no=";
+            hash = "sha256-Y9W6CtNB36l2vzWDvlC0BnHJSNe/dN0wW7Pct+/d+1Q=";
           };
 
           cmakeFlags = [ "-DUSE_QT6=ON" ];
@@ -85,41 +85,6 @@
           nativeBuildInputs = with pkgs; [ cmake ];
           buildInputs = with pkgs; [ qt6.qtbase ];
         };
-#        # We need a Qt6 version
-#        # Based on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/libraries/kddockwidgets/default.nix
-#        kddockwidgets6 = pkgs.clangStdenv.mkDerivation rec {
-#          pname = "KDDockWidgets";
-#          version = "2.2.1";
-#
-#          src = pkgs.fetchFromGitHub {
-#            owner = "KDAB";
-#            repo = pname;
-#            rev = "v${version}";
-#            sha256 = "sha256-DxRySKhQ15OpstjCO6FJ9edV7z8/rECN2+o5T63vFzQ=";
-#          };
-#
-#          nativeBuildInputs = [ pkgs.cmake ];
-#
-#          buildInputs = [
-#            pkgs.spdlog
-#            pkgs.fmt
-#            pkgs.nlohmann_json
-#          ];
-#
-#          cmakeFlags = [
-#            "-DKDDockWidgets_QT6=ON"
-#            # We do not use QtQuick at the moment
-#            "-DKDDockWidgets_FRONTENDS='qtwidgets'"
-#          ];
-#
-#          propagatedBuildInputs = [
-#            pkgs.qt6.qtbase
-#            pkgs.qt6.qtdeclarative
-#            pkgs.qt6.qtwayland
-#          ];
-#
-#          dontWrapQtApps = true;
-#        };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
       {
@@ -163,6 +128,8 @@
               pkgs.gersemi
               treefmtEval.config.build.wrapper
               pkgs.bashInteractive
+              pkgs.gemini-cli
+              pkgs.nodejs_24
             ];
           shellHook = ''
             export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}

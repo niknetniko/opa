@@ -48,7 +48,7 @@ IndentCaseLabels: true
 IndentWidth: 4
 InsertNewlineAtEOF: true
 MaxEmptyLinesToKeep: 2
-NamespaceIndentation: All
+NamespaceIndentation: Inner
 PackConstructorInitializers: CurrentLine
 SpaceAfterCStyleCast: true
 SpaceAfterTemplateKeyword: false

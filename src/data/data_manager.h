@@ -29,12 +29,6 @@ public:
 
     static DataManager& get();
 
-    [[nodiscard]] QSqlTableModel* peopleModel() const;
-
-    [[nodiscard]] QSqlTableModel* namesModel() const;
-
-    [[nodiscard]] QSqlTableModel* nameOriginsModel() const;
-
     [[nodiscard]] QSqlTableModel* eventRolesModel() const;
 
     [[nodiscard]] QSqlTableModel* eventTypesModel() const;
@@ -48,106 +42,12 @@ public:
     [[nodiscard]] QAbstractItemModel* eventsModelWithDateSupport(QObject* parent) const;
 
     /**
-     * Get a model representing all names for a single person.
-     *
-     * The returned model has columns as described in the \c PersonNamesModel namespace.
-     *
-     * @param parent The parent for the returned model.
-     * @param personId The ID of the person to filter on.
-     */
-    [[nodiscard]] QAbstractProxyModel* namesModelForPerson(QObject* parent, IntegerPrimaryKey personId) const;
-
-    /**
-     * Model for a single name.
-     *
-     * @param parent The parent for the returned model.
-     * @param nameId The ID of the name.
-     */
-    [[nodiscard]] QAbstractProxyModel* singleNameModel(QObject* parent, const QVariant& nameId) const;
-
-    /**
      * Model for a single source.
      *
      * @param parent The parent for the returned model.
      * @param sourceId The ID of the source.
      */
     [[nodiscard]] QAbstractProxyModel* singleSourceModel(QObject* parent, const QVariant& sourceId) const;
-
-    /**
-     * Model for a single person.
-     *
-     * @param parent The parent for the returned model.
-     * @param personId The ID of the person to filter on.
-     */
-    [[nodiscard]] QAbstractProxyModel* singlePersonModel(QObject* parent, IntegerPrimaryKey personId) const;
-
-    /**
-     * Model that returns the sexes in the database.
-     *
-     * @param parent The parent for the model
-     */
-    [[nodiscard]] QAbstractItemModel* sexesModel(QObject* parent);
-
-    /**
-     * Model showing only the primary names for each person.
-     *
-     * @param parent The parent of the model.
-     */
-    [[nodiscard]] QAbstractProxyModel* primaryNamesModel(QObject* parent);
-
-    /**
-     * Model for the details view of a person.
-     */
-    [[nodiscard]] QAbstractProxyModel* personDetailsModel(QObject* parent, IntegerPrimaryKey personId);
-
-    /**
-     * Model for the birth-like events of a person.
-     */
-    [[nodiscard]] QAbstractItemModel* personBirthEventsModel(QObject* parent, IntegerPrimaryKey personId);
-
-    /**
-     * Model for the death-like events of a person.
-     */
-    [[nodiscard]] QAbstractItemModel* personDeathEventsModel(QObject* parent, IntegerPrimaryKey personId);
-
-    /**
-     * Model of events for one person (including all roles).
-     *
-     * The events are grouped under the role of the given person in the event.
-     * See flatEventsModelForPerson for a flat model.
-     *
-     * See PersonEventsModel for an overview of the returned columns.
-     */
-    [[nodiscard]] QAbstractProxyModel* treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
-
-    /**
-     * Model of events for one person (including all roles).
-     *
-     * The events are just a list of events.
-     * See treeEventsModelForPerson for a tree model.
-     *
-     * See PersonEventsModel for an overview of the returned columns.
-     */
-    [[nodiscard]] QAbstractItemModel* flatEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId);
-
-    /**
-     * Model of the birth event for a person.
-     *
-     * See PersonEventsModel for an overview of the returned columns.
-     */
-    [[nodiscard]] QAbstractItemModel* birthEventModelForPerson(QObject* parent, IntegerPrimaryKey personId);
-
-    /**
-     * Model for a single event.
-     */
-    [[nodiscard]] QAbstractProxyModel* singleEventModel(QObject* parent, const QVariant& eventId) const;
-
-    /**
-     * Model for a single event relation.
-     */
-    [[nodiscard]] QAbstractProxyModel* singleEventRelationModel(
-        QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
-    ) const;
 
     /**
      * Model for event relation for a given person and event.
@@ -231,9 +131,6 @@ private:
     void* updatingFromDataManagerSource = nullptr;
 
     // Base models that allow editing.
-    QSqlTableModel* basePeopleModel;
-    CustomSqlRelationalModel* baseNamesModel;
-    QSqlTableModel* baseNameOriginModel;
     QSqlTableModel* baseEventRolesModel;
     QSqlTableModel* baseEventTypesModel;
     CustomSqlRelationalModel* baseEventRelationsModel;

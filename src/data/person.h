@@ -22,41 +22,9 @@ namespace Sex {
         {Female, kli18n("Female")},
     };
 
-    const std::function toDisplayString = [](const QString& databaseValue) {
+    const auto toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, nameOriginToString);
     };
 
     QString toIcon(const QString& sex);
 }
-
-namespace SexesModel {
-    constexpr int SEX = 0;
-}
-
-namespace DisplayNameModel {
-    constexpr int ID = 0;
-    constexpr int NAME = 1;
-    constexpr int ROOT = 2;
-}
-
-namespace PersonDetailModel {
-    constexpr int ID = 0;
-    constexpr int TITLES = 1;
-    constexpr int GIVEN_NAMES = 2;
-    constexpr int PREFIXES = 3;
-    constexpr int SURNAME = 4;
-    constexpr int ROOT = 5;
-    constexpr int SEX = 6;
-    constexpr int DISPLAY_NAME = 7;
-}
-
-class PeopleTableModel : public QSqlTableModel {
-    Q_OBJECT
-
-public:
-    static constexpr int ID = 0;
-    static constexpr int ROOT = 1;
-    static constexpr int SEX = 2;
-
-    explicit PeopleTableModel(QObject* parent = nullptr);
-};

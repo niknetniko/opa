@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "../domain/name/name_origins_model.h"
 #include "simple_list_manager.h"
 
 class NameOriginsManagementWindow : public SimpleListManagementWindow {
@@ -12,6 +13,11 @@ class NameOriginsManagementWindow : public SimpleListManagementWindow {
 
 public:
     explicit NameOriginsManagementWindow();
+
+public Q_SLOTS:
+    void addItem() const override;
+    void removeItem() const override;
+    void repairItems() override;
 
 protected:
     bool repairConfirmation() override;
@@ -25,4 +31,7 @@ protected:
     [[nodiscard]] QString translatedItemCount(int itemCount) const override;
 
     [[nodiscard]] QString translatedItemDescription(const QString& item, bool isBuiltIn) const override;
+
+private:
+    NameOriginsModel* originsModel = nullptr;
 };

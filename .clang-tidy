@@ -31,6 +31,7 @@ Checks: "*,
         -*-const-correctness,
         -boost-use-*,
         -*-no-recursion,
+        -*-avoid-pragma-once,
 "
 CheckOptions:
   # Default without connect function

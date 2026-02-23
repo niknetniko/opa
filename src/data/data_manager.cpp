@@ -5,11 +5,11 @@
  */
 #include "data_manager.h"
 
+#include "../core/data_event_broker.h"
 #include "data/names.h"
 #include "dates/genealogical_date_proxy_model.h"
 #include "event.h"
 #include "family.h"
-#include "person.h"
 #include "source.h"
 #include "utils/grouping_proxy_model.h"
 #include "utils/multi_filter_proxy_model.h"
@@ -25,213 +25,19 @@ DataManager* DataManager::instance = nullptr;
 
 // NOLINTBEGIN(*-prefer-member-initializer)
 DataManager::DataManager(QObject* parent) : QObject(parent) {
-    baseNameOriginModel = makeModel<NameOriginTableModel>();
-    baseNamesModel = makeModel<NamesTableModel>(baseNameOriginModel);
     baseEventRolesModel = makeModel<EventRolesModel>();
     baseEventRelationsModel = makeModel<EventRelationsModel>(baseEventRolesModel);
     baseEventTypesModel = makeModel<EventTypesModel>();
     baseEventsModel = makeModel<EventsModel>(baseEventTypesModel);
-    basePeopleModel = makeModel<PeopleTableModel>();
     baseSourcesModel = makeModel<SourcesTableModel>();
 }
 // NOLINTEND(*-prefer-member-initializer)
-
-QSqlTableModel* DataManager::namesModel() const {
-    return this->baseNamesModel;
-}
-
-QAbstractProxyModel* DataManager::namesModelForPerson(QObject* parent, const IntegerPrimaryKey personId) const {
-    auto* baseProxy = new MultiFilterProxyModel(parent);
-    baseProxy->setSourceModel(this->namesModel());
-    baseProxy->addFilter(NamesTableModel::PERSON_ID, personId);
-
-    auto* selectedColumnsModel = new KRearrangeColumnsProxyModel(parent);
-    selectedColumnsModel->setSourceModel(baseProxy);
-    selectedColumnsModel->setSourceColumns(
-        {NamesTableModel::ID,
-         NamesTableModel::SORT,
-         NamesTableModel::TITLES,
-         NamesTableModel::GIVEN_NAMES,
-         NamesTableModel::PREFIX,
-         NamesTableModel::SURNAME,
-         NamesTableModel::ORIGIN}
-    );
-
-    auto* filterProxyModel = new QSortFilterProxyModel(parent);
-    filterProxyModel->setSourceModel(selectedColumnsModel);
-
-    return filterProxyModel;
-}
-
-QAbstractProxyModel* DataManager::singleNameModel(QObject* parent, const QVariant& nameId) const {
-    auto* proxy = new MultiFilterProxyModel(parent);
-    proxy->setSourceModel(this->namesModel());
-    proxy->addFilter(NamesTableModel::ID, nameId);
-    return proxy;
-}
 
 QAbstractProxyModel* DataManager::singleSourceModel(QObject* parent, const QVariant& sourceId) const {
     auto* proxy = new MultiFilterProxyModel(parent);
     proxy->setSourceModel(this->sourcesModel());
     proxy->addFilter(SourcesTableModel::ID, sourceId);
     return proxy;
-}
-
-QAbstractProxyModel* DataManager::singlePersonModel(QObject* parent, IntegerPrimaryKey personId) const {
-    auto* proxy = new MultiFilterProxyModel(parent);
-    proxy->setSourceModel(this->peopleModel());
-    proxy->addFilter(PeopleTableModel::ID, personId);
-    return proxy;
-}
-
-QAbstractItemModel* DataManager::sexesModel(QObject* parent) {
-    auto query = QStringLiteral("SELECT DISTINCT sex FROM people");
-    auto* baseModel = new QSqlQueryModel(parent);
-    baseModel->setQuery(query);
-    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable}, [query](auto* model) {
-        model->setQuery(query);
-    });
-    return baseModel;
-}
-
-QAbstractProxyModel* DataManager::primaryNamesModel(QObject* parent) {
-    auto query = QStringLiteral(
-        "SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, "
-        "people.root "
-        "FROM people "
-        "LEFT JOIN names on people.id = names.person_id "
-        "WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) OR names.sort IS NULL"
-    );
-    auto* baseModel = new QSqlQueryModel(parent);
-
-    // These positions are hardcoded from the query above.
-    baseModel->setQuery(query);
-    baseModel->setHeaderData(0, Qt::Horizontal, i18n("Id"));
-    baseModel->setHeaderData(1, Qt::Horizontal, i18n("Titles"));
-    baseModel->setHeaderData(2, Qt::Horizontal, i18n("First names"));
-    baseModel->setHeaderData(3, Qt::Horizontal, i18n("Prefixes"));
-    baseModel->setHeaderData(4, Qt::Horizontal, i18n("Surnames"));
-    baseModel->setHeaderData(5, Qt::Horizontal, i18n("Root"));
-
-    // We want to add a column, where the name is produced based on other columns.
-    auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setSourceModel(baseModel);
-    combinedModel->setColumns({
-        .titles = 1,
-        .givenNames = 2,
-        .prefix = 3,
-        .surname = 4,
-    });
-
-    // We want to re-arrange the columns and hide most of them.
-    auto* rearrangedModel = new KRearrangeColumnsProxyModel(parent);
-    rearrangedModel->setSourceModel(combinedModel);
-    rearrangedModel->setSourceColumns({0, 6, 5});
-
-    propagateToModel<QSqlQueryModel>(baseModel, {Schema::PeopleTable, Schema::NamesTable}, [query](auto* model) {
-        model->setQuery(query);
-    });
-
-    return rearrangedModel;
-}
-
-QAbstractProxyModel* DataManager::personDetailsModel(QObject* parent, IntegerPrimaryKey personId) {
-    auto rawQuery = QStringLiteral(R"-(
-SELECT people.id, names.titles, names.given_names, names.prefix, names.surname, people.root, people.sex
-FROM people
-       LEFT JOIN names on people.id = names.person_id
-WHERE (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = people.id) OR names.sort IS NULL)
-  AND people.id = :id
-)-");
-    QSqlQuery query;
-    query.prepare(rawQuery);
-    query.bindValue(QStringLiteral(":id"), personId);
-    query.exec();
-
-    auto* baseModel = new QSqlQueryModel(parent);
-    baseModel->setQuery(std::move(query));
-    baseModel->setHeaderData(PersonDetailModel::ID, Qt::Horizontal, i18n("Id"));
-    baseModel->setHeaderData(PersonDetailModel::TITLES, Qt::Horizontal, i18n("Titels"));
-    baseModel->setHeaderData(PersonDetailModel::GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
-    baseModel->setHeaderData(PersonDetailModel::PREFIXES, Qt::Horizontal, i18n("Voorvoegsels"));
-    baseModel->setHeaderData(PersonDetailModel::SURNAME, Qt::Horizontal, i18n("Achternaam"));
-    baseModel->setHeaderData(PersonDetailModel::ROOT, Qt::Horizontal, i18n("Wortel"));
-    baseModel->setHeaderData(PersonDetailModel::SEX, Qt::Horizontal, i18n("Geslacht"));
-
-    // We want to add a column, where the name is produced based on other columns.
-    auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setSourceModel(baseModel);
-    combinedModel->setColumns({
-        .titles = PersonDetailModel::TITLES,
-        .givenNames = PersonDetailModel::GIVEN_NAMES,
-        .prefix = PersonDetailModel::PREFIXES,
-        .surname = PersonDetailModel::SURNAME,
-    });
-
-    propagateToModel<QSqlQueryModel>(
-        baseModel,
-        {Schema::PeopleTable, Schema::NamesTable},
-        [rawQuery, personId](auto* model) {
-            QSqlQuery newQuery;
-            newQuery.prepare(rawQuery);
-            newQuery.bindValue(QStringLiteral(":id"), personId);
-            newQuery.exec();
-            model->setQuery(std::move(newQuery));
-        }
-    );
-
-    // Our QSqlQueryModel does not emit "data changed", since it is read-only.
-    // This is, however, very annoying, so we do it anyway.
-    connect(baseModel, &QAbstractItemModel::modelReset, [baseModel] {
-        // TODO: should we properly pass an index here?
-        Q_EMIT baseModel->dataChanged(baseModel->index(0, 0), baseModel->index(0, 0));
-    });
-
-    return combinedModel;
-}
-
-QAbstractItemModel* DataManager::personBirthEventsModel(QObject* parent, IntegerPrimaryKey personId) {
-    auto* source = new BirthEventsModel(personId, parent);
-    propagateToModel<BirthEventsModel>(
-        source,
-        {
-            Schema::EventsTable,
-            Schema::EventTypesTable,
-            Schema::EventRolesTable,
-            Schema::EventRelationsTable,
-        },
-        [](auto* model) { model->resetAndLoadData(); }
-    );
-    source->resetAndLoadData();
-
-    auto* dateModel = new GenealogicalDateProxyModel(parent);
-    dateModel->setSourceModel(source);
-    dateModel->setDateColumn(BirthEventsModel::DATE);
-    return dateModel;
-}
-
-QAbstractItemModel* DataManager::personDeathEventsModel(QObject* parent, IntegerPrimaryKey personId) {
-    auto* source = new DeathEventsModel(personId, parent);
-    propagateToModel<DeathEventsModel>(
-        source,
-        {
-            Schema::EventsTable,
-            Schema::EventTypesTable,
-            Schema::EventRolesTable,
-            Schema::EventRelationsTable,
-        },
-        [](auto* model) { model->resetAndLoadData(); }
-    );
-    source->resetAndLoadData();
-
-    auto* dateModel = new GenealogicalDateProxyModel(parent);
-    dateModel->setSourceModel(source);
-    dateModel->setDateColumn(DeathEventsModel::DATE);
-    return dateModel;
-}
-
-QSqlTableModel* DataManager::nameOriginsModel() const {
-    return this->baseNameOriginModel;
 }
 
 QSqlTableModel* DataManager::eventRolesModel() const {
@@ -260,102 +66,6 @@ QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) con
 
 QSqlTableModel* DataManager::sourcesModel() const {
     return this->baseSourcesModel;
-}
-
-QAbstractProxyModel* DataManager::treeEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
-    auto* dateModel = flatEventsModelForPerson(parent, personId);
-    auto* proxy = createGroupingProxyModel(dateModel, PersonEventsModel::ROLE, PersonEventsModel::ID, parent);
-
-    // Hide the original role column.
-    auto* hidden = new KRearrangeColumnsProxyModel(parent);
-    hidden->setSourceModel(proxy);
-    hidden->setSourceColumns({
-        // The "ID" column.
-        proxy->sourceModel()->columnCount() - 1,
-        // These other columns from the original model.
-        PersonEventsModel::TYPE,
-        PersonEventsModel::DATE,
-        PersonEventsModel::NAME,
-        PersonEventsModel::ID,
-        PersonEventsModel::ROLE_ID,
-    });
-
-    return hidden;
-}
-
-QAbstractItemModel* DataManager::flatEventsModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
-    auto rawQuery = QStringLiteral("SELECT er.role, et.type, events.date, events.name, events.id, er.id "
-                                   "FROM events "
-                                   "LEFT JOIN event_types AS et ON events.type_id = et.id "
-                                   "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                                   "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                                   "WHERE erel.person_id = :id "
-                                   "ORDER BY events.date ASC");
-    QSqlQuery query;
-    query.prepare(rawQuery);
-    query.bindValue(QStringLiteral(":id"), personId);
-    if (!query.exec()) {
-        qWarning() << "Failed to execute query" << query.lastQuery();
-        qWarning() << query.lastError();
-        abort();
-    }
-
-    auto* baseModel = new QSqlQueryModel(parent);
-    baseModel->setQuery(std::move(query));
-    baseModel->setHeaderData(PersonEventsModel::ID, Qt::Horizontal, i18n("Id"));
-    baseModel->setHeaderData(PersonEventsModel::DATE, Qt::Horizontal, i18n("Datum"));
-    baseModel->setHeaderData(PersonEventsModel::NAME, Qt::Horizontal, i18n("Omschrijving"));
-    baseModel->setHeaderData(PersonEventsModel::TYPE, Qt::Horizontal, i18n("Soort"));
-    baseModel->setHeaderData(PersonEventsModel::ROLE, Qt::Horizontal, i18n("Rol"));
-    baseModel->setHeaderData(PersonEventsModel::ROLE_ID, Qt::Horizontal, i18n("Rol-id"));
-
-    // Connect the original model to changes.
-    propagateToModel<QSqlQueryModel>(
-        baseModel,
-        {Schema::EventsTable, Schema::EventTypesTable, Schema::EventRolesTable, Schema::EventRelationsTable},
-        [rawQuery, personId](auto* model) {
-            QSqlQuery newQuery;
-            newQuery.prepare(rawQuery);
-            newQuery.bindValue(QStringLiteral(":id"), personId);
-            newQuery.exec();
-            model->setQuery(std::move(newQuery));
-        }
-    );
-
-    auto* dateModel = new GenealogicalDateProxyModel(parent);
-    dateModel->setSourceModel(baseModel);
-    dateModel->setDateColumn(PersonEventsModel::DATE);
-
-    return dateModel;
-}
-
-QAbstractItemModel* DataManager::birthEventModelForPerson(QObject* parent, IntegerPrimaryKey personId) {
-    auto* sourceModel = flatEventsModelForPerson(parent, personId);
-    auto birthDatabaseValue = QString::fromUtf8(EventTypes::typeToString[EventTypes::Birth].untranslatedText());
-
-    auto* proxy = new MultiFilterProxyModel(parent);
-    proxy->setSourceModel(sourceModel);
-    proxy->addFilter(PersonEventsModel::TYPE, birthDatabaseValue);
-
-    return proxy;
-}
-
-QAbstractProxyModel* DataManager::singleEventModel(QObject* parent, const QVariant& eventId) const {
-    auto* proxy = new MultiFilterProxyModel(parent);
-    proxy->setSourceModel(this->eventsModelWithDateSupport(parent));
-    proxy->addFilter(EventsModel::ID, eventId);
-    return proxy;
-}
-
-QAbstractProxyModel* DataManager::singleEventRelationModel(
-    QObject* parent, const QVariant& eventId, const QVariant& roleId, const QVariant& personId
-) const {
-    auto* proxy = new MultiFilterProxyModel(parent);
-    proxy->setSourceModel(this->eventRelationsModel());
-    proxy->addFilter(EventRelationsModel::EVENT_ID, eventId);
-    proxy->addFilter(EventRelationsModel::ROLE_ID, roleId);
-    proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
-    return proxy;
 }
 
 QAbstractProxyModel* DataManager::eventRelationModelByPersonAndEvent(
@@ -569,10 +279,6 @@ void DataManager::reset() {
 
 DataManager& DataManager::get() {
     return *instance;
-}
-
-QSqlTableModel* DataManager::peopleModel() const {
-    return basePeopleModel;
 }
 
 template<QSqlTableModelConcept ModelType, typename... Args>

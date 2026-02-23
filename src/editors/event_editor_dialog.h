@@ -5,33 +5,47 @@
  */
 #pragma once
 
-#include "editor_dialog.h"
+#include "database/schema.h"
+
+#include <QDialog>
 
 namespace Ui {
     class EventEditorForm;
 }
 
-class QAbstractItemModel;
-class QDataWidgetMapper;
-
-class EventEditorDialog : public AbstractEditorDialog {
+class EventEditorDialog : public QDialog {
     Q_OBJECT
 
 public:
     explicit EventEditorDialog(
-        QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, bool newEvent, QWidget* parent
+        IntegerPrimaryKey eventId,
+        IntegerPrimaryKey roleId,
+        IntegerPrimaryKey personId,
+        bool newEvent,
+        QWidget* parent
     );
 
-    static void
-    showDialogForNewEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
-    static void
-    showDialogForExistingEvent(QAbstractItemModel* eventRelationModel, QAbstractItemModel* eventModel, QWidget* parent);
+    static void showDialogForNewEvent(
+        IntegerPrimaryKey eventId, IntegerPrimaryKey roleId, IntegerPrimaryKey personId, QWidget* parent
+    );
+    static void showDialogForExistingEvent(
+        IntegerPrimaryKey eventId, IntegerPrimaryKey roleId, IntegerPrimaryKey personId, QWidget* parent
+    );
 
 public Q_SLOTS:
+    void accept() override;
+    void reject() override;
+
     void editDateWithEditor();
     void editNoteWithEditor();
 
 private:
     Ui::EventEditorForm* form;
     bool newEvent;
+    IntegerPrimaryKey eventId;
+    IntegerPrimaryKey roleId;
+    IntegerPrimaryKey personId;
+
+    // The role ID that was active when the dialog was opened (used to detect changes).
+    IntegerPrimaryKey originalRoleId;
 };

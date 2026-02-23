@@ -6,13 +6,14 @@
 #pragma once
 
 #include "database/schema.h"
+#include "domain/person/person_entities.h"
 
 #include <QAbstractItemModel>
 #include <QFrame>
+#include <optional>
 
 
 class QAbstractItemModel;
-class QAbstractProxyModel;
 
 namespace Ui {
     class PersonDetailView;
@@ -60,7 +61,7 @@ Q_SIGNALS:
     void nameChanged(IntegerPrimaryKey id);
 
 private:
-    QAbstractProxyModel* model;
+    std::optional<PersonDisplayEntity> personData;
     QAbstractItemModel* birthModel;
     QAbstractItemModel* deathModel;
     Ui::PersonDetailView* ui;

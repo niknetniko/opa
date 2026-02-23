@@ -47,15 +47,15 @@ SimpleListManagementWindow::SimpleListManagementWindow() {
 }
 
 void SimpleListManagementWindow::addItem() const {
-    auto newRecord = this->model->record();
+    auto newRecord = this->sqlModel->record();
     newRecord.setGenerated(idColumn, false);
     newRecord.setGenerated(builtinColumn, false);
-    if (!this->model->insertRecord(-1, newRecord)) {
-        qWarning() << model->lastError();
+    if (!this->sqlModel->insertRecord(-1, newRecord)) {
+        qWarning() << sqlModel->lastError();
         return;
     }
     // The table might be sorted, so we need to select the row with the highest ID.
-    auto id = this->model->query().lastInsertId();
+    auto id = this->sqlModel->query().lastInsertId();
 
     auto searchIndex = this->tableView->model()->index(0, 0);
     auto newlyInserted = this->tableView->model()->match(searchIndex, Qt::DisplayRole, id);
@@ -85,10 +85,10 @@ void SimpleListManagementWindow::removeItem() const {
     auto selectedIndex = selection->selection().first().indexes().first();
     auto rootIndex = mapToSourceModel(selectedIndex);
 
-    if (!this->model->removeRow(rootIndex.row())) {
+    if (!this->sqlModel->removeRow(rootIndex.row())) {
         qWarning() << "Could not remove item!";
     }
-    this->model->select();
+    this->sqlModel->select();
 }
 
 void SimpleListManagementWindow::repairItems() {
@@ -101,23 +101,23 @@ void SimpleListManagementWindow::repairItems() {
     progress.setValue(0);
 
     // Trim all values.
-    for (int r = 0; r < this->model->rowCount(); ++r) {
-        auto index = this->model->index(r, displayColumn);
+    for (int r = 0; r < this->sqlModel->rowCount(); ++r) {
+        auto index = this->sqlModel->index(r, displayColumn);
         auto trimmed = index.data().toString().simplified();
         auto lowered = trimmed.toLower();
         if (!lowered.isEmpty()) {
             lowered[0] = lowered[0].toTitleCase();
         }
-        this->model->setData(index, lowered);
+        this->sqlModel->setData(index, lowered);
     }
     progress.setValue(1);
 
     // Determine duplicates
     QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
     QHash<IntegerPrimaryKey, QString> idToValue;
-    for (int r = 0; r < this->model->rowCount(); ++r) {
-        auto index = this->model->index(r, idColumn).data().toLongLong();
-        auto value = this->model->index(r, displayColumn).data().toString();
+    for (int r = 0; r < this->sqlModel->rowCount(); ++r) {
+        auto index = this->sqlModel->index(r, idColumn).data().toLongLong();
+        auto value = this->sqlModel->index(r, displayColumn).data().toString();
         valueToIds[value].append(index);
         idToValue[index] = value;
     }
@@ -143,16 +143,16 @@ void SimpleListManagementWindow::repairItems() {
     progress.setValue(4);
 
     // Finally, remove the rows that are in the set.
-    for (int r = this->model->rowCount() - 1; r >= 0; r--) {
-        if (toRemove.contains(this->model->index(r, idColumn).data().toLongLong())) {
-            if (this->model->removeRow(r)) {
+    for (int r = this->sqlModel->rowCount() - 1; r >= 0; r--) {
+        if (toRemove.contains(this->sqlModel->index(r, idColumn).data().toLongLong())) {
+            if (this->sqlModel->removeRow(r)) {
                 qWarning() << "Could not remove row " << r << "!";
-                qWarning() << model->lastError();
+                qWarning() << sqlModel->lastError();
             }
         }
     }
 
-    this->model->select();
+    this->sqlModel->select();
     progress.setValue(5);
 }
 
@@ -203,7 +203,7 @@ void SimpleListManagementWindow::initializeLayout() {
 
     // We want to have a tooltip.
     auto* tooltipModel = new StatusTooltipModel(this);
-    tooltipModel->setSourceModel(model);
+    tooltipModel->setSourceModel(this->model);
 
     // Show an icon for the built-in rows.
     auto* builtinIconModel = new BuiltinModel(centralWidget);
@@ -280,7 +280,12 @@ void SimpleListManagementWindow::setTranslator(const std::function<QString(QStri
     this->translator = translator;
 }
 
-void SimpleListManagementWindow::setModel(QSqlTableModel* model) {
+void SimpleListManagementWindow::setModel(QAbstractItemModel* model) {
+    this->model = model;
+}
+
+void SimpleListManagementWindow::setSqlModel(QSqlTableModel* model) {
+    this->sqlModel = model;
     this->model = model;
 }
 

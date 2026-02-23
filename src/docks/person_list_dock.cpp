@@ -6,9 +6,10 @@
 
 #include "person_list_dock.h"
 
-#include "data/data_manager.h"
-#include "data/person.h"
+#include "domain/person/person_display_model.h"
 #include "utils/formatted_identifier_delegate.h"
+
+#include <KLocalizedString>
 
 #include <QHeaderView>
 #include <QLineEdit>
@@ -24,12 +25,12 @@ PersonListDock::PersonListDock() : DockWidget(QStringLiteral("People"), KDDockWi
 }
 
 PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
-    auto* baseModel = DataManager::get().primaryNamesModel(this);
+    auto* baseModel = new PersonDisplayModel(this);
 
     // Create a searchable model.
     auto* filtered = new QSortFilterProxyModel(this);
     filtered->setSourceModel(baseModel);
-    filtered->setFilterKeyColumn(DisplayNameModel::NAME);
+    filtered->setFilterKeyColumn(PersonDisplayModel::NAME);
     filtered->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     auto* searchBox = new QLineEdit(this);
@@ -47,12 +48,12 @@ PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
     tableView->setSortingEnabled(true);
     tableView->verticalHeader()->hide();
     tableView->horizontalHeader()->resizeSections(QHeaderView::Stretch);
-    tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ID, QHeaderView::ResizeToContents);
-    tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::NAME, QHeaderView::Stretch);
-    tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ROOT, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::ID, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::NAME, QHeaderView::Stretch);
+    tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::ROOT, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setHighlightSections(false);
     tableView->setItemDelegateForColumn(
-        DisplayNameModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
+        PersonDisplayModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
     );
 
     auto* layout = new QVBoxLayout(this);
@@ -73,6 +74,6 @@ void PersonListWidget::handleSelectedNewRow(const QItemSelection& selected) {
     }
 
     // Get the ID of the person we want.
-    auto personId = getIdFromSelection(selected, tableView->model(), DisplayNameModel::ID);
+    auto personId = getIdFromSelection(selected, tableView->model(), PersonDisplayModel::ID);
     Q_EMIT handlePersonSelected(personId);
 }

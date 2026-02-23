@@ -8,6 +8,7 @@
 #include "database/schema.h"
 #include "utils/builtin_text_translating_delegate.h"
 
+#include <QAbstractItemModel>
 #include <QIdentityProxyModel>
 #include <QMainWindow>
 #include <QSqlTableModel>
@@ -37,17 +38,17 @@ public Q_SLOTS:
     /**
      * Adds an item to the underlying model and prepares it for editing.
      */
-    void addItem() const;
+    virtual void addItem() const;
 
     /**
      * Remove an item from the underlying model.
      */
-    void removeItem() const;
+    virtual void removeItem() const;
 
     /**
      * Run the repair procedure on the items in the model.
      */
-    void repairItems();
+    virtual void repairItems();
 
     /**
      * Called when the selection is changed in the view.
@@ -61,7 +62,9 @@ protected:
 
     void setTranslator(const std::function<QString(QString)>& translator);
 
-    void setModel(QSqlTableModel* model);
+    void setModel(QAbstractItemModel* model);
+
+    void setSqlModel(QSqlTableModel* model);
 
     static void removeReferencesFromModel(
         const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
@@ -82,13 +85,16 @@ protected:
 
     [[nodiscard]] virtual QString translatedItemDescription(const QString& item, bool isBuiltIn) const;
 
+protected:
+    QTableView* tableView = nullptr;
+
 private:
     int idColumn = -1;
     int displayColumn = -1;
     int builtinColumn = -1;
     std::function<QString(QString)> translator;
     QAction* removeAction = nullptr;
-    QTableView* tableView = nullptr;
-    QSqlTableModel* model = nullptr;
+    QAbstractItemModel* model = nullptr;
+    QSqlTableModel* sqlModel = nullptr;
     BuiltinTextTranslatingDelegate* originTranslator = nullptr;
 };

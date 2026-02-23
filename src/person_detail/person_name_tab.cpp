@@ -5,9 +5,10 @@
  */
 #include "person_name_tab.h"
 
-#include "data/data_manager.h"
+#include "../domain/name/name_repository.h"
+#include "../domain/name/person_names_model.h"
+#include "../ui/name/name_editor_dialog.h"
 #include "data/names.h"
-#include "editors/name_editor_dialog.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
@@ -15,16 +16,13 @@
 #include <KLocalizedString>
 #include <QHeaderView>
 #include <QMessageBox>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QSqlRecord>
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
 
 PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     this->person = person;
-    this->baseModel = DataManager::get().namesModelForPerson(this, person);
+    this->baseModel = new PersonNamesModel(person, this);
 
     this->treeView = new QTreeView(this);
     treeView->setModel(baseModel);
@@ -143,32 +141,15 @@ void PersonNameTab::onSortChanged(const QItemSelection& selected, const int logi
 }
 
 void PersonNameTab::onAddNewName() {
-    auto* namesModel = DataManager::get().namesModel();
-
-    // Add a new row to the table for editing.
-    auto newRecord = namesModel->record();
-    newRecord.setGenerated(NamesTableModel::ID, false);
-    newRecord.setValue(NamesTableModel::PERSON_ID, this->person);
-    newRecord.setValue(NamesTableModel::SORT, treeView->model()->rowCount() + 1);
-    if (!namesModel->insertRecord(-1, newRecord)) {
+    NameRepository nameRepo;
+    const int nextSort = treeView->model()->rowCount() + 1;
+    const auto newNameId = nameRepo.insertName(this->person, nextSort);
+    if (!newNameId.has_value()) {
         QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
-        qDebug() << "Could not get last inserted ID for some reason:";
-        qDebug() << namesModel->lastError();
         return;
     }
 
-    auto lastInsertedId = namesModel->query().lastInsertId();
-    if (!lastInsertedId.isValid()) {
-        QMessageBox::warning(this, tr("Could not insert name"), tr("Problem inserting new name into database."));
-        qDebug() << "Could not get last inserted ID for some reason:";
-        qDebug() << namesModel->lastError();
-        return;
-    }
-
-    auto theId = lastInsertedId.toLongLong();
-    auto* singleModel = DataManager::get().singleNameModel(this, theId);
-
-    NamesEditorDialog::showDialogForNewName(singleModel, this);
+    NamesEditorDialog::showDialogForNewName(*newNameId, this);
 }
 
 void PersonNameTab::onEditSelectedName() {
@@ -181,10 +162,9 @@ void PersonNameTab::onEditSelectedName() {
     auto selectedIndex = selection->selectedIndexes().first();
     auto* model = selectedIndex.model();
 
-    auto idToEdit = model->index(selectedIndex.row(), PersonNamesModel::ID).data();
-    auto* singleModel = DataManager::get().singleNameModel(this, idToEdit);
+    auto idToEdit = model->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
 
-    NamesEditorDialog::showDialogForExistingName(singleModel, this);
+    NamesEditorDialog::showDialogForExistingName(idToEdit, this);
 }
 
 void PersonNameTab::onRemoveSelectedName() const {
@@ -195,8 +175,12 @@ void PersonNameTab::onRemoveSelectedName() const {
 
     Q_ASSERT(selection->selectedRows().size() == 1);
 
-    if (!treeView->model()->removeRow(selection->selectedRows().first().row())) {
-        qWarning() << "Could not remove row.";
+    auto selectedIndex = selection->selectedRows().first();
+    auto nameId = treeView->model()->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
+
+    NameRepository nameRepo;
+    if (!nameRepo.deleteName(nameId)) {
+        qWarning() << "Could not remove name" << nameId;
     }
 }
 
@@ -230,24 +214,16 @@ void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow
     Q_ASSERT(sourceRow >= 0 && sourceRow < model->rowCount());
     Q_ASSERT(destinationRow >= 0 && destinationRow < model->rowCount());
 
-    QVector<int> vector(model->rowCount());
-    std::iota(std::begin(vector), std::end(vector), 1);
-    std::swap(vector[sourceRow], vector[destinationRow]);
+    QVector<int> sortValues(model->rowCount());
+    std::iota(std::begin(sortValues), std::end(sortValues), 1);
+    std::swap(sortValues[sourceRow], sortValues[destinationRow]);
 
-    // We want to update this in one go; so get the root model.
-    auto* namesModel = DataManager::get().namesModel();
-
-    auto saved = modelTransaction(namesModel, [&vector, &model] {
-        for (int row = 0; row < vector.length(); ++row) {
-            // Do this on the original model, so no need to map changes.
-            model->setData(model->index(row, 1), vector[row]);
+    NameRepository nameRepo;
+    for (int row = 0; row < model->rowCount(); ++row) {
+        auto nameId = model->index(row, PersonNamesModel::ID).data().toLongLong();
+        if (!nameRepo.updateNameSort(nameId, sortValues[row])) {
+            qWarning() << "Could not update sort for name" << nameId;
         }
-    });
-
-    // Commit the data and done.
-    if (!saved) {
-        qDebug() << "Could not submit for some reason";
-        qDebug() << namesModel->lastError();
     }
 
     treeView->selectionModel()->select(

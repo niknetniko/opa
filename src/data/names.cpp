@@ -26,33 +26,6 @@ QString construct_display_name(
     return nameParts.join(QStringLiteral(" "));
 }
 
-NamesTableModel::NamesTableModel(QObject* parent, QSqlTableModel* originsModel) : CustomSqlRelationalModel(parent) {
-    CustomSqlRelationalModel::setTable(Schema::NamesTable);
-    setRelation(ORIGIN_ID, originsModel, NameOriginTableModel::ORIGIN, NameOriginTableModel::ID);
-
-    // Set the correct headers.
-    CustomSqlRelationalModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
-    CustomSqlRelationalModel::setHeaderData(PERSON_ID, Qt::Horizontal, i18n("Persoon-id"));
-    CustomSqlRelationalModel::setHeaderData(SORT, Qt::Horizontal, i18n("Volgorde"));
-    CustomSqlRelationalModel::setHeaderData(TITLES, Qt::Horizontal, i18n("Titels"));
-    CustomSqlRelationalModel::setHeaderData(GIVEN_NAMES, Qt::Horizontal, i18n("Voornamen"));
-    CustomSqlRelationalModel::setHeaderData(PREFIX, Qt::Horizontal, i18n("Voorvoegsels"));
-    CustomSqlRelationalModel::setHeaderData(SURNAME, Qt::Horizontal, i18n("Achternamen"));
-    CustomSqlRelationalModel::setHeaderData(ORIGIN_ID, Qt::Horizontal, i18n("Oorsprong-id"));
-    CustomSqlRelationalModel::setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
-    CustomSqlRelationalModel::setHeaderData(NOTE, Qt::Horizontal, i18n("Notitie"));
-
-    CustomSqlRelationalModel::setSort(SORT, Qt::SortOrder::AscendingOrder);
-}
-
-NameOriginTableModel::NameOriginTableModel(QObject* parent) : QSqlTableModel(parent) {
-    QSqlTableModel::setTable(Schema::NameOriginsTable);
-
-    QSqlTableModel::setHeaderData(ID, Qt::Horizontal, i18n("Id"));
-    QSqlTableModel::setHeaderData(ORIGIN, Qt::Horizontal, i18n("Oorsprong"));
-    QSqlTableModel::setHeaderData(BUILTIN, Qt::Horizontal, i18n("Ingebouwd"));
-}
-
 DisplayNameProxyModel::DisplayNameProxyModel(QObject* parent) : KExtraColumnsProxyModel(parent), columns({}) {
     this->appendColumn(i18n("Name"));
 }

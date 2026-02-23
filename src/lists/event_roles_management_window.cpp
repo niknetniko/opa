@@ -17,7 +17,7 @@
 EventRolesManagementWindow::EventRolesManagementWindow() {
     setWindowTitle(i18n("Manage event roles"));
 
-    setModel(DataManager::get().eventRolesModel());
+    setSqlModel(DataManager::get().eventRolesModel());
     setColumns(EventRolesModel::ID, EventRolesModel::ROLE, EventRolesModel::BUILTIN);
     setTranslator(EventRoles::toDisplayString);
 

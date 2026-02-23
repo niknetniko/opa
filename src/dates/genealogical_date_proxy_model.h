@@ -17,7 +17,7 @@
  *
  * You need to set which column has the date information, otherwise this model does nothing.
  */
-class GenealogicalDateProxyModel : public QIdentityProxyModel {
+class [[deprecated]] GenealogicalDateProxyModel : public QIdentityProxyModel {
     Q_OBJECT
 
 public:

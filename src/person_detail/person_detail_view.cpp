@@ -5,12 +5,15 @@
  */
 #include "person_detail_view.h"
 
-#include "data/data_manager.h"
+#include "core/data_event_broker.h"
 #include "data/event.h"
+#include "data/names.h"
 #include "data/person.h"
+#include "domain/person/person_repository.h"
 #include "database/schema.h"
 #include "dates/genealogical_date.h"
-#include "dates/genealogical_date_proxy_model.h"
+#include "domain/event/person_birth_events_model.h"
+#include "domain/event/person_death_events_model.h"
 #include "person_event_tab.h"
 #include "person_family_tab.h"
 #include "person_name_tab.h"
@@ -25,8 +28,8 @@ BirthInformation constructBirthText(const QAbstractItemModel* model) {
         return {};
     }
 
-    auto dateString = model->index(0, BirthEventsModel::DATE).data().toString();
-    auto type = enumFromString<EventTypes::Values>(model->index(0, BirthEventsModel::TYPE).data().toString());
+    auto dateString = model->index(0, PersonBirthEventsModel::DATE).data().toString();
+    auto type = enumFromString<EventTypes::Values>(model->index(0, PersonBirthEventsModel::TYPE).data().toString());
 
     QString symbol = {};
     if (type == EventTypes::Birth) {
@@ -48,13 +51,15 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
 
     if (deathModel->rowCount() != 0) {
         qDebug() << "There is a death event";
-        auto index = deathModel->index(0, BirthEventsModel::DATE);
-        deathDate = index.data(GenealogicalDateProxyModel::RawDateRole).value<GenealogicalDate>();
+        auto index = deathModel->index(0, PersonDeathEventsModel::DATE);
+        deathDate = GenealogicalDate::fromDatabaseRepresentation(
+            deathModel->index(0, PersonDeathEventsModel::DATE_RAW).data().toString()
+        );
         if (!deathDate.isValid()) {
             return {.symbol = QStringLiteral("✝︎"), .date = i18n("unknown date")};
         }
         string = index.data().toString();
-        auto type = enumFromString<EventTypes::Values>(deathModel->index(0, BirthEventsModel::TYPE).data().toString());
+        auto type = enumFromString<EventTypes::Values>(deathModel->index(0, PersonDeathEventsModel::TYPE).data().toString());
 
         if (type == EventTypes::Death) {
             symbol = QStringLiteral("✝︎");
@@ -72,9 +77,9 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
 
     QString ageText;
     if (birthModel->rowCount() != 0) {
-        auto birthDate = birthModel->index(0, BirthEventsModel::DATE)
-                             .data(GenealogicalDateProxyModel::RawDateRole)
-                             .value<GenealogicalDate>();
+        auto birthDate = GenealogicalDate::fromDatabaseRepresentation(
+            birthModel->index(0, PersonBirthEventsModel::DATE_RAW).data().toString()
+        );
         auto birthProleptic = birthDate.prolepticRepresentation();
         auto deathProleptic = deathDate.prolepticRepresentation();
         auto ageInDays = birthProleptic.daysTo(deathProleptic);
@@ -120,9 +125,12 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
     this->ui = new Ui::PersonDetailView();
     ui->setupUi(this);
 
-    this->model = DataManager::get().personDetailsModel(this, id);
-    this->birthModel = DataManager::get().personBirthEventsModel(this, id);
-    this->deathModel = DataManager::get().personDeathEventsModel(this, id);
+    // Load person data from repository.
+    PersonRepository repo;
+    this->personData = repo.findDisplayById(id);
+
+    this->birthModel = new PersonBirthEventsModel(id, this);
+    this->deathModel = new PersonDeathEventsModel(id, this);
     this->populateName();
     this->populateDates();
 
@@ -138,8 +146,21 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
     auto* nameTab = new PersonNameTab(id, ui->tabWidget);
     ui->tabWidget->addTab(nameTab, i18n("Names"));
 
-    // Connect the model to this view, so we update when the data is changed.
-    connect(model, &QAbstractProxyModel::dataChanged, this, &PersonDetailView::populateName);
+    // Listen for person/name changes to refresh display.
+    connectToTable<Schema::People>(this, [this](std::optional<IntegerPrimaryKey> changedId) {
+        if (!changedId || changedId == this->id) {
+            PersonRepository r;
+            this->personData = r.findDisplayById(this->id);
+            populateName();
+        }
+    });
+    connectToTable<Schema::Names>(this, [this](std::optional<IntegerPrimaryKey> changedId) {
+        if (!changedId || changedId == this->id) {
+            PersonRepository r;
+            this->personData = r.findDisplayById(this->id);
+            populateName();
+        }
+    });
     connect(birthModel, &QAbstractItemModel::dataChanged, this, &PersonDetailView::populateDates);
     connect(deathModel, &QAbstractItemModel::dataChanged, this, &PersonDetailView::populateDates);
     connect(birthModel, &QAbstractItemModel::modelReset, this, &PersonDetailView::populateDates);
@@ -147,13 +168,14 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
 }
 
 void PersonDetailView::populateName() {
-    Q_ASSERT(model->rowCount() <= 1);
-
     auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     ui->id->setText(personId);
     ui->displayName->setText(this->getDisplayName());
 
-    auto sex = model->index(0, PersonDetailModel::SEX).data().toString();
+    QString sex;
+    if (personData.has_value()) {
+        sex = personData->sex;
+    }
     auto sexSymbol = Sex::toIcon(sex);
     auto sexDescription = Sex::toDisplayString(sex);
     ui->sexIcon->setText(sexSymbol);
@@ -184,11 +206,14 @@ bool PersonDetailView::hasId(IntegerPrimaryKey id) const {
 }
 
 QString PersonDetailView::getDisplayName() const {
-    auto name = model->index(0, PersonDetailModel::DISPLAY_NAME).data().toString();
+    QString name;
+    if (personData.has_value()) {
+        name = construct_display_name(personData->titles, personData->givenNames, personData->prefix, personData->surname);
+    }
     auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     return QStringLiteral("%1 [%2]").arg(name, personId);
 }
 
 IntegerPrimaryKey PersonDetailView::getId() const {
-    return model->index(0, PersonDetailModel::ID).data().toLongLong();
+    return id;
 }

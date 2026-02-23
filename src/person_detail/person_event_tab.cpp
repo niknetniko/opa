@@ -5,36 +5,57 @@
  */
 #include "person_event_tab.h"
 
-#include "data/data_manager.h"
 #include "data/event.h"
+#include "domain/event/event_repository.h"
+#include "domain/event/person_events_model.h"
 #include "editors/event_editor_dialog.h"
 #include "link_existing/choose_existing_event_window.h"
 #include "utils/formatted_identifier_delegate.h"
+#include "utils/grouping_proxy_model.h"
+
+#include <KRearrangeColumnsProxyModel>
 
 #include <KLocalizedString>
 #include <QAbstractButton>
 #include <QHeaderView>
 #include <QMessageBox>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QSqlRecord>
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
 
 PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     this->person = person;
-    this->baseModel = DataManager::get().treeEventsModelForPerson(this, person);
+    this->baseModel = new PersonEventListModel(person, this);
+
+    // Wrap with grouping proxy: groups events by role, makes them a tree.
+    auto* groupProxy = createGroupingProxyModel(
+        baseModel,
+        PersonEventListModel::ROLE,
+        PersonEventListModel::ID,
+        this
+    );
+
+    // Rearrange columns: bring virtual ID_AND_ROLE column first, hiding the original ROLE column.
+    auto* treeModel = new KRearrangeColumnsProxyModel(this);
+    treeModel->setSourceModel(groupProxy);
+    treeModel->setSourceColumns({
+        baseModel->columnCount(), // virtual ID_AND_ROLE column added by VirtualParentsModel
+        PersonEventListModel::TYPE,
+        PersonEventListModel::DATE,
+        PersonEventListModel::NAME,
+        PersonEventListModel::ID,
+        PersonEventListModel::ROLE_ID,
+    });
 
     this->treeView = new QTreeView(this);
-    treeView->setModel(baseModel);
+    treeView->setModel(treeModel);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setUniformRowHeights(true);
     treeView->hideColumn(PersonEventsTreeModel::ROLE_ID);
     treeView->hideColumn(PersonEventsTreeModel::ID);
 
-    // The ID should be formatted properly.
+    // The ID_AND_ROLE column shows role names for group rows and formatted event IDs for leaf rows.
     treeView->setItemDelegateForColumn(
         PersonEventsTreeModel::ID_AND_ROLE,
         new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
@@ -96,22 +117,32 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
 }
 
 void PersonEventTab::onEventSelected(const QItemSelection& selected) const {
-    // TODO: prevent something here?
-    this->editAction->setEnabled(!selected.isEmpty());
-    this->removeAction->setEnabled(!selected.isEmpty());
-    this->unlinkAction->setEnabled(!selected.isEmpty());
+    // Only enable event actions when a leaf row (actual event) is selected, not a role group header.
+    const bool hasLeafSelection = !selected.isEmpty()
+        && !selected.indexes().isEmpty()
+        && selected.indexes().constFirst().parent().isValid();
+    this->editAction->setEnabled(hasLeafSelection);
+    this->removeAction->setEnabled(hasLeafSelection);
+    this->unlinkAction->setEnabled(hasLeafSelection);
 }
 
 void PersonEventTab::onAddNewEvent() {
     // TODO: Choose the default new event type intelligently.
     // Issue URL: https://github.com/niknetniko/opa/issues/60
-    auto newEvent = addEventToPerson(EventTypes::Birth, person);
+    EventRepository repo;
+    const auto typeId = repo.findEventTypeIdByName(QStringLiteral("Birth"));
+    const auto roleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
+    if (!typeId || !roleId) {
+        qWarning() << "Could not find Birth event type or Primary role";
+        return;
+    }
+    const auto eventId = repo.insertEventWithRelation(*typeId, person, *roleId);
+    if (!eventId) {
+        qWarning() << "Could not create new event for person";
+        return;
+    }
 
-    auto* singleEventModel = DataManager::get().singleEventModel(this, newEvent.eventId);
-    auto* singleRelationModel =
-        DataManager::get().singleEventRelationModel(this, newEvent.eventId, newEvent.roleId, person);
-
-    EventEditorDialog::showDialogForNewEvent(singleRelationModel, singleEventModel, this);
+    EventEditorDialog::showDialogForNewEvent(*eventId, *roleId, person, this);
 }
 
 void PersonEventTab::onEditSelectedEvent() {
@@ -123,16 +154,14 @@ void PersonEventTab::onEditSelectedEvent() {
 
     Q_ASSERT(selection->selectedRows().size() == 1);
     auto selectedIndex = selection->selectedRows().first();
-    auto* model = selectedIndex.model();
+    if (!selectedIndex.parent().isValid()) {
+        return; // group (role header) row selected, nothing to edit
+    }
 
-    auto eventId = model->index(selectedIndex.row(), PersonEventsModel::ID, selectedIndex.parent()).data();
-    auto eventRoleId = model->index(selectedIndex.row(), PersonEventsModel::ROLE_ID, selectedIndex.parent()).data();
+    auto eventId = selectedIndex.siblingAtColumn(PersonEventsTreeModel::ID).data();
+    auto eventRoleId = selectedIndex.siblingAtColumn(PersonEventsTreeModel::ROLE_ID).data();
 
-    auto* eventModel = DataManager::get().singleEventModel(this, eventId);
-    auto* relationsModel =
-        DataManager::get().singleEventRelationModel(this, eventId, eventRoleId, QVariant::fromValue(person));
-
-    EventEditorDialog::showDialogForExistingEvent(relationsModel, eventModel, this);
+    EventEditorDialog::showDialogForExistingEvent(eventId.toLongLong(), eventRoleId.toLongLong(), person, this);
 }
 
 void PersonEventTab::onRemoveSelectedEvent() const {
@@ -146,13 +175,14 @@ void PersonEventTab::onRemoveSelectedEvent() const {
     qDebug() << "Selection itself is " << selection;
 
     auto selectRow = selection->selectedIndexes().first();
-    auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
+    if (!selectRow.parent().isValid()) {
+        return; // group (role header) row selected, nothing to remove
+    }
+    auto eventId = selectRow.siblingAtColumn(PersonEventsTreeModel::ID).data().toLongLong();
 
     // Look up where it is linked.
-    auto* relationModel = DataManager::get().eventRelationsModel();
-    auto usedCount = relationModel
-                         ->match(relationModel->index(0, EventRelationsModel::EVENT_ID), Qt::DisplayRole, eventId, -1)
-                         .size();
+    EventRepository repo;
+    const auto usedCount = repo.findRelationsForEvent(eventId).size();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -173,15 +203,10 @@ void PersonEventTab::onRemoveSelectedEvent() const {
         return;
     }
 
-    qDebug() << "Will delete event with ID " << eventId.toLongLong();
-
-    // Find the row in the original model.
-    auto* eventsModel = DataManager::get().eventsModel();
-    auto result = eventsModel->match(eventsModel->index(0, EventsModel::ID), Qt::DisplayRole, eventId).constFirst();
-    if (!eventsModel->removeRow(result.row())) {
-        qWarning() << "Could not delete event" << eventId.toLongLong();
+    qDebug() << "Will delete event with ID " << eventId;
+    if (!repo.deleteEvent(eventId)) {
+        qWarning() << "Could not delete event" << eventId;
     }
-    eventsModel->select();
 }
 
 void PersonEventTab::onUnlinkSelectedEvent() {
@@ -193,8 +218,11 @@ void PersonEventTab::onUnlinkSelectedEvent() {
     Q_ASSERT(selection->selectedRows().size() == 1);
 
     auto selectRow = selection->selectedIndexes().first();
-    auto eventId = treeView->model()->index(selectRow.row(), PersonEventsModel::ID, selectRow.parent()).data();
-    auto roleId = treeView->model()->index(selectRow.row(), PersonEventsModel::ROLE_ID, selectRow.parent()).data();
+    if (!selectRow.parent().isValid()) {
+        return; // group (role header) row selected, nothing to unlink
+    }
+    auto eventId = selectRow.siblingAtColumn(PersonEventsTreeModel::ID).data().toLongLong();
+    auto roleId = selectRow.siblingAtColumn(PersonEventsTreeModel::ROLE_ID).data().toLongLong();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -210,14 +238,10 @@ void PersonEventTab::onUnlinkSelectedEvent() {
         return;
     }
 
-    auto* relationModel = DataManager::get().eventRelationsModel();
-    auto* matchedModel = DataManager::get().singleEventRelationModel(this, eventId, roleId, person);
-    auto originalRow = mapToSourceModel(matchedModel->index(0, 0));
-
-    if (!relationModel->removeRow(originalRow.row())) {
-        qWarning() << "Could not unlink event" << eventId.toLongLong();
+    EventRepository repo;
+    if (!repo.deleteEventRelation(eventId, person, roleId)) {
+        qWarning() << "Could not unlink event" << eventId;
     }
-    relationModel->select();
 }
 
 void PersonEventTab::onLinkExistingEvent() {
@@ -227,17 +251,11 @@ void PersonEventTab::onLinkExistingEvent() {
         return;
     }
 
-    auto* eventRelationModel = DataManager::get().eventRelationsModel();
-    auto eventRelationRecord = eventRelationModel->record();
-    eventRelationRecord.setValue(EventRelationsModel::EVENT_ID, selectedEvent.eventId);
-    eventRelationRecord.setValue(EventRelationsModel::PERSON_ID, person);
-    eventRelationRecord.setValue(EventRelationsModel::ROLE_ID, selectedEvent.roleId);
-
-    if (!eventRelationModel->insertRecord(-1, eventRelationRecord)) {
+    EventRepository repo;
+    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong())) {
         QMessageBox::warning(
-            this, tr("Could not event relation"), tr("Problem inserting new event relation into database.")
+            this, tr("Could not link event"), tr("Problem inserting new event relation into database.")
         );
-        qDebug() << "Could not insert event relation for some reason:";
-        qDebug() << eventRelationModel->lastError();
+        qDebug() << "Could not insert event relation for some reason";
     }
 }

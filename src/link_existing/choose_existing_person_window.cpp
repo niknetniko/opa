@@ -7,11 +7,10 @@
 
 #include "choose_existing_person_window.h"
 
-#include "data/data_manager.h"
-#include "data/names.h"
-#include "data/person.h"
+#include "domain/person/person_display_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
+#include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>
 #include <QHeaderView>
 #include <QLabel>
@@ -25,16 +24,16 @@ QVariant ChooseExistingPersonWindow::selectPerson(QWidget* parent) {
 }
 
 ChooseExistingPersonWindow::ChooseExistingPersonWindow(QWidget* parent) :
-    ChooseExistingReferenceWindow(-1, DisplayNameModel::ID, DataManager::get().primaryNamesModel(parent), parent) {
+    ChooseExistingReferenceWindow(-1, PersonDisplayModel::ID, new PersonDisplayModel(parent), parent) {
     setWindowTitle(i18n("Link existing person"));
     tableHelpText->setText(i18n("Choose an existing person"));
-    displayModel->setSourceColumns({DisplayNameModel::ID, DisplayNameModel::NAME});
+    displayModel->setSourceColumns({PersonDisplayModel::ID, PersonDisplayModel::NAME});
 
     tableView->setItemDelegateForColumn(
-        DisplayNameModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
+        PersonDisplayModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
     );
-    tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::ID, QHeaderView::ResizeToContents);
-    tableView->horizontalHeader()->setSectionResizeMode(DisplayNameModel::NAME, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::ID, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::NAME, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setStretchLastSection(true);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }

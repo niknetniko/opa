@@ -16,7 +16,7 @@
 EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));
 
-    setModel(DataManager::get().eventTypesModel());
+    setSqlModel(DataManager::get().eventTypesModel());
     setColumns(EventTypesModel::ID, EventTypesModel::TYPE, EventTypesModel::BUILTIN);
     setTranslator(EventTypes::toDisplayString);
 

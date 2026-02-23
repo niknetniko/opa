@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "../domain/name/name_origins_model.h"
 #include "database/schema.h"
 #include "editor_dialog.h"
 
@@ -27,8 +28,15 @@ public:
     ~NewPersonEditorDialog() override;
 
 public Q_SLOTS:
+    void accept() override;
     void reject() override;
+
+protected:
+    void revert() override;
 
 private:
     Ui::NewPersonEditorForm* form;
+    IntegerPrimaryKey newPersonId = -1;
+    IntegerPrimaryKey newNameId = -1;
+    NameOriginsModel* originsModel = nullptr;
 };

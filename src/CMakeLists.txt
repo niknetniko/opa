@@ -9,12 +9,39 @@ add_library(
   database/schema.h
   data/person.h
   data/person.cpp
+    domain/person/person_entities.h
+    domain/person/person_repository.h
+    domain/person/person_repository.cpp
+    domain/person/person_display_model.h
+    domain/person/person_display_model.cpp
+    domain/person/person_detail_model.h
+    domain/person/person_detail_model.cpp
+    domain/name/name_entities.h
+    domain/name/name_repository.h
+    domain/name/name_repository.cpp
+    domain/name/name_origins_model.h
+    domain/name/name_origins_model.cpp
+    domain/name/person_names_model.h
+    domain/name/person_names_model.cpp
+    domain/event/event_entities.h
+    domain/event/event_repository.h
+    domain/event/event_repository.cpp
+    domain/event/person_events_model.h
+    domain/event/person_events_model.cpp
+    domain/event/person_birth_events_model.h
+    domain/event/person_birth_events_model.cpp
+    domain/event/person_death_events_model.h
+    domain/event/person_death_events_model.cpp
+    domain/event/event_types_model.h
+    domain/event/event_types_model.cpp
+    domain/event/event_roles_model.h
+    domain/event/event_roles_model.cpp
   data/event.h
   data/event.cpp
   person_detail/person_detail_view.h
   person_detail/person_detail_view.cpp
-  editors/name_editor_dialog.h
-  editors/name_editor_dialog.cpp
+    ui/name/name_editor_dialog.h
+    ui/name/name_editor_dialog.cpp
   utils/multi_filter_proxy_model.h
   utils/multi_filter_proxy_model.cpp
   data/data_manager.h
@@ -98,7 +125,15 @@ add_library(
   link_existing/choose_existing_source_window.cpp
   link_existing/choose_existing_source_window.h
   utils/rich_text_plain_delegate.cpp
-  utils/rich_text_plain_delegate.h)
+  utils/rich_text_plain_delegate.h
+    core/query_helper.h
+    core/query_helper.cpp
+    model/object_table_model.h
+    core/data_event_broker.h
+    core/base_repository.h
+    core/query_utils.h
+    domain/person/person_detail_model.cpp
+    domain/event/event_types_model.cpp)
 
 ecm_qt_declare_logging_category(
   opa-lib

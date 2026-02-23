@@ -9,6 +9,8 @@
 #include "data/data_manager.h"
 #include "data/event.h"
 #include "data/person.h"
+#include "domain/event/person_birth_events_model.h"
+#include "domain/person/person_detail_model.h"
 #include "database/database.h"
 #include "link_existing/choose_existing_person_window.h"
 #include "new_person_editor_dialog.h"
@@ -29,12 +31,12 @@ namespace {
     };
 
     BirthEventDetails getOrCreateBirthEvent(QObject* parent, IntegerPrimaryKey personId) {
-        auto* birthEventModel = DataManager::get().birthEventModelForPerson(parent, personId);
+        auto* birthEventModel = new PersonBirthEventsModel(personId, parent);
         if (birthEventModel->rowCount() == 0) {
             auto newEvent = addEventToPerson(EventTypes::Birth, personId);
             return {.eventId = newEvent.eventId, .isNew = true};
         } else {
-            QVariant birthEventId = birthEventModel->index(0, PersonEventsModel::ID).data();
+            QVariant birthEventId = birthEventModel->index(0, PersonBirthEventsModel::ID).data();
             return {.eventId = birthEventId, .isNew = false};
         }
     }
@@ -270,7 +272,7 @@ void NewFamilyEditorDialog::setMother(const QVariant& motherId) {
     form->motherRelation->setEnabled(true);
     data.motherId = motherId;
 
-    auto* motherDetailsModel = DataManager::get().personDetailsModel(this, motherId.toLongLong());
+    auto* motherDetailsModel = new PersonDetailModel(motherId.toLongLong(), this);
     motherIdMapper->setModel(motherDetailsModel);
     motherIdMapper->addMapping(form->motherId, PersonDetailModel::ID, "text");
     motherIdMapper->setItemDelegate(new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON));
@@ -280,9 +282,9 @@ void NewFamilyEditorDialog::setMother(const QVariant& motherId) {
     motherNameMapper->addMapping(form->motherName, PersonDetailModel::DISPLAY_NAME, "text");
     motherNameMapper->toFirst();
 
-    auto* birthEvent = DataManager::get().birthEventModelForPerson(this, motherId.toLongLong());
+    auto* birthEvent = new PersonBirthEventsModel(motherId.toLongLong(), this);
     motherBirthMapper->setModel(birthEvent);
-    motherBirthMapper->addMapping(form->motherBirth, PersonEventsModel::DATE, "text");
+    motherBirthMapper->addMapping(form->motherBirth, PersonBirthEventsModel::DATE, "text");
     motherBirthMapper->toFirst();
 
     setParentRelationIfPossible();
@@ -295,7 +297,7 @@ void NewFamilyEditorDialog::setFather(const QVariant& fatherId) {
     form->fatherRelation->setEnabled(true);
     data.fatherId = fatherId;
 
-    auto* fatherDetailsModel = DataManager::get().personDetailsModel(this, fatherId.toLongLong());
+    auto* fatherDetailsModel = new PersonDetailModel(fatherId.toLongLong(), this);
     fatherIdMapper->setModel(fatherDetailsModel);
     fatherIdMapper->addMapping(form->fatherId, PersonDetailModel::ID, "text");
     fatherIdMapper->setItemDelegate(new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON));
@@ -305,9 +307,9 @@ void NewFamilyEditorDialog::setFather(const QVariant& fatherId) {
     fatherNameMapper->addMapping(form->fatherName, PersonDetailModel::DISPLAY_NAME, "text");
     fatherNameMapper->toFirst();
 
-    auto* birthEvent = DataManager::get().birthEventModelForPerson(this, fatherId.toLongLong());
+    auto* birthEvent = new PersonBirthEventsModel(fatherId.toLongLong(), this);
     fatherBirthMapper->setModel(birthEvent);
-    fatherBirthMapper->addMapping(form->fatherBirth, PersonEventsModel::DATE, "text");
+    fatherBirthMapper->addMapping(form->fatherBirth, PersonBirthEventsModel::DATE, "text");
     fatherBirthMapper->toFirst();
 
     setParentRelationIfPossible();
