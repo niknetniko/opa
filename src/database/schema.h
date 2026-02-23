@@ -53,10 +53,20 @@ namespace Schema {
     };
     inline constexpr auto SourcesTable = Sources::table;
 
-    struct Citations : TableTag {
-        static constexpr auto table = QLatin1String("citations");
+    struct EventSources : TableTag {
+        static constexpr auto table = QLatin1String("event_sources");
     };
-    inline constexpr auto CitationsTable = Citations::table;
+    inline constexpr auto EventSourcesTable = EventSources::table;
+
+    struct NameSources : TableTag {
+        static constexpr auto table = QLatin1String("name_sources");
+    };
+    inline constexpr auto NameSourcesTable = NameSources::table;
+
+    struct PersonSources : TableTag {
+        static constexpr auto table = QLatin1String("person_sources");
+    };
+    inline constexpr auto PersonSourcesTable = PersonSources::table;
 
     template <typename T>
     inline constexpr bool is_table_tag = std::is_base_of_v<TableTag, T>;
