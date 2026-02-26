@@ -5,7 +5,6 @@ ecm_add_tests(
   genealogical_date.cpp
   genealogical_date_proxy_model.cpp
   custom_sql_relational_model.cpp
-  builtin_model.cpp
   read_only_proxy_model.cpp
   model_utils_find_source_model_of_type.cpp
   family_proxy_model_test.cpp
@@ -16,4 +15,5 @@ ecm_add_tests(
   person_repository_test.cpp
   name_repository_test.cpp
   event_repository_test.cpp
+  family_repository_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)

@@ -13,7 +13,14 @@
 
 EventTypesListModel::EventTypesListModel(QObject* parent) : ObjectTableModel(parent) {
     this->setColumn(ID, i18n("ID"), &EventTypeEntity::id);
-    this->setColumn(TYPE, i18n("Type"), &EventTypeEntity::type);
+    this->setColumn(TYPE, i18n("Type"), &EventTypeEntity::type, [](EventTypeEntity& entity, const QVariant& value) {
+        QString newType = value.toString();
+        if (newType.isEmpty()) return false;
+        EventRepository repo;
+        if (!repo.updateEventType(entity.id, newType)) return false;
+        entity.type = newType;
+        return true;
+    });
     this->setColumn(BUILTIN, i18n("Built-in"), &EventTypeEntity::builtin);
 
     connectToTable<Schema::EventTypes>(this);

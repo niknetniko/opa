@@ -47,17 +47,13 @@ SimpleListManagementWindow::SimpleListManagementWindow() {
 }
 
 void SimpleListManagementWindow::addItem() const {
-    auto newRecord = this->sqlModel->record();
-    newRecord.setGenerated(idColumn, false);
-    newRecord.setGenerated(builtinColumn, false);
-    if (!this->sqlModel->insertRecord(-1, newRecord)) {
-        qWarning() << sqlModel->lastError();
+    auto id = doAddItem();
+    if (!id.isValid()) {
         return;
     }
-    // The table might be sorted, so we need to select the row with the highest ID.
-    auto id = this->sqlModel->query().lastInsertId();
 
-    auto searchIndex = this->tableView->model()->index(0, 0);
+    // The table might be sorted, so we need to select the row with the highest ID.
+    auto searchIndex = this->tableView->model()->index(0, idColumn);
     auto newlyInserted = this->tableView->model()->match(searchIndex, Qt::DisplayRole, id);
 
     if (newlyInserted.isEmpty()) {
@@ -84,11 +80,9 @@ void SimpleListManagementWindow::removeItem() const {
 
     auto selectedIndex = selection->selection().first().indexes().first();
     auto rootIndex = mapToSourceModel(selectedIndex);
+    auto id = this->model->index(rootIndex.row(), idColumn).data();
 
-    if (!this->sqlModel->removeRow(rootIndex.row())) {
-        qWarning() << "Could not remove item!";
-    }
-    this->sqlModel->select();
+    doRemoveItem(id);
 }
 
 void SimpleListManagementWindow::repairItems() {
@@ -333,4 +327,33 @@ QString SimpleListManagementWindow::translatedItemDescription(const QString& ite
         return i18n("Built-in item '%1'", item);
     }
     return i18n("Item '%1'", item);
+}
+
+QVariant SimpleListManagementWindow::doAddItem() const {
+    auto newRecord = this->sqlModel->record();
+    newRecord.setGenerated(idColumn, false);
+    newRecord.setGenerated(builtinColumn, false);
+    if (!this->sqlModel->insertRecord(-1, newRecord)) {
+        qWarning() << sqlModel->lastError();
+        return {};
+    }
+    return this->sqlModel->query().lastInsertId();
+}
+
+bool SimpleListManagementWindow::doRemoveItem(const QVariant& id) const {
+    // Find the row in the base model by ID.
+    auto searchIndex = this->model->index(0, idColumn);
+    auto matches = this->model->match(searchIndex, Qt::DisplayRole, id);
+    if (matches.isEmpty()) {
+        qWarning() << "Could not find item to remove with id" << id;
+        return false;
+    }
+    int row = matches.first().row();
+    if (!this->sqlModel->removeRow(row)) {
+        qWarning() << "Could not remove item!";
+        qWarning() << sqlModel->lastError();
+        return false;
+    }
+    this->sqlModel->select();
+    return true;
 }

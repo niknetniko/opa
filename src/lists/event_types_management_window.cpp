@@ -5,19 +5,20 @@
  */
 #include "event_types_management_window.h"
 
-#include "data/data_manager.h"
 #include "data/event.h"
+#include "domain/event/event_repository.h"
+#include "domain/event/event_types_model.h"
 
 #include <KLocalizedString>
 #include <QMessageBox>
 #include <QProgressDialog>
-#include <QSqlQuery>
 
 EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));
 
-    setSqlModel(DataManager::get().eventTypesModel());
-    setColumns(EventTypesModel::ID, EventTypesModel::TYPE, EventTypesModel::BUILTIN);
+    auto* model = new EventTypesListModel(this);
+    setModel(model);
+    setColumns(EventTypesListModel::ID, EventTypesListModel::TYPE, EventTypesListModel::BUILTIN);
     setTranslator(EventTypes::toDisplayString);
 
     initializeLayout();
@@ -35,17 +36,91 @@ bool EventTypesManagementWindow::repairConfirmation() {
     return messageBox.exec() == QMessageBox::Ok;
 }
 
+void EventTypesManagementWindow::repairItems() {
+    if (!repairConfirmation()) {
+        return;
+    }
+
+    QProgressDialog progress(i18n("Opschonen..."), QString(), 0, 5, this);
+    progress.setModal(true);
+    progress.setValue(0);
+
+    EventRepository repo;
+
+    // Normalize all values.
+    const auto allTypes = repo.findAllEventTypes();
+    for (const auto& entity : allTypes) {
+        auto trimmed = entity.type.simplified();
+        auto lowered = trimmed.toLower();
+        if (!lowered.isEmpty()) {
+            lowered[0] = lowered[0].toTitleCase();
+        }
+        if (lowered != entity.type) {
+            repo.updateEventType(entity.id, lowered);
+        }
+    }
+    progress.setValue(1);
+
+    // Determine duplicates.
+    const auto updatedTypes = repo.findAllEventTypes();
+    QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
+    QHash<IntegerPrimaryKey, QString> idToValue;
+    for (const auto& entity : updatedTypes) {
+        valueToIds[entity.type].append(entity.id);
+        idToValue[entity.id] = entity.type;
+    }
+    progress.setValue(2);
+
+    // Reassign references from duplicate IDs to the canonical ID.
+    for (auto i = valueToIds.begin(); i != valueToIds.end(); ++i) {
+        if (i.value().length() <= 1) continue;
+        const auto keepId = i.value().first();
+        for (int j = 1; j < i.value().length(); ++j) {
+            repo.reassignEventTypeId(i.value()[j], keepId);
+        }
+    }
+    progress.setValue(3);
+
+    // Delete duplicates and empty entries.
+    QSet<IntegerPrimaryKey> toRemove;
+    for (auto i = valueToIds.begin(); i != valueToIds.end(); ++i) {
+        if (i.key().isEmpty()) {
+            toRemove.unite(QSet(i.value().begin(), i.value().end()));
+            continue;
+        }
+        if (i.value().length() > 1) {
+            toRemove.unite(QSet(std::next(i.value().begin()), i.value().end()));
+        }
+    }
+    progress.setValue(4);
+
+    for (const auto id : toRemove) {
+        repo.deleteEventType(id);
+    }
+    progress.setValue(5);
+}
+
 void EventTypesManagementWindow::removeMarkedReferences(
-    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
+    [[maybe_unused]] const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
+    [[maybe_unused]] const QHash<IntegerPrimaryKey, QString>& idToValue
 ) {
-    auto* eventsModel = DataManager::get().eventsModel();
-    removeReferencesFromModel(valueToIds, idToValue, eventsModel, EventsModel::TYPE_ID);
+    // Not used: repairItems() is overridden to use the repository directly.
 }
 
 bool EventTypesManagementWindow::isUsed(const QVariant& id) {
-    auto* eventsModel = DataManager::get().eventsModel();
-    auto usage = eventsModel->match(eventsModel->index(0, EventsModel::TYPE_ID), Qt::DisplayRole, id);
-    return !usage.isEmpty();
+    EventRepository repo;
+    return repo.isEventTypeUsed(id.toLongLong());
+}
+
+QVariant EventTypesManagementWindow::doAddItem() const {
+    EventRepository repo;
+    const auto newId = repo.insertEventType(QString());
+    return newId ? QVariant(*newId) : QVariant{};
+}
+
+bool EventTypesManagementWindow::doRemoveItem(const QVariant& id) const {
+    EventRepository repo;
+    return repo.deleteEventType(id.toLongLong());
 }
 
 QString EventTypesManagementWindow::translatedItemCount(int itemCount) const {

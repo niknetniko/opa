@@ -7,9 +7,9 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 // ReSharper disable CppDFAUnreachableFunctionCall
 #include "./test_utils.h"
-#include "data/family.h"
 #include "database/database.h"
 #include "database/schema.h"
+#include "domain/family/family_members_model.h"
 
 #include <QAbstractItemModelTester>
 #include <QSqlDatabase>
@@ -114,10 +114,10 @@ private Q_SLOTS:
     }
 
     void testDefaultCaseBasics() {
-        FamilyProxyModel model(1);
+        FamilyMembersModel model(1);
         QCOMPARE(model.rowCount(), 1);
 
-        auto firstParentIndex = model.index(0, FamilyProxyModel::PERSON_ID);
+        auto firstParentIndex = model.index(0, FamilyMembersModel::PERSON_ID);
         QCOMPARE(firstParentIndex.data(), 2);
 
         // Only the first column has parents.
@@ -126,20 +126,20 @@ private Q_SLOTS:
     }
 
     void testDefaultCaseWithModelTester() {
-        FamilyProxyModel model(1);
+        FamilyMembersModel model(1);
         new QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 
     void testBastardCaseBasics() {
         addBastardChild();
 
-        FamilyProxyModel model(1);
+        FamilyMembersModel model(1);
         QCOMPARE(model.rowCount(), 2);
 
         // The ID of the first parent.
-        QCOMPARE(model.index(0, FamilyProxyModel::PERSON_ID).data(), 2);
+        QCOMPARE(model.index(0, FamilyMembersModel::PERSON_ID).data(), 2);
         // The parent of the bastard children.
-        QCOMPARE(model.index(1, FamilyProxyModel::PERSON_ID).data(), QVariant(QStringLiteral("")));
+        QCOMPARE(model.index(1, FamilyMembersModel::PERSON_ID).data(), QVariant(QStringLiteral("")));
 
         QCOMPARE(model.rowCount(model.index(0, 0)), 1);
         QCOMPARE(model.rowCount(model.index(1, 0)), 1);
@@ -147,7 +147,7 @@ private Q_SLOTS:
 
     void testBastardCaseWithModelTester() {
         addBastardChild();
-        FamilyProxyModel model(1);
+        FamilyMembersModel model(1);
         new QAbstractItemModelTester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
 };

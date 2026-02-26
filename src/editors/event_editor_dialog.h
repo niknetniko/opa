@@ -9,6 +9,9 @@
 
 #include <QDialog>
 
+class EventTypesListModel;
+class EventRolesListModel;
+
 namespace Ui {
     class EventEditorForm;
 }
@@ -48,4 +51,6 @@ private:
 
     // The role ID that was active when the dialog was opened (used to detect changes).
     IntegerPrimaryKey originalRoleId;
+    EventTypesListModel* typesModel;
+    EventRolesListModel* rolesModel;
 };

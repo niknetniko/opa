@@ -6,11 +6,12 @@
 
 #include "tree_view_window.h"
 
-#include "data/family.h"
+#include "domain/family/ancestor_model.h"
 #include "main/main_window.h"
 #include "person_tree_graph_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
+#include <KLocalizedString>
 #include <QAction>
 #include <QApplication>
 #include <QToolBar>
@@ -22,7 +23,7 @@ TreeViewWindow::TreeViewWindow(IntegerPrimaryKey person, QWidget* parent) : QMai
     auto* graphModel = new PersonTreeGraphModel(person);
     auto rootIndex = graphModel->findByChildId(person).constFirst();
     auto* model = rootIndex.model();
-    auto name = model->index(rootIndex.row(), AncestorDisplayModel::DISPLAY_NAME).data().toString();
+    auto name = model->index(rootIndex.row(), AncestorModel::DISPLAY_NAME).data().toString();
     auto id = format_id(FormattedIdentifierDelegate::PERSON, person);
     setWindowTitle(QStringLiteral("Pedigree for %1 [%2]").arg(name, id));
 

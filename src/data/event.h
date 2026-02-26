@@ -5,10 +5,8 @@
  */
 #pragma once
 
-#include "utils/custom_sql_relational_model.h"
 #include "utils/model_utils.h"
 
-#include <QSortFilterProxyModel>
 #include <QString>
 
 namespace EventRoles {
@@ -110,19 +108,6 @@ namespace EventRoles {
 
 }
 
-class EventRolesModel : public QSqlTableModel {
-    Q_OBJECT
-
-public:
-    static constexpr int ID = 0;
-    static constexpr int ROLE = 1;
-    static constexpr int BUILTIN = 2;
-
-    static IntegerPrimaryKey getDefaultRole();
-    static IntegerPrimaryKey getRoleId(EventRoles::Values role);
-
-    explicit EventRolesModel(QObject* parent);
-};
 
 namespace EventTypes {
     Q_NAMESPACE
@@ -163,134 +148,6 @@ namespace EventTypes {
 
 }
 
-class EventTypesModel : public QSqlTableModel {
-    Q_OBJECT
-
-public:
-    static constexpr int ID = 0;
-    static constexpr int TYPE = 1;
-    static constexpr int BUILTIN = 2;
-
-    explicit EventTypesModel(QObject* parent);
-};
-
-class EventRelationsModel : public CustomSqlRelationalModel {
-    Q_OBJECT
-
-public:
-    static constexpr int EVENT_ID = 0;
-    static constexpr int PERSON_ID = 1;
-    static constexpr int ROLE_ID = 2;
-    static constexpr int ROLE = 3;
-
-    explicit EventRelationsModel(QObject* parent, QSqlTableModel* rolesModel);
-};
-
-class EventsModel : public CustomSqlRelationalModel {
-    Q_OBJECT
-
-public:
-    static constexpr int ID = 0;
-    static constexpr int TYPE_ID = 1;
-    static constexpr int DATE = 2;
-    static constexpr int NAME = 3;
-    static constexpr int NOTE = 4;
-    // Extra columns added by the relation.
-    static constexpr int TYPE = 5;
-
-    explicit EventsModel(QObject* parent, QSqlTableModel* typesModel);
-};
-
-namespace PersonEventsModel {
-    constexpr int ROLE = 0;
-    constexpr int TYPE = 1;
-    constexpr int DATE = 2;
-    constexpr int NAME = 3;
-    constexpr int ID = 4;
-    constexpr int ROLE_ID = 5;
-}
-
-class ParentEventRolesModel : public QSortFilterProxyModel {
-    Q_OBJECT
-
-public:
-    explicit ParentEventRolesModel(QObject* parent);
-
-    [[nodiscard]] bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
-
-private:
-    QSet<EventRoles::Values> parentRoles;
-};
-
-class RelationshipEventTypesModel : public QSortFilterProxyModel {
-    Q_OBJECT
-
-public:
-    explicit RelationshipEventTypesModel(QObject* parent);
-
-    [[nodiscard]] bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
-
-private:
-    QSet<EventTypes::Values> relationshipTypes;
-};
-
-struct NewEventInformation {
-    QVariant eventId;
-    QVariant roleId;
-    QVariant typeId;
-};
-
-/**
- * Add an event to a given person, who will be linked to the event as primary.
- *
- * @param eventType The type of the event.
- * @param person The person to add the event to.
- *
- * @return The ID of the added event, or invalid if the event could not be added for some reason.
- */
-NewEventInformation addEventToPerson(EventTypes::Values eventType, IntegerPrimaryKey person);
-
-class BirthEventsModel : public QSqlQueryModel {
-    Q_OBJECT
-
-public:
-    static constexpr int ID = 0;
-    static constexpr int TYPE_ID = 1;
-    static constexpr int TYPE = 2;
-    static constexpr int DATE = 3;
-    static constexpr int NAME = 4;
-    static constexpr int NOTE = 5;
-
-    explicit BirthEventsModel(IntegerPrimaryKey person, QObject* parent);
-
-public Q_SLOTS:
-    void resetAndLoadData();
-
-private:
-    IntegerPrimaryKey personId;
-    QString query_;
-};
-
-class DeathEventsModel : public QSqlQueryModel {
-    Q_OBJECT
-
-public:
-    static constexpr int ID = 0;
-    static constexpr int TYPE_ID = 1;
-    static constexpr int TYPE = 2;
-    static constexpr int DATE = 3;
-    static constexpr int NAME = 4;
-    static constexpr int NOTE = 5;
-
-    explicit DeathEventsModel(IntegerPrimaryKey person, QObject* parent);
-
-public Q_SLOTS:
-    void resetAndLoadData();
-
-private:
-    IntegerPrimaryKey personId;
-    QString query_;
-};
 
 namespace PersonEventsTreeModel {
     constexpr int ID_AND_ROLE = 0;

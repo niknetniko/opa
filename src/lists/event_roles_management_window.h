@@ -16,12 +16,18 @@ public:
 public Q_SLOTS:
     bool repairConfirmation() override;
 
+    void repairItems() override;
 
     void removeMarkedReferences(
         const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
     ) override;
 
     bool isUsed(const QVariant& id) override;
+
+protected:
+    [[nodiscard]] QVariant doAddItem() const override;
+
+    bool doRemoveItem(const QVariant& id) const override;
 
     [[nodiscard]] QString translatedItemCount(int itemCount) const override;
 

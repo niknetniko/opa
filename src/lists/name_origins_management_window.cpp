@@ -28,34 +28,29 @@ NameOriginsManagementWindow::NameOriginsManagementWindow() {
     initializeLayout();
 }
 
-void NameOriginsManagementWindow::addItem() const {
+QVariant NameOriginsManagementWindow::doAddItem() const {
     const auto sql = QStringLiteral("INSERT INTO name_origins (origin, builtin) VALUES ('', 0)");
     QSqlQuery query;
     if (!query.exec(sql)) {
         qWarning() << "Could not insert new name origin:" << query.lastError().text();
-        return;
+        return {};
     }
-    DataEventBroker::instance().notifyChanged<Schema::NameOrigins>(-1);
+    auto newId = query.lastInsertId();
+    DataEventBroker::instance().notifyChanged<Schema::NameOrigins>(newId.toLongLong());
+    return newId;
 }
 
-void NameOriginsManagementWindow::removeItem() const {
-    if (!tableView || !tableView->selectionModel() || !tableView->selectionModel()->hasSelection()) {
-        return;
-    }
-
-    auto selectedIndex = tableView->selectionModel()->selection().first().indexes().first();
-    auto rootIndex = mapToSourceModel(selectedIndex);
-    auto id = originsModel->index(rootIndex.row(), NameOriginsModel::ID).data().toLongLong();
-
+bool NameOriginsManagementWindow::doRemoveItem(const QVariant& id) const {
     const auto sql = QStringLiteral("DELETE FROM name_origins WHERE id = :id AND builtin = 0");
     QSqlQuery query;
     query.prepare(sql);
     query.bindValue(QStringLiteral(":id"), id);
     if (!query.exec()) {
         qWarning() << "Could not delete name origin:" << query.lastError().text();
-        return;
+        return false;
     }
-    DataEventBroker::instance().notifyChanged<Schema::NameOrigins>(id);
+    DataEventBroker::instance().notifyChanged<Schema::NameOrigins>(id.toLongLong());
+    return true;
 }
 
 void NameOriginsManagementWindow::repairItems() {

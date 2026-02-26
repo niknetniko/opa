@@ -36,6 +36,19 @@ add_library(
     domain/event/event_types_model.cpp
     domain/event/event_roles_model.h
     domain/event/event_roles_model.cpp
+    domain/event/event_list_model.h
+    domain/event/event_list_model.cpp
+    domain/event/parent_event_roles_list_model.h
+    domain/event/parent_event_roles_list_model.cpp
+    domain/family/family_entities.h
+    domain/family/family_repository.h
+    domain/family/family_repository.cpp
+    domain/family/ancestor_model.h
+    domain/family/ancestor_model.cpp
+    domain/family/parents_model.h
+    domain/family/parents_model.cpp
+    domain/family/family_members_model.h
+    domain/family/family_members_model.cpp
   data/event.h
   data/event.cpp
   person_detail/person_detail_view.h
@@ -92,9 +105,7 @@ add_library(
   main/person_placeholder_widget.cpp
   editors/note_editor_dialog.h
   editors/note_editor_dialog.cpp
-  data/family.h
-  data/family.cpp
-  person_detail/person_family_tab.cpp
+    person_detail/person_family_tab.cpp
   person_detail/person_family_tab.h
   utils/model_utils.cpp
   utils/model_utils.h

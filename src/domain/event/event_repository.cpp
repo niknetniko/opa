@@ -67,6 +67,13 @@ bool EventRepository::deleteEventRole(IntegerPrimaryKey id) const {
     return QueryHelper::executeAndNotify<Schema::EventRoles>(id, sql, {{u":id"_s, id}});
 }
 
+QList<EventDisplayEntity> EventRepository::findAllEvents() const {
+    const auto sql = u"SELECT e.id, e.type_id, et.type, e.date, e.name "
+                     "FROM events e LEFT JOIN event_types et ON e.type_id = et.id "
+                     "ORDER BY e.date ASC"_s;
+    return fetchAll<EventDisplayEntity>(sql);
+}
+
 std::optional<EventEntity> EventRepository::findEventById(IntegerPrimaryKey id) const {
     const auto sql = u"SELECT id, type_id, date, name, note FROM events WHERE id = :id"_s;
     return fetchOne<EventEntity>(sql, {{u":id"_s, id}});
@@ -203,6 +210,44 @@ std::optional<IntegerPrimaryKey> EventRepository::findEventRoleIdByName(const QS
         return entity->id;
     }
     return std::nullopt;
+}
+
+bool EventRepository::isEventTypeUsed(IntegerPrimaryKey typeId) const {
+    const auto sql = u"SELECT COUNT(*) FROM events WHERE type_id = :id"_s;
+    auto [query, ok] = QueryHelper::executeWithResult(sql, {{u":id"_s, typeId}});
+    if (ok && query.next()) {
+        return query.value(0).toInt() > 0;
+    }
+    return false;
+}
+
+bool EventRepository::reassignEventTypeId(IntegerPrimaryKey fromId, IntegerPrimaryKey toId) const {
+    const auto sql = u"UPDATE events SET type_id = :to_id WHERE type_id = :from_id"_s;
+    const QVariantMap bindings = {{u":to_id"_s, toId}, {u":from_id"_s, fromId}};
+    const bool ok = QueryHelper::execute(sql, bindings);
+    if (ok) {
+        DataEventBroker::instance().notifyChanged<Schema::Events>(fromId);
+    }
+    return ok;
+}
+
+bool EventRepository::isEventRoleUsed(IntegerPrimaryKey roleId) const {
+    const auto sql = u"SELECT COUNT(*) FROM event_relations WHERE role_id = :id"_s;
+    auto [query, ok] = QueryHelper::executeWithResult(sql, {{u":id"_s, roleId}});
+    if (ok && query.next()) {
+        return query.value(0).toInt() > 0;
+    }
+    return false;
+}
+
+bool EventRepository::reassignEventRoleId(IntegerPrimaryKey fromId, IntegerPrimaryKey toId) const {
+    const auto sql = u"UPDATE event_relations SET role_id = :to_id WHERE role_id = :from_id"_s;
+    const QVariantMap bindings = {{u":to_id"_s, toId}, {u":from_id"_s, fromId}};
+    const bool ok = QueryHelper::execute(sql, bindings);
+    if (ok) {
+        DataEventBroker::instance().notifyChanged<Schema::EventRelations>(fromId);
+    }
+    return ok;
 }
 
 std::optional<IntegerPrimaryKey> EventRepository::insertEventWithRelation(

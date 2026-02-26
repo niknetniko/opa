@@ -29,17 +29,7 @@ public:
 
     static DataManager& get();
 
-    [[nodiscard]] QSqlTableModel* eventRolesModel() const;
-
-    [[nodiscard]] QSqlTableModel* eventTypesModel() const;
-
-    [[nodiscard]] QSqlTableModel* eventRelationsModel() const;
-
-    [[nodiscard]] QSqlTableModel* eventsModel() const;
-
     [[nodiscard]] QSqlTableModel* sourcesModel() const;
-
-    [[nodiscard]] QAbstractItemModel* eventsModelWithDateSupport(QObject* parent) const;
 
     /**
      * Model for a single source.
@@ -48,51 +38,6 @@ public:
      * @param sourceId The ID of the source.
      */
     [[nodiscard]] QAbstractProxyModel* singleSourceModel(QObject* parent, const QVariant& sourceId) const;
-
-    /**
-     * Model for event relation for a given person and event.
-     */
-    [[nodiscard]] QAbstractProxyModel*
-    eventRelationModelByPersonAndEvent(QObject* parent, const QVariant& personId, const QVariant& eventId) const;
-
-    /**
-     * Model which returns all parent roles.
-     *
-     * Returns the same columns as EventRolesModel.
-     */
-    [[nodiscard]] QAbstractItemModel* parentEventRolesModel(QObject* parent) const;
-
-    /**
-     * Model returning all relationship event types.
-     *
-     * Returns the same columns as EventTypesModel.
-     */
-    [[nodiscard]] QAbstractItemModel* relationshipEventTypes(QObject* parent) const;
-
-    /**
-     * Tree model of all partners and all children of the given person.
-     * The person itself is not included.
-     * The children itself are arranged in a tree, with the partner being the root, and every child with that partner
-     * being a child item.
-     * Children without another parent are added under a synthetic "other" parent.
-     *
-     * See FamilyDisplayModel for an overview of the returned columns.
-     */
-    [[nodiscard]] QAbstractProxyModel* familyModelFor(QObject* parent, IntegerPrimaryKey person);
-
-    /**
-     * Model which will return all ancestors of the given person, including the person itself.
-     *
-     * See AncestorDisplayModel for an overview of the returned columns.
-     */
-    [[nodiscard]] QAbstractProxyModel* ancestorModelFor(QObject* parent, IntegerPrimaryKey person);
-
-    /**
-     * Model which returns all parents of a person.
-     *
-     * See DisplayParentModel for an overview of the returned columns.
-     */
-    [[nodiscard]] QAbstractProxyModel* parentsModelFor(QObject* parent, IntegerPrimaryKey person);
 
     /**
      * Model of all sources but in tree form. Returns the same columns as the base sources model.
@@ -131,10 +76,6 @@ private:
     void* updatingFromDataManagerSource = nullptr;
 
     // Base models that allow editing.
-    QSqlTableModel* baseEventRolesModel;
-    QSqlTableModel* baseEventTypesModel;
-    CustomSqlRelationalModel* baseEventRelationsModel;
-    CustomSqlRelationalModel* baseEventsModel;
     QSqlTableModel* baseSourcesModel;
 
     /**

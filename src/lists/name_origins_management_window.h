@@ -15,8 +15,6 @@ public:
     explicit NameOriginsManagementWindow();
 
 public Q_SLOTS:
-    void addItem() const override;
-    void removeItem() const override;
     void repairItems() override;
 
 protected:
@@ -27,6 +25,10 @@ protected:
     ) override;
 
     bool isUsed(const QVariant& id) override;
+
+    [[nodiscard]] QVariant doAddItem() const override;
+
+    bool doRemoveItem(const QVariant& id) const override;
 
     [[nodiscard]] QString translatedItemCount(int itemCount) const override;
 

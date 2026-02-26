@@ -5,9 +5,9 @@
  */
 #include "event_editor_dialog.h"
 
-#include "data/data_manager.h"
-#include "data/event.h"
 #include "dates/genealogical_date.h"
+#include "domain/event/event_roles_model.h"
+#include "domain/event/event_types_model.h"
 #include "dates/genealogical_date_editor_dialog.h"
 #include "domain/event/event_repository.h"
 #include "note_editor_dialog.h"
@@ -37,15 +37,15 @@ EventEditorDialog::EventEditorDialog(
     connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditorDialog::editDateWithEditor);
     connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
 
-    // Populate the event type combo box from the global types model.
-    auto* typesModel = DataManager::get().eventTypesModel();
+    // Populate the event type combo box from the domain types model.
+    typesModel = new EventTypesListModel(this);
     form->eventTypeComboBox->setModel(typesModel);
-    form->eventTypeComboBox->setModelColumn(EventTypesModel::TYPE);
+    form->eventTypeComboBox->setModelColumn(EventTypesListModel::TYPE);
 
-    // Populate the role combo box from the global roles model.
-    auto* rolesModel = DataManager::get().eventRolesModel();
+    // Populate the role combo box from the domain roles model.
+    rolesModel = new EventRolesListModel(this);
     form->eventRoleComboBox->setModel(rolesModel);
-    form->eventRoleComboBox->setModelColumn(EventRolesModel::ROLE);
+    form->eventRoleComboBox->setModelColumn(EventRolesListModel::ROLE);
 
     form->noteEdit->enableRichTextMode();
 
@@ -54,7 +54,7 @@ EventEditorDialog::EventEditorDialog(
     if (const auto event = repo.findEventById(eventId)) {
         // Pre-select the event type.
         auto typeIndex = typesModel->match(
-            typesModel->index(0, EventTypesModel::ID), Qt::DisplayRole, event->typeId
+            typesModel->index(0, EventTypesListModel::ID), Qt::DisplayRole, event->typeId
         );
         if (!typeIndex.isEmpty()) {
             form->eventTypeComboBox->setCurrentIndex(typeIndex.constFirst().row());
@@ -69,7 +69,7 @@ EventEditorDialog::EventEditorDialog(
     }
 
     // Pre-select the role.
-    auto roleIndex = rolesModel->match(rolesModel->index(0, EventRolesModel::ID), Qt::DisplayRole, roleId);
+    auto roleIndex = rolesModel->match(rolesModel->index(0, EventRolesListModel::ID), Qt::DisplayRole, roleId);
     if (!roleIndex.isEmpty()) {
         form->eventRoleComboBox->setCurrentIndex(roleIndex.constFirst().row());
     }
@@ -86,9 +86,8 @@ void EventEditorDialog::accept() {
     EventRepository repo;
 
     // Collect values from widgets.
-    auto* typesModel = DataManager::get().eventTypesModel();
     auto typeRow = form->eventTypeComboBox->currentIndex();
-    auto typeId = typesModel->index(typeRow, EventTypesModel::ID).data().toLongLong();
+    auto typeId = typesModel->index(typeRow, EventTypesListModel::ID).data().toLongLong();
 
     auto displayDate = form->eventDatePicker->text();
     auto date = displayDate.isEmpty()
@@ -103,9 +102,8 @@ void EventEditorDialog::accept() {
     }
 
     // Update the role if it changed (delete old relation, insert new one).
-    auto* rolesModel = DataManager::get().eventRolesModel();
     auto roleRow = form->eventRoleComboBox->currentIndex();
-    auto newRoleId = rolesModel->index(roleRow, EventRolesModel::ID).data().toLongLong();
+    auto newRoleId = rolesModel->index(roleRow, EventRolesListModel::ID).data().toLongLong();
 
     if (newRoleId != originalRoleId) {
         repo.deleteEventRelation(eventId, personId, originalRoleId);

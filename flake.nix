@@ -41,16 +41,19 @@
           kdePackages.breeze
           kdePackages.kitemmodels
           kdePackages.kio
-          qt6.qtbase
-          qt6.qtwayland
-          qt6.qtdeclarative
+          kdePackages.qtbase
+          kdePackages.qtwayland
+          kdePackages.qtdeclarative
           qtnodes
-          kddockwidgets
+          kddockwidgets-kde
+          sqlite
+          kdePackages.qtmultimedia
+          pipewire
         ];
         native-build-inputs = with pkgs; [
           llvmPackages.openmp
-          qt6.wrapQtAppsHook
-          qt6.qtwayland
+          kdePackages.wrapQtAppsHook
+          kdePackages.qtwayland
           clang-tools
           cmake
           git
@@ -83,8 +86,9 @@
           dontWrapQtApps = true;
 
           nativeBuildInputs = with pkgs; [ cmake ];
-          buildInputs = with pkgs; [ qt6.qtbase ];
+          buildInputs = with pkgs; [ kdePackages.qtbase ];
         };
+        kddockwidgets-kde = pkgs.kdePackages.callPackage "${pkgs.path}/pkgs/by-name/kd/kddockwidgets/package.nix" { };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
       {
@@ -134,7 +138,7 @@
           shellHook = ''
             export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
             export KF5KIconThemes_DIR=${pkgs.kdePackages.kiconthemes}
-            export QML_DIR=${pkgs.qt6.qtdeclarative}
+            export QML_DIR=${pkgs.kdePackages.qtdeclarative}
           '';
         };
         formatter = treefmtEval.config.build.wrapper;

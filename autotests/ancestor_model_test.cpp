@@ -6,7 +6,7 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "./test_utils.h"
-#include "data/family.h"
+#include "domain/family/ancestor_model.h"
 #include "data/names.h"
 #include "database/database.h"
 
@@ -40,111 +40,111 @@ private Q_SLOTS:
     }
 
     void testRootPersonGetsAllAncestors() {
-        AncestorQueryModel model{1};
+        AncestorModel model{1};
 
         QCOMPARE(model.rowCount(), 8);
 
-        QCOMPARE(model.index(0, AncestorQueryModel::CHILD_ID).data(), 1);
-        QCOMPARE(model.index(0, AncestorQueryModel::FATHER_ID).data(), 3);
-        QCOMPARE(model.index(0, AncestorQueryModel::MOTHER_ID).data(), 4);
+        QCOMPARE(model.index(0, AncestorModel::CHILD_ID).data(), 1);
+        QCOMPARE(model.index(0, AncestorModel::FATHER_ID).data(), 3);
+        QCOMPARE(model.index(0, AncestorModel::MOTHER_ID).data(), 4);
 
-        QCOMPARE(model.index(1, AncestorQueryModel::CHILD_ID).data(), 3);
-        QCOMPARE(model.index(1, AncestorQueryModel::FATHER_ID).data(), 5);
-        QCOMPARE(model.index(1, AncestorQueryModel::MOTHER_ID).data(), 6);
+        QCOMPARE(model.index(1, AncestorModel::CHILD_ID).data(), 3);
+        QCOMPARE(model.index(1, AncestorModel::FATHER_ID).data(), 5);
+        QCOMPARE(model.index(1, AncestorModel::MOTHER_ID).data(), 6);
 
-        QCOMPARE(model.index(2, AncestorQueryModel::CHILD_ID).data(), 4);
-        QCOMPARE(model.index(2, AncestorQueryModel::FATHER_ID).data(), 7);
-        QCOMPARE(model.index(2, AncestorQueryModel::MOTHER_ID).data(), 8);
+        QCOMPARE(model.index(2, AncestorModel::CHILD_ID).data(), 4);
+        QCOMPARE(model.index(2, AncestorModel::FATHER_ID).data(), 7);
+        QCOMPARE(model.index(2, AncestorModel::MOTHER_ID).data(), 8);
 
-        QCOMPARE(model.index(3, AncestorQueryModel::CHILD_ID).data(), 5);
-        QVERIFY(model.index(3, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(3, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(3, AncestorModel::CHILD_ID).data(), 5);
+        QVERIFY(model.index(3, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(3, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(4, AncestorQueryModel::CHILD_ID).data(), 6);
-        QCOMPARE(model.index(4, AncestorQueryModel::FATHER_ID).data(), 9);
-        QVERIFY(model.index(4, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(4, AncestorModel::CHILD_ID).data(), 6);
+        QCOMPARE(model.index(4, AncestorModel::FATHER_ID).data(), 9);
+        QVERIFY(model.index(4, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(5, AncestorQueryModel::CHILD_ID).data(), 7);
-        QCOMPARE(model.index(5, AncestorQueryModel::FATHER_ID).data(), 9);
-        QVERIFY(model.index(5, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(5, AncestorModel::CHILD_ID).data(), 7);
+        QCOMPARE(model.index(5, AncestorModel::FATHER_ID).data(), 9);
+        QVERIFY(model.index(5, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(6, AncestorQueryModel::CHILD_ID).data(), 8);
-        QVERIFY(model.index(6, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(6, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(6, AncestorModel::CHILD_ID).data(), 8);
+        QVERIFY(model.index(6, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(6, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(7, AncestorQueryModel::CHILD_ID).data(), 9);
-        QVERIFY(model.index(7, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(7, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(7, AncestorModel::CHILD_ID).data(), 9);
+        QVERIFY(model.index(7, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(7, AncestorModel::MOTHER_ID).data().isNull());
     }
 
     void testSiblingGetsAllAncestors() {
-        AncestorQueryModel model{2};
+        AncestorModel model{2};
 
         QCOMPARE(model.rowCount(), 8);
 
-        QCOMPARE(model.index(0, AncestorQueryModel::CHILD_ID).data(), 2);
-        QCOMPARE(model.index(0, AncestorQueryModel::FATHER_ID).data(), 3);
-        QCOMPARE(model.index(0, AncestorQueryModel::MOTHER_ID).data(), 4);
+        QCOMPARE(model.index(0, AncestorModel::CHILD_ID).data(), 2);
+        QCOMPARE(model.index(0, AncestorModel::FATHER_ID).data(), 3);
+        QCOMPARE(model.index(0, AncestorModel::MOTHER_ID).data(), 4);
 
-        QCOMPARE(model.index(1, AncestorQueryModel::CHILD_ID).data(), 3);
-        QCOMPARE(model.index(1, AncestorQueryModel::FATHER_ID).data(), 5);
-        QCOMPARE(model.index(1, AncestorQueryModel::MOTHER_ID).data(), 6);
+        QCOMPARE(model.index(1, AncestorModel::CHILD_ID).data(), 3);
+        QCOMPARE(model.index(1, AncestorModel::FATHER_ID).data(), 5);
+        QCOMPARE(model.index(1, AncestorModel::MOTHER_ID).data(), 6);
 
-        QCOMPARE(model.index(2, AncestorQueryModel::CHILD_ID).data(), 4);
-        QCOMPARE(model.index(2, AncestorQueryModel::FATHER_ID).data(), 7);
-        QCOMPARE(model.index(2, AncestorQueryModel::MOTHER_ID).data(), 8);
+        QCOMPARE(model.index(2, AncestorModel::CHILD_ID).data(), 4);
+        QCOMPARE(model.index(2, AncestorModel::FATHER_ID).data(), 7);
+        QCOMPARE(model.index(2, AncestorModel::MOTHER_ID).data(), 8);
 
-        QCOMPARE(model.index(3, AncestorQueryModel::CHILD_ID).data(), 5);
-        QVERIFY(model.index(3, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(3, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(3, AncestorModel::CHILD_ID).data(), 5);
+        QVERIFY(model.index(3, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(3, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(4, AncestorQueryModel::CHILD_ID).data(), 6);
-        QCOMPARE(model.index(4, AncestorQueryModel::FATHER_ID).data(), 9);
-        QVERIFY(model.index(4, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(4, AncestorModel::CHILD_ID).data(), 6);
+        QCOMPARE(model.index(4, AncestorModel::FATHER_ID).data(), 9);
+        QVERIFY(model.index(4, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(5, AncestorQueryModel::CHILD_ID).data(), 7);
-        QCOMPARE(model.index(5, AncestorQueryModel::FATHER_ID).data(), 9);
-        QVERIFY(model.index(5, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(5, AncestorModel::CHILD_ID).data(), 7);
+        QCOMPARE(model.index(5, AncestorModel::FATHER_ID).data(), 9);
+        QVERIFY(model.index(5, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(6, AncestorQueryModel::CHILD_ID).data(), 8);
-        QVERIFY(model.index(6, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(6, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(6, AncestorModel::CHILD_ID).data(), 8);
+        QVERIFY(model.index(6, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(6, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(7, AncestorQueryModel::CHILD_ID).data(), 9);
-        QVERIFY(model.index(7, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(7, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(7, AncestorModel::CHILD_ID).data(), 9);
+        QVERIFY(model.index(7, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(7, AncestorModel::MOTHER_ID).data().isNull());
     }
 
     void testParentGetsLessAncestors() {
-        AncestorQueryModel model{3};
+        AncestorModel model{3};
 
         QCOMPARE(model.rowCount(), 4);
 
-        QCOMPARE(model.index(0, AncestorQueryModel::CHILD_ID).data(), 3);
-        QCOMPARE(model.index(0, AncestorQueryModel::FATHER_ID).data(), 5);
-        QCOMPARE(model.index(0, AncestorQueryModel::MOTHER_ID).data(), 6);
+        QCOMPARE(model.index(0, AncestorModel::CHILD_ID).data(), 3);
+        QCOMPARE(model.index(0, AncestorModel::FATHER_ID).data(), 5);
+        QCOMPARE(model.index(0, AncestorModel::MOTHER_ID).data(), 6);
 
-        QCOMPARE(model.index(1, AncestorQueryModel::CHILD_ID).data(), 5);
-        QVERIFY(model.index(1, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(1, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(1, AncestorModel::CHILD_ID).data(), 5);
+        QVERIFY(model.index(1, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(1, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(2, AncestorQueryModel::CHILD_ID).data(), 6);
-        QCOMPARE(model.index(2, AncestorQueryModel::FATHER_ID).data(), 9);
-        QVERIFY(model.index(2, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(2, AncestorModel::CHILD_ID).data(), 6);
+        QCOMPARE(model.index(2, AncestorModel::FATHER_ID).data(), 9);
+        QVERIFY(model.index(2, AncestorModel::MOTHER_ID).data().isNull());
 
-        QCOMPARE(model.index(3, AncestorQueryModel::CHILD_ID).data(), 9);
-        QVERIFY(model.index(3, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(3, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(3, AncestorModel::CHILD_ID).data(), 9);
+        QVERIFY(model.index(3, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(3, AncestorModel::MOTHER_ID).data().isNull());
     }
 
     void testGrandParentGetsNoAncestors() {
-        AncestorQueryModel model{5};
+        AncestorModel model{5};
 
         QCOMPARE(model.rowCount(), 1);
 
-        QCOMPARE(model.index(0, AncestorQueryModel::CHILD_ID).data(), 5);
-        QVERIFY(model.index(0, AncestorQueryModel::FATHER_ID).data().isNull());
-        QVERIFY(model.index(0, AncestorQueryModel::MOTHER_ID).data().isNull());
+        QCOMPARE(model.index(0, AncestorModel::CHILD_ID).data(), 5);
+        QVERIFY(model.index(0, AncestorModel::FATHER_ID).data().isNull());
+        QVERIFY(model.index(0, AncestorModel::MOTHER_ID).data().isNull());
     }
 };
 

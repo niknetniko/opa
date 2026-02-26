@@ -271,3 +271,144 @@ private:
     DomainEventBroker() = default;
 };
 ```
+
+# Architecture Guide: Data Editing (CQRS Pattern)
+
+This document outlines how data modification (Create, Update, Delete) is handled in the new Repository architecture.
+
+We strictly follow the **CQRS (Command Query Responsibility Segregation)** pattern. Our models (`ObjectTableModel`, `ObjectListModel`) are **Read-Only** by default. We do not use `QSqlTableModel`'s automatic `OnRowChange` editing. All database writes must flow through a Repository class.
+
+## 1. Core Principles for AI Agents
+When tasked with adding editing functionality to a view:
+1. **Never write SQL directly in the UI or View Controller.**
+2. **Never modify the database directly from a Model** (unless using a configured inline-setter).
+3. **Always use Entities (Structs)** to pass data between the UI and the Repository.
+4. **Always emit a change notification** from the Repository upon successful save using `DataEventBroker`.
+
+---
+
+## 2. Approach A: Form-Based Editing (Recommended)
+
+Use this approach when the user clicks an "Edit" button and modifies data inside a form or dialog containing `QLineEdit`, `QComboBox`, etc.
+
+### Step 1: The UI logic (Controller)
+Gather the updated values from the UI, mutate the C++ Entity struct, and pass it to the Repository.
+
+```c++
+void PersonProfileWidget::saveChanges() {
+    // 1. Copy the current state into an Entity struct
+    PersonDisplayEntity updatedPerson = m_currentPerson;
+    
+    // 2. Apply UI changes to the struct
+    updatedPerson.givenNames = ui->givenNamesLineEdit->text();
+    updatedPerson.surname = ui->surnameLineEdit->text();
+    
+    // 3. Delegate writing to the Repository
+    PersonRepository repo;
+    if (repo.updatePerson(updatedPerson)) {
+        // Handle UI success (e.g., close dialog)
+    } else {
+        // Handle UI error
+    }
+}
+```
+
+### Step 2: The Repository logic
+The Repository maps the struct to an `UPDATE` or `INSERT` query. On success, it **must** notify the application.
+
+```c++
+bool PersonRepository::updatePerson(const PersonDisplayEntity& person) {
+    QSqlQuery query;
+    query.prepare("UPDATE names SET given_names = :g, surname = :s WHERE person_id = :id");
+    query.bindValue(":g", person.givenNames);
+    query.bindValue(":s", person.surname);
+    query.bindValue(":id", person.id);
+    
+    if (!query.exec()) return false;
+    
+    // CRITICAL: Notify the event broker using std::optional
+    DataEventBroker::instance().notifyChanged<Schema::Names>(person.id);
+    
+    return true;
+}
+```
+*(Note: Because our generic read models use `connectToTable`, emitting this signal will automatically cause all visible tables and lists displaying this person to refresh).*
+
+---
+
+## 3. Approach B: Inline Table Editing
+
+Use this approach *only* when the user needs to double-click a cell in a `QTableView` to type a new value directly.
+
+### Step 1: Extend `ObjectTableModel`
+If not already implemented, ensure `ObjectTableModel` supports `Setter` lambdas.
+
+```c++
+// Required modifications to ObjectTableModel<T>:
+using Setter = std::function<bool(T&, const QVariant&)>;
+
+struct ColumnDef {
+    QString header;
+    Extractor extractor;
+    Setter setter; // Allow null for read-only columns
+};
+
+// Override flags to enable Qt::ItemIsEditable
+Qt::ItemFlags flags(const QModelIndex& index) const override {
+    Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+    if (index.isValid() && columns[index.column()].setter != nullptr) {
+        return defaultFlags | Qt::ItemIsEditable;
+    }
+    return defaultFlags;
+}
+
+// Override setData to trigger the setter and save
+bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override {
+    if (index.isValid() && role == Qt::EditRole) {
+        auto setter = columns[index.column()].setter;
+        if (setter) {
+            T& item = items[index.row()];
+            if (setter(item, value)) {
+                Q_EMIT dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+                return true;
+            }
+        }
+    }
+    return false;
+}
+```
+
+### Step 2: Define Setters in the View Model
+When setting up columns in a specific model (e.g., `PersonNamesModel`), pass a lambda that updates the struct and calls the Repository.
+
+```c++
+// Inside PersonNamesModel constructor:
+this->setColumn(GIVEN_NAMES, i18n("Given names"), &NameWithOriginEntity::givenNames, 
+    [](NameWithOriginEntity& rowData, const QVariant& newValue) -> bool {
+        
+        // 1. Validate data if necessary
+        QString newName = newValue.toString();
+        if (newName.isEmpty()) return false;
+        
+        // 2. Update the local memory struct
+        rowData.givenNames = newName;
+        
+        // 3. Persist to DB via Repository
+        NameRepository repo;
+        return repo.updateName(rowData); 
+        // Note: repo.updateName() will trigger DataEventBroker
+    }
+);
+```
+
+---
+
+## 4. Agent Checklist for Implementing an Edit Feature
+When instructed to "make entity X editable":
+
+1. [ ] Check if the User requested Form-Based or Inline editing.
+2. [ ] **Entity**: Ensure the Entity struct holds all necessary IDs to perform an SQL `UPDATE`.
+3. [ ] **Repository**: Add an `updateEntity(const Entity& e)` method.
+4. [ ] **Repository SQL**: Write the `UPDATE` query using parameterized bindings.
+5. [ ] **Event Broker**: Ensure the Repository calls `DataEventBroker::instance().notifyChanged<Schema::Table>(entity.id)` upon successful `exec()`.
+6. [ ] **UI/Model Hookup**: Link the UI 'Save' action (Approach A) or the Model's `Setter` (Approach B) to the new Repository method.

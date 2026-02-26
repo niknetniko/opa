@@ -6,8 +6,8 @@
 
 #include "person_family_tab.h"
 
-#include "data/data_manager.h"
-#include "data/family.h"
+#include "domain/family/family_members_model.h"
+#include "domain/family/parents_model.h"
 #include "editors/new_family_editor_dialog.h"
 #include "main/main_window.h"
 #include "tree_view/tree_view_window.h"
@@ -16,7 +16,6 @@
 
 #include <KLocalizedString>
 #include <QGroupBox>
-#include <QSqlRecord>
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -25,8 +24,7 @@
 PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     personId = person;
 
-    auto* familyModel = DataManager::get().familyModelFor(this, personId);
-    auto* sourceModel = findSourceModelOfType<FamilyProxyModel>(familyModel);
+    auto* familyModel = new FamilyMembersModel(personId, this);
 
     auto* familyGroupBox = new QGroupBox(i18n("Partners and children"), this);
     familyGroupBox->setFlat(true);
@@ -39,13 +37,13 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     partnerAndDescendantTreeView->setUniformRowHeights(true);
     partnerAndDescendantTreeView->expandAll();
     partnerAndDescendantTreeView->setItemDelegateForColumn(
-        FamilyDisplayModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
+        FamilyMembersModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
     );
     partnerAndDescendantTreeView->setItemDelegateForColumn(
-        FamilyDisplayModel::EVENT_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::EVENT)
+        FamilyMembersModel::EVENT_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::EVENT)
     );
-    if (sourceModel->hasBastardChildren()) {
-        partnerAndDescendantTreeView->setFirstColumnSpanned(sourceModel->rowCount() - 1, {}, true);
+    if (familyModel->hasBastardChildren()) {
+        partnerAndDescendantTreeView->setFirstColumnSpanned(familyModel->rowCount() - 1, {}, true);
     }
     connect(partnerAndDescendantTreeView, &QTreeView::doubleClicked, this, &PersonFamilyTab::onPartnerOrChildClicked);
 
@@ -63,7 +61,7 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     auto* parentsGroupBox = new QGroupBox(i18n("Parents"), this);
     parentsGroupBox->setFlat(true);
 
-    auto* parentsModel = DataManager::get().parentsModelFor(this, person);
+    auto* parentsModel = new ParentsModel(person, this);
     parentsTreeView = new QTreeView(parentsGroupBox);
     parentsTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     parentsTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -74,7 +72,7 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     parentsTreeView->setMinimumHeight(100);
     parentsTreeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     parentsTreeView->setItemDelegateForColumn(
-        DisplayParentModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
+        ParentsModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
     );
     connect(parentsTreeView, &QTreeView::doubleClicked, this, &PersonFamilyTab::onParentClicked);
 
@@ -114,7 +112,7 @@ void PersonFamilyTab::onParentClicked(const QModelIndex& index) const {
         return;
     }
     Q_ASSERT(index.model() == parentsTreeView->model());
-    auto personId = index.model()->index(index.row(), DisplayParentModel::PERSON_ID, index.parent()).data();
+    auto personId = index.model()->index(index.row(), ParentsModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
 }
 
@@ -123,7 +121,7 @@ void PersonFamilyTab::onPartnerOrChildClicked(const QModelIndex& index) const {
         return;
     }
     Q_ASSERT(index.model() == partnerAndDescendantTreeView->model());
-    auto personId = index.model()->index(index.row(), FamilyDisplayModel::PERSON_ID, index.parent()).data();
+    auto personId = index.model()->index(index.row(), FamilyMembersModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
 }
 

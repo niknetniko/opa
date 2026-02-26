@@ -6,7 +6,7 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "./test_utils.h"
-#include "data/family.h"
+#include "domain/family/parents_model.h"
 #include "database/database.h"
 
 #include <QAbstractItemModelTester>
@@ -17,7 +17,7 @@
 
 using namespace Qt::Literals::StringLiterals;
 
-class TestParentQueryModel : public QObject {
+class TestParentsModel : public QObject {
     Q_OBJECT
 
 private Q_SLOTS:
@@ -38,51 +38,51 @@ private Q_SLOTS:
     }
 
     void testRootHasParents() {
-        ParentQueryModel model{1};
+        ParentsModel model{1};
 
         QCOMPARE(model.rowCount(), 2);
 
-        QCOMPARE(model.index(0, ParentQueryModel::PERSON_ID).data(), 3);
-        QCOMPARE(model.index(0, ParentQueryModel::ROLE).data(), u"Father"_s);
+        QCOMPARE(model.index(0, ParentsModel::PERSON_ID).data(), 3);
+        QCOMPARE(model.index(0, ParentsModel::ROLE).data(), u"Father"_s);
 
-        QCOMPARE(model.index(1, ParentQueryModel::PERSON_ID).data(), 4);
-        QCOMPARE(model.index(1, ParentQueryModel::ROLE).data(), u"Mother"_s);
+        QCOMPARE(model.index(1, ParentsModel::PERSON_ID).data(), 4);
+        QCOMPARE(model.index(1, ParentsModel::ROLE).data(), u"Mother"_s);
     }
 
     void testSiblingHasSameParents() {
-        ParentQueryModel model{2};
+        ParentsModel model{2};
 
         QCOMPARE(model.rowCount(), 2);
 
-        QCOMPARE(model.index(0, ParentQueryModel::PERSON_ID).data(), 3);
-        QCOMPARE(model.index(0, ParentQueryModel::ROLE).data(), u"Father"_s);
+        QCOMPARE(model.index(0, ParentsModel::PERSON_ID).data(), 3);
+        QCOMPARE(model.index(0, ParentsModel::ROLE).data(), u"Father"_s);
 
-        QCOMPARE(model.index(1, ParentQueryModel::PERSON_ID).data(), 4);
-        QCOMPARE(model.index(1, ParentQueryModel::ROLE).data(), u"Mother"_s);
+        QCOMPARE(model.index(1, ParentsModel::PERSON_ID).data(), 4);
+        QCOMPARE(model.index(1, ParentsModel::ROLE).data(), u"Mother"_s);
     }
 
     void testParentHasParents() {
-        ParentQueryModel model{3};
+        ParentsModel model{3};
 
         QCOMPARE(model.rowCount(), 2);
 
-        QCOMPARE(model.index(0, ParentQueryModel::PERSON_ID).data(), 5);
-        QCOMPARE(model.index(0, ParentQueryModel::ROLE).data(), u"Father"_s);
+        QCOMPARE(model.index(0, ParentsModel::PERSON_ID).data(), 5);
+        QCOMPARE(model.index(0, ParentsModel::ROLE).data(), u"Father"_s);
 
-        QCOMPARE(model.index(1, ParentQueryModel::PERSON_ID).data(), 6);
-        QCOMPARE(model.index(1, ParentQueryModel::ROLE).data(), u"Mother"_s);
+        QCOMPARE(model.index(1, ParentsModel::PERSON_ID).data(), 6);
+        QCOMPARE(model.index(1, ParentsModel::ROLE).data(), u"Mother"_s);
     }
 
     void testGrandParentsHaveParents() {
-        ParentQueryModel model{6};
+        ParentsModel model{6};
 
         QCOMPARE(model.rowCount(), 1);
 
-        QCOMPARE(model.index(0, ParentQueryModel::PERSON_ID).data(), 9);
-        QCOMPARE(model.index(0, ParentQueryModel::ROLE).data(), u"Father"_s);
+        QCOMPARE(model.index(0, ParentsModel::PERSON_ID).data(), 9);
+        QCOMPARE(model.index(0, ParentsModel::ROLE).data(), u"Father"_s);
     }
 };
 
-QTEST_MAIN(TestParentQueryModel)
+QTEST_MAIN(TestParentsModel)
 
 #include "parent_query_model_test.moc"

@@ -6,17 +6,12 @@
 #include "data_manager.h"
 
 #include "../core/data_event_broker.h"
-#include "data/names.h"
-#include "dates/genealogical_date_proxy_model.h"
-#include "event.h"
-#include "family.h"
 #include "source.h"
 #include "utils/grouping_proxy_model.h"
 #include "utils/multi_filter_proxy_model.h"
 #include "utils/tree_proxy_model.h"
 
 #include <KLocalizedString>
-#include <KRearrangeColumnsProxyModel>
 #include <QLibraryInfo>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -25,10 +20,6 @@ DataManager* DataManager::instance = nullptr;
 
 // NOLINTBEGIN(*-prefer-member-initializer)
 DataManager::DataManager(QObject* parent) : QObject(parent) {
-    baseEventRolesModel = makeModel<EventRolesModel>();
-    baseEventRelationsModel = makeModel<EventRelationsModel>(baseEventRolesModel);
-    baseEventTypesModel = makeModel<EventTypesModel>();
-    baseEventsModel = makeModel<EventsModel>(baseEventTypesModel);
     baseSourcesModel = makeModel<SourcesTableModel>();
 }
 // NOLINTEND(*-prefer-member-initializer)
@@ -40,165 +31,9 @@ QAbstractProxyModel* DataManager::singleSourceModel(QObject* parent, const QVari
     return proxy;
 }
 
-QSqlTableModel* DataManager::eventRolesModel() const {
-    return this->baseEventRolesModel;
-}
-
-QSqlTableModel* DataManager::eventTypesModel() const {
-    return this->baseEventTypesModel;
-}
-
-QSqlTableModel* DataManager::eventRelationsModel() const {
-    return this->baseEventRelationsModel;
-}
-
-QSqlTableModel* DataManager::eventsModel() const {
-    return this->baseEventsModel;
-}
-
-QAbstractItemModel* DataManager::eventsModelWithDateSupport(QObject* parent) const {
-    auto* model = eventsModel();
-    auto* dateModel = new GenealogicalDateProxyModel(parent);
-    dateModel->setSourceModel(model);
-    dateModel->setDateColumn(EventsModel::DATE);
-    return dateModel;
-}
 
 QSqlTableModel* DataManager::sourcesModel() const {
     return this->baseSourcesModel;
-}
-
-QAbstractProxyModel* DataManager::eventRelationModelByPersonAndEvent(
-    QObject* parent, const QVariant& personId, const QVariant& eventId
-) const {
-    auto* proxy = new MultiFilterProxyModel(parent);
-    proxy->setSourceModel(this->eventRelationsModel());
-    proxy->addFilter(EventRelationsModel::EVENT_ID, eventId);
-    proxy->addFilter(EventRelationsModel::PERSON_ID, personId);
-    return proxy;
-}
-
-QAbstractItemModel* DataManager::parentEventRolesModel(QObject* parent) const {
-    return new ParentEventRolesModel(parent);
-}
-
-QAbstractItemModel* DataManager::relationshipEventTypes(QObject* parent) const {
-    return new RelationshipEventTypesModel(parent);
-}
-
-QAbstractProxyModel* DataManager::familyModelFor(QObject* parent, IntegerPrimaryKey person) {
-    auto* proxyModel = new FamilyProxyModel(person, parent);
-
-    propagateToModel<FamilyProxyModel>(
-        proxyModel,
-        {
-            Schema::EventsTable,
-            Schema::EventTypesTable,
-            Schema::EventRolesTable,
-            Schema::EventRelationsTable,
-            Schema::NamesTable,
-            Schema::PeopleTable,
-        },
-        [](auto* model) { model->resetAndLoadData(); }
-    );
-
-    auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setSourceModel(proxyModel);
-    combinedModel->setColumns({
-        .titles = FamilyProxyModel::TITLES,
-        .givenNames = FamilyProxyModel::GIVEN_NAMES,
-        .prefix = FamilyProxyModel::PREFIX,
-        .surname = FamilyProxyModel::SURNAME,
-    });
-
-    auto* columnModel = new KRearrangeColumnsProxyModel(parent);
-    columnModel->setSourceModel(combinedModel);
-    columnModel->setSourceColumns({
-        FamilyProxyModel::EVENT_TYPE,
-        FamilyProxyModel::DATE,
-        FamilyProxyModel::PERSON_ID,
-        combinedModel->columnCount() - 1,
-        FamilyProxyModel::EVENT_ID,
-    });
-
-    auto* dateModel = new GenealogicalDateProxyModel(parent);
-    dateModel->setSourceModel(columnModel);
-    dateModel->setDateColumn(FamilyDisplayModel::DATE);
-
-    return dateModel;
-}
-
-QAbstractProxyModel* DataManager::ancestorModelFor(QObject* parent, IntegerPrimaryKey person) {
-    auto* ancestorQueryModel = new AncestorQueryModel(person, parent);
-    propagateToModel<AncestorQueryModel>(
-        ancestorQueryModel,
-        {
-            Schema::EventsTable,
-            Schema::EventTypesTable,
-            Schema::EventRolesTable,
-            Schema::EventRelationsTable,
-            Schema::NamesTable,
-            Schema::PeopleTable,
-        },
-        [](auto* model) { model->resetAndLoadData(); }
-    );
-
-    auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setSourceModel(ancestorQueryModel);
-    combinedModel->setColumns({
-        .titles = AncestorQueryModel::TITLES,
-        .givenNames = AncestorQueryModel::GIVEN_NAMES,
-        .prefix = AncestorQueryModel::PREFIX,
-        .surname = AncestorQueryModel::SURNAME,
-    });
-
-    auto* columnModel = new KRearrangeColumnsProxyModel(parent);
-    columnModel->setSourceModel(combinedModel);
-    columnModel->setSourceColumns({
-        AncestorQueryModel::CHILD_ID,
-        AncestorQueryModel::FATHER_ID,
-        AncestorQueryModel::MOTHER_ID,
-        AncestorQueryModel::VISITED,
-        AncestorQueryModel::LEVEL,
-        combinedModel->columnCount() - 1,
-    });
-
-    return columnModel;
-}
-
-QAbstractProxyModel* DataManager::parentsModelFor(QObject* parent, IntegerPrimaryKey person) {
-    auto* sourceModel = new ParentQueryModel(person, parent);
-    propagateToModel<ParentQueryModel>(
-        sourceModel,
-        {
-            Schema::EventsTable,
-            Schema::EventTypesTable,
-            Schema::EventRolesTable,
-            Schema::EventRelationsTable,
-            Schema::NamesTable,
-            Schema::PeopleTable,
-        },
-        [](auto* model) { model->resetAndLoadData(); }
-    );
-
-    auto* combinedModel = new DisplayNameProxyModel(parent);
-    combinedModel->setSourceModel(sourceModel);
-    combinedModel->setColumns({
-        .titles = ParentQueryModel::TITLES,
-        .givenNames = ParentQueryModel::GIVEN_NAMES,
-        .prefix = ParentQueryModel::PREFIX,
-        .surname = ParentQueryModel::SURNAME,
-    });
-
-    auto* columnModel = new KRearrangeColumnsProxyModel(parent);
-    columnModel->setSourceModel(combinedModel);
-    columnModel->setSourceColumns({
-        ParentQueryModel::ROLE,
-        ParentQueryModel::PERSON_ID,
-        combinedModel->columnCount() - 1,
-    });
-
-    return columnModel;
 }
 
 QAbstractItemModel* DataManager::sourcesTreeModel(QObject* parent) const {

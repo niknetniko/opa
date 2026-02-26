@@ -6,11 +6,12 @@
  */
 
 #include "choose_existing_event_window.h"
-
-#include "data/data_manager.h"
-#include "data/event.h"
+#include "domain/event/event_list_model.h"
+#include "domain/event/event_repository.h"
+#include "domain/event/event_roles_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
+#include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>
 #include <QComboBox>
 #include <QDebug>
@@ -40,23 +41,23 @@ ExistingEventSelection ChooseExistingEventWindow::selectEventAndRole(QWidget* pa
 
 void ChooseExistingEventWindow::accept() {
     if (eventRoleComboBox->currentIndex() != -1) {
-        selectedRole = eventRoleComboBox->model()->index(eventRoleComboBox->currentIndex(), EventRolesModel::ID).data();
+        selectedRole = eventRoleComboBox->model()->index(eventRoleComboBox->currentIndex(), EventRolesListModel::ID).data();
     }
     ChooseExistingReferenceWindow::accept();
 }
 
 ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
-    ChooseExistingReferenceWindow(-1, EventsModel::ID, DataManager::get().eventsModel(), parent) {
+    ChooseExistingReferenceWindow(-1, EventListModel::ID, new EventListModel(nullptr), parent) {
 
     // Set some stuff for the parent.
     setWindowTitle(i18n("Link existing event"));
     tableHelpText->setText(i18n("Choose an existing event to link to the person"));
-    displayModel->setSourceColumns({EventsModel::ID, EventsModel::TYPE, EventsModel::DATE, EventsModel::NAME});
+    displayModel->setSourceColumns({EventListModel::ID, EventListModel::TYPE, EventListModel::DATE, EventListModel::NAME});
     tableView->setItemDelegateForColumn(
-        EventsModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::EVENT)
+        EventListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::EVENT)
     );
-    tableView->horizontalHeader()->setSectionResizeMode(EventsModel::ID, QHeaderView::ResizeToContents);
-    tableView->horizontalHeader()->setSectionResizeMode(EventsModel::DATE, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(EventListModel::ID, QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setSectionResizeMode(EventListModel::DATE, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setStretchLastSection(true);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -79,16 +80,23 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
     eventRoleLabel->setText(i18n("Role"));
     formLayout->setWidget(0, QFormLayout::LabelRole, eventRoleLabel);
 
-    auto* comboBoxModel = DataManager::get().eventRolesModel();
-    auto defaultRoleId = EventRolesModel::getDefaultRole();
-    auto defaultRoleIndex =
-        comboBoxModel->match(comboBoxModel->index(0, EventRolesModel::ID), Qt::DisplayRole, defaultRoleId).constFirst();
+    auto* comboBoxModel = new EventRolesListModel(this);
+    EventRepository repo;
+    auto defaultRoleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
+    int defaultRoleRow = 0;
+    if (defaultRoleId.has_value()) {
+        auto defaultRoleIndex =
+            comboBoxModel->match(comboBoxModel->index(0, EventRolesListModel::ID), Qt::DisplayRole, *defaultRoleId);
+        if (!defaultRoleIndex.isEmpty()) {
+            defaultRoleRow = defaultRoleIndex.constFirst().row();
+        }
+    }
 
     eventRoleComboBox = new QComboBox(roleGroupBox);
     eventRoleComboBox->setEditable(true);
     eventRoleComboBox->setModel(comboBoxModel);
-    eventRoleComboBox->setModelColumn(EventRolesModel::ROLE);
-    eventRoleComboBox->setCurrentIndex(defaultRoleIndex.row());
+    eventRoleComboBox->setModelColumn(EventRolesListModel::ROLE);
+    eventRoleComboBox->setCurrentIndex(defaultRoleRow);
     formLayout->setWidget(0, QFormLayout::FieldRole, eventRoleComboBox);
 
     layout->addWidget(roleGroupBox);

@@ -58,6 +58,24 @@ struct EventEntity {
     }
 };
 
+struct EventDisplayEntity {
+    IntegerPrimaryKey id = -1;
+    IntegerPrimaryKey typeId = -1;
+    QString type;
+    QString date;
+    QString name;
+
+    static EventDisplayEntity fromSql(const QSqlQuery& query) {
+        return {
+            .id = query.value(u"id").toLongLong(),
+            .typeId = query.value(u"type_id").toLongLong(),
+            .type = query.value(u"type").toString(),
+            .date = query.value(u"date").toString(),
+            .name = query.value(u"name").toString(),
+        };
+    }
+};
+
 struct PersonEventEntity {
     IntegerPrimaryKey id = -1;
     IntegerPrimaryKey roleId = -1;

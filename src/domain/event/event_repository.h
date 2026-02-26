@@ -36,6 +36,8 @@ public:
 
     [[nodiscard]] std::optional<EventEntity> findEventById(IntegerPrimaryKey id) const;
 
+    [[nodiscard]] QList<EventDisplayEntity> findAllEvents() const;
+
     std::optional<IntegerPrimaryKey> insertEvent(IntegerPrimaryKey typeId) const;
 
     bool updateEvent(
@@ -70,4 +72,12 @@ public:
 
     std::optional<IntegerPrimaryKey>
     insertEventWithRelation(IntegerPrimaryKey typeId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
+
+    [[nodiscard]] bool isEventTypeUsed(IntegerPrimaryKey typeId) const;
+
+    bool reassignEventTypeId(IntegerPrimaryKey fromId, IntegerPrimaryKey toId) const;
+
+    [[nodiscard]] bool isEventRoleUsed(IntegerPrimaryKey roleId) const;
+
+    bool reassignEventRoleId(IntegerPrimaryKey fromId, IntegerPrimaryKey toId) const;
 };
