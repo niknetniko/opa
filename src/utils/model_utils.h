@@ -112,7 +112,7 @@ bool isValidEnum(const QString& value) {
  */
 template<typename E>
 QString enumToString(const E& value) {
-    auto result = QMetaEnum::fromType<E>().valueToKey(value);
+    auto result = QMetaEnum::fromType<E>().valueToKey(static_cast<quint64>(value));
     return QString::fromUtf8(result);
 }
 

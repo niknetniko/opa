@@ -122,8 +122,8 @@ add_library(
   editors/new_person_editor_dialog.h
   editors/new_family_editor_dialog.cpp
   editors/new_family_editor_dialog.h
-  editors/source_editor_dialog.h
-  editors/source_editor_dialog.cpp
+  ui/source/source_editor_dialog.h
+  ui/source/source_editor_dialog.cpp
   link_existing/choose_existing_person_window.cpp
   link_existing/choose_existing_person_window.h
   docks/person_list_dock.cpp
@@ -148,7 +148,8 @@ add_library(
     domain/event/event_types_model.cpp
     domain/event/event_roles.h
     domain/event/event_roles.cpp
-    domain/source/source.h)
+    domain/source/source.h
+    domain/source/source.cpp)
 
 ecm_qt_declare_logging_category(
   opa-lib

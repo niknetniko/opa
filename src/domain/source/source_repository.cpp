@@ -37,12 +37,35 @@ QStringList SourceRepository::findAllTypes() const {
     return result;
 }
 
-std::optional<IntegerPrimaryKey> SourceRepository::insert(const QString& confidence) const {
-    const auto sql = u"INSERT INTO sources (confidence) VALUES (:confidence)"_s;
-    const auto bindings = QVariantMap{{u":confidence"_s, confidence}};
+std::optional<IntegerPrimaryKey> SourceRepository::insert(
+    const QString& title,
+    const QString& type,
+    const QString& author,
+    const QString& publication,
+    const QString& confidence,
+    const QString& note,
+    std::optional<IntegerPrimaryKey> parentId
+) const {
+    const auto sql = QStringLiteral(
+        "INSERT INTO sources (title, type, author, publication, confidence, note, parent_id) "
+        "VALUES (:title, :type, :author, :publication, :confidence, :note, :parent_id)"
+    );
+    auto bindings = QVariantMap{
+        {u":title"_s, title},
+        {u":type"_s, type},
+        {u":author"_s, author},
+        {u":publication"_s, publication},
+        {u":confidence"_s, confidence},
+        {u":note"_s, note},
+    };
+    if (parentId.has_value()) {
+        bindings[u":parent_id"_s] = parentId.value();
+    } else {
+        bindings[u":parent_id"_s] = QVariant(QMetaType::fromType<IntegerPrimaryKey>());
+    }
     const auto newId = QueryHelper::insert(sql, bindings);
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::Sources>(newId.value());
+        DataEventBroker::instance().notifyChanged<Schema::Sources>(newId);
     }
     return newId;
 }
@@ -71,7 +94,7 @@ bool SourceRepository::update(
         {u":note"_s, note},
         {u":id"_s, id},
     };
-    if (parentId.has_value() && *parentId > 0) {
+    if (parentId.has_value()) {
         bindings[u":parent_id"_s] = parentId.value();
     } else {
         bindings[u":parent_id"_s] = QVariant(QMetaType::fromType<IntegerPrimaryKey>());

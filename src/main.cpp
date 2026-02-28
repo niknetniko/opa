@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "data/data_manager.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "main/main_window.h"
 #include <kddockwidgets/Config.h>

@@ -8,6 +8,7 @@
 #include "domain/source/source_list_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
+#include <KLocalizedString>
 #include <KRearrangeColumnsProxyModel>
 #include <QHeaderView>
 #include <QLabel>

@@ -18,7 +18,15 @@ public:
     [[nodiscard]] std::optional<SourceEntity> findById(IntegerPrimaryKey id) const;
     [[nodiscard]] QStringList findAllTypes() const;
 
-    std::optional<IntegerPrimaryKey> insert(const QString& confidence) const;
+    std::optional<IntegerPrimaryKey> insert(
+        const QString& title,
+        const QString& type,
+        const QString& author,
+        const QString& publication,
+        const QString& confidence,
+        const QString& note,
+        std::optional<IntegerPrimaryKey> parentId
+    ) const;
     bool update(
         IntegerPrimaryKey id,
         const QString& title,

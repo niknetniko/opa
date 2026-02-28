@@ -21,24 +21,22 @@ class SourceEditorDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SourceEditorDialog(IntegerPrimaryKey sourceId, bool newSource, QWidget* parent);
+    explicit SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId, QWidget* parent);
 
     static QVariant showDialogForNewSource(QWidget* parent);
     static void showDialogForExistingSource(IntegerPrimaryKey sourceId, QWidget* parent);
 
 public Q_SLOTS:
     void accept() override;
-    void reject() override;
     void editNoteWithEditor();
     void addNewSourceAsParent();
     void selectExistingSourceAsParent();
 
 private:
     Ui::SourceEditorForm* form;
-    IntegerPrimaryKey sourceId;
-    bool newSource;
-    std::optional<IntegerPrimaryKey> m_parentId;
+    std::optional<IntegerPrimaryKey> sourceId;
+    std::optional<IntegerPrimaryKey> parentId;
     QAbstractItemModel* confidenceModel;
 
-    void updateParentDisplay();
+    void updateParentDisplay() const;
 };

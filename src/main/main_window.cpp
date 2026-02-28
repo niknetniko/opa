@@ -7,12 +7,11 @@
 
 #include "../domain/event/event_types.h"
 #include "../domain/name/names.h"
-#include "data/data_manager.h"
 #include "database/database.h"
 #include "docks/person_list_dock.h"
 #include "docks/source_list_dock.h"
 #include "editors/new_person_editor_dialog.h"
-#include "editors/source_editor_dialog.h"
+#include "ui/source/source_editor_dialog.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
@@ -132,7 +131,6 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     qDebug() << "Loading file..." << filename << "new?" << isNew;
     // If there is an existing open file, close it.
     if (!currentFile.isEmpty()) {
-        DataManager::reset();
         closeDatabase();
         currentFile.clear();
     }
@@ -143,7 +141,6 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     currentFile = filename;
     recentFilesAction_->addUrl(QUrl::fromLocalFile(filename));
     openDatabase(filename, isNew);
-    DataManager::initialize(this);
 
     // Configure the docks with the proper options.
     KDDockWidgets::Config::self().setFlags(
@@ -245,7 +242,6 @@ void MainWindow::openUrl(const QUrl& url) {
 }
 
 void MainWindow::closeFile() {
-    DataManager::reset();
     closeDatabase();
     currentFile.clear();
     this->showWelcomeScreen();
