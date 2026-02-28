@@ -18,4 +18,21 @@
 	    <default>2</default>
     </entry>
   </group>
+  <group name="AI">
+    <entry name="aiProvider" type="Enum">
+      <choices>
+        <choice name="None"/>
+        <choice name="Claude"/>
+        <choice name="Local"/>
+      </choices>
+      <default>None</default>
+    </entry>
+    <entry name="claudeModel" type="String">
+      <default>claude-haiku-4-5-20251001</default>
+    </entry>
+    <entry name="sourceExtractionPrompt" type="String">
+      <label>System prompt for AI source extraction</label>
+      <default>You are a genealogy assistant. Extract structured source metadata from the provided text and return a JSON object with these fields: title (string), type (one of: book, article, census, vital_record, church_record, newspaper, photograph, other), author (string), publication (string), confidence (one of: low, medium, high), note (string). Return only valid JSON, no commentary.</default>
+    </entry>
+  </group>
 </kcfg>

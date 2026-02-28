@@ -3,4 +3,4 @@ File=opaSettings.kcfg
 ClassName=opaSettings
 Singleton=true
 # will create the necessary code for setting those variables
-Mutators=colorBackground,colorForeground
+Mutators=colorBackground,colorForeground,aiProvider,claudeModel,sourceExtractionPrompt

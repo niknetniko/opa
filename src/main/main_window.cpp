@@ -7,16 +7,17 @@
 
 #include "../domain/event/event_types.h"
 #include "../domain/name/names.h"
+#include "ai_settings_widget.h"
 #include "database/database.h"
 #include "docks/person_list_dock.h"
 #include "docks/source_list_dock.h"
 #include "editors/new_person_editor_dialog.h"
-#include "ui/source/source_editor_dialog.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/name_origins_management_window.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
+#include "ui/source/source_editor_dialog.h"
 #include "ui_settings.h"
 #include "utils/placeholder_widget.h"
 #include "welcome/welcome_view.h"
@@ -257,9 +258,11 @@ void MainWindow::settingsConfigure() {
     m_settings = new Ui::Settings();
     m_settings->setupUi(generalSettingsPage);
     dialog->addPage(generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting"));
-    // TODO: handle this
-    //    connect(dialog, &KConfigDialog::settingsChanged, m_opaView,
-    //    &opaView::handleSettingsChanged);
+
+    auto* aiWidget = new AiSettingsWidget;
+    dialog->addPage(aiWidget, i18n("AI"), QStringLiteral("dialog-scripts"));
+    connect(dialog, &KConfigDialog::settingsChanged, aiWidget, &AiSettingsWidget::saveApiKey);
+
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }

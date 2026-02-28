@@ -149,7 +149,15 @@ add_library(
     domain/event/event_roles.h
     domain/event/event_roles.cpp
     domain/source/source.h
-    domain/source/source.cpp)
+    domain/source/source.cpp
+    core/keychain_keys.h
+    ai/ai_service.h
+    ai/ai_service.cpp
+    ai/claude_ai_service.h
+    ai/claude_ai_service.cpp
+    ai/local_ai_service.h
+    main/ai_settings_widget.h
+    main/ai_settings_widget.cpp)
 
 ecm_qt_declare_logging_category(
   opa-lib
@@ -196,9 +204,11 @@ target_link_libraries(
          KF6::KIOWidgets
          KF6::TextWidgets
          KF6::WidgetsAddons
+         Qt6::Network
          ${SQLite3_LIBRARIES}
          ${QtNodes_LIBRARIES}
-         KDAB::kddockwidgets)
+         KDAB::kddockwidgets
+         qt6keychain)
 
 qt_add_resources(
   opa-lib "opa-database"
