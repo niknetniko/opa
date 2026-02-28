@@ -8,6 +8,17 @@ Run `nix develop` for a reproducible shell with all dependencies.
 
 Code formatting uses `.clang-format` (LLVM style). Static analysis config is in `.clang-tidy`.
 
+## Code
+
+Opa must use modern Qt and C++ features.
+For example, avoid raw pointers and use smart pointers instead.
+Prefer C++20 features like `std::optional` and `std::variant`.
+Use Qt's modern signal-slot syntax with lambdas and `auto` for type inference.
+
+Do not use Hungarian notation.
+
+If multiple strings are used in a file, use the shorthand Qt string literals: `u"string"_s`.
+
 ## Architecture
 
 Read `ai/architecture.md` before making changes. It is the authoritative source for patterns and migration checklists.
@@ -52,10 +63,3 @@ Schema defined in `src/database/schema.sql`. Initialized via `init.sql` + `seed.
 Data in the database should be highly normalized.
 
 Logging categories: `opa` (general), `opa.sql` (SQL queries).
-
-## Code
-
-Opa must use modern Qt and C++ features.
-For example, avoid raw pointers and use smart pointers instead.
-Prefer C++20 features like `std::optional` and `std::variant`.
-Use Qt's modern signal-slot syntax with lambdas and `auto` for type inference.
