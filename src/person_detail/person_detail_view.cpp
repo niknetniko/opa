@@ -5,15 +5,15 @@
  */
 #include "person_detail_view.h"
 
+#include "../domain/event/event_types.h"
+#include "../domain/name/names.h"
+#include "../domain/person/person_sex.h"
 #include "core/data_event_broker.h"
-#include "data/event.h"
-#include "data/names.h"
-#include "data/person.h"
-#include "domain/person/person_repository.h"
 #include "database/schema.h"
 #include "dates/genealogical_date.h"
 #include "domain/event/person_birth_events_model.h"
 #include "domain/event/person_death_events_model.h"
+#include "domain/person/person_repository.h"
 #include "person_event_tab.h"
 #include "person_family_tab.h"
 #include "person_name_tab.h"
@@ -32,9 +32,9 @@ BirthInformation constructBirthText(const QAbstractItemModel* model) {
     auto type = enumFromString<EventTypes::Values>(model->index(0, PersonBirthEventsModel::TYPE).data().toString());
 
     QString symbol = {};
-    if (type == EventTypes::Birth) {
+    if (type == EventTypes::Values::Birth) {
         symbol = QStringLiteral("*");
-    } else if (type == EventTypes::Baptism) {
+    } else if (type == EventTypes::Values::Baptism) {
         symbol = QStringLiteral("~");
     } else {
         qFatal() << "Unknown birth event type encountered" << type;
@@ -61,9 +61,9 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
         string = index.data().toString();
         auto type = enumFromString<EventTypes::Values>(deathModel->index(0, PersonDeathEventsModel::TYPE).data().toString());
 
-        if (type == EventTypes::Death) {
+        if (type == EventTypes::Values::Death) {
             symbol = QStringLiteral("✝︎");
-        } else if (type == EventTypes::Funeral) {
+        } else if (type == EventTypes::Values::Funeral) {
             symbol = QStringLiteral("⚰︎");
         } else {
             qFatal() << "Unknown birth event type encountered" << type;

@@ -7,8 +7,8 @@ add_library(
   database/database.h
   database/database.cpp
   database/schema.h
-  data/person.h
-  data/person.cpp
+    domain/person/person_sex.h
+    domain/person/person_sex.cpp
     domain/person/person_entities.h
     domain/person/person_repository.h
     domain/person/person_repository.cpp
@@ -49,18 +49,21 @@ add_library(
     domain/family/parents_model.cpp
     domain/family/family_members_model.h
     domain/family/family_members_model.cpp
-  data/event.h
-  data/event.cpp
+    domain/source/source_entities.h
+    domain/source/source_repository.h
+    domain/source/source_repository.cpp
+    domain/source/source_list_model.h
+    domain/source/source_list_model.cpp
+    domain/event/event_types.h
+    domain/event/event_types.cpp
   person_detail/person_detail_view.h
   person_detail/person_detail_view.cpp
     ui/name/name_editor_dialog.h
     ui/name/name_editor_dialog.cpp
   utils/multi_filter_proxy_model.h
   utils/multi_filter_proxy_model.cpp
-  data/data_manager.h
-  data/data_manager.cpp
-  data/names.h
-  data/names.cpp
+    domain/name/names.h
+    domain/name/names.cpp
   utils/formatted_identifier_delegate.h
   utils/formatted_identifier_delegate.cpp
   person_detail/person_name_tab.h
@@ -127,8 +130,6 @@ add_library(
   docks/person_list_dock.h
   utils/tree_proxy_model.cpp
   utils/tree_proxy_model.h
-  data/source.cpp
-  data/source.h
   utils/grouping_proxy_model.cpp
   utils/grouping_proxy_model.h
   docks/source_list_dock.cpp
@@ -144,7 +145,10 @@ add_library(
     core/base_repository.h
     core/query_utils.h
     domain/person/person_detail_model.cpp
-    domain/event/event_types_model.cpp)
+    domain/event/event_types_model.cpp
+    domain/event/event_roles.h
+    domain/event/event_roles.cpp
+    domain/source/source.h)
 
 ecm_qt_declare_logging_category(
   opa-lib

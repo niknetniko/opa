@@ -16,4 +16,5 @@ ecm_add_tests(
   name_repository_test.cpp
   event_repository_test.cpp
   family_repository_test.cpp
+  source_repository_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)

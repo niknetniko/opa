@@ -5,7 +5,7 @@
  */
 #include "person_event_tab.h"
 
-#include "data/event.h"
+#include "../domain/event/event_types.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/person_events_model.h"
 #include "editors/event_editor_dialog.h"
@@ -13,9 +13,8 @@
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/grouping_proxy_model.h"
 
-#include <KRearrangeColumnsProxyModel>
-
 #include <KLocalizedString>
+#include <KRearrangeColumnsProxyModel>
 #include <QAbstractButton>
 #include <QHeaderView>
 #include <QMessageBox>
@@ -52,12 +51,12 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setUniformRowHeights(true);
-    treeView->hideColumn(PersonEventsTreeModel::ROLE_ID);
-    treeView->hideColumn(PersonEventsTreeModel::ID);
+    treeView->hideColumn(PersonEventListModel::ROLE_ID);
+    treeView->hideColumn(PersonEventListModel::ID);
 
     // The ID_AND_ROLE column shows role names for group rows and formatted event IDs for leaf rows.
     treeView->setItemDelegateForColumn(
-        PersonEventsTreeModel::ID_AND_ROLE,
+        PersonEventListModel::ROLE,
         new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
     );
     // Change resizes.
@@ -158,8 +157,8 @@ void PersonEventTab::onEditSelectedEvent() {
         return; // group (role header) row selected, nothing to edit
     }
 
-    auto eventId = selectedIndex.siblingAtColumn(PersonEventsTreeModel::ID).data();
-    auto eventRoleId = selectedIndex.siblingAtColumn(PersonEventsTreeModel::ROLE_ID).data();
+    auto eventId = selectedIndex.siblingAtColumn(PersonEventListModel::ID).data();
+    auto eventRoleId = selectedIndex.siblingAtColumn(PersonEventListModel::ROLE_ID).data();
 
     EventEditorDialog::showDialogForExistingEvent(eventId.toLongLong(), eventRoleId.toLongLong(), person, this);
 }
@@ -178,7 +177,7 @@ void PersonEventTab::onRemoveSelectedEvent() const {
     if (!selectRow.parent().isValid()) {
         return; // group (role header) row selected, nothing to remove
     }
-    auto eventId = selectRow.siblingAtColumn(PersonEventsTreeModel::ID).data().toLongLong();
+    auto eventId = selectRow.siblingAtColumn(PersonEventListModel::ID).data().toLongLong();
 
     // Look up where it is linked.
     EventRepository repo;
@@ -221,8 +220,8 @@ void PersonEventTab::onUnlinkSelectedEvent() {
     if (!selectRow.parent().isValid()) {
         return; // group (role header) row selected, nothing to unlink
     }
-    auto eventId = selectRow.siblingAtColumn(PersonEventsTreeModel::ID).data().toLongLong();
-    auto roleId = selectRow.siblingAtColumn(PersonEventsTreeModel::ROLE_ID).data().toLongLong();
+    auto eventId = selectRow.siblingAtColumn(PersonEventListModel::ID).data().toLongLong();
+    auto roleId = selectRow.siblingAtColumn(PersonEventListModel::ROLE_ID).data().toLongLong();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);

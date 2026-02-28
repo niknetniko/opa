@@ -7,7 +7,7 @@
 
 #include "../core/data_event_broker.h"
 #include "../domain/name/name_repository.h"
-#include "data/names.h"
+#include "../domain/name/names.h"
 #include "database/schema.h"
 #include "utils/model_utils.h"
 

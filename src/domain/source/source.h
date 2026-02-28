@@ -19,7 +19,7 @@ namespace Confidence {
      * This is mostly a personal judgement, but some guidance is provided in the
      * description of the values below.
      */
-    enum Values {
+    enum class Values {
         /**
          * No confidence at all, probably wrong.
          * You should consider these more of a "mention" than really supporting
@@ -28,7 +28,7 @@ namespace Confidence {
          * Examples include very big online genealogies without any sources,
          * or sources for which it is known that the data might be wrong.
          */
-        VerLow,
+        VeryLow,
         /**
          * Tertiary sources with low confidence.
          * Data associated with this source should be considered possible, rather than fact.
@@ -72,15 +72,15 @@ namespace Confidence {
     Q_ENUM_NS(Values)
 
     const QHash<Values, KLazyLocalizedString> confidenceToString = {
-        {Unknown, kli18n("Unknown")},
-        {VerLow, kli18n("Very low")},
-        {Low, kli18n("Low")},
-        {Normal, kli18n("Normal")},
-        {High, kli18n("High")},
-        {VeryHigh, kli18n("Very high")},
+        {Values::Unknown, kli18n("Unknown")},
+        {Values::VeryLow, kli18n("Very low")},
+        {Values::Low, kli18n("Low")},
+        {Values::Normal, kli18n("Normal")},
+        {Values::High, kli18n("High")},
+        {Values::VeryHigh, kli18n("Very high")},
     };
 
-    const std::function<QString(QString)> toDisplayString = [](const QString& databaseValue) {
+    const auto toDisplayString = [](const QString& databaseValue) {
         return genericToDisplayString<Values>(databaseValue, confidenceToString);
     };
 }

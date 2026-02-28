@@ -5,10 +5,10 @@
  */
 #pragma once
 
-#include "../../data/names.h"
 #include "database/schema.h"
 #include "model/object_table_model.h"
 #include "name_entities.h"
+#include "names.h"
 
 class PersonNamesModel : public ObjectTableModel<NameWithOriginEntity> {
     Q_OBJECT

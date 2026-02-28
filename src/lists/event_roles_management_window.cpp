@@ -5,7 +5,8 @@
  */
 #include "event_roles_management_window.h"
 
-#include "data/event.h"
+#include "../domain/event/event_roles.h"
+#include "../domain/event/event_types.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/event_roles_model.h"
 

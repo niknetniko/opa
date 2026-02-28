@@ -157,14 +157,9 @@ E enumFromString(const QString& value) {
  */
 template<typename E>
 QString genericToDisplayString(const QString& databaseValue, QHash<E, KLazyLocalizedString> mapping) {
-    auto result = enumFromString<E>(databaseValue);
-    if (result == -1) {
-        // This is not a built-in type, so do nothing with it.
-        return databaseValue;
-    }
-    auto enumValue = static_cast<E>(result);
-    Q_ASSERT(mapping.contains(enumValue));
-    return mapping[enumValue].toString();
+    E result = enumFromString<E>(databaseValue);
+    Q_ASSERT(mapping.contains(result));
+    return mapping[result].toString();
 }
 
 /**

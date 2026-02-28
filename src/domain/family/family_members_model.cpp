@@ -5,9 +5,9 @@
  */
 #include "family_members_model.h"
 
+#include "../event/event_types.h"
+#include "../name/names.h"
 #include "core/data_event_broker.h"
-#include "data/event.h"
-#include "data/names.h"
 #include "family_repository.h"
 
 #include <KLocalizedString>
@@ -70,7 +70,7 @@ void FamilyMembersModel::rebuildMapping() {
     for (int i = 0; i < items.size(); ++i) {
         const auto& item = items[i];
         auto eventType = enumFromString<EventTypes::Values>(item.eventType);
-        if (eventType == EventTypes::Birth) {
+        if (eventType == EventTypes::Values::Birth) {
             int parentKey = BASTARD_PARENT_KEY;
             if (item.partnerId.has_value()) {
                 auto partnerId = *item.partnerId;

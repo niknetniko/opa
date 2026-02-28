@@ -5,8 +5,9 @@
  */
 #include "parent_event_roles_list_model.h"
 
-#include "data/event.h"
 #include "event_repository.h"
+#include "event_roles.h"
+#include "event_types.h"
 
 #include <KLocalizedString>
 

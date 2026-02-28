@@ -6,7 +6,7 @@
 
 #include "new_family_editor_dialog.h"
 
-#include "data/person.h"
+#include "../domain/person/person_sex.h"
 #include "database/database.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/parent_event_roles_list_model.h"

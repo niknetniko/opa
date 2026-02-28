@@ -5,8 +5,8 @@
  */
 #include "parents_model.h"
 
+#include "../name/names.h"
 #include "core/data_event_broker.h"
-#include "data/names.h"
 #include "family_repository.h"
 
 #include <KLocalizedString>

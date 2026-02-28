@@ -3,20 +3,16 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "event.h"
+#include "event_types.h"
 
 QList<EventTypes::Values> EventTypes::relationshipStartingEvents() {
-    return {Marriage};
+    return {Values::Marriage};
 }
 
 QList<EventTypes::Values> EventTypes::birthEventsInOrder() {
-    return {Birth, Baptism};
+    return {Values::Birth, Values::Baptism};
 }
 
 QList<EventTypes::Values> EventTypes::deathEventsInOrder() {
-    return {Death, Funeral};
-}
-
-QList<EventRoles::Values> EventRoles::parentRoles() {
-    return {Mother, Father, AdoptiveParent, Stepparent, FosterParent, SurrogateMother, GeneticDonor, RecognizedParent};
+    return {Values::Death, Values::Funeral};
 }

@@ -25,7 +25,10 @@
     utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          system = system;
+          config = { allowUnfree = true; };
+        };
         build-inputs = with pkgs; [
           llvmPackages.openmp
           kdePackages.kcoreaddons
@@ -134,6 +137,7 @@
               pkgs.bashInteractive
               pkgs.gemini-cli
               pkgs.nodejs_24
+              pkgs.claude-code
             ];
           shellHook = ''
             export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}

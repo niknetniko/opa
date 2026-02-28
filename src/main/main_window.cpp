@@ -5,9 +5,9 @@
  */
 #include "main_window.h"
 
+#include "../domain/event/event_types.h"
+#include "../domain/name/names.h"
 #include "data/data_manager.h"
-#include "data/event.h"
-#include "data/names.h"
 #include "database/database.h"
 #include "docks/person_list_dock.h"
 #include "docks/source_list_dock.h"

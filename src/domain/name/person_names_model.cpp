@@ -6,8 +6,8 @@
 #include "./person_names_model.h"
 
 #include "../../core/data_event_broker.h"
-#include "../../data/names.h"
 #include "name_repository.h"
+#include "names.h"
 
 #include <KLocalizedString>
 

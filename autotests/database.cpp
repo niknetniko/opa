@@ -7,9 +7,10 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "database/database.h"
 
-#include "data/event.h"
-#include "data/names.h"
+#include "../src/domain/event/event_types.h"
+#include "../src/domain/name/names.h"
 #include "database/schema.h"
+#include "domain/event/event_roles.h"
 
 #include <QSqlDatabase>
 #include <QSqlDriver>

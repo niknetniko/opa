@@ -5,8 +5,8 @@
  */
 #include "person_display_model.h"
 
+#include "../name/names.h"
 #include "core/data_event_broker.h"
-#include "data/names.h"
 #include "database/schema.h"
 #include "person_repository.h"
 

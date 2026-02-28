@@ -5,9 +5,10 @@
  */
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
-#include "./test_utils.h"
 #include "domain/family/ancestor_model.h"
-#include "data/names.h"
+
+#include "../src/domain/name/names.h"
+#include "./test_utils.h"
 #include "database/database.h"
 
 #include <QAbstractItemModelTester>

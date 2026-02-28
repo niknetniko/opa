@@ -5,7 +5,7 @@
  */
 #include "event_types_management_window.h"
 
-#include "data/event.h"
+#include "../domain/event/event_types.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/event_types_model.h"
 

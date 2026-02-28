@@ -6,9 +6,9 @@
 #include "person_name_tab.h"
 
 #include "../domain/name/name_repository.h"
+#include "../domain/name/names.h"
 #include "../domain/name/person_names_model.h"
 #include "../ui/name/name_editor_dialog.h"
-#include "data/names.h"
 #include "utils/builtin_text_translating_delegate.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"

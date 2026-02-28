@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "person.h"
+#include "person_sex.h"
 
 #include <QString>
 
@@ -13,11 +13,11 @@ QString Sex::toIcon(const QString& sex) {
     }
 
     switch (enumFromString<Values>(sex)) {
-        case Male:
+        case Values::Male:
             return QStringLiteral("♂");
-        case Female:
+        case Values::Female:
             return QStringLiteral("♀");
-        case Unknown:
+        case Values::Unknown:
         default:
             return QStringLiteral("?");
     }

@@ -6,7 +6,7 @@
 #include "./name_repository.h"
 
 #include "../../core/data_event_broker.h"
-#include "../../data/names.h"
+#include "names.h"
 
 using namespace Qt::StringLiterals;
 
