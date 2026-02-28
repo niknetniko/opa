@@ -51,6 +51,7 @@
           kddockwidgets-kde
           sqlite
           kdePackages.qtmultimedia
+          kdePackages.qtkeychain
           pipewire
         ];
         native-build-inputs = with pkgs; [

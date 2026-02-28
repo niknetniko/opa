@@ -28,6 +28,7 @@ find_package(
              Gui
              Widgets
              Sql
+             Network
              Quick
              QuickControls2
              QuickWidgets
@@ -57,6 +58,9 @@ include_directories(${QtNodes_INCLUDE_DIRS})
 
 find_package(KDDockWidgets-qt6 REQUIRED)
 include_directories(${KDDockWidgets_INCLUDE_DIRS})
+
+find_package(Qt6Keychain REQUIRED)
+include_directories(${Qt6Keychain_INCLUDE_DIRS})
 
 kde_enable_exceptions()
 
