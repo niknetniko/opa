@@ -122,8 +122,8 @@ add_library(
   editors/new_person_editor_dialog.h
   editors/new_family_editor_dialog.cpp
   editors/new_family_editor_dialog.h
-  ui/source/source_editor_dialog.h
-  ui/source/source_editor_dialog.cpp
+    ui/source/editor/source_editor_dialog.h
+    ui/source/editor/source_editor_dialog.cpp
   link_existing/choose_existing_person_window.cpp
   link_existing/choose_existing_person_window.h
   docks/person_list_dock.cpp
@@ -132,8 +132,8 @@ add_library(
   utils/tree_proxy_model.h
   utils/grouping_proxy_model.cpp
   utils/grouping_proxy_model.h
-  docks/source_list_dock.cpp
-  docks/source_list_dock.h
+    ui/source/dock/source_list_dock.cpp
+    ui/source/dock/source_list_dock.h
   link_existing/choose_existing_source_window.cpp
   link_existing/choose_existing_source_window.h
   utils/rich_text_plain_delegate.cpp

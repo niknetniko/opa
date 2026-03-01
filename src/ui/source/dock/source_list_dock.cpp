@@ -6,6 +6,8 @@
 #include "source_list_dock.h"
 
 #include "domain/source/source_list_model.h"
+#include "domain/source/source_repository.h"
+#include "ui/source/editor/source_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
 #include "utils/rich_text_plain_delegate.h"
@@ -14,6 +16,8 @@
 #include <KLocalizedString>
 #include <QHeaderView>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
@@ -30,6 +34,7 @@ SourceTreeWidget::SourceTreeWidget(QWidget* parent) : QWidget(parent) {
     filtered->setSourceModel(treeModel);
     filtered->setFilterKeyColumn(SourcesListModel::TITLE);
     filtered->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    filtered->setRecursiveFilteringEnabled(true);
 
     auto* searchBox = new QLineEdit(this);
     searchBox->setPlaceholderText(i18n("Search.."));
@@ -50,6 +55,8 @@ SourceTreeWidget::SourceTreeWidget(QWidget* parent) : QWidget(parent) {
     treeView->hideColumn(SourcesListModel::PARENT_ID);
     treeView->setUniformRowHeights(true);
     treeView->expandToDepth(1);
+    treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(treeView, &QTreeView::customContextMenuRequested, this, &SourceTreeWidget::onContextMenuRequested);
 
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(searchBox);
@@ -69,6 +76,45 @@ void SourceTreeWidget::handleSelectedNewRow(const QItemSelection& selected) {
     }
     auto personId = getIdFromSelection(selected, treeView->model(), SourcesListModel::ID);
     Q_EMIT handleSourceSelected(personId);
+}
+
+using namespace Qt::StringLiterals;
+
+void SourceTreeWidget::onContextMenuRequested(const QPoint& pos) {
+    const auto index = treeView->indexAt(pos);
+    if (!index.isValid()) {
+        return;
+    }
+
+    const auto sourceId =
+        index.siblingAtColumn(SourcesListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
+
+    QMenu menu(treeView);
+
+    auto* editAction = new QAction(i18n("&Edit Source"), &menu);
+    editAction->setIcon(QIcon::fromTheme(u"document-edit"_s));
+    connect(editAction, &QAction::triggered, this, [this, sourceId]() {
+        SourceEditorDialog::showDialogForExistingSource(sourceId, this);
+    });
+    menu.addAction(editAction);
+
+    auto* deleteAction = new QAction(i18n("&Delete Source"), &menu);
+    deleteAction->setIcon(QIcon::fromTheme(u"edit-delete"_s));
+    connect(deleteAction, &QAction::triggered, this, [this, sourceId]() {
+        const auto result = QMessageBox::warning(
+            this,
+            i18n("Delete Source"),
+            i18n("Are you sure you want to delete this source?"),
+            QMessageBox::Yes | QMessageBox::No
+        );
+        if (result == QMessageBox::Yes) {
+            SourceRepository repo;
+            Q_UNUSED(repo.remove(sourceId));
+        }
+    });
+    menu.addAction(deleteAction);
+
+    menu.exec(treeView->viewport()->mapToGlobal(pos));
 }
 
 SourceListDock::SourceListDock() :

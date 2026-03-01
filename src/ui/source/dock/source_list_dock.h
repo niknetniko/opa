@@ -36,6 +36,9 @@ Q_SIGNALS:
      */
     void handleSourceSelected(IntegerPrimaryKey sourceId);
 
+private Q_SLOTS:
+    void onContextMenuRequested(const QPoint& pos);
+
 private:
     QTreeView* treeView;
 };
