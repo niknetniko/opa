@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <QJsonObject>
 #include <QObject>
 #include <QString>
 
@@ -24,7 +25,7 @@ public:
      *
      * Results are delivered asynchronously via responseReady() or requestFailed().
      */
-    virtual void complete(const QString& systemPrompt, const QString& userMessage) = 0;
+    virtual void complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) = 0;
 
 Q_SIGNALS:
     void responseReady(const QString& response);

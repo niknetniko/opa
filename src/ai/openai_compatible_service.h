@@ -11,15 +11,16 @@
 #include <QNetworkAccessManager>
 #include <QString>
 
-class ClaudeAiService : public AiService {
+class OpenAiCompatibleService : public AiService {
     Q_OBJECT
 
 public:
-    explicit ClaudeAiService(QString model, QObject* parent = nullptr);
+    explicit OpenAiCompatibleService(QString endpoint, QString model, QObject* parent = nullptr);
 
     void complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) override;
 
 private:
+    QString endpoint;
     QString model;
     QNetworkAccessManager network{this};
 

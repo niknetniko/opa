@@ -7,6 +7,7 @@
 
 #include "claude_ai_service.h"
 #include "local_ai_service.h"
+#include "openai_compatible_service.h"
 #include "opaSettings.h"
 
 AiService* createAiService(QObject* parent) {
@@ -15,6 +16,10 @@ AiService* createAiService(QObject* parent) {
             return new ClaudeAiService(opaSettings::claudeModel(), parent);
         case opaSettings::EnumAiProvider::Local:
             return new LocalAiService(parent);
+        case opaSettings::EnumAiProvider::OpenAiCompatible:
+            return new OpenAiCompatibleService(
+                opaSettings::openAiCompatibleEndpoint(), opaSettings::openAiCompatibleModel(), parent
+            );
         case opaSettings::EnumAiProvider::None:
         default:
             return nullptr;
