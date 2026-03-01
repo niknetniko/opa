@@ -156,6 +156,8 @@ add_library(
     ai/claude_ai_service.h
     ai/claude_ai_service.cpp
     ai/local_ai_service.h
+    ai/openai_compatible_service.h
+    ai/openai_compatible_service.cpp
     main/ai_settings_widget.h
     main/ai_settings_widget.cpp)
 

@@ -18,4 +18,8 @@ constexpr auto Service = "opa"_L1;
  * API key for Claude AI service.
  */
 constexpr auto ClaudeApiKey = "claudeApiKey"_L1;
+/**
+ * API key for OpenAI-compatible AI service.
+ */
+constexpr auto OpenAiCompatibleApiKey = "openAiCompatibleApiKey"_L1;
 }
