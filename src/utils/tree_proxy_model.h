@@ -5,8 +5,13 @@
  */
 
 #pragma once
-#include <QIdentityProxyModel>
+#include <QAbstractProxyModel>
+#include <QHash>
+#include <QList>
 #include <QVariant>
+
+#include <memory>
+#include <vector>
 
 /**
  * Proxy model that will represent the underlying data as a tree structure.
@@ -15,12 +20,15 @@
  *
  * - An "ID" column that uniquely identifies the item.
  * - A "parent ID" column that references the ID column of the parent if the item is a child.
+ *
+ * The tree order mirrors the source model's row order.
  */
 class TreeProxyModel : public QAbstractProxyModel {
     Q_OBJECT
 
 public:
     explicit TreeProxyModel(QObject* parent = nullptr);
+    ~TreeProxyModel() override;
 
     /**
      * Set the column to be used as the ID column.
@@ -34,6 +42,8 @@ public:
      * Call this after you have set the source model.
      */
     void setParentIdColumn(int parentIdColumn);
+
+    void setSourceModel(QAbstractItemModel* sourceModel) override;
 
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
@@ -49,32 +59,20 @@ public:
     [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
 private:
+    struct TreeNode {
+        int sourceRow;
+        QString id;
+        TreeNode* parent = nullptr;
+        QList<TreeNode*> children;
+    };
+
     int idColumn = 0;
     int parentIdColumn = -1;
 
-    /**
-     * Get the source index of an item with a given ID.
-     */
-    [[nodiscard]] QModelIndex findSourceItemById(const QVariant& id) const;
+    QList<TreeNode*> rootNodes;
+    std::vector<std::unique_ptr<TreeNode>> allNodes;
+    QHash<int, TreeNode*> sourceRowToNode;
 
-    /**
-     * Find the row number of an item with a given ID, filtered by the parent ID.
-     * This function basically gets all rows with a certain parent ID, and then finds
-     * which one is the one with the given ID.
-     *
-     * @param id The ID of the element to find the row for.
-     * @param parentId Optional parent ID. If not provided, it means top-level items.
-     */
-    [[nodiscard]] int findSourceRowNumberInParent(const QVariant& id, const QVariant& parentId) const;
-
-    /**
-     * Find the source row number based on the proxy row number of the item (thus in the parent) and the
-     * parent source row number.
-     *
-     * @param proxyRowInParent The item's row number in the proxy model, beneath the parent.
-     * @param parentSourceRow The source row number of the parent or -1 if no parent.
-     */
-    [[nodiscard]] int findSourceRowNumberByNumberInParent(int proxyRowInParent, int parentSourceRow) const;
-
-    [[nodiscard]] bool isEqualOrInvalid(const QVariant& one, const QVariant& two) const;
+    void buildTree();
+    void clearTree();
 };
