@@ -16,23 +16,33 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QTabWidget>
 #include <QVBoxLayout>
 
 AiSettingsWidget::AiSettingsWidget(QWidget* parent) :
     QWidget(parent) {
     auto* layout = new QVBoxLayout(this);
 
-    providerCombo = new QComboBox(this);
+    auto* tabs = new QTabWidget(this);
+    layout->addWidget(tabs);
+
+    // --- Provider tab ---
+    auto* providerTab = new QWidget(tabs);
+    auto* providerLayout = new QVBoxLayout(providerTab);
+    tabs->addTab(providerTab, i18n("Provider"));
+
+    providerCombo = new QComboBox(providerTab);
     providerCombo->setObjectName(QStringLiteral("kcfg_aiProvider"));
     providerCombo->addItem(i18n("None"));
     providerCombo->addItem(i18n("Claude API"));
     providerCombo->addItem(i18n("Local (llama.cpp)"));
+    providerCombo->addItem(i18n("OpenAI Compatible"));
 
     auto* topForm = new QFormLayout;
     topForm->addRow(i18n("AI Provider:"), providerCombo);
-    layout->addLayout(topForm);
+    providerLayout->addLayout(topForm);
 
-    claudeGroup = new QGroupBox(i18n("Claude API Settings"), this);
+    claudeGroup = new QGroupBox(i18n("Claude API Settings"), providerTab);
     auto* claudeForm = new QFormLayout(claudeGroup);
 
     modelEdit = new QLineEdit(claudeGroup);
@@ -44,21 +54,61 @@ AiSettingsWidget::AiSettingsWidget(QWidget* parent) :
     apiKeyEdit->setPlaceholderText(i18n("Enter API key…"));
     claudeForm->addRow(i18n("API Key:"), apiKeyEdit);
 
-    layout->addWidget(claudeGroup);
+    providerLayout->addWidget(claudeGroup);
 
-    localLabel = new QLabel(i18n("Local AI — coming soon"), this);
+    localLabel = new QLabel(i18n("Local AI — coming soon"), providerTab);
     localLabel->setEnabled(false);
-    layout->addWidget(localLabel);
+    providerLayout->addWidget(localLabel);
 
-    auto* promptsGroup = new QGroupBox(i18n("System Prompts"), this);
-    auto* promptsForm = new QFormLayout(promptsGroup);
+    openAiGroup = new QGroupBox(i18n("OpenAI-Compatible Settings"), providerTab);
+    auto* oaForm = new QFormLayout(openAiGroup);
 
-    sourceExtractionEdit = new QPlainTextEdit(promptsGroup);
+    openAiEndpointEdit = new QLineEdit(openAiGroup);
+    openAiEndpointEdit->setObjectName(QStringLiteral("kcfg_openAiCompatibleEndpoint"));
+    openAiEndpointEdit->setPlaceholderText(u"https://api.openai.com/v1"_s);
+    oaForm->addRow(i18n("Endpoint:"), openAiEndpointEdit);
+
+    openAiModelEdit = new QLineEdit(openAiGroup);
+    openAiModelEdit->setObjectName(QStringLiteral("kcfg_openAiCompatibleModel"));
+    oaForm->addRow(i18n("Model:"), openAiModelEdit);
+
+    openAiKeyEdit = new QLineEdit(openAiGroup);
+    openAiKeyEdit->setEchoMode(QLineEdit::Password);
+    openAiKeyEdit->setPlaceholderText(i18n("API key (leave empty for local servers)"));
+    oaForm->addRow(i18n("API Key:"), openAiKeyEdit);
+
+    providerLayout->addWidget(openAiGroup);
+    providerLayout->addStretch();
+
+    // --- Source Extraction tab ---
+    auto* promptsTab = new QWidget(tabs);
+    auto* promptsLayout = new QVBoxLayout(promptsTab);
+    tabs->addTab(promptsTab, i18n("Source Extraction"));
+
+    auto* promptsForm = new QFormLayout;
+    sourceExtractionEdit = new QPlainTextEdit(promptsTab);
     sourceExtractionEdit->setObjectName(QStringLiteral("kcfg_sourceExtractionPrompt"));
     promptsForm->addRow(i18n("Source Extraction:"), sourceExtractionEdit);
 
-    layout->addWidget(promptsGroup);
-    layout->addStretch();
+    exampleJsonEdit = new QPlainTextEdit(promptsTab);
+    exampleJsonEdit->setReadOnly(true);
+    exampleJsonEdit->setPlainText(uR"({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title":       { "type": "string" },
+    "type":        { "type": "string", "enum": ["book","article","census","vital_record","church_record","newspaper","photograph","other"] },
+    "author":      { "type": "string" },
+    "publication": { "type": "string" },
+    "confidence":  { "type": "string", "enum": ["low","medium","high"] },
+    "note":        { "type": "string" },
+    "message":     { "type": "string", "description": "Optional note about ambiguous or missing fields" }
+  },
+  "required": ["title","type","confidence"]
+})"_s);
+    promptsForm->addRow(i18n("Expected JSON Schema:"), exampleJsonEdit);
+
+    promptsLayout->addLayout(promptsForm);
 
     connect(providerCombo, &QComboBox::currentIndexChanged, this, &AiSettingsWidget::onProviderChanged);
 
@@ -70,29 +120,44 @@ AiSettingsWidget::AiSettingsWidget(QWidget* parent) :
 }
 
 void AiSettingsWidget::onProviderChanged(int index) {
-    // Enum order: 0 = None, 1 = Claude, 2 = Local
+    // Enum order: 0 = None, 1 = Claude, 2 = Local, 3 = OpenAiCompatible
     claudeGroup->setVisible(index == 1);
     localLabel->setVisible(index == 2);
+    openAiGroup->setVisible(index == 3);
 }
 
 void AiSettingsWidget::loadApiKey() {
-    auto* job = new QKeychain::ReadPasswordJob(KeychainKeys::Service, this);
-    job->setKey(KeychainKeys::ClaudeApiKey);
-    job->setAutoDelete(true);
-
-    connect(job, &QKeychain::ReadPasswordJob::finished, this, [this, job] {
-        if (job->error() == QKeychain::NoError) {
-            apiKeyEdit->setText(job->textData());
+    auto* claudeJob = new QKeychain::ReadPasswordJob(KeychainKeys::Service, this);
+    claudeJob->setKey(KeychainKeys::ClaudeApiKey);
+    claudeJob->setAutoDelete(true);
+    connect(claudeJob, &QKeychain::ReadPasswordJob::finished, this, [this, claudeJob] {
+        if (claudeJob->error() == QKeychain::NoError) {
+            apiKeyEdit->setText(claudeJob->textData());
         }
     });
+    claudeJob->start();
 
-    job->start();
+    auto* openAiJob = new QKeychain::ReadPasswordJob(KeychainKeys::Service, this);
+    openAiJob->setKey(KeychainKeys::OpenAiCompatibleApiKey);
+    openAiJob->setAutoDelete(true);
+    connect(openAiJob, &QKeychain::ReadPasswordJob::finished, this, [this, openAiJob] {
+        if (openAiJob->error() == QKeychain::NoError) {
+            openAiKeyEdit->setText(openAiJob->textData());
+        }
+    });
+    openAiJob->start();
 }
 
 void AiSettingsWidget::saveApiKey() {
-    auto* job = new QKeychain::WritePasswordJob(KeychainKeys::Service, this);
-    job->setKey(KeychainKeys::ClaudeApiKey);
-    job->setTextData(apiKeyEdit->text());
-    job->setAutoDelete(true);
-    job->start();
+    auto* claudeJob = new QKeychain::WritePasswordJob(KeychainKeys::Service, this);
+    claudeJob->setKey(KeychainKeys::ClaudeApiKey);
+    claudeJob->setTextData(apiKeyEdit->text());
+    claudeJob->setAutoDelete(true);
+    claudeJob->start();
+
+    auto* openAiJob = new QKeychain::WritePasswordJob(KeychainKeys::Service, this);
+    openAiJob->setKey(KeychainKeys::OpenAiCompatibleApiKey);
+    openAiJob->setTextData(openAiKeyEdit->text());
+    openAiJob->setAutoDelete(true);
+    openAiJob->start();
 }

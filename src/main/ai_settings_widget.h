@@ -12,6 +12,7 @@ class QGroupBox;
 class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
+class QTabWidget;
 
 class AiSettingsWidget : public QWidget {
     Q_OBJECT
@@ -31,7 +32,12 @@ private:
     QLineEdit* modelEdit = nullptr;
     QLineEdit* apiKeyEdit = nullptr;
     QLabel* localLabel = nullptr;
+    QGroupBox* openAiGroup = nullptr;
+    QLineEdit* openAiEndpointEdit = nullptr;
+    QLineEdit* openAiModelEdit = nullptr;
+    QLineEdit* openAiKeyEdit = nullptr;
     QPlainTextEdit* sourceExtractionEdit = nullptr;
+    QPlainTextEdit* exampleJsonEdit = nullptr;
 
     void loadApiKey();
 };

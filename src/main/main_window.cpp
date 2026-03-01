@@ -260,7 +260,7 @@ void MainWindow::settingsConfigure() {
     dialog->addPage(generalSettingsPage, i18nc("@title:tab", "General"), QStringLiteral("package_setting"));
 
     auto* aiWidget = new AiSettingsWidget;
-    dialog->addPage(aiWidget, i18n("AI"), QStringLiteral("dialog-scripts"));
+    dialog->addPage(aiWidget, i18n("AI"), QStringLiteral("tools-wizard"));
     connect(dialog, &KConfigDialog::settingsChanged, aiWidget, &AiSettingsWidget::saveApiKey);
 
     dialog->setAttribute(Qt::WA_DeleteOnClose);
