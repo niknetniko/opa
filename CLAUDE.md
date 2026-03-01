@@ -16,6 +16,7 @@ Prefer C++20 features like `std::optional` and `std::variant`.
 Use Qt's modern signal-slot syntax with lambdas and `auto` for type inference.
 
 Do not use Hungarian notation.
+Do not put comments on closing braces, like classes or namespaces.
 
 If multiple strings are used in a file, use the shorthand Qt string literals: `u"string"_s`.
 
