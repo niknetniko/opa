@@ -124,9 +124,8 @@ QAbstractItemModel* getEnumModel(QObject* parent, std::function<QString(QString)
         auto value = metaEnum.value(i);
         auto displayText = toDisplayText(QString::fromLatin1(metaEnum.key(i)));
 
-        auto* item = new QStandardItem();
-        item->setData(value, Qt::EditRole);
-        item->setData(displayText, Qt::DisplayRole);
+        auto* item = new QStandardItem(displayText);
+        item->setData(value, Qt::UserRole);
         model->appendRow(item);
     }
     return model;

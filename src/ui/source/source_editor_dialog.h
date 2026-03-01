@@ -9,6 +9,7 @@
 #include "domain/source/source_entities.h"
 
 #include <QDialog>
+#include <QList>
 #include <optional>
 
 namespace Ui {
@@ -16,6 +17,8 @@ namespace Ui {
 }
 
 class QAbstractItemModel;
+class QFrame;
+class QLineEdit;
 
 class SourceEditorDialog : public QDialog {
     Q_OBJECT
@@ -32,11 +35,28 @@ public Q_SLOTS:
     void addNewSourceAsParent();
     void selectExistingSourceAsParent();
 
+private Q_SLOTS:
+    void onExtractClicked();
+    void onAiResponse(const QString& json);
+    void onAiFailed(const QString& error);
+    void onUseSuggestedParent();
+    void onPickDifferentParent();
+    void onCreateSuggestedParent();
+
 private:
     Ui::SourceEditorForm* form;
     std::optional<IntegerPrimaryKey> sourceId;
     std::optional<IntegerPrimaryKey> parentId;
     QAbstractItemModel* confidenceModel;
 
+    QString suggestedParentName;
+    QList<SourceEntity> parentSuggestionMatches;
+    QList<QFrame*> fieldSuggestionFrames;
+    QList<QAction*> fieldIndicatorActions;
+
     void updateParentDisplay() const;
+    void showParentSuggestion();
+    void hideParentSuggestion();
+    void clearFieldSuggestions();
+    void showFieldSuggestion(QLineEdit* field, const QString& suggestedValue);
 };

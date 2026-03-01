@@ -25,14 +25,22 @@ std::optional<SourceEntity> SourceRepository::findById(IntegerPrimaryKey id) con
     return fetchOne<SourceEntity>(sql, {{u":id"_s, id}});
 }
 
+QList<SourceEntity> SourceRepository::findByTitleContaining(const QString& searchTerm) const {
+    const auto sql = QStringLiteral(
+        "SELECT id, title, type, author, publication, confidence, note, parent_id "
+        "FROM sources WHERE title LIKE :term COLLATE NOCASE ORDER BY title ASC"
+    );
+    return fetchAll<SourceEntity>(sql, {{u":term"_s, u"%%1%"_s.arg(searchTerm)}});
+}
+
 QStringList SourceRepository::findAllTypes() const {
     const auto sql = QStringLiteral(
-        "SELECT DISTINCT type FROM sources WHERE type IS NOT NULL AND type != '' ORDER BY type ASC"
+        "SELECT DISTINCT type FROM sources WHERE type IS NOT NULL ORDER BY type ASC"
     );
+    auto [query, ok] = QueryHelper::executeWithResult(sql);
     QStringList result;
-    const auto entities = fetchAll<SourceEntity>(sql, {});
-    for (const auto& entity : entities) {
-        result.append(entity.type);
+    while (ok && query.next()) {
+        result.append(query.value(0).toString());
     }
     return result;
 }

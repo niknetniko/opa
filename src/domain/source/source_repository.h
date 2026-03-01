@@ -17,6 +17,7 @@ public:
     [[nodiscard]] QList<SourceEntity> findAll() const;
     [[nodiscard]] std::optional<SourceEntity> findById(IntegerPrimaryKey id) const;
     [[nodiscard]] QStringList findAllTypes() const;
+    [[nodiscard]] QList<SourceEntity> findByTitleContaining(const QString& searchTerm) const;
 
     std::optional<IntegerPrimaryKey> insert(
         const QString& title,
