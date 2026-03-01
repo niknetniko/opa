@@ -60,23 +60,20 @@ CREATE TABLE sources (
   parent_id INTEGER REFERENCES sources (id) ON DELETE SET NULL
 );
 
-CREATE TABLE event_sources (
+CREATE TABLE event_citations (
   event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  note TEXT,
   PRIMARY KEY (event_id, source_id)
 );
 
-CREATE TABLE name_sources (
+CREATE TABLE name_citations (
   name_id INTEGER NOT NULL REFERENCES names (id) ON DELETE CASCADE,
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  note TEXT,
   PRIMARY KEY (name_id, source_id)
 );
 
-CREATE TABLE person_sources (
+CREATE TABLE person_citations (
   person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  note TEXT,
   PRIMARY KEY (person_id, source_id)
 );
