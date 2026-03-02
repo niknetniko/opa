@@ -7,6 +7,7 @@
 
 #include "../../core/base_repository.h"
 #include "database/schema.h"
+#include "domain/source/source_entities.h"
 #include "event_entities.h"
 
 #include <QList>
@@ -80,4 +81,17 @@ public:
     [[nodiscard]] bool isEventRoleUsed(IntegerPrimaryKey roleId) const;
 
     bool reassignEventRoleId(IntegerPrimaryKey fromId, IntegerPrimaryKey toId) const;
+
+    [[nodiscard]] QList<SourceEntity> findCitationsForEvent(IntegerPrimaryKey eventId) const;
+    bool addEventCitation(IntegerPrimaryKey eventId, IntegerPrimaryKey sourceId) const;
+    bool removeEventCitation(IntegerPrimaryKey eventId, IntegerPrimaryKey sourceId) const;
+
+    [[nodiscard]] QList<SourceEntity>
+    findCitationsForEventRelation(IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
+    bool addEventRelationCitation(
+        IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId, IntegerPrimaryKey sourceId
+    ) const;
+    bool removeEventRelationCitation(
+        IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId, IntegerPrimaryKey sourceId
+    ) const;
 };

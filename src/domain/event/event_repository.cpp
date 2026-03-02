@@ -6,6 +6,7 @@
 #include "./event_repository.h"
 
 #include "../../core/data_event_broker.h"
+#include "database/database.h"
 
 using namespace Qt::StringLiterals;
 
@@ -68,9 +69,11 @@ bool EventRepository::deleteEventRole(IntegerPrimaryKey id) const {
 }
 
 QList<EventDisplayEntity> EventRepository::findAllEvents() const {
-    const auto sql = u"SELECT e.id, e.type_id, et.type, e.date, e.name "
-                     "FROM events e LEFT JOIN event_types et ON e.type_id = et.id "
-                     "ORDER BY e.date ASC"_s;
+    const auto sql = QStringLiteral(
+        "SELECT e.id, e.type_id, et.type, e.date, e.name "
+        "FROM events e LEFT JOIN event_types et ON e.type_id = et.id "
+        "ORDER BY e.date ASC"
+    );
     return fetchAll<EventDisplayEntity>(sql);
 }
 
@@ -89,14 +92,9 @@ std::optional<IntegerPrimaryKey> EventRepository::insertEvent(IntegerPrimaryKey 
 }
 
 bool EventRepository::updateEvent(
-    IntegerPrimaryKey id,
-    IntegerPrimaryKey typeId,
-    const QString& date,
-    const QString& name,
-    const QString& note
+    IntegerPrimaryKey id, IntegerPrimaryKey typeId, const QString& date, const QString& name, const QString& note
 ) const {
-    const auto sql =
-        u"UPDATE events SET type_id = :type_id, date = :date, name = :name, note = :note WHERE id = :id"_s;
+    const auto sql = u"UPDATE events SET type_id = :type_id, date = :date, name = :name, note = :note WHERE id = :id"_s;
     const QVariantMap bindings = {
         {u":type_id"_s, typeId},
         {u":date"_s, date},
@@ -125,8 +123,10 @@ QList<EventRelationEntity> EventRepository::findRelationsForPerson(IntegerPrimar
 bool EventRepository::insertEventRelation(
     IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId
 ) const {
-    const auto sql =
-        u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (:event_id, :person_id, :role_id)"_s;
+    const auto sql = QStringLiteral(
+        "INSERT INTO event_relations (event_id, person_id, role_id) "
+        "VALUES (:event_id, :person_id, :role_id)"
+    );
     const QVariantMap bindings = {
         {u":event_id"_s, eventId},
         {u":person_id"_s, personId},
@@ -142,8 +142,10 @@ bool EventRepository::insertEventRelation(
 bool EventRepository::deleteEventRelation(
     IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId
 ) const {
-    const auto sql =
-        u"DELETE FROM event_relations WHERE event_id = :event_id AND person_id = :person_id AND role_id = :role_id"_s;
+    const auto sql = QStringLiteral(
+        "DELETE FROM event_relations "
+        "WHERE event_id = :event_id AND person_id = :person_id AND role_id = :role_id"
+    );
     const QVariantMap bindings = {
         {u":event_id"_s, eventId},
         {u":person_id"_s, personId},
@@ -157,40 +159,43 @@ bool EventRepository::deleteEventRelation(
 }
 
 QList<PersonEventEntity> EventRepository::findEventsForPerson(IntegerPrimaryKey personId) const {
-    const auto sql = u"SELECT events.id, er.id AS role_id, er.role, et.type, events.date, events.name "
-                     "FROM events "
-                     "LEFT JOIN event_types AS et ON events.type_id = et.id "
-                     "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                     "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                     "WHERE erel.person_id = :person_id "
-                     "ORDER BY events.date ASC"_s;
+    const auto sql = QStringLiteral(
+        "SELECT events.id, er.id AS role_id, er.role, et.type, events.date, events.name FROM events "
+        "LEFT JOIN event_types AS et ON events.type_id = et.id "
+        "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        "WHERE erel.person_id = :person_id "
+        "ORDER BY events.date ASC"
+    );
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 
 QList<PersonEventEntity> EventRepository::findBirthEventsForPerson(IntegerPrimaryKey personId) const {
-    const auto sql = u"SELECT events.id, er.id AS role_id, er.role, et.type, events.date, events.name "
-                     "FROM events "
-                     "LEFT JOIN event_types AS et ON events.type_id = et.id "
-                     "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                     "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                     "WHERE erel.person_id = :person_id "
-                     "AND er.role = 'Primary' "
-                     "AND et.type IN ('Birth', 'Baptism') "
-                     "AND LENGTH(events.date) != 0 "
-                     "ORDER BY et.type = 'Birth' DESC, et.type = 'Baptism' DESC"_s;
+    const auto sql = QStringLiteral(
+        "SELECT events.id, er.id AS role_id, er.role, et.type, events.date, events.name FROM events "
+        "LEFT JOIN event_types AS et ON events.type_id = et.id "
+        "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        "WHERE erel.person_id = :person_id "
+        "AND er.role = 'Primary' "
+        "AND et.type IN ('Birth', 'Baptism') "
+        "AND LENGTH(events.date) != 0 "
+        "ORDER BY et.type = 'Birth' DESC, et.type = 'Baptism' DESC"
+    );
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 
 QList<PersonEventEntity> EventRepository::findDeathEventsForPerson(IntegerPrimaryKey personId) const {
-    const auto sql = u"SELECT events.id, er.id AS role_id, er.role, et.type, events.date, events.name "
-                     "FROM events "
-                     "LEFT JOIN event_types AS et ON events.type_id = et.id "
-                     "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                     "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                     "WHERE erel.person_id = :person_id "
-                     "AND er.role = 'Primary' "
-                     "AND et.type IN ('Death', 'Funeral') "
-                     "ORDER BY et.type = 'Death' DESC, et.type = 'Funeral' DESC"_s;
+    const auto sql = QStringLiteral(
+        "SELECT events.id, er.id AS role_id, er.role, et.type, events.date, events.name FROM events "
+        "LEFT JOIN event_types AS et ON events.type_id = et.id "
+        "LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        "LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        "WHERE erel.person_id = :person_id "
+        "AND er.role = 'Primary' "
+        "AND et.type IN ('Death', 'Funeral') "
+        "ORDER BY et.type = 'Death' DESC, et.type = 'Funeral' DESC"
+    );
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 
@@ -250,16 +255,106 @@ bool EventRepository::reassignEventRoleId(IntegerPrimaryKey fromId, IntegerPrima
     return ok;
 }
 
+QList<SourceEntity> EventRepository::findCitationsForEvent(IntegerPrimaryKey eventId) const {
+    const auto sql = QStringLiteral(
+        "SELECT s.* FROM event_citations ec "
+        "JOIN sources s ON ec.source_id = s.id "
+        "WHERE ec.event_id = :event_id "
+        "ORDER BY s.title ASC"
+    );
+    return fetchAll<SourceEntity>(sql, {{u":event_id"_s, eventId}});
+}
+
+bool EventRepository::addEventCitation(IntegerPrimaryKey eventId, IntegerPrimaryKey sourceId) const {
+    const auto sql = u"INSERT INTO event_citations (event_id, source_id) VALUES (:event_id, :source_id)"_s;
+    const QVariantMap bindings = {{u":event_id"_s, eventId}, {u":source_id"_s, sourceId}};
+    const bool ok = QueryHelper::execute(sql, bindings);
+    if (ok) {
+        DataEventBroker::instance().notifyChanged<Schema::EventCitations>(eventId);
+    }
+    return ok;
+}
+
+bool EventRepository::removeEventCitation(IntegerPrimaryKey eventId, IntegerPrimaryKey sourceId) const {
+    const auto sql = u"DELETE FROM event_citations WHERE event_id = :event_id AND source_id = :source_id"_s;
+    const QVariantMap bindings = {{u":event_id"_s, eventId}, {u":source_id"_s, sourceId}};
+    const bool ok = QueryHelper::execute(sql, bindings);
+    if (ok) {
+        DataEventBroker::instance().notifyChanged<Schema::EventCitations>(eventId);
+    }
+    return ok;
+}
+
+QList<SourceEntity> EventRepository::findCitationsForEventRelation(
+    IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId
+) const {
+    const auto sql = QStringLiteral(
+        "SELECT s.* FROM event_relation_citations erc "
+        "JOIN sources s ON erc.source_id = s.id "
+        "WHERE erc.event_id = :event_id AND erc.person_id = :person_id AND erc.role_id = :role_id "
+        "ORDER BY s.title ASC"
+    );
+    const QVariantMap bindings = {
+        {u":event_id"_s, eventId},
+        {u":person_id"_s, personId},
+        {u":role_id"_s, roleId},
+    };
+    return fetchAll<SourceEntity>(sql, bindings);
+}
+
+bool EventRepository::addEventRelationCitation(
+    IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId, IntegerPrimaryKey sourceId
+) const {
+    const auto sql = QStringLiteral(
+        "INSERT INTO event_relation_citations (event_id, person_id, role_id, source_id) "
+        "VALUES (:event_id, :person_id, :role_id, :source_id)"
+    );
+    const QVariantMap bindings = {
+        {u":event_id"_s, eventId},
+        {u":person_id"_s, personId},
+        {u":role_id"_s, roleId},
+        {u":source_id"_s, sourceId},
+    };
+    const bool ok = QueryHelper::execute(sql, bindings);
+    if (ok) {
+        DataEventBroker::instance().notifyChanged<Schema::EventRelationCitations>(eventId);
+    }
+    return ok;
+}
+
+bool EventRepository::removeEventRelationCitation(
+    IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId, IntegerPrimaryKey sourceId
+) const {
+    const auto sql = QStringLiteral(
+        "DELETE FROM event_relation_citations "
+        "WHERE event_id = :event_id AND person_id = :person_id AND role_id = :role_id AND source_id = :source_id"
+    );
+    const QVariantMap bindings = {
+        {u":event_id"_s, eventId},
+        {u":person_id"_s, personId},
+        {u":role_id"_s, roleId},
+        {u":source_id"_s, sourceId},
+    };
+    const bool ok = QueryHelper::execute(sql, bindings);
+    if (ok) {
+        DataEventBroker::instance().notifyChanged<Schema::EventRelationCitations>(eventId);
+    }
+    return ok;
+}
+
 std::optional<IntegerPrimaryKey> EventRepository::insertEventWithRelation(
     IntegerPrimaryKey typeId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId
 ) const {
-    const auto eventId = insertEvent(typeId);
-    if (!eventId) {
-        return std::nullopt;
-    }
-    if (!insertEventRelation(*eventId, personId, roleId)) {
-        deleteEvent(*eventId);
-        return std::nullopt;
-    }
-    return eventId;
+    return executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+        const auto eventId = insertEvent(typeId);
+        if (!eventId) {
+            return std::nullopt;
+        }
+
+        if (!insertEventRelation(*eventId, personId, roleId)) {
+            return std::nullopt;
+        }
+
+        return eventId;
+    });
 }
