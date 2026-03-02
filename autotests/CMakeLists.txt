@@ -17,4 +17,5 @@ ecm_add_tests(
   event_repository_test.cpp
   family_repository_test.cpp
   source_repository_test.cpp
+  pending_list_model_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)
