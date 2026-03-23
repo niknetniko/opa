@@ -26,12 +26,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     this->baseModel = new PersonEventListModel(person, this);
 
     // Wrap with grouping proxy: groups events by role, makes them a tree.
-    auto* groupProxy = createGroupingProxyModel(
-        baseModel,
-        PersonEventListModel::ROLE,
-        PersonEventListModel::ID,
-        this
-    );
+    auto* groupProxy = createGroupingProxyModel(baseModel, PersonEventListModel::ROLE, PersonEventListModel::ID, this);
 
     // Rearrange columns: bring virtual ID_AND_ROLE column first, hiding the original ROLE column.
     auto* treeModel = new KRearrangeColumnsProxyModel(this);
@@ -57,8 +52,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
 
     // The ID_AND_ROLE column shows role names for group rows and formatted event IDs for leaf rows.
     treeView->setItemDelegateForColumn(
-        PersonEventListModel::ROLE,
-        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
+        PersonEventListModel::ROLE, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
     );
     // Change resizes.
     treeView->header()->setSortIndicatorClearable(false);
@@ -118,9 +112,8 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
 
 void PersonEventTab::onEventSelected(const QItemSelection& selected) const {
     // Only enable event actions when a leaf row (actual event) is selected, not a role group header.
-    const bool hasLeafSelection = !selected.isEmpty()
-        && !selected.indexes().isEmpty()
-        && selected.indexes().constFirst().parent().isValid();
+    const bool hasLeafSelection = !selected.isEmpty() && !selected.indexes().isEmpty() &&
+                                  selected.indexes().constFirst().parent().isValid();
     this->editAction->setEnabled(hasLeafSelection);
     this->removeAction->setEnabled(hasLeafSelection);
     this->unlinkAction->setEnabled(hasLeafSelection);
@@ -239,7 +232,8 @@ void PersonEventTab::onLinkExistingEvent() {
     }
 
     EventRepository repo;
-    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong()).has_value()) {
+    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong())
+             .has_value()) {
         QMessageBox::warning(
             this, tr("Could not link event"), tr("Problem inserting new event relation into database.")
         );

@@ -11,8 +11,8 @@
 #include <QWidget>
 
 namespace QtNodes {
-    class BasicGraphicsScene;
-    class GraphicsView;
+class BasicGraphicsScene;
+class GraphicsView;
 }
 class QAbstractItemModel;
 

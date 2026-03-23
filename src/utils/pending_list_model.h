@@ -32,10 +32,10 @@ public:
     using LookupFn = std::function<std::optional<T>(Id)>;
     using CommitFn = std::function<bool(Id)>;
 
-    PendingListModel(QList<T> initial, IdExtractor idExtractor, LookupFn lookup)
-        : initialItems(std::move(initial)),
-          extractId(std::move(idExtractor)),
-          lookupById(std::move(lookup)) {
+    PendingListModel(QList<T> initial, IdExtractor idExtractor, LookupFn lookup) :
+        initialItems(std::move(initial)),
+        extractId(std::move(idExtractor)),
+        lookupById(std::move(lookup)) {
     }
 
     /**
@@ -43,7 +43,7 @@ public:
      */
     [[nodiscard]] QList<T> items() const {
         QList<T> result;
-        for (const auto& item : initialItems) {
+        for (const auto& item: initialItems) {
             if (!pendingRemovals.contains(extractId(item))) {
                 result.append(item);
             }
@@ -57,13 +57,13 @@ public:
      */
     bool add(Id id) {
         // Check if already in initial items (and not removed).
-        for (const auto& item : initialItems) {
+        for (const auto& item: initialItems) {
             if (extractId(item) == id && !pendingRemovals.contains(id)) {
                 return false;
             }
         }
         // Check if already in pending adds.
-        for (const auto& item : pendingAdds) {
+        for (const auto& item: pendingAdds) {
             if (extractId(item) == id) {
                 return false;
             }
@@ -93,7 +93,7 @@ public:
             }
         }
         // Must be an initial item.
-        for (const auto& item : initialItems) {
+        for (const auto& item: initialItems) {
             if (extractId(item) == id) {
                 pendingRemovals.insert(id);
                 return true;
@@ -106,10 +106,10 @@ public:
      * Commit all pending changes by calling the provided functions.
      */
     void commit(const CommitFn& addFn, const CommitFn& removeFn) const {
-        for (const auto& item : pendingAdds) {
+        for (const auto& item: pendingAdds) {
             addFn(extractId(item));
         }
-        for (const auto& id : pendingRemovals) {
+        for (const auto& id: pendingRemovals) {
             removeFn(id);
         }
     }

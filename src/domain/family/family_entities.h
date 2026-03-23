@@ -31,7 +31,8 @@ struct FamilyMemberEntity {
         e.eventTypeId = query.value(u"event_type_id"_s).toLongLong();
         e.personId = query.value(u"person_id"_s).toLongLong();
         const auto partnerValue = query.value(u"partner_id"_s);
-        e.partnerId = partnerValue.isNull() ? std::nullopt : std::optional<IntegerPrimaryKey>{partnerValue.toLongLong()};
+        e.partnerId = partnerValue.isNull() ? std::nullopt
+                                            : std::optional<IntegerPrimaryKey>{partnerValue.toLongLong()};
         e.eventId = query.value(u"event_id"_s).toLongLong();
         e.date = query.value(u"event_date"_s).toString();
         e.titles = query.value(u"titles"_s).toString();

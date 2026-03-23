@@ -22,28 +22,28 @@
 #include <QDataWidgetMapper>
 
 namespace {
-    struct BirthEventDetails {
-        QVariant eventId;
-        bool isNew;
-    };
+struct BirthEventDetails {
+    QVariant eventId;
+    bool isNew;
+};
 
-    BirthEventDetails getOrCreateBirthEvent(QObject* parent, IntegerPrimaryKey personId) {
-        auto* birthEventModel = new PersonBirthEventsModel(personId, parent);
-        if (birthEventModel->rowCount() == 0) {
-            EventRepository repo;
-            const auto primaryRoleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-            const auto birthTypeId = repo.findEventTypeIdByName(QStringLiteral("Birth"));
-            if (!primaryRoleId || !birthTypeId) {
-                qWarning() << "Could not find Primary role or Birth event type";
-                return {};
-            }
-            const auto newEventId = repo.insertEventWithRelation(*birthTypeId, personId, *primaryRoleId);
-            return {.eventId = newEventId ? QVariant(*newEventId) : QVariant{}, .isNew = true};
-        } else {
-            QVariant birthEventId = birthEventModel->index(0, PersonBirthEventsModel::ID).data();
-            return {.eventId = birthEventId, .isNew = false};
+BirthEventDetails getOrCreateBirthEvent(QObject* parent, IntegerPrimaryKey personId) {
+    auto* birthEventModel = new PersonBirthEventsModel(personId, parent);
+    if (birthEventModel->rowCount() == 0) {
+        EventRepository repo;
+        const auto primaryRoleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
+        const auto birthTypeId = repo.findEventTypeIdByName(QStringLiteral("Birth"));
+        if (!primaryRoleId || !birthTypeId) {
+            qWarning() << "Could not find Primary role or Birth event type";
+            return {};
         }
+        const auto newEventId = repo.insertEventWithRelation(*birthTypeId, personId, *primaryRoleId);
+        return {.eventId = newEventId ? QVariant(*newEventId) : QVariant{}, .isNew = true};
+    } else {
+        QVariant birthEventId = birthEventModel->index(0, PersonBirthEventsModel::ID).data();
+        return {.eventId = birthEventId, .isNew = false};
     }
+}
 }
 
 NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget* parent) :
@@ -112,7 +112,10 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     if (chosenMotherId.isValid() && chosenFatherId.isValid()) {
         auto selectedTypeRow = form->parentRelationRole->currentIndex();
-        auto chosenTypeId = form->parentRelationRole->model()->index(selectedTypeRow, RelationshipEventTypesListModel::ID).data().toLongLong();
+        auto chosenTypeId = form->parentRelationRole->model()
+                                ->index(selectedTypeRow, RelationshipEventTypesListModel::ID)
+                                .data()
+                                .toLongLong();
 
         auto eventId = repo.insertEvent(chosenTypeId);
         if (!eventId.has_value()) {
@@ -121,13 +124,15 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
         }
 
         auto primaryId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-        if (!primaryId.has_value() || !repo.insertEventRelation(*eventId, chosenMotherId.toLongLong(), *primaryId).has_value()) {
+        if (!primaryId.has_value() ||
+            !repo.insertEventRelation(*eventId, chosenMotherId.toLongLong(), *primaryId).has_value()) {
             qWarning() << "Could not insert mother to relationship event";
             return false;
         }
 
         auto partnerId = repo.findEventRoleIdByName(QStringLiteral("Partner"));
-        if (!partnerId.has_value() || !repo.insertEventRelation(*eventId, chosenFatherId.toLongLong(), *partnerId).has_value()) {
+        if (!partnerId.has_value() ||
+            !repo.insertEventRelation(*eventId, chosenFatherId.toLongLong(), *partnerId).has_value()) {
             qWarning() << "Could not insert father to relationship event";
             return false;
         }
@@ -136,7 +141,9 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
     // Now, link the parents to the child.
     if (chosenMotherId.isValid()) {
         auto motherRole = repo.findEventRoleIdByName(QStringLiteral("Mother"));
-        if (!motherRole.has_value() || !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), *motherRole).has_value()) {
+        if (!motherRole.has_value() ||
+            !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), *motherRole)
+                 .has_value()) {
             qWarning() << "Could not insert mother to birth event relationship";
             return false;
         }
@@ -144,7 +151,9 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     if (chosenFatherId.isValid()) {
         auto fatherRole = repo.findEventRoleIdByName(QStringLiteral("Father"));
-        if (!fatherRole.has_value() || !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), *fatherRole).has_value()) {
+        if (!fatherRole.has_value() ||
+            !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), *fatherRole)
+                 .has_value()) {
             qWarning() << "Could not insert father to birth event relationship";
             return false;
         }
@@ -176,7 +185,7 @@ void NewFamilyEditorDialog::reject() {
         EventRepository repo;
         // Delete all relations for this birth event, then delete the event itself.
         const auto relations = repo.findRelationsForEvent(birthEventId);
-        for (const auto& relation : relations) {
+        for (const auto& relation: relations) {
             if (!repo.deleteEventRelation(relation.id)) {
                 qWarning() << "Could not remove birth event relation" << relation.id;
             }

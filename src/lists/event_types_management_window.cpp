@@ -49,7 +49,7 @@ void EventTypesManagementWindow::repairItems() {
 
     // Normalize all values.
     const auto allTypes = repo.findAllEventTypes();
-    for (const auto& entity : allTypes) {
+    for (const auto& entity: allTypes) {
         auto trimmed = entity.type.simplified();
         auto lowered = trimmed.toLower();
         if (!lowered.isEmpty()) {
@@ -65,7 +65,7 @@ void EventTypesManagementWindow::repairItems() {
     const auto updatedTypes = repo.findAllEventTypes();
     QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
     QHash<IntegerPrimaryKey, QString> idToValue;
-    for (const auto& entity : updatedTypes) {
+    for (const auto& entity: updatedTypes) {
         valueToIds[entity.type].append(entity.id);
         idToValue[entity.id] = entity.type;
     }
@@ -73,7 +73,8 @@ void EventTypesManagementWindow::repairItems() {
 
     // Reassign references from duplicate IDs to the canonical ID.
     for (auto i = valueToIds.begin(); i != valueToIds.end(); ++i) {
-        if (i.value().length() <= 1) continue;
+        if (i.value().length() <= 1)
+            continue;
         const auto keepId = i.value().first();
         for (int j = 1; j < i.value().length(); ++j) {
             repo.reassignEventTypeId(i.value()[j], keepId);
@@ -94,7 +95,7 @@ void EventTypesManagementWindow::repairItems() {
     }
     progress.setValue(4);
 
-    for (const auto id : toRemove) {
+    for (const auto id: toRemove) {
         repo.deleteEventType(id);
     }
     progress.setValue(5);

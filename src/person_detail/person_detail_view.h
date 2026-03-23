@@ -16,7 +16,7 @@
 class QAbstractItemModel;
 
 namespace Ui {
-    class PersonDetailView;
+class PersonDetailView;
 }
 
 struct BirthInformation {

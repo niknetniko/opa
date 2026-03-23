@@ -12,7 +12,7 @@ class QTabWidget;
 class QStackedLayout;
 
 namespace KDDockWidgets::QtWidgets {
-    class MainWindow;
+class MainWindow;
 }
 
 class PlaceholderWidget : public QStackedWidget {

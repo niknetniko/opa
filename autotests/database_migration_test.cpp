@@ -72,7 +72,7 @@ static void createSupportingTables(QSqlDatabase& db) {
         u"CREATE TABLE events (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT, date TEXT, name TEXT, note TEXT)"_s,
         u"CREATE TABLE sources (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT, type TEXT, author TEXT, publication TEXT, confidence TEXT NOT NULL, note TEXT, parent_id INTEGER REFERENCES sources (id) ON DELETE SET NULL)"_s,
     };
-    for (const auto& stmt : ddl) {
+    for (const auto& stmt: ddl) {
         QSqlQuery q(db);
         q.exec(stmt);
     }
@@ -155,9 +155,7 @@ private Q_SLOTS:
         // Should be able to insert a row using only (event_id, person_id, role_id).
         QSqlQuery(db).exec(u"PRAGMA foreign_keys = OFF"_s);
         QSqlQuery ins(db);
-        QVERIFY(ins.exec(
-            u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (1, 1, 1)"_s
-        ));
+        QVERIFY(ins.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (1, 1, 1)"_s));
         auto id = ins.lastInsertId();
         QVERIFY(id.isValid());
         QVERIFY(id.toInt() > 0);

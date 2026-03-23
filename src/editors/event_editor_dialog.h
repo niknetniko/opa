@@ -17,7 +17,7 @@ class EventTypesListModel;
 class EventRolesListModel;
 
 namespace Ui {
-    class EventEditorForm;
+class EventEditorForm;
 }
 
 class EventEditorDialog : public QDialog {

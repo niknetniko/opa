@@ -79,9 +79,7 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
     form->parentSuggestionIconLabel->setPixmap(QIcon::fromTheme(u"tools-wizard"_s).pixmap(16, 16));
 
     connect(form->parentSuggestionUseButton, &QPushButton::clicked, this, &SourceEditorDialog::onUseSuggestedParent);
-    connect(
-        form->parentSuggestionPickButton, &QPushButton::clicked, this, &SourceEditorDialog::onPickDifferentParent
-    );
+    connect(form->parentSuggestionPickButton, &QPushButton::clicked, this, &SourceEditorDialog::onPickDifferentParent);
     connect(
         form->parentSuggestionCreateButton, &QPushButton::clicked, this, &SourceEditorDialog::onCreateSuggestedParent
     );
@@ -170,14 +168,15 @@ const QJsonObject extractionSchema = QJsonObject{
     {u"properties"_s,
      QJsonObject{
          {u"title"_s, QJsonObject{{u"type"_s, u"string"_s}}},
-         {u"type"_s,QJsonObject{{u"type"_s, u"string"_s}}},
+         {u"type"_s, QJsonObject{{u"type"_s, u"string"_s}}},
          {u"author"_s, QJsonObject{{u"type"_s, u"string"_s}}},
          {u"publication"_s, QJsonObject{{u"type"_s, u"string"_s}}},
          {u"note"_s, QJsonObject{{u"type"_s, u"string"_s}}},
          {u"suggested_parent"_s,
           QJsonObject{
               {u"type"_s, u"string"_s},
-              {u"description"_s, u"Name of the parent source this item belongs to (e.g. newspaper name, book series, archive)"_s}
+              {u"description"_s,
+               u"Name of the parent source this item belongs to (e.g. newspaper name, book series, archive)"_s}
           }},
          {u"message"_s,
           QJsonObject{
@@ -308,12 +307,12 @@ void SourceEditorDialog::onCreateSuggestedParent() {
 }
 
 void SourceEditorDialog::clearFieldSuggestions() {
-    for (auto* frame : fieldSuggestionFrames) {
+    for (auto* frame: fieldSuggestionFrames) {
         frame->deleteLater();
     }
     fieldSuggestionFrames.clear();
 
-    for (auto* action : fieldIndicatorActions) {
+    for (auto* action: fieldIndicatorActions) {
         delete action;
     }
     fieldIndicatorActions.clear();

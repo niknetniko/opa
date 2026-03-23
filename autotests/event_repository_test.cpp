@@ -26,15 +26,11 @@ class TestEventRepository : public QObject {
     }
 
     IntegerPrimaryKey insertEventType(const QString& type = u"Birth"_s) {
-        return insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('%1', false)"_s.arg(type)
-        );
+        return insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('%1', false)"_s.arg(type));
     }
 
     IntegerPrimaryKey insertEventRole(const QString& role = u"Primary"_s) {
-        return insertQuery(
-            u"INSERT INTO event_roles (role, builtin) VALUES ('%1', false)"_s.arg(role)
-        );
+        return insertQuery(u"INSERT INTO event_roles (role, builtin) VALUES ('%1', false)"_s.arg(role));
     }
 
 private Q_SLOTS:

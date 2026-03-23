@@ -16,18 +16,18 @@
 using namespace Qt::Literals::StringLiterals;
 
 namespace {
-    // ReSharper disable once CppDFAUnreachableFunctionCall
-    QStandardItemModel* createRootModel() {
-        auto* rootModel = new QStandardItemModel(6, 2); // NOLINT(*-avoid-magic-numbers)
-        for (int row = 0; row < rootModel->rowCount(); ++row) {
-            auto* value = new QStandardItem(u"row %0-column %1"_s.arg(row).arg(1));
-            auto* group = new QStandardItem(u"group %1"_s.arg(row / 2));
-            rootModel->setItem(row, 0, group);
-            rootModel->setItem(row, 1, value);
-        }
-
-        return rootModel;
+// ReSharper disable once CppDFAUnreachableFunctionCall
+QStandardItemModel* createRootModel() {
+    auto* rootModel = new QStandardItemModel(6, 2); // NOLINT(*-avoid-magic-numbers)
+    for (int row = 0; row < rootModel->rowCount(); ++row) {
+        auto* value = new QStandardItem(u"row %0-column %1"_s.arg(row).arg(1));
+        auto* group = new QStandardItem(u"group %1"_s.arg(row / 2));
+        rootModel->setItem(row, 0, group);
+        rootModel->setItem(row, 1, value);
     }
+
+    return rootModel;
+}
 }
 
 class TestGroupingProxyModel : public QObject {

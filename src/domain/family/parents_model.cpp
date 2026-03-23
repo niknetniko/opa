@@ -11,9 +11,7 @@
 
 #include <KLocalizedString>
 
-ParentsModel::ParentsModel(IntegerPrimaryKey personId, QObject* parent) :
-    ObjectTableModel(parent),
-    personId(personId) {
+ParentsModel::ParentsModel(IntegerPrimaryKey personId, QObject* parent) : ObjectTableModel(parent), personId(personId) {
 
     this->setColumn(ROLE, i18n("Role"), &ParentEntity::role);
     this->setColumn(PERSON_ID, i18n("Person ID"), &ParentEntity::personId);

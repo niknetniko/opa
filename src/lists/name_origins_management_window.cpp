@@ -64,7 +64,7 @@ void NameOriginsManagementWindow::repairItems() {
 
     // Trim all values.
     const auto& allOrigins = originsModel->getItems();
-    for (const auto& origin : allOrigins) {
+    for (const auto& origin: allOrigins) {
         auto trimmed = origin.origin.simplified();
         auto lowered = trimmed.toLower();
         if (!lowered.isEmpty()) {
@@ -88,7 +88,7 @@ void NameOriginsManagementWindow::repairItems() {
     // Determine duplicates.
     QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
     QHash<IntegerPrimaryKey, QString> idToValue;
-    for (const auto& origin : updated) {
+    for (const auto& origin: updated) {
         valueToIds[origin.origin].append(origin.id);
         idToValue[origin.id] = origin.origin;
     }
@@ -111,7 +111,7 @@ void NameOriginsManagementWindow::repairItems() {
     }
     progress.setValue(4);
 
-    for (const auto id : toRemove) {
+    for (const auto id: toRemove) {
         QSqlQuery q;
         q.prepare(QStringLiteral("DELETE FROM name_origins WHERE id = :id AND builtin = 0"));
         q.bindValue(QStringLiteral(":id"), id);

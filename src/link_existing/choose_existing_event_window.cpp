@@ -6,6 +6,7 @@
  */
 
 #include "choose_existing_event_window.h"
+
 #include "domain/event/event_list_model.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/event_roles_model.h"
@@ -41,7 +42,8 @@ ExistingEventSelection ChooseExistingEventWindow::selectEventAndRole(QWidget* pa
 
 void ChooseExistingEventWindow::accept() {
     if (eventRoleComboBox->currentIndex() != -1) {
-        selectedRole = eventRoleComboBox->model()->index(eventRoleComboBox->currentIndex(), EventRolesListModel::ID).data();
+        selectedRole =
+            eventRoleComboBox->model()->index(eventRoleComboBox->currentIndex(), EventRolesListModel::ID).data();
     }
     ChooseExistingReferenceWindow::accept();
 }
@@ -52,7 +54,9 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
     // Set some stuff for the parent.
     setWindowTitle(i18n("Link existing event"));
     tableHelpText->setText(i18n("Choose an existing event to link to the person"));
-    displayModel->setSourceColumns({EventListModel::ID, EventListModel::TYPE, EventListModel::DATE, EventListModel::NAME});
+    displayModel->setSourceColumns(
+        {EventListModel::ID, EventListModel::TYPE, EventListModel::DATE, EventListModel::NAME}
+    );
     tableView->setItemDelegateForColumn(
         EventListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::EVENT)
     );
@@ -70,7 +74,8 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
     auto* formLayout = new QFormLayout;
 
     auto* roleHelpText = new QLabel(roleGroupBox);
-    roleHelpText->setText(i18n("Set options for the relationship between the event and the person, such as their role.")
+    roleHelpText->setText(
+        i18n("Set options for the relationship between the event and the person, such as their role.")
     );
 
     innerLayout->addWidget(roleHelpText);

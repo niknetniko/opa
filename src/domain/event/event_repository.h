@@ -42,11 +42,7 @@ public:
     std::optional<IntegerPrimaryKey> insertEvent(IntegerPrimaryKey typeId) const;
 
     bool updateEvent(
-        IntegerPrimaryKey id,
-        IntegerPrimaryKey typeId,
-        const QString& date,
-        const QString& name,
-        const QString& note
+        IntegerPrimaryKey id, IntegerPrimaryKey typeId, const QString& date, const QString& name, const QString& note
     ) const;
 
     bool deleteEvent(IntegerPrimaryKey id) const;
@@ -68,11 +64,9 @@ public:
 
     [[nodiscard]] QList<PersonEventEntity> findDeathEventsForPerson(IntegerPrimaryKey personId) const;
 
-    [[nodiscard]] std::optional<IntegerPrimaryKey>
-    findEventTypeIdByName(const QString& typeName) const;
+    [[nodiscard]] std::optional<IntegerPrimaryKey> findEventTypeIdByName(const QString& typeName) const;
 
-    [[nodiscard]] std::optional<IntegerPrimaryKey>
-    findEventRoleIdByName(const QString& roleName) const;
+    [[nodiscard]] std::optional<IntegerPrimaryKey> findEventRoleIdByName(const QString& roleName) const;
 
     std::optional<IntegerPrimaryKey>
     insertEventWithRelation(IntegerPrimaryKey typeId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
@@ -101,5 +95,4 @@ public:
     [[nodiscard]] QList<SourceEntity> findCitationsForEventRelation(IntegerPrimaryKey relationId) const;
     bool addEventRelationCitation(IntegerPrimaryKey relationId, IntegerPrimaryKey sourceId) const;
     bool removeEventRelationCitation(IntegerPrimaryKey relationId, IntegerPrimaryKey sourceId) const;
-
 };

@@ -22,7 +22,7 @@ ParentEventRolesListModel::ParentEventRolesListModel(QObject* parent) : ObjectTa
 void ParentEventRolesListModel::reload() {
     // Build the set of parent role untranslated names.
     QSet<QString> parentRoleNames;
-    for (const auto& role : EventRoles::parentRoles()) {
+    for (const auto& role: EventRoles::parentRoles()) {
         const auto& name = EventRoles::nameOriginToString.value(role);
         if (name.untranslatedText()) {
             parentRoleNames.insert(QString::fromUtf8(name.untranslatedText()));
@@ -32,7 +32,7 @@ void ParentEventRolesListModel::reload() {
     EventRepository repo;
     const auto allRoles = repo.findAllEventRoles();
     QList<EventRoleEntity> filtered;
-    for (const auto& entity : allRoles) {
+    for (const auto& entity: allRoles) {
         if (parentRoleNames.contains(entity.role)) {
             filtered.append(entity);
         }
@@ -51,7 +51,7 @@ RelationshipEventTypesListModel::RelationshipEventTypesListModel(QObject* parent
 void RelationshipEventTypesListModel::reload() {
     // Build the set of relationship event type untranslated names.
     QSet<QString> relationshipTypeNames;
-    for (const auto& eventType : EventTypes::relationshipStartingEvents()) {
+    for (const auto& eventType: EventTypes::relationshipStartingEvents()) {
         const auto& name = EventTypes::typeToString.value(eventType);
         if (name.untranslatedText()) {
             relationshipTypeNames.insert(QString::fromUtf8(name.untranslatedText()));
@@ -61,7 +61,7 @@ void RelationshipEventTypesListModel::reload() {
     EventRepository repo;
     const auto allTypes = repo.findAllEventTypes();
     QList<EventTypeEntity> filtered;
-    for (const auto& entity : allTypes) {
+    for (const auto& entity: allTypes) {
         if (relationshipTypeNames.contains(entity.type)) {
             filtered.append(entity);
         }

@@ -9,8 +9,8 @@
 #include "ui/source/editor/source_editor_dialog.h"
 
 #include <KLocalizedString>
-#include <QHeaderView>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QPushButton>
 #include <QTableView>
 #include <QVBoxLayout>

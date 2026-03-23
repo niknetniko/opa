@@ -19,9 +19,7 @@
 
 using namespace Qt::StringLiterals;
 
-ClaudeAiService::ClaudeAiService(QString model, QObject* parent) :
-    AiService(parent),
-    model(std::move(model)) {
+ClaudeAiService::ClaudeAiService(QString model, QObject* parent) : AiService(parent), model(std::move(model)) {
 }
 
 void ClaudeAiService::complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema) {

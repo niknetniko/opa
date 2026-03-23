@@ -19,8 +19,7 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 
-AiSettingsWidget::AiSettingsWidget(QWidget* parent) :
-    QWidget(parent) {
+AiSettingsWidget::AiSettingsWidget(QWidget* parent) : QWidget(parent) {
     auto* layout = new QVBoxLayout(this);
 
     auto* tabs = new QTabWidget(this);

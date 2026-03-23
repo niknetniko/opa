@@ -68,9 +68,7 @@ void TreeProxyModel::setSourceModel(QAbstractItemModel* newSourceModel) {
             &QAbstractItemModel::dataChanged,
             this,
             [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles) {
-                auto overlaps = [&](int col) {
-                    return col >= topLeft.column() && col <= bottomRight.column();
-                };
+                auto overlaps = [&](int col) { return col >= topLeft.column() && col <= bottomRight.column(); };
 
                 if (overlaps(idColumn) || overlaps(parentIdColumn)) {
                     beginResetModel();
@@ -116,7 +114,7 @@ void TreeProxyModel::buildTree() {
     }
 
     // Second pass: link children to parents.
-    for (const auto& nodePtr : allNodes) {
+    for (const auto& nodePtr: allNodes) {
         auto* node = nodePtr.get();
         auto parentIdVariant = sourceModel()->index(node->sourceRow, parentIdColumn).data();
         if (isInvalid(parentIdVariant)) {

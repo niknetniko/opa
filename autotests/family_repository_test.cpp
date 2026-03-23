@@ -53,19 +53,44 @@ class TestFamilyRepository : public QObject {
         auto motherId = addPerson(u"Alice"_s, u"English"_s, u"Female"_s);
 
         auto marriageEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(marriageTypeId));
-        VERIFY_OR_THROW2(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
-                               .arg(marriageEvent).arg(fatherId).arg(primaryRoleId)), query);
-        VERIFY_OR_THROW2(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
-                               .arg(marriageEvent).arg(motherId).arg(partnerRoleId)), query);
+        VERIFY_OR_THROW2(
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                           .arg(marriageEvent)
+                           .arg(fatherId)
+                           .arg(primaryRoleId)),
+            query
+        );
+        VERIFY_OR_THROW2(
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                           .arg(marriageEvent)
+                           .arg(motherId)
+                           .arg(partnerRoleId)),
+            query
+        );
 
         auto childId = addPerson(u"Child"_s, u"Bober"_s, u"Female"_s);
         auto birthEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
-        VERIFY_OR_THROW2(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
-                               .arg(birthEvent).arg(childId).arg(primaryRoleId)), query);
-        VERIFY_OR_THROW2(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
-                               .arg(birthEvent).arg(fatherId).arg(fatherRoleId)), query);
-        VERIFY_OR_THROW2(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
-                               .arg(birthEvent).arg(motherId).arg(motherRoleId)), query);
+        VERIFY_OR_THROW2(
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                           .arg(birthEvent)
+                           .arg(childId)
+                           .arg(primaryRoleId)),
+            query
+        );
+        VERIFY_OR_THROW2(
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                           .arg(birthEvent)
+                           .arg(fatherId)
+                           .arg(fatherRoleId)),
+            query
+        );
+        VERIFY_OR_THROW2(
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                           .arg(birthEvent)
+                           .arg(motherId)
+                           .arg(motherRoleId)),
+            query
+        );
 
         return {fatherId, motherId, childId};
     }
@@ -107,7 +132,7 @@ private Q_SLOTS:
         auto members = repo.findFamilyMembersForPerson(fatherId);
 
         bool foundPartner = false;
-        for (const auto& member : members) {
+        for (const auto& member: members) {
             if (member.personId == motherId) {
                 foundPartner = true;
                 break;
@@ -177,7 +202,7 @@ private Q_SLOTS:
         auto parents = repo.findParentsForPerson(childId);
 
         QList<IntegerPrimaryKey> parentIds;
-        for (const auto& parent : parents) {
+        for (const auto& parent: parents) {
             parentIds.append(parent.personId);
         }
         QVERIFY(parentIds.contains(fatherId));
@@ -191,7 +216,7 @@ private Q_SLOTS:
         auto parents = repo.findParentsForPerson(childId);
 
         QStringList roles;
-        for (const auto& parent : parents) {
+        for (const auto& parent: parents) {
             roles.append(parent.role);
         }
         QVERIFY(roles.contains(u"Father"_s));
@@ -204,7 +229,7 @@ private Q_SLOTS:
         FamilyRepository repo;
         auto parents = repo.findParentsForPerson(childId);
 
-        for (const auto& parent : parents) {
+        for (const auto& parent: parents) {
             QVERIFY(!parent.givenNames.isEmpty());
             QVERIFY(!parent.surname.isEmpty());
         }

@@ -6,9 +6,9 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
 // ReSharper disable CppDFAUnreachableFunctionCall
-#include "../src/domain/name/name_repository.h"
 #include "../src/domain/person/person_repository.h"
 
+#include "../src/domain/name/name_repository.h"
 #include "./test_utils.h"
 #include "database/database.h"
 #include "database/schema.h"
@@ -64,7 +64,7 @@ private Q_SLOTS:
         criteria.sex = u"Male"_s;
         auto males = repo.findPeople(criteria);
         QCOMPARE(males.size(), 2);
-        for (const auto& p : males) {
+        for (const auto& p: males) {
             QCOMPARE(p.sex, u"Male"_s);
         }
     }
@@ -113,8 +113,9 @@ private Q_SLOTS:
         QVERIFY(personId.has_value());
 
         QSqlQuery q;
-        QVERIFY(q.exec(u"INSERT INTO names (person_id, sort, given_names, surname) VALUES (%1, 1, 'John', 'Doe')"_s
-                           .arg(*personId)));
+        QVERIFY(q.exec(
+            u"INSERT INTO names (person_id, sort, given_names, surname) VALUES (%1, 1, 'John', 'Doe')"_s.arg(*personId)
+        ));
         QVERIFY(q.exec(u"INSERT INTO names (person_id, sort, given_names, surname) VALUES (%1, 2, 'Johnny', 'Doe')"_s
                            .arg(*personId)));
 

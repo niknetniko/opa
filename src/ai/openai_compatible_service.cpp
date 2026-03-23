@@ -25,9 +25,11 @@ OpenAiCompatibleService::OpenAiCompatibleService(QString endpoint, QString model
     model(std::move(model)) {
 }
 
-void OpenAiCompatibleService::complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema) {
+void OpenAiCompatibleService::complete(
+    const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema
+) {
     qDebug() << "OpenAI-compatible request starting: endpoint=" << endpoint << "model=" << model
-                 << "userMessage length=" << userMessage.size();
+             << "userMessage length=" << userMessage.size();
 
     auto* job = new QKeychain::ReadPasswordJob(KeychainKeys::Service, this);
     job->setKey(KeychainKeys::OpenAiCompatibleApiKey);
@@ -58,11 +60,12 @@ void OpenAiCompatibleService::doRequest(
     if (!schema.isEmpty()) {
         body[u"response_format"_s] = QJsonObject{
             {u"type"_s, u"json_schema"_s},
-            {u"json_schema"_s, QJsonObject{
-                {u"name"_s, u"extract_source"_s},
-                {u"strict"_s, true},
-                {u"schema"_s, schema},
-            }},
+            {u"json_schema"_s,
+             QJsonObject{
+                 {u"name"_s, u"extract_source"_s},
+                 {u"strict"_s, true},
+                 {u"schema"_s, schema},
+             }},
         };
     }
     body[u"messages"_s] = QJsonArray{

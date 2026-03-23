@@ -7,8 +7,8 @@
 
 #include "query_helper.h"
 
-#include <QString>
 #include <QSqlError>
+#include <QString>
 
 using namespace QueryHelper;
 using namespace Qt::StringLiterals;

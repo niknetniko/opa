@@ -9,8 +9,7 @@
 
 template<typename T>
 // ReSharper disable once CppNotAllPathsReturnValue
-T getConverted(const QVariant& v)
-{
+T getConverted(const QVariant& v) {
     if constexpr (std::is_same_v<T, QString>)
         return v.toString();
     else if constexpr (std::is_same_v<T, int>)
@@ -24,9 +23,8 @@ T getConverted(const QVariant& v)
 }
 
 template<typename T>
-std::optional<T> validOrOptional(const QVariant& v)
-{
-    if (v.isValid() && !v.isNull() ) {
+std::optional<T> validOrOptional(const QVariant& v) {
+    if (v.isValid() && !v.isNull()) {
         return getConverted<T>(v);
     } else {
         return std::nullopt;

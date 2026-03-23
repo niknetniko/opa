@@ -7,63 +7,63 @@ add_library(
   database/database.h
   database/database.cpp
   database/schema.h
-    domain/person/person_sex.h
-    domain/person/person_sex.cpp
-    domain/person/person_entities.h
-    domain/person/person_repository.h
-    domain/person/person_repository.cpp
-    domain/person/person_display_model.h
-    domain/person/person_display_model.cpp
-    domain/person/person_detail_model.h
-    domain/person/person_detail_model.cpp
-    domain/name/name_entities.h
-    domain/name/name_repository.h
-    domain/name/name_repository.cpp
-    domain/name/name_origins_model.h
-    domain/name/name_origins_model.cpp
-    domain/name/person_names_model.h
-    domain/name/person_names_model.cpp
-    domain/event/event_entities.h
-    domain/event/event_repository.h
-    domain/event/event_repository.cpp
-    domain/event/person_events_model.h
-    domain/event/person_events_model.cpp
-    domain/event/person_birth_events_model.h
-    domain/event/person_birth_events_model.cpp
-    domain/event/person_death_events_model.h
-    domain/event/person_death_events_model.cpp
-    domain/event/event_types_model.h
-    domain/event/event_types_model.cpp
-    domain/event/event_roles_model.h
-    domain/event/event_roles_model.cpp
-    domain/event/event_list_model.h
-    domain/event/event_list_model.cpp
-    domain/event/parent_event_roles_list_model.h
-    domain/event/parent_event_roles_list_model.cpp
-    domain/family/family_entities.h
-    domain/family/family_repository.h
-    domain/family/family_repository.cpp
-    domain/family/ancestor_model.h
-    domain/family/ancestor_model.cpp
-    domain/family/parents_model.h
-    domain/family/parents_model.cpp
-    domain/family/family_members_model.h
-    domain/family/family_members_model.cpp
-    domain/source/source_entities.h
-    domain/source/source_repository.h
-    domain/source/source_repository.cpp
-    domain/source/source_list_model.h
-    domain/source/source_list_model.cpp
-    domain/event/event_types.h
-    domain/event/event_types.cpp
+  domain/person/person_sex.h
+  domain/person/person_sex.cpp
+  domain/person/person_entities.h
+  domain/person/person_repository.h
+  domain/person/person_repository.cpp
+  domain/person/person_display_model.h
+  domain/person/person_display_model.cpp
+  domain/person/person_detail_model.h
+  domain/person/person_detail_model.cpp
+  domain/name/name_entities.h
+  domain/name/name_repository.h
+  domain/name/name_repository.cpp
+  domain/name/name_origins_model.h
+  domain/name/name_origins_model.cpp
+  domain/name/person_names_model.h
+  domain/name/person_names_model.cpp
+  domain/event/event_entities.h
+  domain/event/event_repository.h
+  domain/event/event_repository.cpp
+  domain/event/person_events_model.h
+  domain/event/person_events_model.cpp
+  domain/event/person_birth_events_model.h
+  domain/event/person_birth_events_model.cpp
+  domain/event/person_death_events_model.h
+  domain/event/person_death_events_model.cpp
+  domain/event/event_types_model.h
+  domain/event/event_types_model.cpp
+  domain/event/event_roles_model.h
+  domain/event/event_roles_model.cpp
+  domain/event/event_list_model.h
+  domain/event/event_list_model.cpp
+  domain/event/parent_event_roles_list_model.h
+  domain/event/parent_event_roles_list_model.cpp
+  domain/family/family_entities.h
+  domain/family/family_repository.h
+  domain/family/family_repository.cpp
+  domain/family/ancestor_model.h
+  domain/family/ancestor_model.cpp
+  domain/family/parents_model.h
+  domain/family/parents_model.cpp
+  domain/family/family_members_model.h
+  domain/family/family_members_model.cpp
+  domain/source/source_entities.h
+  domain/source/source_repository.h
+  domain/source/source_repository.cpp
+  domain/source/source_list_model.h
+  domain/source/source_list_model.cpp
+  domain/event/event_types.h
+  domain/event/event_types.cpp
   person_detail/person_detail_view.h
   person_detail/person_detail_view.cpp
-    ui/name/name_editor_dialog.h
-    ui/name/name_editor_dialog.cpp
+  ui/name/name_editor_dialog.h
+  ui/name/name_editor_dialog.cpp
   utils/multi_filter_proxy_model.h
   utils/multi_filter_proxy_model.cpp
-    domain/name/names.h
-    domain/name/names.cpp
+  domain/name/names.h
+  domain/name/names.cpp
   utils/formatted_identifier_delegate.h
   utils/formatted_identifier_delegate.cpp
   person_detail/person_name_tab.h
@@ -108,7 +108,7 @@ add_library(
   main/person_placeholder_widget.cpp
   editors/note_editor_dialog.h
   editors/note_editor_dialog.cpp
-    person_detail/person_family_tab.cpp
+  person_detail/person_family_tab.cpp
   person_detail/person_family_tab.h
   utils/model_utils.cpp
   utils/model_utils.h
@@ -122,8 +122,8 @@ add_library(
   editors/new_person_editor_dialog.h
   editors/new_family_editor_dialog.cpp
   editors/new_family_editor_dialog.h
-    ui/source/editor/source_editor_dialog.h
-    ui/source/editor/source_editor_dialog.cpp
+  ui/source/editor/source_editor_dialog.h
+  ui/source/editor/source_editor_dialog.cpp
   link_existing/choose_existing_person_window.cpp
   link_existing/choose_existing_person_window.h
   docks/person_list_dock.cpp
@@ -132,38 +132,38 @@ add_library(
   utils/tree_proxy_model.h
   utils/grouping_proxy_model.cpp
   utils/grouping_proxy_model.h
-    ui/source/dock/source_list_dock.cpp
-    ui/source/dock/source_list_dock.h
+  ui/source/dock/source_list_dock.cpp
+  ui/source/dock/source_list_dock.h
   link_existing/choose_existing_source_window.cpp
   link_existing/choose_existing_source_window.h
-    ui/source/citation_list_widget.h
-    ui/source/citation_list_widget.cpp
-    utils/pending_list_model.h
+  ui/source/citation_list_widget.h
+  ui/source/citation_list_widget.cpp
+  utils/pending_list_model.h
   utils/rich_text_plain_delegate.cpp
   utils/rich_text_plain_delegate.h
-    core/query_helper.h
-    core/query_helper.cpp
-    model/object_table_model.h
-    core/data_event_broker.h
-    core/data_event_broker.cpp
-    core/base_repository.h
-    core/query_utils.h
-    domain/person/person_detail_model.cpp
-    domain/event/event_types_model.cpp
-    domain/event/event_roles.h
-    domain/event/event_roles.cpp
-    domain/source/source.h
-    domain/source/source.cpp
-    core/keychain_keys.h
-    ai/ai_service.h
-    ai/ai_service.cpp
-    ai/claude_ai_service.h
-    ai/claude_ai_service.cpp
-    ai/local_ai_service.h
-    ai/openai_compatible_service.h
-    ai/openai_compatible_service.cpp
-    main/ai_settings_widget.h
-    main/ai_settings_widget.cpp)
+  core/query_helper.h
+  core/query_helper.cpp
+  model/object_table_model.h
+  core/data_event_broker.h
+  core/data_event_broker.cpp
+  core/base_repository.h
+  core/query_utils.h
+  domain/person/person_detail_model.cpp
+  domain/event/event_types_model.cpp
+  domain/event/event_roles.h
+  domain/event/event_roles.cpp
+  domain/source/source.h
+  domain/source/source.cpp
+  core/keychain_keys.h
+  ai/ai_service.h
+  ai/ai_service.cpp
+  ai/claude_ai_service.h
+  ai/claude_ai_service.cpp
+  ai/local_ai_service.h
+  ai/openai_compatible_service.h
+  ai/openai_compatible_service.cpp
+  main/ai_settings_widget.h
+  main/ai_settings_widget.cpp)
 
 ecm_qt_declare_logging_category(
   opa-lib

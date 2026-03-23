@@ -50,7 +50,7 @@ void EventRolesManagementWindow::repairItems() {
 
     // Normalize all values.
     const auto allRoles = repo.findAllEventRoles();
-    for (const auto& entity : allRoles) {
+    for (const auto& entity: allRoles) {
         auto trimmed = entity.role.simplified();
         auto lowered = trimmed.toLower();
         if (!lowered.isEmpty()) {
@@ -66,7 +66,7 @@ void EventRolesManagementWindow::repairItems() {
     const auto updatedRoles = repo.findAllEventRoles();
     QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
     QHash<IntegerPrimaryKey, QString> idToValue;
-    for (const auto& entity : updatedRoles) {
+    for (const auto& entity: updatedRoles) {
         valueToIds[entity.role].append(entity.id);
         idToValue[entity.id] = entity.role;
     }
@@ -74,7 +74,8 @@ void EventRolesManagementWindow::repairItems() {
 
     // Reassign references from duplicate IDs to the canonical ID.
     for (auto i = valueToIds.begin(); i != valueToIds.end(); ++i) {
-        if (i.value().length() <= 1) continue;
+        if (i.value().length() <= 1)
+            continue;
         const auto keepId = i.value().first();
         for (int j = 1; j < i.value().length(); ++j) {
             repo.reassignEventRoleId(i.value()[j], keepId);
@@ -95,7 +96,7 @@ void EventRolesManagementWindow::repairItems() {
     }
     progress.setValue(4);
 
-    for (const auto id : toRemove) {
+    for (const auto id: toRemove) {
         repo.deleteEventRole(id);
     }
     progress.setValue(5);

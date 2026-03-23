@@ -13,7 +13,7 @@
 #include <optional>
 
 namespace Ui {
-    class SourceEditorForm;
+class SourceEditorForm;
 }
 
 class QAbstractItemModel;

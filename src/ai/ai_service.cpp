@@ -7,8 +7,8 @@
 
 #include "claude_ai_service.h"
 #include "local_ai_service.h"
-#include "openai_compatible_service.h"
 #include "opaSettings.h"
+#include "openai_compatible_service.h"
 
 AiService* createAiService(QObject* parent) {
     switch (opaSettings::aiProvider()) {

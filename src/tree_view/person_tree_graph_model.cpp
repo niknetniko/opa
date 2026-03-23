@@ -12,14 +12,14 @@
 #include <QtNodes/StyleCollection>
 
 namespace {
-    ConnectionId create(NodeId out, NodeId in) {
-        return {
-            .outNodeId = out,
-            .outPortIndex = 0,
-            .inNodeId = in,
-            .inPortIndex = 0,
-        };
-    }
+ConnectionId create(NodeId out, NodeId in) {
+    return {
+        .outNodeId = out,
+        .outPortIndex = 0,
+        .inNodeId = in,
+        .inPortIndex = 0,
+    };
+}
 }
 
 PersonTreeGraphModel::PersonTreeGraphModel(IntegerPrimaryKey person) {

@@ -59,7 +59,8 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
             return {.symbol = QStringLiteral("✝︎"), .date = i18n("unknown date")};
         }
         string = index.data().toString();
-        auto type = enumFromString<EventTypes::Values>(deathModel->index(0, PersonDeathEventsModel::TYPE).data().toString());
+        auto type =
+            enumFromString<EventTypes::Values>(deathModel->index(0, PersonDeathEventsModel::TYPE).data().toString());
 
         if (type == EventTypes::Values::Death) {
             symbol = QStringLiteral("✝︎");
@@ -208,7 +209,8 @@ bool PersonDetailView::hasId(IntegerPrimaryKey id) const {
 QString PersonDetailView::getDisplayName() const {
     QString name;
     if (personData.has_value()) {
-        name = construct_display_name(personData->titles, personData->givenNames, personData->prefix, personData->surname);
+        name =
+            construct_display_name(personData->titles, personData->givenNames, personData->prefix, personData->surname);
     }
     auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     return QStringLiteral("%1 [%2]").arg(name, personId);

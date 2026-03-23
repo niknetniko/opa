@@ -11,7 +11,7 @@
 #include "editor_dialog.h"
 
 namespace Ui {
-    class NewPersonEditorForm;
+class NewPersonEditorForm;
 }
 
 /**

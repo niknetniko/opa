@@ -6,8 +6,8 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "./test_utils.h"
-#include "domain/family/parents_model.h"
 #include "database/database.h"
+#include "domain/family/parents_model.h"
 
 #include <QAbstractItemModelTester>
 #include <QSqlDatabase>

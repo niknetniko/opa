@@ -15,9 +15,11 @@ EventTypesListModel::EventTypesListModel(QObject* parent) : ObjectTableModel(par
     this->setColumn(ID, i18n("ID"), &EventTypeEntity::id);
     this->setColumn(TYPE, i18n("Type"), &EventTypeEntity::type, [](EventTypeEntity& entity, const QVariant& value) {
         QString newType = value.toString();
-        if (newType.isEmpty()) return false;
+        if (newType.isEmpty())
+            return false;
         EventRepository repo;
-        if (!repo.updateEventType(entity.id, newType)) return false;
+        if (!repo.updateEventType(entity.id, newType))
+            return false;
         entity.type = newType;
         return true;
     });

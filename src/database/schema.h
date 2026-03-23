@@ -11,68 +11,68 @@
 using IntegerPrimaryKey = qlonglong;
 
 namespace Schema {
-    struct TableTag {};
+struct TableTag {};
 
-    struct People : TableTag {
-        static constexpr auto table = QLatin1String("people");
-    };
-    inline constexpr auto PeopleTable = People::table;
+struct People : TableTag {
+    static constexpr auto table = QLatin1String("people");
+};
+inline constexpr auto PeopleTable = People::table;
 
-    struct Names : TableTag {
-        static constexpr auto table = QLatin1String("names");
-    };
-    inline constexpr auto NamesTable = Names::table;
+struct Names : TableTag {
+    static constexpr auto table = QLatin1String("names");
+};
+inline constexpr auto NamesTable = Names::table;
 
-    struct NameOrigins : TableTag {
-        static constexpr auto table = QLatin1String("name_origins");
-    };
-    inline constexpr auto NameOriginsTable = NameOrigins::table;
+struct NameOrigins : TableTag {
+    static constexpr auto table = QLatin1String("name_origins");
+};
+inline constexpr auto NameOriginsTable = NameOrigins::table;
 
-    struct Events : TableTag {
-        static constexpr auto table = QLatin1String("events");
-    };
-    inline constexpr auto EventsTable = Events::table;
+struct Events : TableTag {
+    static constexpr auto table = QLatin1String("events");
+};
+inline constexpr auto EventsTable = Events::table;
 
-    struct EventRoles : TableTag {
-        static constexpr auto table = QLatin1String("event_roles");
-    };
-    inline constexpr auto EventRolesTable = EventRoles::table;
+struct EventRoles : TableTag {
+    static constexpr auto table = QLatin1String("event_roles");
+};
+inline constexpr auto EventRolesTable = EventRoles::table;
 
-    struct EventTypes : TableTag {
-        static constexpr auto table = QLatin1String("event_types");
-    };
-    inline constexpr auto EventTypesTable = EventTypes::table;
+struct EventTypes : TableTag {
+    static constexpr auto table = QLatin1String("event_types");
+};
+inline constexpr auto EventTypesTable = EventTypes::table;
 
-    struct EventRelations : TableTag {
-        static constexpr auto table = QLatin1String("event_relations");
-    };
-    inline constexpr auto EventRelationsTable = EventRelations::table;
+struct EventRelations : TableTag {
+    static constexpr auto table = QLatin1String("event_relations");
+};
+inline constexpr auto EventRelationsTable = EventRelations::table;
 
-    struct Sources : TableTag {
-        static constexpr auto table = QLatin1String("sources");
-    };
-    inline constexpr auto SourcesTable = Sources::table;
+struct Sources : TableTag {
+    static constexpr auto table = QLatin1String("sources");
+};
+inline constexpr auto SourcesTable = Sources::table;
 
-    struct EventCitations : TableTag {
-        static constexpr auto table = QLatin1String("event_citations");
-    };
-    inline constexpr auto EventCitationsTable = EventCitations::table;
+struct EventCitations : TableTag {
+    static constexpr auto table = QLatin1String("event_citations");
+};
+inline constexpr auto EventCitationsTable = EventCitations::table;
 
-    struct EventRelationCitations : TableTag {
-        static constexpr auto table = QLatin1String("event_relation_citations");
-    };
-    inline constexpr auto EventRelationCitationsTable = EventRelationCitations::table;
+struct EventRelationCitations : TableTag {
+    static constexpr auto table = QLatin1String("event_relation_citations");
+};
+inline constexpr auto EventRelationCitationsTable = EventRelationCitations::table;
 
-    struct NameCitations : TableTag {
-        static constexpr auto table = QLatin1String("name_citations");
-    };
-    inline constexpr auto NameCitationsTable = NameCitations::table;
+struct NameCitations : TableTag {
+    static constexpr auto table = QLatin1String("name_citations");
+};
+inline constexpr auto NameCitationsTable = NameCitations::table;
 
-    struct PersonCitations : TableTag {
-        static constexpr auto table = QLatin1String("person_citations");
-    };
-    inline constexpr auto PersonCitationsTable = PersonCitations::table;
+struct PersonCitations : TableTag {
+    static constexpr auto table = QLatin1String("person_citations");
+};
+inline constexpr auto PersonCitationsTable = PersonCitations::table;
 
-    template <typename T>
-    inline constexpr bool is_table_tag = std::is_base_of_v<TableTag, T>;
+template<typename T>
+inline constexpr bool is_table_tag = std::is_base_of_v<TableTag, T>;
 }

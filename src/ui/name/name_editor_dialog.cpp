@@ -13,8 +13,8 @@
 
 #include <KLocalizedString>
 #include <QCompleter>
-#include <QStringListModel>
 #include <QString>
+#include <QStringListModel>
 
 NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWidget* parent) :
     AbstractEditorDialog(newRow, parent),

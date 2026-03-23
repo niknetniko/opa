@@ -11,7 +11,7 @@
 class QDataWidgetMapper;
 
 namespace Ui {
-    class NewFamilyEditorForm;
+class NewFamilyEditorForm;
 }
 
 struct FamilyData {

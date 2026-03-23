@@ -27,7 +27,9 @@
       let
         pkgs = import nixpkgs {
           system = system;
-          config = { allowUnfree = true; };
+          config = {
+            allowUnfree = true;
+          };
         };
         build-inputs = with pkgs; [
           llvmPackages.openmp
@@ -92,7 +94,9 @@
           nativeBuildInputs = with pkgs; [ cmake ];
           buildInputs = with pkgs; [ kdePackages.qtbase ];
         };
-        kddockwidgets-kde = pkgs.kdePackages.callPackage "${pkgs.path}/pkgs/by-name/kd/kddockwidgets/package.nix" { };
+        kddockwidgets-kde =
+          pkgs.kdePackages.callPackage "${pkgs.path}/pkgs/by-name/kd/kddockwidgets/package.nix"
+            { };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
       {

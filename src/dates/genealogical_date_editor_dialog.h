@@ -10,7 +10,7 @@
 #include <QDialog>
 
 namespace Ui {
-    class GenealogicalDateEditorDialog;
+class GenealogicalDateEditorDialog;
 }
 
 class GenealogicalDate;

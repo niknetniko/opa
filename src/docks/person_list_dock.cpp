@@ -10,7 +10,6 @@
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>
-
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>

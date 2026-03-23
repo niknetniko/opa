@@ -226,8 +226,9 @@ QWidget* CustomSqlRelationalDelegate::createEditor(
     return comboBox;
 }
 
-void CustomSqlRelationalDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index)
-    const {
+void CustomSqlRelationalDelegate::setModelData(
+    QWidget* editor, QAbstractItemModel* model, const QModelIndex& index
+) const {
     if (!index.isValid()) {
         return;
     }

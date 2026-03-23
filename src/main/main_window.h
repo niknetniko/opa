@@ -15,11 +15,11 @@
 
 class KRecentFilesAction;
 namespace Ui {
-    class Settings;
+class Settings;
 }
 
 namespace KDDockWidgets::QtWidgets {
-    class MainWindow;
+class MainWindow;
 }
 
 class opaView;

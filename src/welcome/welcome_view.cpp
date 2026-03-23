@@ -103,10 +103,7 @@ WelcomeView::WelcomeView(MainWindow* mainWindow, QWidget* parent) : QScrollArea(
     auto configGroup = KSharedConfig::openConfig()->group(QStringLiteral("General"));
     checkBoxShowForNewWindow->setChecked(configGroup.readEntry(showForNewWindowKey, true));
     connect(
-        checkBoxShowForNewWindow,
-        &QCheckBox::toggled,
-        this,
-        [configGroup, showForNewWindowKey](bool checked) mutable {
+        checkBoxShowForNewWindow, &QCheckBox::toggled, this, [configGroup, showForNewWindowKey](bool checked) mutable {
             configGroup.writeEntry(showForNewWindowKey, checked);
         }
     );

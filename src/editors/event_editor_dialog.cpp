@@ -69,9 +69,8 @@ EventEditorDialog::EventEditorDialog(
     // Load the event data and pre-fill the form.
     EventRepository repo;
     if (const auto event = repo.findEventById(eventId)) {
-        auto typeIndex = typesModel->match(
-            typesModel->index(0, EventTypesListModel::ID), Qt::DisplayRole, event->typeId
-        );
+        auto typeIndex =
+            typesModel->match(typesModel->index(0, EventTypesListModel::ID), Qt::DisplayRole, event->typeId);
         if (!typeIndex.isEmpty()) {
             form->eventTypeComboBox->setCurrentIndex(typeIndex.constFirst().row());
         }
@@ -142,9 +141,8 @@ void EventEditorDialog::accept() {
     auto typeId = typesModel->index(typeRow, EventTypesListModel::ID).data().toLongLong();
 
     auto displayDate = form->eventDatePicker->text();
-    auto date = displayDate.isEmpty()
-        ? QString{}
-        : GenealogicalDate::fromDisplayText(displayDate).toDatabaseRepresentation();
+    auto date = displayDate.isEmpty() ? QString{}
+                                      : GenealogicalDate::fromDisplayText(displayDate).toDatabaseRepresentation();
     auto name = form->eventNameEdit->text();
     auto note = form->noteEdit->textOrHtml();
 
@@ -178,12 +176,8 @@ void EventEditorDialog::accept() {
                 [&](IntegerPrimaryKey sourceId) { return repo.removeEventCitation(createdEventId, sourceId); }
             );
             relationCitationsPending.commit(
-                [&](IntegerPrimaryKey sourceId) {
-                    return repo.addEventRelationCitation(*relationId, sourceId);
-                },
-                [&](IntegerPrimaryKey sourceId) {
-                    return repo.removeEventRelationCitation(*relationId, sourceId);
-                }
+                [&](IntegerPrimaryKey sourceId) { return repo.addEventRelationCitation(*relationId, sourceId); },
+                [&](IntegerPrimaryKey sourceId) { return repo.removeEventRelationCitation(*relationId, sourceId); }
             );
         } else {
             // Existing event: update fields.
@@ -205,12 +199,8 @@ void EventEditorDialog::accept() {
                 [&](IntegerPrimaryKey sourceId) { return repo.removeEventCitation(*eventId, sourceId); }
             );
             relationCitationsPending.commit(
-                [&](IntegerPrimaryKey sourceId) {
-                    return repo.addEventRelationCitation(*relationId, sourceId);
-                },
-                [&](IntegerPrimaryKey sourceId) {
-                    return repo.removeEventRelationCitation(*relationId, sourceId);
-                }
+                [&](IntegerPrimaryKey sourceId) { return repo.addEventRelationCitation(*relationId, sourceId); },
+                [&](IntegerPrimaryKey sourceId) { return repo.removeEventRelationCitation(*relationId, sourceId); }
             );
         }
 
@@ -233,7 +223,11 @@ void EventEditorDialog::showDialogForNewEvent(IntegerPrimaryKey personId, QWidge
 }
 
 void EventEditorDialog::showDialogForExistingEvent(
-    IntegerPrimaryKey eventId, IntegerPrimaryKey roleId, IntegerPrimaryKey relationId, IntegerPrimaryKey personId, QWidget* parent
+    IntegerPrimaryKey eventId,
+    IntegerPrimaryKey roleId,
+    IntegerPrimaryKey relationId,
+    IntegerPrimaryKey personId,
+    QWidget* parent
 ) {
     auto* dialog = new EventEditorDialog(eventId, roleId, relationId, personId, parent);
     dialog->setAttribute(Qt::WA_DeleteOnClose);

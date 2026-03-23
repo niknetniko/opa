@@ -17,18 +17,23 @@ QList<NameOriginEntity> NameRepository::findAllOrigins() const {
 }
 
 QStringList NameRepository::findAllSurnames() const {
-    const auto sql = QStringLiteral("SELECT DISTINCT surname FROM names WHERE surname IS NOT NULL AND surname != '' ORDER BY surname ASC");
+    const auto sql = QStringLiteral(
+        "SELECT DISTINCT surname FROM names WHERE surname IS NOT NULL AND surname != '' ORDER BY surname ASC"
+    );
     QStringList result;
-    for (const auto& entity : fetchAll<NameEntity>(sql, {})) {
+    for (const auto& entity: fetchAll<NameEntity>(sql, {})) {
         result.append(entity.surname);
     }
     return result;
 }
 
 QStringList NameRepository::findAllGivenNames() const {
-    const auto sql = QStringLiteral("SELECT DISTINCT given_names FROM names WHERE given_names IS NOT NULL AND given_names != '' ORDER BY given_names ASC");
+    const auto sql = QStringLiteral(
+        "SELECT DISTINCT given_names FROM names WHERE given_names IS NOT NULL AND given_names != '' ORDER BY "
+        "given_names ASC"
+    );
     QStringList result;
-    for (const auto& entity : fetchAll<NameEntity>(sql, {})) {
+    for (const auto& entity: fetchAll<NameEntity>(sql, {})) {
         result.append(entity.givenNames);
     }
     return result;

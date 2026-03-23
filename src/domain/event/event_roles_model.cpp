@@ -15,9 +15,11 @@ EventRolesListModel::EventRolesListModel(QObject* parent) : ObjectTableModel(par
     this->setColumn(ID, i18n("ID"), &EventRoleEntity::id);
     this->setColumn(ROLE, i18n("Role"), &EventRoleEntity::role, [](EventRoleEntity& entity, const QVariant& value) {
         QString newRole = value.toString();
-        if (newRole.isEmpty()) return false;
+        if (newRole.isEmpty())
+            return false;
         EventRepository repo;
-        if (!repo.updateEventRole(entity.id, newRole)) return false;
+        if (!repo.updateEventRole(entity.id, newRole))
+            return false;
         entity.role = newRole;
         return true;
     });

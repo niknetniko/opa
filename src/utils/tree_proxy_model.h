@@ -9,7 +9,6 @@
 #include <QHash>
 #include <QList>
 #include <QVariant>
-
 #include <memory>
 #include <vector>
 

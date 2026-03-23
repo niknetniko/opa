@@ -34,9 +34,7 @@ QList<SourceEntity> SourceRepository::findByTitleContaining(const QString& searc
 }
 
 QStringList SourceRepository::findAllTypes() const {
-    const auto sql = QStringLiteral(
-        "SELECT DISTINCT type FROM sources WHERE type IS NOT NULL ORDER BY type ASC"
-    );
+    const auto sql = QStringLiteral("SELECT DISTINCT type FROM sources WHERE type IS NOT NULL ORDER BY type ASC");
     auto [query, ok] = QueryHelper::executeWithResult(sql);
     QStringList result;
     while (ok && query.next()) {

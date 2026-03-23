@@ -12,7 +12,7 @@
 #include <QDialog>
 
 namespace Ui {
-    class NameEditorForm;
+class NameEditorForm;
 }
 
 /**

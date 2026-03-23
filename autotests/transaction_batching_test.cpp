@@ -423,9 +423,7 @@ private Q_SLOTS:
             VERIFY_OR_THROW(id1.has_value());
 
             // Nested call returns nullopt — signals failure.
-            auto innerResult = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
-                return std::nullopt;
-            });
+            auto innerResult = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> { return std::nullopt; });
 
             if (!innerResult.has_value()) {
                 return std::nullopt;
@@ -463,7 +461,7 @@ private Q_SLOTS:
         // Check that both Events and EventRelations notifications were emitted.
         bool hasEventNotification = false;
         bool hasRelationNotification = false;
-        for (const auto& call : spy) {
+        for (const auto& call: spy) {
             auto table = call.at(0).toString();
             if (table == Schema::Events::table) {
                 hasEventNotification = true;
@@ -491,7 +489,7 @@ private Q_SLOTS:
         // Check that Events and EventRelations notifications were emitted.
         bool hasEventNotification = false;
         bool hasRelationNotification = false;
-        for (const auto& call : spy) {
+        for (const auto& call: spy) {
             auto table = call.at(0).toString();
             if (table == Schema::Events::table) {
                 hasEventNotification = true;

@@ -34,7 +34,7 @@ public:
         columns[index] = {header, std::move(extractor), nullptr};
     }
 
-    template <typename FieldType>
+    template<typename FieldType>
     void setColumn(int index, const QString& header, FieldType T::* field) {
         if (columns.size() <= index) {
             columns.resize(index + 1);
@@ -49,12 +49,14 @@ public:
         columns[index] = {header, std::move(extractor), std::move(setter)};
     }
 
-    template <typename FieldType>
+    template<typename FieldType>
     void setColumn(int index, const QString& header, FieldType T::* field, Setter setter) {
         if (columns.size() <= index) {
             columns.resize(index + 1);
         }
-        columns[index] = {header, [field](const T& item) { return QVariant::fromValue(item.*field); }, std::move(setter)};
+        columns[index] = {
+            header, [field](const T& item) { return QVariant::fromValue(item.*field); }, std::move(setter)
+        };
     }
 
     void setItems(const QList<T>& itemsParam) {

@@ -26,7 +26,7 @@ struct PersonEntity {
     }
 };
 
-struct PersonDisplayEntity: PersonEntity {
+struct PersonDisplayEntity : PersonEntity {
     QString titles;
     QString givenNames;
     QString prefix;

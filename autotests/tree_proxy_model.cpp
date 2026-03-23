@@ -22,9 +22,7 @@ namespace {
  * Helper to build a flat QStandardItemModel with columns: ID, Name, ParentID.
  * Each entry is {id, name, parentId}. Use an empty string for no parent.
  */
-QStandardItemModel* buildSourceModel(
-    QObject* parent, const QList<std::tuple<QString, QString, QString>>& rows
-) {
+QStandardItemModel* buildSourceModel(QObject* parent, const QList<std::tuple<QString, QString, QString>>& rows) {
     auto* model = new QStandardItemModel(static_cast<int>(rows.size()), 3, parent);
     for (int i = 0; i < rows.size(); ++i) {
         const auto& [id, name, parentId] = rows[i];
@@ -55,14 +53,17 @@ class TestTreeProxyModel : public QObject {
 
 private Q_SLOTS:
     void testWithModelTester() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"ID 0"_s, u"Naam 0"_s, u""_s},
-            {u"ID 1"_s, u"Naam 1"_s, u""_s},
-            {u"ID 2"_s, u"Naam 2"_s, u""_s},
-            {u"ID 3"_s, u"Naam 3"_s, u""_s},
-            {u"ID 4"_s, u"Naam 4"_s, u"ID 0"_s},
-            {u"ID 5"_s, u"Naam 5"_s, u"ID 4"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"ID 0"_s, u"Naam 0"_s, u""_s},
+                {u"ID 1"_s, u"Naam 1"_s, u""_s},
+                {u"ID 2"_s, u"Naam 2"_s, u""_s},
+                {u"ID 3"_s, u"Naam 3"_s, u""_s},
+                {u"ID 4"_s, u"Naam 4"_s, u"ID 0"_s},
+                {u"ID 5"_s, u"Naam 5"_s, u"ID 4"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }
@@ -78,11 +79,14 @@ private Q_SLOTS:
     }
 
     void testAllRootNodes() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-            {u"B"_s, u"Beta"_s, u""_s},
-            {u"C"_s, u"Gamma"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+                {u"B"_s, u"Beta"_s, u""_s},
+                {u"C"_s, u"Gamma"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -97,10 +101,13 @@ private Q_SLOTS:
     }
 
     void testSingleChildRelationship() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -122,12 +129,15 @@ private Q_SLOTS:
     }
 
     void testMultipleChildrenUnderOneParent() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s,  u"Parent"_s,  u""_s},
-            {u"C1"_s, u"Child 1"_s, u"P"_s},
-            {u"C2"_s, u"Child 2"_s, u"P"_s},
-            {u"C3"_s, u"Child 3"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C1"_s, u"Child 1"_s, u"P"_s},
+                {u"C2"_s, u"Child 2"_s, u"P"_s},
+                {u"C3"_s, u"Child 3"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -142,12 +152,15 @@ private Q_SLOTS:
     }
 
     void testDeepNesting() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"L0"_s, u"Level 0"_s, u""_s},
-            {u"L1"_s, u"Level 1"_s, u"L0"_s},
-            {u"L2"_s, u"Level 2"_s, u"L1"_s},
-            {u"L3"_s, u"Level 3"_s, u"L2"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"L0"_s, u"Level 0"_s, u""_s},
+                {u"L1"_s, u"Level 1"_s, u"L0"_s},
+                {u"L2"_s, u"Level 2"_s, u"L1"_s},
+                {u"L3"_s, u"Level 3"_s, u"L2"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -177,12 +190,15 @@ private Q_SLOTS:
     }
 
     void testMultipleRootsWithChildren() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"R1"_s, u"Root 1"_s, u""_s},
-            {u"R2"_s, u"Root 2"_s, u""_s},
-            {u"C1"_s, u"Child of R1"_s, u"R1"_s},
-            {u"C2"_s, u"Child of R2"_s, u"R2"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"R1"_s, u"Root 1"_s, u""_s},
+                {u"R2"_s, u"Root 2"_s, u""_s},
+                {u"C1"_s, u"Child of R1"_s, u"R1"_s},
+                {u"C2"_s, u"Child of R2"_s, u"R2"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -200,10 +216,13 @@ private Q_SLOTS:
     }
 
     void testMultipleColumnsAccessible() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s,  u"Parent"_s, u""_s},
-            {u"C"_s,  u"Child"_s,  u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -221,10 +240,13 @@ private Q_SLOTS:
     }
 
     void testOrphanedNodesBecomeRoots() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-            {u"B"_s, u"Beta"_s, u"NONEXISTENT"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+                {u"B"_s, u"Beta"_s, u"NONEXISTENT"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -235,10 +257,13 @@ private Q_SLOTS:
     }
 
     void testMapToSource() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -262,10 +287,13 @@ private Q_SLOTS:
     }
 
     void testMapFromSource() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -285,10 +313,13 @@ private Q_SLOTS:
     }
 
     void testMapFromSourceWithColumn() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -301,9 +332,12 @@ private Q_SLOTS:
     }
 
     void testMapInvalidIndices() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
 
         QVERIFY(!proxy->mapFromSource({}).isValid());
@@ -311,11 +345,14 @@ private Q_SLOTS:
     }
 
     void testMapRoundTrip() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s,  u"Parent"_s,  u""_s},
-            {u"C1"_s, u"Child 1"_s, u"P"_s},
-            {u"C2"_s, u"Child 2"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C1"_s, u"Child 1"_s, u"P"_s},
+                {u"C2"_s, u"Child 2"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -332,14 +369,17 @@ private Q_SLOTS:
     }
 
     void testEditing() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"ID 0"_s, u"Naam 0"_s, u""_s},
-            {u"ID 1"_s, u"Naam 1"_s, u""_s},
-            {u"ID 2"_s, u"Naam 2"_s, u""_s},
-            {u"ID 3"_s, u"Naam 3"_s, u""_s},
-            {u"ID 4"_s, u"Naam 4"_s, u"ID 0"_s},
-            {u"ID 5"_s, u"Naam 5"_s, u"ID 4"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"ID 0"_s, u"Naam 0"_s, u""_s},
+                {u"ID 1"_s, u"Naam 1"_s, u""_s},
+                {u"ID 2"_s, u"Naam 2"_s, u""_s},
+                {u"ID 3"_s, u"Naam 3"_s, u""_s},
+                {u"ID 4"_s, u"Naam 4"_s, u"ID 0"_s},
+                {u"ID 5"_s, u"Naam 5"_s, u"ID 4"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -354,10 +394,13 @@ private Q_SLOTS:
     }
 
     void testEditingRootNode() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-            {u"B"_s, u"Beta"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+                {u"B"_s, u"Beta"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -368,12 +411,15 @@ private Q_SLOTS:
     }
 
     void testSourceModelRowRemoval() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"ID 0"_s, u"Naam 0"_s, u""_s},
-            {u"ID 1"_s, u"Naam 1"_s, u""_s},
-            {u"ID 2"_s, u"Naam 2"_s, u""_s},
-            {u"ID 3"_s, u"Naam 3"_s, u"ID 0"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"ID 0"_s, u"Naam 0"_s, u""_s},
+                {u"ID 1"_s, u"Naam 1"_s, u""_s},
+                {u"ID 2"_s, u"Naam 2"_s, u""_s},
+                {u"ID 3"_s, u"Naam 3"_s, u"ID 0"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -397,9 +443,12 @@ private Q_SLOTS:
     }
 
     void testSourceModelRowInsertion() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -418,11 +467,14 @@ private Q_SLOTS:
     }
 
     void testSourceModelFullReset() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"ID 0"_s, u"Naam 0"_s, u""_s},
-            {u"ID 1"_s, u"Naam 1"_s, u""_s},
-            {u"ID 2"_s, u"Naam 2"_s, u"ID 0"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"ID 0"_s, u"Naam 0"_s, u""_s},
+                {u"ID 1"_s, u"Naam 1"_s, u""_s},
+                {u"ID 2"_s, u"Naam 2"_s, u"ID 0"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -450,11 +502,14 @@ private Q_SLOTS:
     }
 
     void testRemoveParentOrphansChild() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-            {u"O"_s, u"Other"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+                {u"O"_s, u"Other"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -472,10 +527,13 @@ private Q_SLOTS:
     void testDataChangedOnNonStructuralColumnForwards() {
         // When structural columns are adjacent (e.g. 0 and 1), a change to
         // column 2 is outside the structural range and gets forwarded.
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         TreeProxyModel proxy;
         proxy.setSourceModel(rootModel);
         // Use columns 0 (ID) and 1 (parentID) so column 2 is non-structural
@@ -494,10 +552,13 @@ private Q_SLOTS:
     void testDataChangedOnColumnBetweenStructuralColumnsForwards() {
         // Column 1 is between idColumn=0 and parentIdColumn=2 but is not
         // structural, so changes should be forwarded (not trigger a rebuild).
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
 
         QSignalSpy dataChangedSpy(proxy, &QAbstractItemModel::dataChanged);
@@ -512,10 +573,13 @@ private Q_SLOTS:
     }
 
     void testDataChangedOnStructuralColumnTriggersReset() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
 
         QSignalSpy resetSpy(proxy, &QAbstractItemModel::modelReset);
@@ -529,11 +593,14 @@ private Q_SLOTS:
     }
 
     void testSibling() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"R1"_s, u"Root 1"_s, u""_s},
-            {u"R2"_s, u"Root 2"_s, u""_s},
-            {u"R3"_s, u"Root 3"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"R1"_s, u"Root 1"_s, u""_s},
+                {u"R2"_s, u"Root 2"_s, u""_s},
+                {u"R3"_s, u"Root 3"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -552,11 +619,14 @@ private Q_SLOTS:
     }
 
     void testSiblingAmongChildren() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s,  u"Parent"_s,  u""_s},
-            {u"C1"_s, u"Child 1"_s, u"P"_s},
-            {u"C2"_s, u"Child 2"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C1"_s, u"Child 1"_s, u"P"_s},
+                {u"C2"_s, u"Child 2"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -568,11 +638,14 @@ private Q_SLOTS:
     }
 
     void testHasChildren() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s,  u"Parent"_s,  u""_s},
-            {u"C"_s,  u"Child"_s,   u"P"_s},
-            {u"L"_s,  u"Leaf"_s,    u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+                {u"L"_s, u"Leaf"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -590,9 +663,12 @@ private Q_SLOTS:
     }
 
     void testOutOfBoundsIndex() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
 
         // Negative row
@@ -606,10 +682,13 @@ private Q_SLOTS:
     }
 
     void testRowCountForNonZeroColumnParent() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"P"_s, u"Parent"_s, u""_s},
-            {u"C"_s, u"Child"_s, u"P"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"P"_s, u"Parent"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"P"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
 
         // Qt convention: only column 0 can have children
@@ -625,15 +704,21 @@ private Q_SLOTS:
     }
 
     void testReplaceSourceModel() {
-        auto* model1 = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-            {u"B"_s, u"Beta"_s, u"A"_s},
-        });
-        auto* model2 = buildSourceModel(this, {
-            {u"X"_s, u"X-ray"_s, u""_s},
-            {u"Y"_s, u"Yankee"_s, u""_s},
-            {u"Z"_s, u"Zulu"_s, u"X"_s},
-        });
+        auto* model1 = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+                {u"B"_s, u"Beta"_s, u"A"_s},
+            }
+        );
+        auto* model2 = buildSourceModel(
+            this,
+            {
+                {u"X"_s, u"X-ray"_s, u""_s},
+                {u"Y"_s, u"Yankee"_s, u""_s},
+                {u"Z"_s, u"Zulu"_s, u"X"_s},
+            }
+        );
 
         auto* proxy = buildProxy(model1, this);
 
@@ -654,11 +739,14 @@ private Q_SLOTS:
     void testDuplicateIds() {
         // Two nodes with the same ID — second one wins in the hash map.
         // Children referencing that ID go to whichever node is in the map.
-        auto* rootModel = buildSourceModel(this, {
-            {u"DUP"_s, u"First"_s, u""_s},
-            {u"DUP"_s, u"Second"_s, u""_s},
-            {u"C"_s,   u"Child"_s,  u"DUP"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"DUP"_s, u"First"_s, u""_s},
+                {u"DUP"_s, u"Second"_s, u""_s},
+                {u"C"_s, u"Child"_s, u"DUP"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
 
         // Should not crash. Tree structure may vary, but must be consistent.
@@ -679,10 +767,13 @@ private Q_SLOTS:
 
     void testSelfParentBecomesRoot() {
         // A node that references itself as parent is treated as a root.
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u"A"_s},
-            {u"B"_s, u"Beta"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u"A"_s},
+                {u"B"_s, u"Beta"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -694,9 +785,12 @@ private Q_SLOTS:
     }
 
     void testFlagsDoNotHaveNeverHasChildren() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"A"_s, u"Alpha"_s, u""_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"A"_s, u"Alpha"_s, u""_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
 
@@ -705,14 +799,17 @@ private Q_SLOTS:
     }
 
     void testModelTesterDeepTree() {
-        auto* rootModel = buildSourceModel(this, {
-            {u"L0"_s, u"Level 0"_s, u""_s},
-            {u"L1"_s, u"Level 1"_s, u"L0"_s},
-            {u"L2"_s, u"Level 2"_s, u"L1"_s},
-            {u"L3"_s, u"Level 3"_s, u"L2"_s},
-            {u"S0"_s, u"Sibling"_s, u""_s},
-            {u"S1"_s, u"S Child"_s, u"S0"_s},
-        });
+        auto* rootModel = buildSourceModel(
+            this,
+            {
+                {u"L0"_s, u"Level 0"_s, u""_s},
+                {u"L1"_s, u"Level 1"_s, u"L0"_s},
+                {u"L2"_s, u"Level 2"_s, u"L1"_s},
+                {u"L3"_s, u"Level 3"_s, u"L2"_s},
+                {u"S0"_s, u"Sibling"_s, u""_s},
+                {u"S1"_s, u"S Child"_s, u"S0"_s},
+            }
+        );
         auto* proxy = buildProxy(rootModel, this);
         auto tester = QAbstractItemModelTester(proxy, QAbstractItemModelTester::FailureReportingMode::QtTest);
     }

@@ -21,7 +21,7 @@ auto idExtractor = [](const Item& item) { return item.id; };
 
 auto makeLookup(const QList<Item>& available) {
     return [available](IntegerPrimaryKey id) -> std::optional<Item> {
-        for (const auto& item : available) {
+        for (const auto& item: available) {
             if (item.id == id) {
                 return item;
             }
@@ -32,7 +32,7 @@ auto makeLookup(const QList<Item>& available) {
 
 QList<IntegerPrimaryKey> ids(const QList<Item>& items) {
     QList<IntegerPrimaryKey> result;
-    for (const auto& item : items) {
+    for (const auto& item: items) {
         result.append(item.id);
     }
     return result;
@@ -242,8 +242,14 @@ private Q_SLOTS:
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         QVERIFY(added.isEmpty());
         QVERIFY(removed.isEmpty());
@@ -256,8 +262,14 @@ private Q_SLOTS:
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         QVERIFY(added.isEmpty());
         QVERIFY(removed.isEmpty());
@@ -272,8 +284,14 @@ private Q_SLOTS:
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         QCOMPARE(added, (QList<IntegerPrimaryKey>{1, 2}));
         QVERIFY(removed.isEmpty());
@@ -288,8 +306,14 @@ private Q_SLOTS:
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         QVERIFY(added.isEmpty());
         // QSet order is not guaranteed, so sort.
@@ -307,8 +331,14 @@ private Q_SLOTS:
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         QCOMPARE(added, QList<IntegerPrimaryKey>{3});
         QCOMPARE(removed, QList<IntegerPrimaryKey>{1});
@@ -323,8 +353,14 @@ private Q_SLOTS:
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         // Item was added then removed from pending — nothing to commit.
         QVERIFY(added.isEmpty());
@@ -335,13 +371,19 @@ private Q_SLOTS:
         QList<Item> initial = {{1, u"A"_s}};
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
         model.remove(1);
-        model.add(1);  // Restores the removal.
+        model.add(1); // Restores the removal.
 
         QList<IntegerPrimaryKey> added;
         QList<IntegerPrimaryKey> removed;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
-            [&](IntegerPrimaryKey id) { removed.append(id); return true; }
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
+            [&](IntegerPrimaryKey id) {
+                removed.append(id);
+                return true;
+            }
         );
         // Removal was cancelled by re-add — nothing to commit.
         QVERIFY(added.isEmpty());
@@ -364,8 +406,8 @@ private Q_SLOTS:
         QList<Item> available = {{2, u"B"_s}};
         PendingListModel<Item> model({}, idExtractor, makeLookup(available));
 
-        QVERIFY(!model.add(99));  // Fails.
-        QVERIFY(model.add(2));    // Succeeds.
+        QVERIFY(!model.add(99)); // Fails.
+        QVERIFY(model.add(2)); // Succeeds.
         QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{2});
     }
 
@@ -388,7 +430,10 @@ private Q_SLOTS:
         // Commit.
         QList<IntegerPrimaryKey> added;
         model.commit(
-            [&](IntegerPrimaryKey id) { added.append(id); return true; },
+            [&](IntegerPrimaryKey id) {
+                added.append(id);
+                return true;
+            },
             [&](IntegerPrimaryKey) { return true; }
         );
         QCOMPARE(added, QList<IntegerPrimaryKey>{1});

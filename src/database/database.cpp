@@ -23,43 +23,41 @@ Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
 const static auto driver = QStringLiteral("QSQLITE");
 
 namespace {
-    struct Migration {
-        int version;
-        QLatin1StringView description;
-        QLatin1StringView resourcePath;
-    };
+struct Migration {
+    int version;
+    QLatin1StringView description;
+    QLatin1StringView resourcePath;
+};
 
-    constexpr std::array migrations = {
-        Migration{
-            .version = 1,
-            .description = "Add surrogate key to event_relations, rekey event_relation_citations"_L1,
-            .resourcePath = ":/migrations/001_event_relations_surrogate_key.sql"_L1,
-        }
-    };
+constexpr std::array migrations = {Migration{
+    .version = 1,
+    .description = "Add surrogate key to event_relations, rekey event_relation_citations"_L1,
+    .resourcePath = ":/migrations/001_event_relations_surrogate_key.sql"_L1,
+}};
 
-    void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
-        for (auto& command: script.split(QStringLiteral(";"))) {
-            command.replace(QStringLiteral("\n"), QStringLiteral(" "));
-            command = command.trimmed();
-            if (command.isEmpty()) {
-                qDebug() << "Skipping command" << command;
-                continue;
-            }
-            if (command.startsWith(QStringLiteral("--"))) {
-                qCritical() << "Comments are not supported at the moment.";
-                abort();
-            }
-            qDebug() << "Executing" << command;
-            QSqlQuery theQuery(database);
-            theQuery.prepare(command);
-            if (!theQuery.exec()) {
-                qCritical() << "Error occurred running SQL query.";
-                qCritical() << theQuery.lastError().text();
-                abort();
-            }
-            theQuery.clear();
+void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
+    for (auto& command: script.split(QStringLiteral(";"))) {
+        command.replace(QStringLiteral("\n"), QStringLiteral(" "));
+        command = command.trimmed();
+        if (command.isEmpty()) {
+            qDebug() << "Skipping command" << command;
+            continue;
         }
+        if (command.startsWith(QStringLiteral("--"))) {
+            qCritical() << "Comments are not supported at the moment.";
+            abort();
+        }
+        qDebug() << "Executing" << command;
+        QSqlQuery theQuery(database);
+        theQuery.prepare(command);
+        if (!theQuery.exec()) {
+            qCritical() << "Error occurred running SQL query.";
+            qCritical() << theQuery.lastError().text();
+            abort();
+        }
+        theQuery.clear();
     }
+}
 
 }
 
@@ -71,7 +69,7 @@ void runMigrations(QSqlDatabase& database) {
         return vq.value(0).toInt();
     }();
 
-    for (const auto& m : migrations) {
+    for (const auto& m: migrations) {
         if (m.version <= current) {
             continue;
         }

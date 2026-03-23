@@ -86,8 +86,7 @@ void SourceTreeWidget::onContextMenuRequested(const QPoint& pos) {
         return;
     }
 
-    const auto sourceId =
-        index.siblingAtColumn(SourcesListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
+    const auto sourceId = index.siblingAtColumn(SourcesListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
 
     QMenu menu(treeView);
 

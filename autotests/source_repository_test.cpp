@@ -58,7 +58,9 @@ private Q_SLOTS:
         auto sourceId = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
         QVERIFY(sourceId.has_value());
 
-        bool ok = repo.update(*sourceId, u"My Title"_s, u"Book"_s, u"Author"_s, u"Publisher"_s, u"High"_s, u"A note"_s, std::nullopt);
+        bool ok = repo.update(
+            *sourceId, u"My Title"_s, u"Book"_s, u"Author"_s, u"Publisher"_s, u"High"_s, u"A note"_s, std::nullopt
+        );
         QVERIFY(ok);
 
         auto updated = repo.findById(*sourceId);
