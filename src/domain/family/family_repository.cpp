@@ -101,6 +101,17 @@ WITH RECURSIVE
 
      UNION ALL
 
+     SELECT er.person_id AS child_id, NULL AS father_id, NULL AS mother_id
+     FROM event_relations er
+            JOIN event_roles ON er.role_id = event_roles.id
+     WHERE event_roles.role IN ('Father', 'Mother')
+       AND er.person_id NOT IN (SELECT person_id
+                                FROM event_relations
+                                WHERE role_id = (SELECT id FROM event_roles WHERE role = 'Primary'))
+     GROUP BY er.person_id
+
+     UNION ALL
+
      SELECT :person, NULL, NULL),
   ancestor_tree(child_id, father_id, mother_id, visited) AS
     (SELECT child_id,

@@ -153,6 +153,10 @@ int FamilyMembersModel::rowCount(const QModelIndex& parent) const {
         return mapping.size();
     }
 
+    if (parent.column() != 0) {
+        return 0;
+    }
+
     quintptr id = parent.internalId();
     if (isChildId(id)) {
         // Child rows have no children
@@ -182,6 +186,9 @@ QVariant FamilyMembersModel::data(const QModelIndex& index, int role) const {
     if (isBastardParentRow(index)) {
         if (index.column() == TYPE) {
             return i18n("Children with no other parent");
+        }
+        if (index.column() == PERSON_ID) {
+            return QStringLiteral("");
         }
         return {};
     }

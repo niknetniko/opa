@@ -83,7 +83,10 @@ private Q_SLOTS:
             Schema::EventTypesTable,
             Schema::EventsTable,
             Schema::SourcesTable,
-            // Schema::CitationsTable,
+            Schema::EventCitationsTable,
+            Schema::EventRelationCitationsTable,
+            Schema::NameCitationsTable,
+            Schema::PersonCitationsTable,
             // Special SQLite tables...
             u"sqlite_sequence"_s
         };
