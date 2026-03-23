@@ -111,7 +111,7 @@
               doCheck = true;
               cmakeBuildType = "Debug";
               QT_QPA_PLATFORM = "offscreen";
-              dontInstall = true;
+              installPhase = "mkdir -p $out";
             }
           );
           clang-tidy = opa.overrideAttrs (
