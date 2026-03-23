@@ -6,19 +6,37 @@
 // ReSharper disable CppParameterMayBeConstPtrOrRef
 #include "database.h"
 
+using namespace Qt::StringLiterals;
+
 #include <sqlite3.h>
 
 #include <QDebug>
+#include <QFile>
 #include <QFileInfo>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QTextStream>
 
 Q_LOGGING_CATEGORY(OPA_SQL, "opa.sql");
 
 const static auto driver = QStringLiteral("QSQLITE");
 
 namespace {
+    struct Migration {
+        int version;
+        QLatin1StringView description;
+        QLatin1StringView resourcePath;
+    };
+
+    constexpr std::array migrations = {
+        Migration{
+            .version = 1,
+            .description = "Add surrogate key to event_relations, rekey event_relation_citations"_L1,
+            .resourcePath = ":/migrations/001_event_relations_surrogate_key.sql"_L1,
+        }
+    };
+
     void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
         for (auto& command: script.split(QStringLiteral(";"))) {
             command.replace(QStringLiteral("\n"), QStringLiteral(" "));
@@ -39,7 +57,44 @@ namespace {
                 qCritical() << theQuery.lastError().text();
                 abort();
             }
+            theQuery.clear();
         }
+    }
+
+}
+
+void runMigrations(QSqlDatabase& database) {
+    const int current = [&database]() {
+        QSqlQuery vq(database);
+        vq.exec(u"PRAGMA user_version"_s);
+        vq.next();
+        return vq.value(0).toInt();
+    }();
+
+    for (const auto& m : migrations) {
+        if (m.version <= current) {
+            continue;
+        }
+
+        qDebug() << "Applying migration" << m.version << "-" << m.description;
+
+        QSqlQuery(database).exec(u"PRAGMA foreign_keys = OFF"_s);
+
+        QFile sqlFile(m.resourcePath);
+        if (!sqlFile.open(QFile::ReadOnly | QFile::Text)) {
+            qCritical() << "Could not open migration file" << m.resourcePath;
+            abort();
+        }
+        const QString sql = QTextStream(&sqlFile).readAll();
+
+        database.transaction();
+        executeScriptOrAbort(sql, database);
+        QSqlQuery(database).exec(QStringLiteral("PRAGMA user_version = %1").arg(m.version));
+        database.commit();
+
+        QSqlQuery(database).exec(u"PRAGMA foreign_keys = ON"_s);
+
+        qDebug() << "Migration" << m.version << "complete.";
     }
 }
 
@@ -97,10 +152,9 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
         abort();
     }
 
-    // If there is already a database, do nothing.
-    // TODO: handle migration somehow?
     if (existing) {
-        qDebug() << "Skipping initialization, as it exists already.";
+        qDebug() << "Running migrations on existing database...";
+        runMigrations(database);
         return;
     }
 
@@ -116,6 +170,7 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
     // Run the creation script if this is a new database.
     qDebug() << "Running database creation script...";
     executeScriptOrAbort(schema, database);
+    QSqlQuery(database).exec(QStringLiteral("PRAGMA user_version = %1").arg(migrations.back().version));
 
     if (!initialise) {
         qDebug() << "Not initialising database.";

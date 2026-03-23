@@ -2,6 +2,7 @@ enable_testing()
 
 ecm_add_tests(
   database.cpp
+  database_migration_test.cpp
   genealogical_date.cpp
   genealogical_date_proxy_model.cpp
   custom_sql_relational_model.cpp
@@ -18,4 +19,5 @@ ecm_add_tests(
   family_repository_test.cpp
   source_repository_test.cpp
   pending_list_model_test.cpp
+  transaction_batching_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)

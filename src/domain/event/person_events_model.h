@@ -12,7 +12,7 @@
 class PersonEventListModel : public ObjectTableModel<PersonEventEntity> {
     Q_OBJECT
 public:
-    enum Columns { ROLE = 0, TYPE, DATE, NAME, ID, ROLE_ID };
+    enum Columns { ROLE = 0, TYPE, DATE, NAME, ID, ROLE_ID, RELATION_ID };
     Q_ENUM(Columns);
 
     explicit PersonEventListModel(IntegerPrimaryKey personId, QObject* parent = nullptr);

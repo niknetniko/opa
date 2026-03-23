@@ -5,7 +5,6 @@
  */
 #include "person_event_tab.h"
 
-#include "../domain/event/event_types.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/person_events_model.h"
 #include "editors/event_editor_dialog.h"
@@ -44,6 +43,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
         PersonEventListModel::NAME,
         PersonEventListModel::ID,
         PersonEventListModel::ROLE_ID,
+        PersonEventListModel::RELATION_ID,
     });
 
     this->treeView = new QTreeView(this);
@@ -53,6 +53,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     treeView->setUniformRowHeights(true);
     treeView->hideColumn(PersonEventListModel::ROLE_ID);
     treeView->hideColumn(PersonEventListModel::ID);
+    treeView->hideColumn(PersonEventListModel::RELATION_ID);
 
     // The ID_AND_ROLE column shows role names for group rows and formatted event IDs for leaf rows.
     treeView->setItemDelegateForColumn(
@@ -126,22 +127,7 @@ void PersonEventTab::onEventSelected(const QItemSelection& selected) const {
 }
 
 void PersonEventTab::onAddNewEvent() {
-    // TODO: Choose the default new event type intelligently.
-    // Issue URL: https://github.com/niknetniko/opa/issues/60
-    EventRepository repo;
-    const auto typeId = repo.findEventTypeIdByName(QStringLiteral("Birth"));
-    const auto roleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-    if (!typeId || !roleId) {
-        qWarning() << "Could not find Birth event type or Primary role";
-        return;
-    }
-    const auto eventId = repo.insertEventWithRelation(*typeId, person, *roleId);
-    if (!eventId) {
-        qWarning() << "Could not create new event for person";
-        return;
-    }
-
-    EventEditorDialog::showDialogForNewEvent(*eventId, *roleId, person, this);
+    EventEditorDialog::showDialogForNewEvent(person, this);
 }
 
 void PersonEventTab::onEditSelectedEvent() {
@@ -159,8 +145,11 @@ void PersonEventTab::onEditSelectedEvent() {
 
     auto eventId = selectedIndex.siblingAtColumn(PersonEventListModel::ID).data();
     auto eventRoleId = selectedIndex.siblingAtColumn(PersonEventListModel::ROLE_ID).data();
+    auto relationId = selectedIndex.siblingAtColumn(PersonEventListModel::RELATION_ID).data();
 
-    EventEditorDialog::showDialogForExistingEvent(eventId.toLongLong(), eventRoleId.toLongLong(), person, this);
+    EventEditorDialog::showDialogForExistingEvent(
+        eventId.toLongLong(), eventRoleId.toLongLong(), relationId.toLongLong(), person, this
+    );
 }
 
 void PersonEventTab::onRemoveSelectedEvent() const {
@@ -220,8 +209,7 @@ void PersonEventTab::onUnlinkSelectedEvent() {
     if (!selectRow.parent().isValid()) {
         return; // group (role header) row selected, nothing to unlink
     }
-    auto eventId = selectRow.siblingAtColumn(PersonEventListModel::ID).data().toLongLong();
-    auto roleId = selectRow.siblingAtColumn(PersonEventListModel::ROLE_ID).data().toLongLong();
+    auto relationId = selectRow.siblingAtColumn(PersonEventListModel::RELATION_ID).data().toLongLong();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -238,8 +226,8 @@ void PersonEventTab::onUnlinkSelectedEvent() {
     }
 
     EventRepository repo;
-    if (!repo.deleteEventRelation(eventId, person, roleId)) {
-        qWarning() << "Could not unlink event" << eventId;
+    if (!repo.deleteEventRelation(relationId)) {
+        qWarning() << "Could not unlink event relation" << relationId;
     }
 }
 
@@ -251,7 +239,7 @@ void PersonEventTab::onLinkExistingEvent() {
     }
 
     EventRepository repo;
-    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong())) {
+    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong()).has_value()) {
         QMessageBox::warning(
             this, tr("Could not link event"), tr("Problem inserting new event relation into database.")
         );

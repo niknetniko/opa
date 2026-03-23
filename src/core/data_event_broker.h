@@ -10,8 +10,13 @@
 #include <QObject>
 #include <optional>
 
+class BatchGuard;
+
 /**
  * Event bus for database stuff.
+ *
+ * Thread-safe: This class uses thread-local storage for batching.
+ * It is safe to call `notifyChanged` and `batchNotifications` from background threads.
  */
 class DataEventBroker : public QObject {
     Q_OBJECT
@@ -30,14 +35,57 @@ public:
     void notifyChanged(std::optional<IntegerPrimaryKey> id) {
         static_assert(Schema::is_table_tag<T>, "notifyChanged must be called with a type from the Schema namespace.");
 
-        Q_EMIT entityChanged(T::table, id);
+        if (isBatching()) {
+            enqueueNotification(T::table, id);
+        } else {
+            Q_EMIT entityChanged(T::table, id);
+        }
     }
+
+    /**
+     * Get a guard to start RAII batching of notifications.
+     *
+     * In most cases, you should use `executeInTransaction` instead, so the database is also rolled back
+     * if something goes wrong, which should also cancel the notifications.
+     */
+    [[nodiscard]] BatchGuard batchNotifications();
 
 Q_SIGNALS:
     void entityChanged(const QString& tableName, std::optional<IntegerPrimaryKey> id);
 
 private:
+    friend class BatchGuard;
+
     DataEventBroker() = default;
+
+    void enqueueNotification(const QString& table, std::optional<IntegerPrimaryKey> id) const;
+    void flushNotifications();
+    void discardNotifications() const;
+
+    bool isBatching() const;
+    void pushBatch() const;
+    void popBatch();
+};
+
+class BatchGuard {
+public:
+    explicit BatchGuard(DataEventBroker& broker);
+    ~BatchGuard();
+    BatchGuard(const BatchGuard&) = delete;
+    BatchGuard& operator=(const BatchGuard&) = delete;
+    BatchGuard(BatchGuard&&) = delete;
+    BatchGuard& operator=(BatchGuard&&) = delete;
+
+    /**
+     * Discard all pending notifications queued during this batch.
+     *
+     * Call this when a transaction is rolled back so that views are not
+     * notified about changes that were never committed.
+     */
+    void discard() const;
+
+private:
+    DataEventBroker& broker;
 };
 
 template<typename T>

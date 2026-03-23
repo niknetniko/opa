@@ -24,6 +24,7 @@ PersonEventListModel::PersonEventListModel(IntegerPrimaryKey personId, QObject* 
     this->setColumn(NAME, i18n("Name"), &PersonEventEntity::name);
     this->setColumn(ID, i18n("ID"), &PersonEventEntity::id);
     this->setColumn(ROLE_ID, i18n("Role ID"), &PersonEventEntity::roleId);
+    this->setColumn(RELATION_ID, i18n("Relation ID"), &PersonEventEntity::relationId);
 
     connectToTable<Schema::Events>(this);
     connectToTable<Schema::EventTypes>(this);

@@ -20,9 +20,6 @@
 
 #include <QCompleter>
 #include <QDataWidgetMapper>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QSqlRecord>
 
 namespace {
     struct BirthEventDetails {
@@ -106,7 +103,6 @@ NewFamilyEditorDialog::~NewFamilyEditorDialog() {
 bool NewFamilyEditorDialog::saveNewFamily() const {
     // TODO: allow linking parents without adding a new marriage.
     // Issue URL: https://github.com/niknetniko/opa/issues/63
-    Q_ASSERT(hasActiveTransaction());
     Q_ASSERT(data.birthEventId.isValid());
 
     EventRepository repo;
@@ -125,13 +121,13 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
         }
 
         auto primaryId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-        if (!primaryId.has_value() || !repo.insertEventRelation(*eventId, chosenMotherId.toLongLong(), *primaryId)) {
+        if (!primaryId.has_value() || !repo.insertEventRelation(*eventId, chosenMotherId.toLongLong(), *primaryId).has_value()) {
             qWarning() << "Could not insert mother to relationship event";
             return false;
         }
 
         auto partnerId = repo.findEventRoleIdByName(QStringLiteral("Partner"));
-        if (!partnerId.has_value() || !repo.insertEventRelation(*eventId, chosenFatherId.toLongLong(), *partnerId)) {
+        if (!partnerId.has_value() || !repo.insertEventRelation(*eventId, chosenFatherId.toLongLong(), *partnerId).has_value()) {
             qWarning() << "Could not insert father to relationship event";
             return false;
         }
@@ -140,7 +136,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
     // Now, link the parents to the child.
     if (chosenMotherId.isValid()) {
         auto motherRole = repo.findEventRoleIdByName(QStringLiteral("Mother"));
-        if (!motherRole.has_value() || !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), *motherRole)) {
+        if (!motherRole.has_value() || !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), *motherRole).has_value()) {
             qWarning() << "Could not insert mother to birth event relationship";
             return false;
         }
@@ -148,7 +144,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     if (chosenFatherId.isValid()) {
         auto fatherRole = repo.findEventRoleIdByName(QStringLiteral("Father"));
-        if (!fatherRole.has_value() || !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), *fatherRole)) {
+        if (!fatherRole.has_value() || !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), *fatherRole).has_value()) {
             qWarning() << "Could not insert father to birth event relationship";
             return false;
         }
@@ -158,25 +154,17 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 }
 
 void NewFamilyEditorDialog::accept() {
-    if (!QSqlDatabase::database().transaction()) {
-        qFatal() << "Could not get transaction on database:";
-        qFatal() << QSqlDatabase::database().lastError();
-        return;
-    }
-
-    if (this->saveNewFamily()) {
-        if (!QSqlDatabase::database().commit()) {
-            qFatal() << "Could not commit transaction on database:";
-            qFatal() << QSqlDatabase::database().lastError();
-            return;
+    auto result = executeInTransaction([&]() -> std::optional<bool> {
+        if (!saveNewFamily()) {
+            return std::nullopt;
         }
+        return true;
+    });
+
+    if (result) {
         QDialog::accept();
     } else {
-        qWarning() << "Something went wrong while saving a family, aborting transaction.";
-        if (!QSqlDatabase::database().rollback()) {
-            qFatal() << "Could not rollback transaction on database:";
-            qFatal() << QSqlDatabase::database().lastError();
-        }
+        qWarning() << "Something went wrong while saving a family.";
     }
 }
 
@@ -186,14 +174,12 @@ void NewFamilyEditorDialog::reject() {
         const auto birthEventId = data.birthEventId.toLongLong();
 
         EventRepository repo;
-        // Find the default (Primary) role ID and delete that birth event relation.
-        const auto primaryRoleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-        if (primaryRoleId.has_value()) {
-            if (!repo.deleteEventRelation(birthEventId, data.childId, *primaryRoleId)) {
-                qWarning() << "Could not remove birth event relation";
+        // Delete all relations for this birth event, then delete the event itself.
+        const auto relations = repo.findRelationsForEvent(birthEventId);
+        for (const auto& relation : relations) {
+            if (!repo.deleteEventRelation(relation.id)) {
+                qWarning() << "Could not remove birth event relation" << relation.id;
             }
-        } else {
-            qWarning() << "Could not find Primary role; birth event relation not removed";
         }
 
         if (!repo.deleteEvent(birthEventId)) {

@@ -136,12 +136,16 @@ add_library(
     ui/source/dock/source_list_dock.h
   link_existing/choose_existing_source_window.cpp
   link_existing/choose_existing_source_window.h
+    ui/source/citation_list_widget.h
+    ui/source/citation_list_widget.cpp
+    utils/pending_list_model.h
   utils/rich_text_plain_delegate.cpp
   utils/rich_text_plain_delegate.h
     core/query_helper.h
     core/query_helper.cpp
     model/object_table_model.h
     core/data_event_broker.h
+    core/data_event_broker.cpp
     core/base_repository.h
     core/query_utils.h
     domain/person/person_detail_model.cpp
@@ -216,7 +220,8 @@ qt_add_resources(
   opa-lib "opa-database"
   PREFIX "/"
   BASE "database"
-  FILES database/init.sql database/schema.sql database/seed.sql)
+  FILES database/init.sql database/schema.sql database/seed.sql
+        database/migrations/001_event_relations_surrogate_key.sql)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

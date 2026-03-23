@@ -43,10 +43,11 @@ CREATE TABLE events (
 );
 
 CREATE TABLE event_relations (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
   person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
   role_id INTEGER NOT NULL REFERENCES event_roles (id) ON DELETE RESTRICT,
-  PRIMARY KEY (event_id, person_id, role_id)
+  UNIQUE (event_id, person_id, role_id)
 );
 
 CREATE TABLE sources (
@@ -67,11 +68,9 @@ CREATE TABLE event_citations (
 );
 
 CREATE TABLE event_relation_citations (
-  event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
-  person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
-  role_id INTEGER NOT NULL REFERENCES event_roles (id) ON DELETE RESTRICT,
+  event_relation_id INTEGER NOT NULL REFERENCES event_relations (id) ON DELETE CASCADE,
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  PRIMARY KEY (event_id, person_id, role_id, source_id)
+  PRIMARY KEY (event_relation_id, source_id)
 );
 
 CREATE TABLE name_citations (

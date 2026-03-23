@@ -55,9 +55,12 @@ public:
 
     [[nodiscard]] QList<EventRelationEntity> findRelationsForPerson(IntegerPrimaryKey personId) const;
 
-    bool insertEventRelation(IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
+    std::optional<IntegerPrimaryKey>
+    insertEventRelation(IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
 
-    bool deleteEventRelation(IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
+    bool deleteEventRelation(IntegerPrimaryKey relationId) const;
+
+    bool updateEventRelationRole(IntegerPrimaryKey relationId, IntegerPrimaryKey newRoleId) const;
 
     [[nodiscard]] QList<PersonEventEntity> findEventsForPerson(IntegerPrimaryKey personId) const;
 
@@ -74,6 +77,15 @@ public:
     std::optional<IntegerPrimaryKey>
     insertEventWithRelation(IntegerPrimaryKey typeId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
 
+    std::optional<IntegerPrimaryKey> insertFullEvent(
+        IntegerPrimaryKey typeId,
+        const QString& date,
+        const QString& name,
+        const QString& note,
+        IntegerPrimaryKey personId,
+        IntegerPrimaryKey roleId
+    ) const;
+
     [[nodiscard]] bool isEventTypeUsed(IntegerPrimaryKey typeId) const;
 
     bool reassignEventTypeId(IntegerPrimaryKey fromId, IntegerPrimaryKey toId) const;
@@ -86,12 +98,8 @@ public:
     bool addEventCitation(IntegerPrimaryKey eventId, IntegerPrimaryKey sourceId) const;
     bool removeEventCitation(IntegerPrimaryKey eventId, IntegerPrimaryKey sourceId) const;
 
-    [[nodiscard]] QList<SourceEntity>
-    findCitationsForEventRelation(IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId) const;
-    bool addEventRelationCitation(
-        IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId, IntegerPrimaryKey sourceId
-    ) const;
-    bool removeEventRelationCitation(
-        IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId, IntegerPrimaryKey sourceId
-    ) const;
+    [[nodiscard]] QList<SourceEntity> findCitationsForEventRelation(IntegerPrimaryKey relationId) const;
+    bool addEventRelationCitation(IntegerPrimaryKey relationId, IntegerPrimaryKey sourceId) const;
+    bool removeEventRelationCitation(IntegerPrimaryKey relationId, IntegerPrimaryKey sourceId) const;
+
 };
