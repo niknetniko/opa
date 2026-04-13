@@ -24,7 +24,7 @@ const static auto driver = QStringLiteral("QSQLITE");
 
 namespace {
 struct Migration {
-    int version;
+    int version = 0;
     QLatin1StringView description;
     QLatin1StringView resourcePath;
 };

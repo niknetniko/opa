@@ -74,8 +74,9 @@ void EventRolesManagementWindow::repairItems() {
 
     // Reassign references from duplicate IDs to the canonical ID.
     for (auto i = valueToIds.begin(); i != valueToIds.end(); ++i) {
-        if (i.value().length() <= 1)
+        if (i.value().length() <= 1) {
             continue;
+        }
         const auto keepId = i.value().first();
         for (int j = 1; j < i.value().length(); ++j) {
             repo.reassignEventRoleId(i.value()[j], keepId);

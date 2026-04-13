@@ -70,7 +70,7 @@ std::optional<IntegerPrimaryKey> PersonRepository::insertPerson(const QString& s
     };
     const auto newId = QueryHelper::insert(sql, bindings);
     if (newId.has_value()) {
-        DataEventBroker::instance().notifyChanged<Schema::People>(newId.value());
+        DataEventBroker::instance().notifyChanged<Schema::People>(newId);
     }
     return newId;
 }

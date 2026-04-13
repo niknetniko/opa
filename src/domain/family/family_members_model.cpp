@@ -18,17 +18,19 @@
 //   Child rows:      (parentKey + 1) << 32  |  (childItemIndex + 1)
 //   This ensures top-level IDs never overlap with child IDs (high 32 bits are 0 vs non-zero).
 
-static quintptr encodeParent(int itemIndex) {
+namespace {
+quintptr encodeParent(int itemIndex) {
     return static_cast<quintptr>(static_cast<quint32>(itemIndex));
 }
 
-static quintptr encodeChild(int parentKey, int childItemIndex) {
-    return (static_cast<quintptr>(static_cast<quint32>(parentKey + 1)) << 32) |
+quintptr encodeChild(int parentKey, int childItemIndex) {
+    return (static_cast<quintptr>(static_cast<quint32>(parentKey + 1)) << 32U) |
            static_cast<quintptr>(static_cast<quint32>(childItemIndex + 1));
 }
 
-static bool isChildId(quintptr id) {
-    return (id >> 32) != 0;
+bool isChildId(quintptr id) {
+    return (id >> 32U) != 0;
+}
 }
 
 FamilyMembersModel::FamilyMembersModel(IntegerPrimaryKey personId, QObject* parent) :
@@ -139,9 +141,9 @@ QModelIndex FamilyMembersModel::parent(const QModelIndex& child) const {
     }
 
     // Decode parent key
-    int parentKey = static_cast<int>(static_cast<quint32>(id >> 32)) - 1;
+    int parentKey = static_cast<int>(static_cast<quint32>(id >> 32U)) - 1;
     auto keys = mapping.keys();
-    int parentRow = keys.indexOf(parentKey);
+    int parentRow = static_cast<int>(keys.indexOf(parentKey));
     if (parentRow == -1) {
         return {};
     }
@@ -150,7 +152,7 @@ QModelIndex FamilyMembersModel::parent(const QModelIndex& child) const {
 
 int FamilyMembersModel::rowCount(const QModelIndex& parent) const {
     if (!parent.isValid()) {
-        return mapping.size();
+        return static_cast<int>(mapping.size());
     }
 
     if (parent.column() != 0) {
@@ -167,7 +169,7 @@ int FamilyMembersModel::rowCount(const QModelIndex& parent) const {
     if (!mapping.contains(key)) {
         return 0;
     }
-    return mapping[key].size();
+    return static_cast<int>(mapping[key].size());
 }
 
 int FamilyMembersModel::columnCount(const QModelIndex& parent) const {
@@ -194,7 +196,7 @@ QVariant FamilyMembersModel::data(const QModelIndex& index, int role) const {
     }
 
     quintptr id = index.internalId();
-    int itemIndex;
+    int itemIndex = 0;
     if (isChildId(id)) {
         // Decode child item index
         itemIndex = static_cast<int>(static_cast<quint32>(id)) - 1;

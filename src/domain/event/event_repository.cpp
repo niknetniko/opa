@@ -138,7 +138,7 @@ std::optional<IntegerPrimaryKey> EventRepository::insertEventRelation(
     };
     const auto newId = QueryHelper::insert(sql, bindings);
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::EventRelations>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::EventRelations>(newId);
     }
     return newId;
 }

@@ -103,7 +103,7 @@ void NamesEditorDialog::accept() {
         return;
     }
 
-    QDialog::accept();
+    AbstractEditorDialog::accept();
 }
 
 void NamesEditorDialog::revert() {

@@ -85,7 +85,7 @@ std::optional<IntegerPrimaryKey> NameRepository::insertName(IntegerPrimaryKey pe
     };
     const auto newId = QueryHelper::insert(sql, bindings);
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::Names>(newId.value());
+        DataEventBroker::instance().notifyChanged<Schema::Names>(newId);
     }
 
     return newId;

@@ -103,7 +103,7 @@ void NewPersonEditorDialog::accept() {
         return;
     }
 
-    QDialog::accept();
+    AbstractEditorDialog::accept();
 }
 
 void NewPersonEditorDialog::reject() {

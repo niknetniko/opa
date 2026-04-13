@@ -20,8 +20,9 @@ PersonDeathEventsModel::PersonDeathEventsModel(IntegerPrimaryKey personId, QObje
     this->setColumn(ROLE, i18n("Role"), &PersonEventEntity::role);
     this->setColumn(TYPE, i18n("Type"), &PersonEventEntity::type);
     this->setColumn(DATE, i18n("Date"), [](const PersonEventEntity& e) -> QVariant {
-        if (e.date.isEmpty())
+        if (e.date.isEmpty()) {
             return {};
+        }
         return GenealogicalDate::fromDatabaseRepresentation(e.date).toDisplayText();
     });
     this->setColumn(NAME, i18n("Name"), &PersonEventEntity::name);
