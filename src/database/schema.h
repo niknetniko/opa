@@ -73,6 +73,26 @@ struct PersonCitations : TableTag {
 };
 inline constexpr auto PersonCitationsTable = PersonCitations::table;
 
+struct LocationTypes : TableTag {
+    static constexpr auto table = QLatin1String("location_types");
+};
+inline constexpr auto LocationTypesTable = LocationTypes::table;
+
+struct Locations : TableTag {
+    static constexpr auto table = QLatin1String("locations");
+};
+inline constexpr auto LocationsTable = Locations::table;
+
+struct EventTypeTranslations : TableTag {
+    static constexpr auto table = QLatin1String("event_type_translations");
+};
+inline constexpr auto EventTypeTranslationsTable = EventTypeTranslations::table;
+
+struct LocationTypeTranslations : TableTag {
+    static constexpr auto table = QLatin1String("location_type_translations");
+};
+inline constexpr auto LocationTypeTranslationsTable = LocationTypeTranslations::table;
+
 template<typename T>
 inline constexpr bool is_table_tag = std::is_base_of_v<TableTag, T>;
 }

@@ -54,6 +54,23 @@ add_library(
   domain/source/source_repository.cpp
   domain/source/source_list_model.h
   domain/source/source_list_model.cpp
+  domain/location/location_entities.h
+  domain/location/location_repository.h
+  domain/location/location_repository.cpp
+  domain/location/location_types_list_model.h
+  domain/location/location_types_list_model.cpp
+  domain/location/location_list_model.h
+  domain/location/location_list_model.cpp
+  domain/location/location_paths_model.h
+  domain/location/location_paths_model.cpp
+  domain/location/location_types.h
+  domain/location/location_types.cpp
+  domain/location/location_type_translation_entities.h
+  domain/location/location_type_translation_repository.h
+  domain/location/location_type_translation_repository.cpp
+  domain/event/event_type_translation_entities.h
+  domain/event/event_type_translation_repository.h
+  domain/event/event_type_translation_repository.cpp
   domain/event/event_types.h
   domain/event/event_types.cpp
   person_detail/person_detail_view.h
@@ -92,8 +109,18 @@ add_library(
   lists/simple_list_manager.cpp
   lists/event_types_management_window.h
   lists/event_types_management_window.cpp
+  lists/location_types_management_window.h
+  lists/location_types_management_window.cpp
+  lists/location_management_window.h
+  lists/location_management_window.cpp
   editors/event_editor_dialog.h
   editors/event_editor_dialog.cpp
+  editors/location_editor_dialog.h
+  editors/location_editor_dialog.cpp
+  editors/location_editor_dialog.ui
+  editors/type_translations_dialog.h
+  editors/type_translations_dialog.cpp
+  editors/type_translations_dialog.ui
   welcome/welcome_view.h
   welcome/welcome_view.cpp
   welcome/recent_item_model.h
@@ -136,11 +163,17 @@ add_library(
   ui/source/dock/source_list_dock.h
   link_existing/choose_existing_source_window.cpp
   link_existing/choose_existing_source_window.h
+  link_existing/choose_existing_location_window.cpp
+  link_existing/choose_existing_location_window.h
   ui/source/citation_list_widget.h
   ui/source/citation_list_widget.cpp
   utils/pending_list_model.h
   utils/rich_text_plain_delegate.cpp
   utils/rich_text_plain_delegate.h
+  utils/type_translation_resolver.h
+  utils/type_translation_resolver.cpp
+  utils/translating_proxy_model.h
+  utils/translating_proxy_model.cpp
   core/query_helper.h
   core/query_helper.cpp
   model/object_table_model.h
@@ -221,7 +254,9 @@ qt_add_resources(
   PREFIX "/"
   BASE "database"
   FILES database/init.sql database/schema.sql database/seed.sql
-        database/migrations/001_event_relations_surrogate_key.sql)
+        database/migrations/001_event_relations_surrogate_key.sql
+        database/migrations/002_add_locations.sql
+        database/migrations/003_add_type_translations.sql)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

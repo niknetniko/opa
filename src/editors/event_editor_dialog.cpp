@@ -11,15 +11,22 @@
 #include "domain/event/event_repository.h"
 #include "domain/event/event_roles_model.h"
 #include "domain/event/event_types_model.h"
+#include "domain/location/location_paths_model.h"
+#include "domain/location/location_repository.h"
 #include "domain/source/source_repository.h"
+#include "editors/location_editor_dialog.h"
 #include "note_editor_dialog.h"
 #include "ui/source/citation_list_widget.h"
 #include "ui_event_editor_dialog.h"
+#include "domain/event/event_type_translation_repository.h"
+#include "domain/event/event_types.h"
 #include "utils/formatted_identifier_delegate.h"
+#include "utils/translating_proxy_model.h"
 
 #include <KCollapsibleGroupBox>
 #include <KLocalizedString>
 #include <QComboBox>
+#include <QMessageBox>
 
 using namespace Qt::StringLiterals;
 
@@ -68,7 +75,7 @@ EventEditorDialog::EventEditorDialog(
 
     // Load the event data and pre-fill the form.
     EventRepository repo;
-    if (const auto event = repo.findEventById(eventId)) {
+    if (const auto event = repo.findEventById(eventId); event) {
         auto typeIndex =
             typesModel->match(typesModel->index(0, EventTypesListModel::ID), Qt::DisplayRole, event->typeId);
         if (!typeIndex.isEmpty()) {
@@ -80,6 +87,18 @@ EventEditorDialog::EventEditorDialog(
         }
         form->eventNameEdit->setText(event->name);
         form->noteEdit->setTextOrHtml(event->note);
+
+        if (event->locationId.has_value()) {
+            for (int i = 0; i < locationsModel->rowCount(); ++i) {
+                const auto idIdx = locationsModel->index(i, LocationPathsModel::ID);
+                if (locationsModel->data(idIdx).toLongLong() == *event->locationId) {
+                    form->eventLocationComboBox->setCurrentIndex(i);
+                    break;
+                }
+            }
+        }
+    } else {
+        qWarning() << "Event" << eventId << "not found in database — form will open with empty fields";
     }
 
     // Pre-select the role.
@@ -99,12 +118,42 @@ void EventEditorDialog::setupUi() {
     connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
 
     typesModel = new EventTypesListModel(this);
-    form->eventTypeComboBox->setModel(typesModel);
+    auto* typesProxy = new TranslatingProxyModel(
+        TypeTranslationResolver(
+            [](IntegerPrimaryKey typeId, const QString& locale) {
+                return EventTypeTranslationRepository().findByTypeIdAndLocale(typeId, locale);
+            },
+            EventTypes::toDisplayString
+        ),
+        this
+    );
+    typesProxy->setSourceModel(typesModel);
+    form->eventTypeComboBox->setModel(typesProxy);
     form->eventTypeComboBox->setModelColumn(EventTypesListModel::TYPE);
 
     rolesModel = new EventRolesListModel(this);
     form->eventRoleComboBox->setModel(rolesModel);
     form->eventRoleComboBox->setModelColumn(EventRolesListModel::ROLE);
+
+    locationsModel = new LocationPathsModel(this);
+    form->eventLocationComboBox->setModel(locationsModel);
+    form->eventLocationComboBox->setModelColumn(LocationPathsModel::FULL_PATH);
+    form->eventLocationComboBox->setPlaceholderText(i18n("No location"));
+    form->eventLocationComboBox->setCurrentIndex(-1);
+
+    connect(form->eventLocationNewButton, &QPushButton::clicked, this, [this]() {
+        auto newId = LocationEditorDialog::showDialogForNewLocation(std::nullopt, this);
+        if (newId.isValid()) {
+            // Find the new location in the model and select it
+            for (int i = 0; i < locationsModel->rowCount(); ++i) {
+                const auto idIdx = locationsModel->index(i, LocationPathsModel::ID);
+                if (locationsModel->data(idIdx).toLongLong() == newId.toLongLong()) {
+                    form->eventLocationComboBox->setCurrentIndex(i);
+                    break;
+                }
+            }
+        }
+    });
 
     form->noteEdit->enableRichTextMode();
 
@@ -149,12 +198,17 @@ void EventEditorDialog::accept() {
     auto roleRow = form->eventRoleComboBox->currentIndex();
     auto newRoleId = rolesModel->index(roleRow, EventRolesListModel::ID).data().toLongLong();
 
+    auto locationRow = form->eventLocationComboBox->currentIndex();
+    auto selectedLocationId = locationRow >= 0
+        ? std::optional<IntegerPrimaryKey>(locationsModel->index(locationRow, LocationPathsModel::ID).data().toLongLong())
+        : std::nullopt;
+
     auto result = executeInTransaction([&]() -> std::optional<bool> {
         EventRepository repo;
 
         if (!eventId.has_value()) {
             // New event: create everything.
-            auto newEventId = repo.insertFullEvent(typeId, date, name, note, personId, newRoleId);
+            auto newEventId = repo.insertFullEvent(typeId, date, name, note, personId, newRoleId, selectedLocationId);
             if (!newEventId) {
                 return std::nullopt;
             }
@@ -181,7 +235,7 @@ void EventEditorDialog::accept() {
             );
         } else {
             // Existing event: update fields.
-            if (!repo.updateEvent(*eventId, typeId, date, name, note)) {
+            if (!repo.updateEvent(*eventId, typeId, date, name, note, selectedLocationId)) {
                 return std::nullopt;
             }
 
@@ -209,6 +263,9 @@ void EventEditorDialog::accept() {
 
     if (result) {
         QDialog::accept();
+    } else {
+        qWarning() << "Failed to save event for person" << personId;
+        QMessageBox::critical(this, i18n("Save failed"), i18n("Could not save the event. Please try again."));
     }
 }
 

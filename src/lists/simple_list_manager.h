@@ -101,7 +101,9 @@ protected:
     [[nodiscard]] virtual QString translatedItemDescription(const QString& item, bool isBuiltIn) const;
 
 protected:
+    QToolBar* mainToolbar = nullptr;
     QTableView* tableView = nullptr;
+    QAbstractItemModel* model = nullptr;
 
 private:
     int idColumn = -1;
@@ -109,7 +111,6 @@ private:
     int builtinColumn = -1;
     std::function<QString(QString)> translator;
     QAction* removeAction = nullptr;
-    QAbstractItemModel* model = nullptr;
     QSqlTableModel* sqlModel = nullptr;
     BuiltinTextTranslatingDelegate* originTranslator = nullptr;
 };

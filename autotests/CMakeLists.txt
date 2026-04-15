@@ -18,6 +18,9 @@ ecm_add_tests(
   event_repository_test.cpp
   family_repository_test.cpp
   source_repository_test.cpp
+  location_repository_test.cpp
   pending_list_model_test.cpp
   transaction_batching_test.cpp
+  type_translation_repository_test.cpp
+  type_translation_resolver_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)

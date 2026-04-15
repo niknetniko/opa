@@ -166,7 +166,8 @@ void SimpleListManagementWindow::onSelectionChanged(
 }
 
 void SimpleListManagementWindow::initializeLayout() {
-    auto* toolbar = addToolBar(i18n("Manage"));
+    mainToolbar = addToolBar(i18n("Manage"));
+    auto* toolbar = mainToolbar;
     // toolbar->setOrientation(Qt::Vertical);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 

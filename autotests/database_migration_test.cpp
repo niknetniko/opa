@@ -107,22 +107,22 @@ private Q_SLOTS:
     void testFreshDatabaseIsStampedWithLatestVersion() {
         openDatabase(u":memory:"_s, false, false);
         auto db = QSqlDatabase::database();
-        QCOMPARE(userVersion(db), 1);
+        QCOMPARE(userVersion(db), 3);
     }
 
     void testRunMigrationsIsNoopOnCurrentDatabase() {
         openDatabase(u":memory:"_s, false, false);
         auto db = QSqlDatabase::database();
-        QCOMPARE(userVersion(db), 1);
+        QCOMPARE(userVersion(db), 3);
 
         runMigrations(db);
 
-        QCOMPARE(userVersion(db), 1);
+        QCOMPARE(userVersion(db), 3);
     }
 
     void testRunMigrationsSkipsAlreadyAppliedMigration() {
         auto db = setupPreMigrationDatabase();
-        // Manually stamp as already migrated.
+        // Manually stamp as already migrated through migration 1.
         QSqlQuery(db).exec(u"PRAGMA user_version = 1"_s);
         QCOMPARE(userVersion(db), 1);
 
@@ -131,9 +131,10 @@ private Q_SLOTS:
 
         runMigrations(db);
 
-        // Schema should be untouched — migration was skipped.
+        // Migration 1 schema should be untouched — it was skipped.
         QVERIFY(!columnExists(db, u"event_relations"_s, u"id"_s));
-        QCOMPARE(userVersion(db), 1);
+        // Migration 2 and 3 ran, bumping to version 3.
+        QCOMPARE(userVersion(db), 3);
     }
 
     // ==================== Migration 1 ====================
@@ -145,7 +146,7 @@ private Q_SLOTS:
         runMigrations(db);
 
         QVERIFY(columnExists(db, u"event_relations"_s, u"id"_s));
-        QCOMPARE(userVersion(db), 1);
+        QCOMPARE(userVersion(db), 3);
     }
 
     void testMigration1ReplacesCompositeKeyWithUniqueConstraint() {
@@ -261,6 +262,116 @@ private Q_SLOTS:
         QVERIFY(q.exec(u"SELECT COUNT(*) FROM event_relation_citations"_s));
         QVERIFY(q.next());
         QCOMPARE(q.value(0).toInt(), 0);
+    }
+
+    // ==================== Migration 2 ====================
+
+    static QSqlDatabase setupVersion1Database() {
+        auto db = openRawDatabase();
+        QSqlQuery(db).exec(u"PRAGMA foreign_keys = OFF"_s);
+        const QStringList ddl = {
+            u"CREATE TABLE name_origins (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, origin TEXT, builtin BOOLEAN NOT NULL DEFAULT FALSE)"_s,
+            u"CREATE TABLE people (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, root BOOLEAN, sex TEXT)"_s,
+            u"CREATE TABLE names (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, person_id INTEGER NOT NULL, sort INTEGER NOT NULL, titles TEXT, given_names TEXT, prefix TEXT, surname TEXT, note TEXT, origin_id INTEGER NULL DEFAULT NULL)"_s,
+            u"CREATE TABLE event_types (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, builtin BOOLEAN NOT NULL DEFAULT FALSE)"_s,
+            u"CREATE TABLE event_roles (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, role TEXT, builtin BOOLEAN NOT NULL DEFAULT FALSE)"_s,
+            u"CREATE TABLE events (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type_id INTEGER NOT NULL, date TEXT, name TEXT, note TEXT)"_s,
+            u"CREATE TABLE event_relations (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, event_id INTEGER NOT NULL, person_id INTEGER NOT NULL, role_id INTEGER NOT NULL, UNIQUE (event_id, person_id, role_id))"_s,
+            u"CREATE TABLE sources (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT, type TEXT, author TEXT, publication TEXT, confidence TEXT NOT NULL, note TEXT, parent_id INTEGER)"_s,
+            u"CREATE TABLE event_citations (event_id INTEGER NOT NULL, source_id INTEGER NOT NULL, PRIMARY KEY (event_id, source_id))"_s,
+            u"CREATE TABLE event_relation_citations (event_relation_id INTEGER NOT NULL, source_id INTEGER NOT NULL, PRIMARY KEY (event_relation_id, source_id))"_s,
+            u"CREATE TABLE name_citations (name_id INTEGER NOT NULL, source_id INTEGER NOT NULL, PRIMARY KEY (name_id, source_id))"_s,
+            u"CREATE TABLE person_citations (person_id INTEGER NOT NULL, source_id INTEGER NOT NULL, PRIMARY KEY (person_id, source_id))"_s,
+        };
+        for (const auto& stmt: ddl) {
+            QSqlQuery(db).exec(stmt);
+        }
+        QSqlQuery(db).exec(u"PRAGMA user_version = 1"_s);
+        return db;
+    }
+
+    void testMigration2AddsLocationTypesTable() {
+        auto db = setupVersion1Database();
+        QVERIFY(!columnExists(db, u"location_types"_s, u"id"_s));
+
+        runMigrations(db);
+
+        QVERIFY(columnExists(db, u"location_types"_s, u"id"_s));
+        QCOMPARE(userVersion(db), 3);
+    }
+
+    // ==================== Migration 3 ====================
+
+    static QSqlDatabase setupVersion2Database() {
+        auto db = setupVersion1Database();
+        QSqlQuery(db).exec(
+            u"CREATE TABLE location_types (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL, builtin BOOLEAN NOT NULL DEFAULT FALSE)"_s
+        );
+        QSqlQuery(db).exec(
+            u"CREATE TABLE locations (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, type_id INTEGER NULL, parent_id INTEGER NULL, note TEXT, latitude REAL, longitude REAL, date_start TEXT, date_end TEXT)"_s
+        );
+        QSqlQuery(db).exec(u"ALTER TABLE events ADD COLUMN location_id INTEGER NULL"_s);
+        QSqlQuery(db).exec(u"PRAGMA user_version = 2"_s);
+        return db;
+    }
+
+    void testMigration3AddsEventTypeTranslationsTable() {
+        auto db = setupVersion2Database();
+        QVERIFY(!columnExists(db, u"event_type_translations"_s, u"id"_s));
+
+        runMigrations(db);
+
+        QVERIFY(columnExists(db, u"event_type_translations"_s, u"id"_s));
+        QVERIFY(columnExists(db, u"event_type_translations"_s, u"type_id"_s));
+        QVERIFY(columnExists(db, u"event_type_translations"_s, u"locale"_s));
+        QVERIFY(columnExists(db, u"event_type_translations"_s, u"name"_s));
+        QCOMPARE(userVersion(db), 3);
+    }
+
+    void testMigration3AddsLocationTypeTranslationsTable() {
+        auto db = setupVersion2Database();
+        QVERIFY(!columnExists(db, u"location_type_translations"_s, u"id"_s));
+
+        runMigrations(db);
+
+        QVERIFY(columnExists(db, u"location_type_translations"_s, u"id"_s));
+        QVERIFY(columnExists(db, u"location_type_translations"_s, u"type_id"_s));
+        QVERIFY(columnExists(db, u"location_type_translations"_s, u"locale"_s));
+        QVERIFY(columnExists(db, u"location_type_translations"_s, u"name"_s));
+    }
+
+    void testMigration2AddsLocationsTable() {
+        auto db = setupVersion1Database();
+
+        runMigrations(db);
+
+        QVERIFY(columnExists(db, u"locations"_s, u"id"_s));
+        QVERIFY(columnExists(db, u"locations"_s, u"parent_id"_s));
+        QVERIFY(columnExists(db, u"locations"_s, u"type_id"_s));
+    }
+
+    void testMigration2AddsLocationIdToEvents() {
+        auto db = setupVersion1Database();
+        QVERIFY(!columnExists(db, u"events"_s, u"location_id"_s));
+
+        runMigrations(db);
+
+        QVERIFY(columnExists(db, u"events"_s, u"location_id"_s));
+    }
+
+    void testMigration2PreservesExistingEvents() {
+        auto db = setupVersion1Database();
+        QSqlQuery(db).exec(u"PRAGMA foreign_keys = OFF"_s);
+        QSqlQuery(db).exec(u"INSERT INTO event_types VALUES (1, 'Birth', false)"_s);
+        QSqlQuery(db).exec(u"INSERT INTO events VALUES (1, 1, '1900', 'Test', 'Note')"_s);
+
+        runMigrations(db);
+
+        QSqlQuery q(db);
+        QVERIFY(q.exec(u"SELECT id, name FROM events"_s));
+        QVERIFY(q.next());
+        QCOMPARE(q.value(0).toInt(), 1);
+        QCOMPARE(q.value(1).toString(), u"Test"_s);
     }
 };
 

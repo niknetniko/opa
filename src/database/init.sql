@@ -35,3 +35,14 @@ VALUES
   ('Divorce', true),
   ('Baptism', true),
   ('Funeral', true);
+
+INSERT INTO
+  location_types (type, builtin)
+VALUES
+  ('Country', true),
+  ('Province', true),
+  ('County', true),
+  ('City', true),
+  ('Village', true),
+  ('Parish', true),
+  ('Address', true);

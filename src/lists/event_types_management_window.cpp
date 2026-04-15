@@ -7,21 +7,78 @@
 
 #include "../domain/event/event_types.h"
 #include "domain/event/event_repository.h"
+#include "domain/event/event_type_translation_repository.h"
 #include "domain/event/event_types_model.h"
+#include "editors/type_translations_dialog.h"
+#include "utils/model_utils.h"
 
 #include <KLocalizedString>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QToolBar>
 
 EventTypesManagementWindow::EventTypesManagementWindow() {
     setWindowTitle(i18n("Manage event types"));
 
-    auto* model = new EventTypesListModel(this);
-    setModel(model);
+    auto* listModel = new EventTypesListModel(this);
+    setModel(listModel);
     setColumns(EventTypesListModel::ID, EventTypesListModel::TYPE, EventTypesListModel::BUILTIN);
     setTranslator(EventTypes::toDisplayString);
 
     initializeLayout();
+
+    translationsAction = new QAction(i18n("Translations"), this);
+    translationsAction->setIcon(QIcon::fromTheme(QStringLiteral("accessories-dictionary")));
+    translationsAction->setEnabled(false);
+    mainToolbar->addAction(translationsAction);
+
+    connect(
+        tableView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        [this](const QItemSelection& selected, const QItemSelection&) {
+            if (selected.isEmpty()) {
+                translationsAction->setEnabled(false);
+                return;
+            }
+            const auto idx = mapToSourceModel(selected.indexes().constFirst());
+            const auto isBuiltin = model->index(idx.row(), EventTypesListModel::BUILTIN).data().toBool();
+            translationsAction->setEnabled(!isBuiltin);
+        }
+    );
+
+    connect(translationsAction, &QAction::triggered, this, [this]() {
+        auto* selection = tableView->selectionModel();
+        if (!selection->hasSelection()) {
+            return;
+        }
+        const auto idx = mapToSourceModel(selection->selection().constFirst().indexes().constFirst());
+        const auto typeId = model->index(idx.row(), EventTypesListModel::ID).data().toLongLong();
+        const auto typeName = model->index(idx.row(), EventTypesListModel::TYPE).data().toString();
+
+        auto* dialog = new TypeTranslationsDialog(
+            typeName,
+            [typeId]() -> QList<TypeTranslationsDialog::TranslationEntry> {
+                EventTypeTranslationRepository repo;
+                QList<TypeTranslationsDialog::TranslationEntry> result;
+                for (const auto& e : repo.findAllForType(typeId)) {
+                    result.append({.id = e.id, .locale = e.locale, .name = e.name});
+                }
+                return result;
+            },
+            [typeId](const QString& locale, const QString& name) -> std::optional<IntegerPrimaryKey> {
+                EventTypeTranslationRepository repo;
+                return repo.insert(typeId, locale, name);
+            },
+            [](IntegerPrimaryKey id) -> bool {
+                EventTypeTranslationRepository repo;
+                return repo.remove(id);
+            },
+            this
+        );
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->show();
+    });
 }
 
 bool EventTypesManagementWindow::repairConfirmation() {

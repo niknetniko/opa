@@ -34,12 +34,31 @@ CREATE TABLE event_roles (
   builtin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE TABLE location_types (
+  id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type    TEXT NOT NULL,
+  builtin BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE locations (
+  id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name       TEXT NOT NULL,
+  type_id    INTEGER NULL REFERENCES location_types (id) ON DELETE SET NULL,
+  parent_id  INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
+  note       TEXT,
+  latitude   REAL,
+  longitude  REAL,
+  date_start TEXT,
+  date_end   TEXT
+);
+
 CREATE TABLE events (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
-  date TEXT,
-  name TEXT,
-  note TEXT
+  id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type_id     INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
+  date        TEXT,
+  name        TEXT,
+  note        TEXT,
+  location_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL
 );
 
 CREATE TABLE event_relations (
@@ -83,4 +102,20 @@ CREATE TABLE person_citations (
   person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
   PRIMARY KEY (person_id, source_id)
+);
+
+CREATE TABLE event_type_translations (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE CASCADE,
+  locale TEXT NOT NULL,
+  name TEXT NOT NULL,
+  UNIQUE (type_id, locale)
+);
+
+CREATE TABLE location_type_translations (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type_id INTEGER NOT NULL REFERENCES location_types (id) ON DELETE CASCADE,
+  locale TEXT NOT NULL,
+  name TEXT NOT NULL,
+  UNIQUE (type_id, locale)
 );

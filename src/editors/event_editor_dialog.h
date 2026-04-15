@@ -15,6 +15,7 @@
 class CitationListWidget;
 class EventTypesListModel;
 class EventRolesListModel;
+class LocationPathsModel;
 
 namespace Ui {
 class EventEditorForm;
@@ -60,6 +61,7 @@ private:
 
     EventTypesListModel* typesModel;
     EventRolesListModel* rolesModel;
+    LocationPathsModel* locationsModel;
 
     CitationListWidget* eventRelationCitationsWidget;
     CitationListWidget* eventCitationsWidget;

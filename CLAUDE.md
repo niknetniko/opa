@@ -20,6 +20,8 @@ Do not put comments on closing braces, like classes or namespaces.
 
 If multiple strings are used in a file, use the shorthand Qt string literals: `u"string"_s`.
 
+Opa must use built-in functionality of KDE where possible and integrate with KDE Frameworks.
+
 ## Architecture
 
 Read `ai/architecture.md` before making changes. It is the authoritative source for patterns and migration checklists.

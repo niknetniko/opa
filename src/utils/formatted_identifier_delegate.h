@@ -22,6 +22,7 @@ public:
     static constexpr auto NAME = QLatin1String("N%1");
     static constexpr auto EVENT = QLatin1String("E%1");
     static constexpr auto SOURCE = QLatin1String("S%1");
+    static constexpr auto LOCATION = QLatin1String("L%1");
 
     explicit FormattedIdentifierDelegate(QObject* parent, QString pattern);
 

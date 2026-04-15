@@ -25,7 +25,10 @@ const QHash<Values, KLazyLocalizedString> typeToString{
     {Values::Funeral, kli18n("Funeral")}
 };
 
-const auto toDisplayString = [](const QString& databaseValue) {
+const auto toDisplayString = [](const QString& databaseValue) -> QString {
+    if (!isValidEnum<Values>(databaseValue)) {
+        return databaseValue;
+    }
     return genericToDisplayString<Values>(databaseValue, typeToString);
 };
 

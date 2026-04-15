@@ -91,6 +91,10 @@ private Q_SLOTS:
 
     void openEventTypesManager() const;
 
+    void openLocationManager() const;
+
+    void openLocationTypesManager() const;
+
     bool queryClose() override;
 
     void syncRemoveAction() const;
@@ -114,6 +118,8 @@ private:
     QAction* manageNameOrigins_ = nullptr;
     QAction* manageEventRoles_ = nullptr;
     QAction* manageEventTypes_ = nullptr;
+    QAction* manageLocations_ = nullptr;
+    QAction* manageLocationTypes_ = nullptr;
     KRecentFilesAction* recentFilesAction_ = nullptr;
     QAction* openNewAction_ = nullptr;
     QAction* openAction_ = nullptr;

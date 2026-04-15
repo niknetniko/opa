@@ -30,6 +30,9 @@
       <Action name="manage_name_origins"/>
       <Action name="manage_event_roles"/>
       <Action name="manage_event_types"/>
+      <Separator/>
+      <Action name="manage_locations"/>
+      <Action name="manage_location_types"/>
     </Menu>
   </MenuBar>
 

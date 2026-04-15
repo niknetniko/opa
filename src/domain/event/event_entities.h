@@ -5,10 +5,12 @@
  */
 #pragma once
 
+#include "core/query_utils.h"
 #include "database/schema.h"
 
 #include <QSqlQuery>
 #include <QString>
+#include <optional>
 
 using namespace Qt::StringLiterals;
 
@@ -46,6 +48,7 @@ struct EventEntity {
     QString date;
     QString name;
     QString note;
+    std::optional<IntegerPrimaryKey> locationId;
 
     static EventEntity fromSql(const QSqlQuery& query) {
         return {
@@ -54,6 +57,7 @@ struct EventEntity {
             .date = query.value(u"date").toString(),
             .name = query.value(u"name").toString(),
             .note = query.value(u"note").toString(),
+            .locationId = validOrOptional<IntegerPrimaryKey>(query.value(u"location_id")),
         };
     }
 };

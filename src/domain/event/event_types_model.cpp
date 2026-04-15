@@ -22,7 +22,6 @@ EventTypesListModel::EventTypesListModel(QObject* parent) : ObjectTableModel(par
         if (!repo.updateEventType(entity.id, newType)) {
             return false;
         }
-        entity.type = newType;
         return true;
     });
     this->setColumn(BUILTIN, i18n("Built-in"), &EventTypeEntity::builtin);

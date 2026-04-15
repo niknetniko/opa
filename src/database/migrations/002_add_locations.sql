@@ -1,0 +1,19 @@
+CREATE TABLE location_types (
+  id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type    TEXT NOT NULL,
+  builtin BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE locations (
+  id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name       TEXT NOT NULL,
+  type_id    INTEGER NULL REFERENCES location_types (id) ON DELETE SET NULL,
+  parent_id  INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
+  note       TEXT,
+  latitude   REAL,
+  longitude  REAL,
+  date_start TEXT,
+  date_end   TEXT
+);
+
+ALTER TABLE events ADD COLUMN location_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL

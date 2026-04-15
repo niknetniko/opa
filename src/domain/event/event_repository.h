@@ -42,7 +42,12 @@ public:
     std::optional<IntegerPrimaryKey> insertEvent(IntegerPrimaryKey typeId) const;
 
     bool updateEvent(
-        IntegerPrimaryKey id, IntegerPrimaryKey typeId, const QString& date, const QString& name, const QString& note
+        IntegerPrimaryKey id,
+        IntegerPrimaryKey typeId,
+        const QString& date,
+        const QString& name,
+        const QString& note,
+        std::optional<IntegerPrimaryKey> locationId = std::nullopt
     ) const;
 
     bool deleteEvent(IntegerPrimaryKey id) const;
@@ -77,7 +82,8 @@ public:
         const QString& name,
         const QString& note,
         IntegerPrimaryKey personId,
-        IntegerPrimaryKey roleId
+        IntegerPrimaryKey roleId,
+        std::optional<IntegerPrimaryKey> locationId = std::nullopt
     ) const;
 
     [[nodiscard]] bool isEventTypeUsed(IntegerPrimaryKey typeId) const;

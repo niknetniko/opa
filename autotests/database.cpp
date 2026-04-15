@@ -8,6 +8,7 @@
 #include "database/database.h"
 
 #include "../src/domain/event/event_types.h"
+#include "../src/domain/location/location_types.h"
 #include "../src/domain/name/names.h"
 #include "database/schema.h"
 #include "domain/event/event_roles.h"
@@ -87,6 +88,10 @@ private Q_SLOTS:
             Schema::EventRelationCitationsTable,
             Schema::NameCitationsTable,
             Schema::PersonCitationsTable,
+            Schema::LocationTypesTable,
+            Schema::LocationsTable,
+            Schema::EventTypeTranslationsTable,
+            Schema::LocationTypeTranslationsTable,
             // Special SQLite tables...
             u"sqlite_sequence"_s
         };
@@ -104,6 +109,10 @@ private Q_SLOTS:
 
     void testNameOriginsAreInserted() {
         runEnumValueCheck<NameOrigins::Values>(Schema::NameOriginsTable);
+    }
+
+    void testBuiltinLocationTypesAreInserted() {
+        runEnumValueCheck<LocationTypes::Values>(Schema::LocationTypesTable);
     }
 };
 

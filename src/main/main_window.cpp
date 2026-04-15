@@ -13,6 +13,8 @@
 #include "editors/new_person_editor_dialog.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
+#include "lists/location_management_window.h"
+#include "lists/location_types_management_window.h"
 #include "lists/name_origins_management_window.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
@@ -78,6 +80,14 @@ MainWindow::MainWindow() {
     manageEventTypes_->setText(i18n("Manage event types"));
     connect(manageEventTypes_, &QAction::triggered, this, &MainWindow::openEventTypesManager);
 
+    manageLocations_ = new QAction(this);
+    manageLocations_->setText(i18n("Manage locations"));
+    connect(manageLocations_, &QAction::triggered, this, &MainWindow::openLocationManager);
+
+    manageLocationTypes_ = new QAction(this);
+    manageLocationTypes_->setText(i18n("Manage location types"));
+    connect(manageLocationTypes_, &QAction::triggered, this, &MainWindow::openLocationTypesManager);
+
     addNewPersonAction_ = new QAction(this);
     addNewPersonAction_->setText(i18n("Add new person"));
     addNewPersonAction_->setIcon(QIcon::fromTheme(QStringLiteral("list-add-user")));
@@ -106,6 +116,8 @@ MainWindow::MainWindow() {
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
     actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes_);
+    actionCollection->addAction(QStringLiteral("manage_locations"), manageLocations_);
+    actionCollection->addAction(QStringLiteral("manage_location_types"), manageLocationTypes_);
     actionCollection->addAction(QStringLiteral("person_add_new"), addNewPersonAction_);
     actionCollection->addAction(QStringLiteral("person_delete_existing"), removePersonAction_);
     actionCollection->addAction(QStringLiteral("source_add_new"), addNewSourceAction_);
@@ -176,6 +188,8 @@ void MainWindow::syncActions() {
         manageEventRoles_,
         manageEventTypes_,
         manageNameOrigins_,
+        manageLocations_,
+        manageLocationTypes_,
         addNewPersonAction_,
         addNewSourceAction_,
         showPeopleListAction_,
@@ -323,6 +337,18 @@ void MainWindow::openEventRolesManager() const {
 
 void MainWindow::openEventTypesManager() const {
     auto* window = new EventTypesManagementWindow;
+    window->show();
+}
+
+void MainWindow::openLocationManager() const {
+    auto* window = new LocationManagementWindow;
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    window->show();
+}
+
+void MainWindow::openLocationTypesManager() const {
+    auto* window = new LocationTypesManagementWindow;
+    window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
 }
 
