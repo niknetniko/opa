@@ -6,9 +6,11 @@
 #include "name_origins_management_window.h"
 
 #include "../core/data_event_broker.h"
+#include "../domain/name/name_origin_translation_repository.h"
 #include "../domain/name/name_repository.h"
 #include "../domain/name/names.h"
 #include "database/schema.h"
+#include "editors/type_translations_dialog.h"
 #include "utils/model_utils.h"
 
 #include <KLocalizedString>
@@ -16,6 +18,7 @@
 #include <QProgressDialog>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QToolBar>
 
 NameOriginsManagementWindow::NameOriginsManagementWindow() {
     setWindowTitle(i18n("Manage name origins"));
@@ -26,6 +29,59 @@ NameOriginsManagementWindow::NameOriginsManagementWindow() {
     setTranslator(NameOrigins::toDisplayString);
 
     initializeLayout();
+
+    translationsAction = new QAction(i18n("Translations"), this);
+    translationsAction->setIcon(QIcon::fromTheme(QStringLiteral("accessories-dictionary")));
+    translationsAction->setEnabled(false);
+    mainToolbar->addAction(translationsAction);
+
+    connect(
+        tableView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        [this](const QItemSelection& selected, const QItemSelection&) {
+            if (selected.isEmpty()) {
+                translationsAction->setEnabled(false);
+                return;
+            }
+            const auto idx = mapToSourceModel(selected.indexes().constFirst());
+            const auto isBuiltin = originsModel->index(idx.row(), NameOriginsModel::BUILTIN).data().toBool();
+            translationsAction->setEnabled(!isBuiltin);
+        }
+    );
+
+    connect(translationsAction, &QAction::triggered, this, [this]() {
+        auto* selection = tableView->selectionModel();
+        if (!selection->hasSelection()) {
+            return;
+        }
+        const auto idx = mapToSourceModel(selection->selection().constFirst().indexes().constFirst());
+        const auto originId = originsModel->index(idx.row(), NameOriginsModel::ID).data().toLongLong();
+        const auto originName = originsModel->index(idx.row(), NameOriginsModel::ORIGIN).data().toString();
+
+        auto* dialog = new TypeTranslationsDialog(
+            originName,
+            [originId]() -> QList<TypeTranslationsDialog::TranslationEntry> {
+                NameOriginTranslationRepository repo;
+                QList<TypeTranslationsDialog::TranslationEntry> result;
+                for (const auto& e : repo.findAllForType(originId)) {
+                    result.append({.id = e.id, .locale = e.locale, .name = e.name});
+                }
+                return result;
+            },
+            [originId](const QString& locale, const QString& name) -> std::optional<IntegerPrimaryKey> {
+                NameOriginTranslationRepository repo;
+                return repo.insert(originId, locale, name);
+            },
+            [](IntegerPrimaryKey id) -> bool {
+                NameOriginTranslationRepository repo;
+                return repo.remove(id);
+            },
+            this
+        );
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->show();
+    });
 }
 
 QVariant NameOriginsManagementWindow::doAddItem() const {

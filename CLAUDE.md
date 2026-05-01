@@ -61,8 +61,8 @@ Never write SQL in UI code. Never modify the DB from a model directly.
 
 ## Database Schema
 
-SQLite. Key tables: `people`, `names`, `name_origins`, `events`, `event_types`, `event_roles`, `event_relations` (many-to-many), `sources`, `event_sources`, `name_sources`, `person_sources`.
+SQLite.
 Schema defined in `src/database/schema.sql`. Initialized via `init.sql` + `seed.sql` (built-in types/roles/origins).
-Data in the database should be highly normalized.
+Read `ai/database_design.md` for database design guidelines, including nullability rules and migration conventions.
 
 Logging categories: `opa` (general), `opa.sql` (SQL queries).

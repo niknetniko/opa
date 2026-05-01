@@ -7,6 +7,8 @@
 
 #include "simple_list_manager.h"
 
+#include <QAction>
+
 class EventRolesManagementWindow : public SimpleListManagementWindow {
     Q_OBJECT
 
@@ -32,4 +34,7 @@ protected:
     [[nodiscard]] QString translatedItemCount(int itemCount) const override;
 
     [[nodiscard]] QString translatedItemDescription(const QString& item, bool isBuiltIn) const override;
+
+private:
+    QAction* translationsAction = nullptr;
 };

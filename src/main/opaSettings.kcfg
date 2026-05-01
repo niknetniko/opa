@@ -44,4 +44,11 @@
       <default>gpt-4o-mini</default>
     </entry>
   </group>
+  <group name="Media">
+    <entry name="mediaDirectory" type="String">
+      <label>Media directory</label>
+      <whatsthis>Directory where attached files are stored. Paths in the database are relative to this directory. Leave empty to use a 'media/' folder next to the database file.</whatsthis>
+      <default></default>
+    </entry>
+  </group>
 </kcfg>

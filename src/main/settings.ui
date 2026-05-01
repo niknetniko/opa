@@ -80,6 +80,26 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="mediaDirectoryLabel">
+     <property name="text">
+      <string>Media directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="KUrlRequester" name="kcfg_mediaDirectory">
+     <property name="toolTip">
+      <string>Directory where attached media files are stored</string>
+     </property>
+     <property name="whatsThis">
+      <string>Directory where attached files are stored. Paths in the database are relative to this directory. Leave empty to use a 'media/' folder next to the database file.</string>
+     </property>
+     <property name="mode">
+      <set>KFile::Directory|KFile::ExistingOnly|KFile::LocalOnly</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -87,6 +107,11 @@ p, li { white-space: pre-wrap; }
    <class>KColorButton</class>
    <extends>QPushButton</extends>
    <header>kcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KUrlRequester</class>
+   <extends>QWidget</extends>
+   <header>kurlrequester.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -206,7 +206,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -216,7 +215,6 @@ INSERT INTO
 VALUES
   (
     'Smith Family Papers',
-    'Collection Abstract',
     'Archivist, Local Historical Society',
     'Local Historical Society Archives',
     'Medium',
@@ -227,7 +225,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -237,7 +234,6 @@ INSERT INTO
 VALUES
   (
     'Letter from Mary Smith to John Smith Sr.',
-    'Letter',
     'Mary Smith',
     'Smith Family Papers (Collection)',
     'High',
@@ -248,7 +244,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -258,7 +253,6 @@ INSERT INTO
 VALUES
   (
     'Marriage Mention in Letter',
-    'Citation',
     'Mary Smith',
     'Letter from Mary Smith to John Smith Sr., Page 2, Line 5',
     'High',
@@ -269,7 +263,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -279,7 +272,6 @@ INSERT INTO
 VALUES
   (
     'Birth Certificate of John Doe',
-    'Birth Certificate',
     'County Clerk''s Office',
     'County Records, Jamestown, USA',
     'High',
@@ -290,7 +282,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -300,7 +291,6 @@ INSERT INTO
 VALUES
   (
     'John Doe Birth Date',
-    'Citation',
     'County Clerk',
     'Birth Certificate of John Doe, Entry 456',
     'High',
@@ -311,7 +301,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -321,7 +310,6 @@ INSERT INTO
 VALUES
   (
     'Father''s Name: John Doe Sr.',
-    'Citation',
     'County Clerk',
     'Birth Certificate of John Doe, Entry 456',
     'High',
@@ -332,7 +320,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -342,7 +329,6 @@ INSERT INTO
 VALUES
   (
     'Mother''s Name: Mary Smith',
-    'Citation',
     'County Clerk',
     'Birth Certificate of John Doe, Entry 456',
     'High',
@@ -353,7 +339,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -363,7 +348,6 @@ INSERT INTO
 VALUES
   (
     'Marriage Record of John Doe and Jane Smith',
-    'Marriage Record',
     'County Clerk''s Office',
     'County Records, Jamestown, USA',
     'High',
@@ -374,7 +358,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -384,7 +367,6 @@ INSERT INTO
 VALUES
   (
     'Marriage Date: July 25, 1895',
-    'Citation',
     'County Clerk',
     'Marriage Record of John Doe and Jane Smith, Entry 123',
     'High',
@@ -395,7 +377,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -405,7 +386,6 @@ INSERT INTO
 VALUES
   (
     '1900 US Census, Jamestown, Jamesstate',
-    'Census Record',
     'US Census Bureau',
     'National Archives and Records Administration',
     'Medium',
@@ -416,7 +396,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -426,7 +405,6 @@ INSERT INTO
 VALUES
   (
     'John Doe Household, 1900 Census',
-    'Citation',
     'US Census Bureau',
     '1900 US Census, Jamestown, Jamesstate, ED 12, Sheet 5, Line 23',
     'Medium',
@@ -437,7 +415,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -447,7 +424,6 @@ INSERT INTO
 VALUES
   (
     'Jane Doe (Wife), 1900 Census',
-    'Citation',
     'US Census Bureau',
     '1900 US Census, Jamestown, Jamesstate, ED 12, Sheet 5, Line 24',
     'Medium',
@@ -458,7 +434,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -468,7 +443,6 @@ INSERT INTO
 VALUES
   (
     'Death Certificate of Mary Smith (nee Brown)',
-    'Death Certificate',
     'State Department of Health',
     'State Vital Records, Jamesstate, USA',
     'High',
@@ -479,7 +453,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -489,7 +462,6 @@ INSERT INTO
 VALUES
   (
     'Mary Smith Date of Death',
-    'Citation',
     'State Department of Health',
     'Death Certificate of Mary Smith, Certificate Number 12345',
     'High',
@@ -500,7 +472,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -510,7 +481,6 @@ INSERT INTO
 VALUES
   (
     'Mary Smith Place of Birth',
-    'Citation',
     'State Department of Health',
     'Death Certificate of Mary Smith, Certificate Number 12345',
     'Medium',
@@ -521,7 +491,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -531,7 +500,6 @@ INSERT INTO
 VALUES
   (
     'Abstract of Will for John Doe Sr.',
-    'Will Abstract',
     'County Clerk''s Office',
     'Will Book 4, Page 123',
     'Medium',
@@ -542,7 +510,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -552,7 +519,6 @@ INSERT INTO
 VALUES
   (
     'Mention of Wife, Mary',
-    'Citation',
     'County Clerk',
     'Abstract of Will for John Doe Sr., Page 123, line 10',
     'Medium-High',
@@ -563,7 +529,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -573,7 +538,6 @@ INSERT INTO
 VALUES
   (
     'Mention of Son, John',
-    'Citation',
     'County Clerk',
     'Abstract of Will for John Doe Sr., Page 124, line 1',
     'Medium-High',
@@ -584,7 +548,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -594,7 +557,6 @@ INSERT INTO
 VALUES
   (
     'Birth Certificate of Jane Smith',
-    'Birth Certificate',
     'County Clerk''s Office',
     'County Records, Jamestown, USA',
     'High',
@@ -605,7 +567,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -615,7 +576,6 @@ INSERT INTO
 VALUES
   (
     'Father: Robert Smith',
-    'Citation',
     'County Clerk',
     'Birth Certificate of Jane Smith, Entry 789',
     'High',
@@ -626,7 +586,6 @@ VALUES
 INSERT INTO
   sources (
     title,
-    type,
     author,
     publication,
     confidence,
@@ -636,7 +595,6 @@ INSERT INTO
 VALUES
   (
     'Mother: Emily Green',
-    'Citation',
     'County Clerk',
     'Birth Certificate of Jane Smith, Entry 789',
     'High',

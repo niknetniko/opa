@@ -13,7 +13,9 @@
 SourcesListModel::SourcesListModel(QObject* parent) : ObjectTableModel(parent) {
     this->setColumn(ID, i18n("ID"), &SourceEntity::id);
     this->setColumn(TITLE, i18n("Title"), &SourceEntity::title);
-    this->setColumn(TYPE, i18n("Type"), &SourceEntity::type);
+    this->setColumn(TYPE, i18n("Type"), [](const SourceEntity& e) -> QVariant {
+        return e.typeId.has_value() ? QVariant(*e.typeId) : QVariant{};
+    });
     this->setColumn(AUTHOR, i18n("Author"), &SourceEntity::author);
     this->setColumn(PUBLICATION, i18n("Publication"), &SourceEntity::publication);
     this->setColumn(CONFIDENCE, i18n("Confidence"), &SourceEntity::confidence);

@@ -16,6 +16,7 @@
 #include "domain/person/person_repository.h"
 #include "person_event_tab.h"
 #include "person_family_tab.h"
+#include "person_media_tab.h"
 #include "person_name_tab.h"
 #include "ui_person_detail_view.h"
 #include "utils/formatted_identifier_delegate.h"
@@ -146,6 +147,10 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
     // Create tab for names
     auto* nameTab = new PersonNameTab(id, ui->tabWidget);
     ui->tabWidget->addTab(nameTab, i18n("Names"));
+
+    // Create tab for media attachments
+    auto* mediaTab = new PersonMediaTab(id, ui->tabWidget);
+    ui->tabWidget->addTab(mediaTab, i18n("Media"));
 
     // Listen for person/name changes to refresh display.
     connectToTable<Schema::People>(this, [this](std::optional<IntegerPrimaryKey> changedId) {

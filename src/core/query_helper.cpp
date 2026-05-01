@@ -112,7 +112,12 @@ std::tuple<QString, QVariantMap> SqlQueryBuilder::construct() const {
 
 std::tuple<QSqlQuery, bool> QueryHelper::executeWithResult(const QString& sql, const QVariantMap& bindings) {
     QSqlQuery query;
-    query.prepare(sql);
+
+    if (!query.prepare(sql)) {
+        qWarning() << "Failed to prepare query" << sql;
+        qWarning() << query.lastError().text();
+        return {std::move(query), false};
+    }
 
     for (const auto& [key, value]: bindings.asKeyValueRange()) {
         query.bindValue(key, value);

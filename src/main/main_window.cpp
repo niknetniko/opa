@@ -7,6 +7,7 @@
 
 #include "ai_settings_widget.h"
 #include "database/database.h"
+#include "domain/media/media_service.h"
 #include "docks/person_list_dock.h"
 #include "domain/event/event_types.h"
 #include "domain/name/names.h"
@@ -16,8 +17,10 @@
 #include "lists/location_management_window.h"
 #include "lists/location_types_management_window.h"
 #include "lists/name_origins_management_window.h"
+#include "lists/source_types_management_window.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
+#include "ui/media/media_list_dock.h"
 #include "ui/source/dock/source_list_dock.h"
 #include "ui/source/editor/source_editor_dialog.h"
 #include "ui_settings.h"
@@ -88,6 +91,10 @@ MainWindow::MainWindow() {
     manageLocationTypes_->setText(i18n("Manage location types"));
     connect(manageLocationTypes_, &QAction::triggered, this, &MainWindow::openLocationTypesManager);
 
+    manageSourceTypes_ = new QAction(this);
+    manageSourceTypes_->setText(i18n("Manage source types"));
+    connect(manageSourceTypes_, &QAction::triggered, this, &MainWindow::openSourceTypesManager);
+
     addNewPersonAction_ = new QAction(this);
     addNewPersonAction_->setText(i18n("Add new person"));
     addNewPersonAction_->setIcon(QIcon::fromTheme(QStringLiteral("list-add-user")));
@@ -112,17 +119,24 @@ MainWindow::MainWindow() {
     showSourcesListAction_->setIcon(QIcon::fromTheme(QStringLiteral("view-calendar-list")));
     connect(showSourcesListAction_, &QAction::triggered, this, &MainWindow::showSourcesList);
 
+    showMediaListAction_ = new QAction(this);
+    showMediaListAction_->setText(i18n("Show media list"));
+    showMediaListAction_->setIcon(QIcon::fromTheme(QStringLiteral("folder-images")));
+    connect(showMediaListAction_, &QAction::triggered, this, &MainWindow::showMediaList);
+
     auto* actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
     actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes_);
     actionCollection->addAction(QStringLiteral("manage_locations"), manageLocations_);
     actionCollection->addAction(QStringLiteral("manage_location_types"), manageLocationTypes_);
+    actionCollection->addAction(QStringLiteral("manage_source_types"), manageSourceTypes_);
     actionCollection->addAction(QStringLiteral("person_add_new"), addNewPersonAction_);
     actionCollection->addAction(QStringLiteral("person_delete_existing"), removePersonAction_);
     actionCollection->addAction(QStringLiteral("source_add_new"), addNewSourceAction_);
     actionCollection->addAction(QStringLiteral("show_people_list"), showPeopleListAction_);
     actionCollection->addAction(QStringLiteral("show_sources_list"), showSourcesListAction_);
+    actionCollection->addAction(QStringLiteral("show_media_list"), showMediaListAction_);
 
     openNewAction_ = KStandardAction::openNew(this, &MainWindow::newFile, actionCollection);
     openAction_ = KStandardAction::open(this, &MainWindow::openFile, actionCollection);
@@ -154,6 +168,7 @@ void MainWindow::loadFile(const QString& filename, bool isNew) {
     currentFile = filename;
     recentFilesAction_->addUrl(QUrl::fromLocalFile(filename));
     openDatabase(filename, isNew);
+    MediaService::initialize(filename);
 
     // Configure the docks with the proper options.
     KDDockWidgets::Config::self().setFlags(
@@ -190,10 +205,12 @@ void MainWindow::syncActions() {
         manageNameOrigins_,
         manageLocations_,
         manageLocationTypes_,
+        manageSourceTypes_,
         addNewPersonAction_,
         addNewSourceAction_,
         showPeopleListAction_,
         showSourcesListAction_,
+        showMediaListAction_,
     };
     for (auto* manageAction: fileActions) {
         manageAction->setEnabled(!currentFile.isEmpty());
@@ -257,6 +274,7 @@ void MainWindow::openUrl(const QUrl& url) {
 }
 
 void MainWindow::closeFile() {
+    MediaService::reset();
     closeDatabase();
     currentFile.clear();
     this->showWelcomeScreen();
@@ -342,6 +360,12 @@ void MainWindow::openEventTypesManager() const {
 
 void MainWindow::openLocationManager() const {
     auto* window = new LocationManagementWindow;
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    window->show();
+}
+
+void MainWindow::openSourceTypesManager() const {
+    auto* window = new SourceTypesManagementWindow;
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
 }
@@ -484,6 +508,25 @@ void MainWindow::showSourcesList() {
     auto* personListDock = new SourceListDock;
     container->addDockWidget(personListDock, KDDockWidgets::Location_OnRight);
     // connect(personListDock, &SourceListDock::handleSourceSelected, this, &MainWindow::openOrSelectPerson);
+
+    syncActions();
+}
+
+void MainWindow::showMediaList() {
+    auto dockWidgets = findChildren<MediaListDock*>();
+    if (!dockWidgets.empty()) {
+        auto* dock = dockWidgets.first();
+        if (dock->isFloating()) {
+            dock->raise();
+            dock->activateWindow();
+        }
+        dock->setAsCurrentTab();
+        return;
+    }
+
+    auto* container = getMainDockHost();
+    auto* mediaListDock = new MediaListDock;
+    container->addDockWidget(mediaListDock, KDDockWidgets::Location_OnRight);
 
     syncActions();
 }

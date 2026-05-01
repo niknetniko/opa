@@ -6,13 +6,15 @@
 #include "event_roles_management_window.h"
 
 #include "../domain/event/event_roles.h"
-#include "../domain/event/event_types.h"
 #include "domain/event/event_repository.h"
+#include "domain/event/event_role_translation_repository.h"
 #include "domain/event/event_roles_model.h"
+#include "editors/type_translations_dialog.h"
 
 #include <KLocalizedString>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QToolBar>
 
 EventRolesManagementWindow::EventRolesManagementWindow() {
     setWindowTitle(i18n("Manage event roles"));
@@ -23,6 +25,59 @@ EventRolesManagementWindow::EventRolesManagementWindow() {
     setTranslator(EventRoles::toDisplayString);
 
     initializeLayout();
+
+    translationsAction = new QAction(i18n("Translations"), this);
+    translationsAction->setIcon(QIcon::fromTheme(QStringLiteral("accessories-dictionary")));
+    translationsAction->setEnabled(false);
+    mainToolbar->addAction(translationsAction);
+
+    connect(
+        tableView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        [this](const QItemSelection& selected, const QItemSelection&) {
+            if (selected.isEmpty()) {
+                translationsAction->setEnabled(false);
+                return;
+            }
+            const auto idx = mapToSourceModel(selected.indexes().constFirst());
+            const auto isBuiltin = this->model->index(idx.row(), EventRolesListModel::BUILTIN).data().toBool();
+            translationsAction->setEnabled(!isBuiltin);
+        }
+    );
+
+    connect(translationsAction, &QAction::triggered, this, [this]() {
+        auto* selection = tableView->selectionModel();
+        if (!selection->hasSelection()) {
+            return;
+        }
+        const auto idx = mapToSourceModel(selection->selection().constFirst().indexes().constFirst());
+        const auto roleId = this->model->index(idx.row(), EventRolesListModel::ID).data().toLongLong();
+        const auto roleName = this->model->index(idx.row(), EventRolesListModel::ROLE).data().toString();
+
+        auto* dialog = new TypeTranslationsDialog(
+            roleName,
+            [roleId]() -> QList<TypeTranslationsDialog::TranslationEntry> {
+                EventRoleTranslationRepository repo;
+                QList<TypeTranslationsDialog::TranslationEntry> result;
+                for (const auto& e : repo.findAllForType(roleId)) {
+                    result.append({.id = e.id, .locale = e.locale, .name = e.name});
+                }
+                return result;
+            },
+            [roleId](const QString& locale, const QString& name) -> std::optional<IntegerPrimaryKey> {
+                EventRoleTranslationRepository repo;
+                return repo.insert(roleId, locale, name);
+            },
+            [](IntegerPrimaryKey id) -> bool {
+                EventRoleTranslationRepository repo;
+                return repo.remove(id);
+            },
+            this
+        );
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->show();
+    });
 }
 
 bool EventRolesManagementWindow::repairConfirmation() {

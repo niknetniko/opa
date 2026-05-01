@@ -92,6 +92,17 @@ private Q_SLOTS:
             Schema::LocationsTable,
             Schema::EventTypeTranslationsTable,
             Schema::LocationTypeTranslationsTable,
+            Schema::EventRoleTranslationsTable,
+            Schema::NameOriginTranslationsTable,
+            Schema::SourceTypesTable,
+            Schema::SourceTypeTranslationsTable,
+            Schema::MediaTable,
+            Schema::PersonMediaTable,
+            Schema::NameMediaTable,
+            Schema::EventMediaTable,
+            Schema::EventRelationMediaTable,
+            Schema::SourceMediaTable,
+            Schema::LocationMediaTable,
             // Special SQLite tables...
             u"sqlite_sequence"_s
         };

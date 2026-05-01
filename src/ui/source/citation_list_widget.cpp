@@ -29,7 +29,9 @@ CitationListWidget::CitationListWidget(LoadFn load, AddFn add, RemoveFn remove, 
     model = new ObjectTableModel<SourceEntity>(this);
     model->addColumn(i18n("ID"), &SourceEntity::id);
     model->addColumn(i18n("Title"), &SourceEntity::title);
-    model->addColumn(i18n("Type"), &SourceEntity::type);
+    model->addColumn(i18n("Type"), [](const SourceEntity& e) -> QVariant {
+        return e.typeId.has_value() ? QVariant(*e.typeId) : QVariant{};
+    });
     model->addColumn(i18n("Confidence"), &SourceEntity::confidence);
 
     tableView = new QTableView(this);

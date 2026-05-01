@@ -49,6 +49,7 @@
           kdePackages.qtbase
           kdePackages.qtwayland
           kdePackages.qtdeclarative
+          kdePackages.qtwebengine
           qtnodes
           kddockwidgets-kde
           sqlite

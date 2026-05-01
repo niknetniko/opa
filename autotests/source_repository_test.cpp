@@ -33,7 +33,7 @@ private Q_SLOTS:
 
     void testInsertAndFindById() {
         SourceRepository repo;
-        auto sourceId = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto sourceId = repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
         QVERIFY(sourceId.has_value());
 
         auto source = repo.findById(*sourceId);
@@ -41,13 +41,14 @@ private Q_SLOTS:
         QCOMPARE(source->id, *sourceId);
         QCOMPARE(source->confidence, u"Normal"_s);
         QVERIFY(source->title.isEmpty());
+        QVERIFY(!source->typeId.has_value());
         QVERIFY(!source->parentId.has_value());
     }
 
     void testFindAll() {
         SourceRepository repo;
-        repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        repo.insert(QString(), QString(), QString(), QString(), u"High"_s, QString(), std::nullopt);
+        repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        repo.insert(QString(), std::nullopt, QString(), QString(), u"High"_s, QString(), std::nullopt);
 
         auto sources = repo.findAll();
         QCOMPARE(sources.size(), 2);
@@ -55,18 +56,19 @@ private Q_SLOTS:
 
     void testUpdate() {
         SourceRepository repo;
-        auto sourceId = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto sourceId =
+            repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
         QVERIFY(sourceId.has_value());
 
         bool ok = repo.update(
-            *sourceId, u"My Title"_s, u"Book"_s, u"Author"_s, u"Publisher"_s, u"High"_s, u"A note"_s, std::nullopt
+            *sourceId, u"My Title"_s, std::nullopt, u"Author"_s, u"Publisher"_s, u"High"_s, u"A note"_s, std::nullopt
         );
         QVERIFY(ok);
 
         auto updated = repo.findById(*sourceId);
         QVERIFY(updated.has_value());
         QCOMPARE(updated->title, u"My Title"_s);
-        QCOMPARE(updated->type, u"Book"_s);
+        QVERIFY(!updated->typeId.has_value());
         QCOMPARE(updated->author, u"Author"_s);
         QCOMPARE(updated->publication, u"Publisher"_s);
         QCOMPARE(updated->confidence, u"High"_s);
@@ -74,14 +76,35 @@ private Q_SLOTS:
         QVERIFY(!updated->parentId.has_value());
     }
 
+    void testUpdateWithTypeId() {
+        SourceRepository repo;
+        auto typeId = repo.insertSourceType(u"Book"_s);
+        QVERIFY(typeId.has_value());
+
+        auto sourceId =
+            repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        QVERIFY(sourceId.has_value());
+
+        bool ok = repo.update(*sourceId, QString(), typeId, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        QVERIFY(ok);
+
+        auto updated = repo.findById(*sourceId);
+        QVERIFY(updated.has_value());
+        QVERIFY(updated->typeId.has_value());
+        QCOMPARE(*updated->typeId, *typeId);
+    }
+
     void testUpdateWithParent() {
         SourceRepository repo;
-        auto parentId = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        auto childId = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto parentId =
+            repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto childId =
+            repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
         QVERIFY(parentId.has_value());
         QVERIFY(childId.has_value());
 
-        bool ok = repo.update(*childId, QString(), QString(), QString(), QString(), u"Normal"_s, QString(), parentId);
+        bool ok =
+            repo.update(*childId, QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), parentId);
         QVERIFY(ok);
 
         auto updated = repo.findById(*childId);
@@ -92,7 +115,8 @@ private Q_SLOTS:
 
     void testRemove() {
         SourceRepository repo;
-        auto sourceId = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto sourceId =
+            repo.insert(QString(), std::nullopt, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
         QVERIFY(sourceId.has_value());
 
         bool ok = repo.remove(*sourceId);
@@ -108,33 +132,32 @@ private Q_SLOTS:
         QVERIFY(!result.has_value());
     }
 
-    void testFindAllTypes() {
+    void testFindAllSourceTypes() {
         SourceRepository repo;
-        auto id1 = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        auto id2 = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto id1 = repo.insertSourceType(u"Book"_s);
+        auto id2 = repo.insertSourceType(u"Archive"_s);
         QVERIFY(id1.has_value());
         QVERIFY(id2.has_value());
-        repo.update(*id1, QString(), u"Book"_s, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        repo.update(*id2, QString(), u"Archive"_s, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
 
-        auto types = repo.findAllTypes();
-        QCOMPARE(types.size(), 2);
-        QVERIFY(types.contains(u"Book"_s));
-        QVERIFY(types.contains(u"Archive"_s));
+        auto types = repo.findAllSourceTypes();
+        QStringList typeStrings;
+        for (const auto& e : types) {
+            typeStrings.append(e.type);
+        }
+        QVERIFY(typeStrings.contains(u"Book"_s));
+        QVERIFY(typeStrings.contains(u"Archive"_s));
     }
 
-    void testFindAllTypesDeduplicates() {
+    void testIsSourceTypeUsed() {
         SourceRepository repo;
-        auto id1 = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        auto id2 = repo.insert(QString(), QString(), QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        QVERIFY(id1.has_value());
-        QVERIFY(id2.has_value());
-        repo.update(*id1, QString(), u"Book"_s, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
-        repo.update(*id2, QString(), u"Book"_s, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        auto typeId = repo.insertSourceType(u"Letter"_s);
+        QVERIFY(typeId.has_value());
 
-        auto types = repo.findAllTypes();
-        QCOMPARE(types.size(), 1);
-        QCOMPARE(types.first(), u"Book"_s);
+        QVERIFY(!repo.isSourceTypeUsed(*typeId));
+
+        auto sourceId = repo.insert(QString(), typeId, QString(), QString(), u"Normal"_s, QString(), std::nullopt);
+        QVERIFY(sourceId.has_value());
+        QVERIFY(repo.isSourceTypeUsed(*typeId));
     }
 };
 

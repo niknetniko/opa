@@ -8,6 +8,7 @@
 #include "../../core/base_repository.h"
 #include "database/schema.h"
 #include "source_entities.h"
+#include "source_type_entities.h"
 
 #include <QList>
 #include <optional>
@@ -16,12 +17,11 @@ class SourceRepository : public BaseRepository {
 public:
     [[nodiscard]] QList<SourceEntity> findAll() const;
     [[nodiscard]] std::optional<SourceEntity> findById(IntegerPrimaryKey id) const;
-    [[nodiscard]] QStringList findAllTypes() const;
     [[nodiscard]] QList<SourceEntity> findByTitleContaining(const QString& searchTerm) const;
 
     std::optional<IntegerPrimaryKey> insert(
         const QString& title,
-        const QString& type,
+        std::optional<IntegerPrimaryKey> typeId,
         const QString& author,
         const QString& publication,
         const QString& confidence,
@@ -31,7 +31,7 @@ public:
     bool update(
         IntegerPrimaryKey id,
         const QString& title,
-        const QString& type,
+        std::optional<IntegerPrimaryKey> typeId,
         const QString& author,
         const QString& publication,
         const QString& confidence,
@@ -39,4 +39,12 @@ public:
         std::optional<IntegerPrimaryKey> parentId
     ) const;
     bool remove(IntegerPrimaryKey id) const;
+
+    // Source type management
+    [[nodiscard]] QList<SourceTypeEntity> findAllSourceTypes() const;
+    [[nodiscard]] std::optional<SourceTypeEntity> findSourceTypeById(IntegerPrimaryKey id) const;
+    std::optional<IntegerPrimaryKey> insertSourceType(const QString& type) const;
+    bool updateSourceType(IntegerPrimaryKey id, const QString& type) const;
+    bool deleteSourceType(IntegerPrimaryKey id) const;
+    [[nodiscard]] bool isSourceTypeUsed(IntegerPrimaryKey typeId) const;
 };

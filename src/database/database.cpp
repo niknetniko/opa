@@ -45,6 +45,21 @@ constexpr std::array migrations = {
         .description = "Add event_type_translations and location_type_translations tables"_L1,
         .resourcePath = ":/migrations/003_add_type_translations.sql"_L1,
     },
+    Migration{
+        .version = 4,
+        .description = "Add event_role_translations, name_origin_translations, source_types and source_type_translations"_L1,
+        .resourcePath = ":/migrations/004_add_role_origin_translations_and_source_types.sql"_L1,
+    },
+    Migration{
+        .version = 5,
+        .description = "Add media table and junction tables for all entity types"_L1,
+        .resourcePath = ":/migrations/005_add_media.sql"_L1,
+    },
+    Migration{
+        .version = 6,
+        .description = "Fix media.note to be nullable"_L1,
+        .resourcePath = ":/migrations/006_fix_media_note_nullable.sql"_L1,
+    },
 };
 
 void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {

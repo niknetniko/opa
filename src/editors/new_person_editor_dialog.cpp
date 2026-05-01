@@ -6,10 +6,13 @@
 
 #include "new_person_editor_dialog.h"
 
+#include "../domain/name/name_origin_translation_repository.h"
 #include "../domain/name/name_origins_model.h"
 #include "../domain/name/name_repository.h"
+#include "../domain/name/names.h"
 #include "../domain/person/person_repository.h"
 #include "ui_new_person_editor_dialog.h"
+#include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QCompleter>
@@ -61,7 +64,17 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
 
     // Set up origin combo box from the name origins model.
     originsModel = new NameOriginsModel(this);
-    form->origin->setModel(originsModel);
+    auto* originsProxy = new TranslatingProxyModel(
+        TypeTranslationResolver(
+            [](IntegerPrimaryKey originId, const QString& locale) {
+                return NameOriginTranslationRepository().findByTypeIdAndLocale(originId, locale);
+            },
+            NameOrigins::toDisplayString
+        ),
+        this
+    );
+    originsProxy->setSourceModel(originsModel);
+    form->origin->setModel(originsProxy);
     form->origin->setModelColumn(NameOriginsModel::ORIGIN);
     form->origin->setEditable(true);
     form->origin->setCurrentIndex(-1);

@@ -83,6 +83,26 @@ struct Locations : TableTag {
 };
 inline constexpr auto LocationsTable = Locations::table;
 
+struct EventRoleTranslations : TableTag {
+    static constexpr auto table = QLatin1String("event_role_translations");
+};
+inline constexpr auto EventRoleTranslationsTable = EventRoleTranslations::table;
+
+struct NameOriginTranslations : TableTag {
+    static constexpr auto table = QLatin1String("name_origin_translations");
+};
+inline constexpr auto NameOriginTranslationsTable = NameOriginTranslations::table;
+
+struct SourceTypes : TableTag {
+    static constexpr auto table = QLatin1String("source_types");
+};
+inline constexpr auto SourceTypesTable = SourceTypes::table;
+
+struct SourceTypeTranslations : TableTag {
+    static constexpr auto table = QLatin1String("source_type_translations");
+};
+inline constexpr auto SourceTypeTranslationsTable = SourceTypeTranslations::table;
+
 struct EventTypeTranslations : TableTag {
     static constexpr auto table = QLatin1String("event_type_translations");
 };
@@ -92,6 +112,41 @@ struct LocationTypeTranslations : TableTag {
     static constexpr auto table = QLatin1String("location_type_translations");
 };
 inline constexpr auto LocationTypeTranslationsTable = LocationTypeTranslations::table;
+
+struct Media : TableTag {
+    static constexpr auto table = QLatin1String("media");
+};
+inline constexpr auto MediaTable = Media::table;
+
+struct PersonMedia : TableTag {
+    static constexpr auto table = QLatin1String("person_media");
+};
+inline constexpr auto PersonMediaTable = PersonMedia::table;
+
+struct NameMedia : TableTag {
+    static constexpr auto table = QLatin1String("name_media");
+};
+inline constexpr auto NameMediaTable = NameMedia::table;
+
+struct EventMedia : TableTag {
+    static constexpr auto table = QLatin1String("event_media");
+};
+inline constexpr auto EventMediaTable = EventMedia::table;
+
+struct EventRelationMedia : TableTag {
+    static constexpr auto table = QLatin1String("event_relation_media");
+};
+inline constexpr auto EventRelationMediaTable = EventRelationMedia::table;
+
+struct SourceMedia : TableTag {
+    static constexpr auto table = QLatin1String("source_media");
+};
+inline constexpr auto SourceMediaTable = SourceMedia::table;
+
+struct LocationMedia : TableTag {
+    static constexpr auto table = QLatin1String("location_media");
+};
+inline constexpr auto LocationMediaTable = LocationMedia::table;
 
 template<typename T>
 inline constexpr bool is_table_tag = std::is_base_of_v<TableTag, T>;

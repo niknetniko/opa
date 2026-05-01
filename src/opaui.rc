@@ -5,7 +5,7 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   -->
 <gui name="opa"
-     version="3"
+     version="5"
      xmlns="https://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="https://www.kde.org/standards/kxmlgui/1.0
@@ -23,6 +23,7 @@
       <text>Manage</text>
       <Action name="show_people_list"/>
       <Action name="show_sources_list"/>
+      <Action name="show_media_list"/>
     </Menu>
 
     <Menu name="manage">
@@ -33,6 +34,8 @@
       <Separator/>
       <Action name="manage_locations"/>
       <Action name="manage_location_types"/>
+      <Separator/>
+      <Action name="manage_source_types"/>
     </Menu>
   </MenuBar>
 

@@ -6,15 +6,23 @@
 #include "source_editor_dialog.h"
 
 #include "ai/ai_service.h"
+#include "domain/media/media_repository.h"
 #include "domain/source/source.h"
 #include "domain/source/source_repository.h"
+#include "domain/source/source_type_translation_repository.h"
+#include "domain/source/source_types.h"
+#include "domain/source/source_types_list_model.h"
 #include "editors/note_editor_dialog.h"
 #include "link_existing/choose_existing_source_window.h"
 #include "opaSettings.h"
 #include "ui_source_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
+#include "utils/translating_proxy_model.h"
 
+#include "ui/media/media_list_widget.h"
+
+#include <KCollapsibleGroupBox>
 #include <KLocalizedString>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -22,7 +30,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QStringListModel>
+#include <QVBoxLayout>
 
 SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId, QWidget* parent) :
     QDialog(parent),
@@ -37,10 +45,21 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
         form->sourceParentPickButton, &QPushButton::clicked, this, &SourceEditorDialog::selectExistingSourceAsParent
     );
 
-    // Populate the type combo box from the repository.
-    SourceRepository repo;
-    auto* typeModel = new QStringListModel(repo.findAllTypes(), this);
-    form->sourceTypeComboBox->setModel(typeModel);
+    // Populate the type combo box from the source types lookup table.
+    sourceTypesModel = new SourceTypesListModel(this);
+    auto* typesProxy = new TranslatingProxyModel(
+        TypeTranslationResolver(
+            [](IntegerPrimaryKey typeId, const QString& locale) {
+                return SourceTypeTranslationRepository().findByTypeIdAndLocale(typeId, locale);
+            },
+            SourceTypes::toDisplayString
+        ),
+        this
+    );
+    typesProxy->setSourceModel(sourceTypesModel);
+    form->sourceTypeComboBox->setModel(typesProxy);
+    form->sourceTypeComboBox->setModelColumn(SourceTypesListModel::TYPE);
+    form->sourceTypeComboBox->setCurrentIndex(-1);
 
     // Populate the confidence combo box from the enum.
     confidenceModel = getEnumModel<Confidence::Values>(this, Confidence::toDisplayString);
@@ -49,13 +68,23 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
     form->noteEdit->enableRichTextMode();
 
     // Load and pre-fill the entity data.
+    SourceRepository repo;
     if (sourceId.has_value()) {
         if (const auto entity = repo.findById(*sourceId)) {
             form->sourcetTitleEdit->setText(entity->title);
             form->sourceAuthorEdit->setText(entity->author);
             form->sourcePublicationEdit->setText(entity->publication);
             form->noteEdit->setTextOrHtml(entity->note);
-            form->sourceTypeComboBox->setCurrentText(entity->type);
+
+            if (entity->typeId.has_value()) {
+                for (int i = 0; i < sourceTypesModel->rowCount(); ++i) {
+                    const auto idx = sourceTypesModel->index(i, SourceTypesListModel::ID);
+                    if (sourceTypesModel->data(idx).toLongLong() == *entity->typeId) {
+                        form->sourceTypeComboBox->setCurrentIndex(i);
+                        break;
+                    }
+                }
+            }
 
             const auto storedValue = qToUnderlying(enumFromString<Confidence::Values>(entity->confidence));
             const auto idx = form->sourceConfidenceCombobox->findData(storedValue);
@@ -75,6 +104,21 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
         this->setWindowTitle(i18n("Add new source"));
     }
 
+    if (sourceId.has_value()) {
+        const auto id = *sourceId;
+        auto* mediaGroup = new KCollapsibleGroupBox(this);
+        mediaGroup->setTitle(i18n("Attached files"));
+        auto* mediaLayout = new QVBoxLayout(mediaGroup);
+        auto* mediaWidget = new MediaListWidget(
+            [id] { return MediaRepository().findForSource(id); },
+            [id](IntegerPrimaryKey mediaId) { return MediaRepository().attachToSource(id, mediaId); },
+            [id](IntegerPrimaryKey mediaId) { return MediaRepository().detachFromSource(id, mediaId); },
+            mediaGroup
+        );
+        mediaLayout->addWidget(mediaWidget);
+        qobject_cast<QVBoxLayout*>(this->layout())->addWidget(mediaGroup);
+    }
+
     connect(form->extractButton, &QPushButton::clicked, this, &SourceEditorDialog::onExtractClicked);
     form->parentSuggestionIconLabel->setPixmap(QIcon::fromTheme(u"tools-wizard"_s).pixmap(16, 16));
 
@@ -89,7 +133,12 @@ void SourceEditorDialog::accept() {
     SourceRepository repo;
 
     auto title = form->sourcetTitleEdit->text();
-    auto type = form->sourceTypeComboBox->currentText();
+    const auto typeRow = form->sourceTypeComboBox->currentIndex();
+    const auto typeId = typeRow >= 0
+        ? std::optional<IntegerPrimaryKey>(
+              sourceTypesModel->index(typeRow, SourceTypesListModel::ID).data().toLongLong()
+          )
+        : std::nullopt;
     auto author = form->sourceAuthorEdit->text();
     auto publication = form->sourcePublicationEdit->text();
     auto note = form->noteEdit->textOrHtml();
@@ -98,13 +147,13 @@ void SourceEditorDialog::accept() {
     auto confidence = enumToString(static_cast<Confidence::Values>(confidenceInt));
 
     if (!sourceId.has_value()) {
-        const auto newId = repo.insert(title, type, author, publication, confidence, note, parentId);
+        const auto newId = repo.insert(title, typeId, author, publication, confidence, note, parentId);
         if (!newId) {
             qWarning() << "Could not insert new source";
             return;
         }
         sourceId = newId;
-    } else if (!repo.update(*sourceId, title, type, author, publication, confidence, note, parentId)) {
+    } else if (!repo.update(*sourceId, title, typeId, author, publication, confidence, note, parentId)) {
         qWarning() << "Could not save source" << *sourceId;
         return;
     }
@@ -228,7 +277,13 @@ void SourceEditorDialog::onAiResponse(const QString& response) {
     setOrSuggest(u"publication"_s, form->sourcePublicationEdit);
 
     if (const auto t = obj[u"type"_s].toString(); !t.isEmpty()) {
-        form->sourceTypeComboBox->setCurrentText(t);
+        for (int i = 0; i < sourceTypesModel->rowCount(); ++i) {
+            const auto typeIdx = sourceTypesModel->index(i, SourceTypesListModel::TYPE);
+            if (sourceTypesModel->data(typeIdx).toString().compare(t, Qt::CaseInsensitive) == 0) {
+                form->sourceTypeComboBox->setCurrentIndex(i);
+                break;
+            }
+        }
     }
 
     if (const auto n = obj[u"note"_s].toString(); !n.isEmpty()) {

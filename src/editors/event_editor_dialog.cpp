@@ -16,14 +16,20 @@
 #include "domain/source/source_repository.h"
 #include "editors/location_editor_dialog.h"
 #include "note_editor_dialog.h"
+#include "domain/media/media_repository.h"
+#include "ui/media/media_list_widget.h"
 #include "ui/source/citation_list_widget.h"
 #include "ui_event_editor_dialog.h"
+
+#include <QLabel>
+#include <QVBoxLayout>
+#include "domain/event/event_role_translation_repository.h"
+#include "domain/event/event_roles.h"
 #include "domain/event/event_type_translation_repository.h"
 #include "domain/event/event_types.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/translating_proxy_model.h"
 
-#include <KCollapsibleGroupBox>
 #include <KLocalizedString>
 #include <QComboBox>
 #include <QMessageBox>
@@ -132,7 +138,17 @@ void EventEditorDialog::setupUi() {
     form->eventTypeComboBox->setModelColumn(EventTypesListModel::TYPE);
 
     rolesModel = new EventRolesListModel(this);
-    form->eventRoleComboBox->setModel(rolesModel);
+    auto* rolesProxy = new TranslatingProxyModel(
+        TypeTranslationResolver(
+            [](IntegerPrimaryKey roleId, const QString& locale) {
+                return EventRoleTranslationRepository().findByTypeIdAndLocale(roleId, locale);
+            },
+            EventRoles::toDisplayString
+        ),
+        this
+    );
+    rolesProxy->setSourceModel(rolesModel);
+    form->eventRoleComboBox->setModel(rolesProxy);
     form->eventRoleComboBox->setModelColumn(EventRolesListModel::ROLE);
 
     locationsModel = new LocationPathsModel(this);
@@ -157,31 +173,74 @@ void EventEditorDialog::setupUi() {
 
     form->noteEdit->enableRichTextMode();
 
-    // Event relation citations (inserted after the first group box).
-    auto* relationCitationsGroup = new KCollapsibleGroupBox(this);
-    relationCitationsGroup->setTitle(i18n("Event relation sources"));
-    auto* relationCitationsLayout = new QVBoxLayout(relationCitationsGroup);
+    // Sources tab — always present.
+    auto* sourcesTab = new QWidget;
+    auto* sourcesLayout = new QVBoxLayout(sourcesTab);
+
+    auto* relationLabel = new QLabel(i18n("Participation sources"), sourcesTab);
+    sourcesLayout->addWidget(relationLabel);
     eventRelationCitationsWidget = new CitationListWidget(
         [this] { return relationCitationsPending.items(); },
         [this](IntegerPrimaryKey sourceId) { return relationCitationsPending.add(sourceId); },
         [this](IntegerPrimaryKey sourceId) { return relationCitationsPending.remove(sourceId); },
-        relationCitationsGroup
+        sourcesTab
     );
-    relationCitationsLayout->addWidget(eventRelationCitationsWidget);
-    form->verticalLayout->insertWidget(1, relationCitationsGroup);
+    sourcesLayout->addWidget(eventRelationCitationsWidget);
 
-    // Event citations (inserted after the event information group box).
-    auto* eventCitationsGroup = new KCollapsibleGroupBox(this);
-    eventCitationsGroup->setTitle(i18n("Event sources"));
-    auto* eventCitationsLayout = new QVBoxLayout(eventCitationsGroup);
+    auto* eventCitationsLabel = new QLabel(i18n("Event sources"), sourcesTab);
+    sourcesLayout->addWidget(eventCitationsLabel);
     eventCitationsWidget = new CitationListWidget(
         [this] { return eventCitationsPending.items(); },
         [this](IntegerPrimaryKey sourceId) { return eventCitationsPending.add(sourceId); },
         [this](IntegerPrimaryKey sourceId) { return eventCitationsPending.remove(sourceId); },
-        eventCitationsGroup
+        sourcesTab
     );
-    eventCitationsLayout->addWidget(eventCitationsWidget);
-    form->verticalLayout->insertWidget(3, eventCitationsGroup);
+    sourcesLayout->addWidget(eventCitationsWidget);
+    sourcesLayout->addStretch();
+    form->tabWidget->addTab(sourcesTab, i18n("Sources"));
+
+    // Media tab — only when editing an existing event.
+    if (eventId.has_value() || relationId.has_value()) {
+        auto* mediaTab = new QWidget;
+        auto* mediaLayout = new QVBoxLayout(mediaTab);
+
+        if (eventId.has_value()) {
+            const auto capturedEventId = *eventId;
+            auto* eventMediaLabel = new QLabel(i18n("Event media"), mediaTab);
+            mediaLayout->addWidget(eventMediaLabel);
+            auto* eventMediaWidget = new MediaListWidget(
+                [capturedEventId] { return MediaRepository().findForEvent(capturedEventId); },
+                [capturedEventId](IntegerPrimaryKey mediaId) {
+                    return MediaRepository().attachToEvent(capturedEventId, mediaId);
+                },
+                [capturedEventId](IntegerPrimaryKey mediaId) {
+                    return MediaRepository().detachFromEvent(capturedEventId, mediaId);
+                },
+                mediaTab
+            );
+            mediaLayout->addWidget(eventMediaWidget);
+        }
+
+        if (relationId.has_value()) {
+            const auto capturedRelationId = *relationId;
+            auto* relationMediaLabel = new QLabel(i18n("Participation media"), mediaTab);
+            mediaLayout->addWidget(relationMediaLabel);
+            auto* relationMediaWidget = new MediaListWidget(
+                [capturedRelationId] { return MediaRepository().findForEventRelation(capturedRelationId); },
+                [capturedRelationId](IntegerPrimaryKey mediaId) {
+                    return MediaRepository().attachToEventRelation(capturedRelationId, mediaId);
+                },
+                [capturedRelationId](IntegerPrimaryKey mediaId) {
+                    return MediaRepository().detachFromEventRelation(capturedRelationId, mediaId);
+                },
+                mediaTab
+            );
+            mediaLayout->addWidget(relationMediaWidget);
+        }
+
+        mediaLayout->addStretch();
+        form->tabWidget->addTab(mediaTab, i18n("Media"));
+    }
 }
 
 void EventEditorDialog::accept() {

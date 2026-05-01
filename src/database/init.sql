@@ -1,4 +1,17 @@
 INSERT INTO
+  source_types (type, builtin)
+VALUES
+  ('Certificate', true),
+  ('Register', true),
+  ('Census', true),
+  ('Will', true),
+  ('Letter', true),
+  ('Newspaper', true),
+  ('Book', true),
+  ('Website', true),
+  ('Photograph', true);
+
+INSERT INTO
   name_origins (origin, builtin)
 VALUES
   ('Unknown', true),

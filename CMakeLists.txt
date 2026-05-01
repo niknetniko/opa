@@ -32,7 +32,10 @@ find_package(
              Quick
              QuickControls2
              QuickWidgets
-             Test)
+             Test
+             Pdf
+             PdfWidgets
+)
 
 find_package(
   KF6 ${KF_MIN_VERSION} REQUIRED

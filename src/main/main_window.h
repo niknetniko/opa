@@ -95,6 +95,8 @@ private Q_SLOTS:
 
     void openLocationTypesManager() const;
 
+    void openSourceTypesManager() const;
+
     bool queryClose() override;
 
     void syncRemoveAction() const;
@@ -106,6 +108,7 @@ private Q_SLOTS:
 
     void showPeopleList();
     void showSourcesList();
+    void showMediaList();
 
 private:
     QString currentFile;
@@ -120,6 +123,7 @@ private:
     QAction* manageEventTypes_ = nullptr;
     QAction* manageLocations_ = nullptr;
     QAction* manageLocationTypes_ = nullptr;
+    QAction* manageSourceTypes_ = nullptr;
     KRecentFilesAction* recentFilesAction_ = nullptr;
     QAction* openNewAction_ = nullptr;
     QAction* openAction_ = nullptr;
@@ -130,6 +134,7 @@ private:
     QAction* addNewSourceAction_ = nullptr;
     QAction* showPeopleListAction_ = nullptr;
     QAction* showSourcesListAction_ = nullptr;
+    QAction* showMediaListAction_ = nullptr;
 
     [[nodiscard]] PersonDock* findDockFor(IntegerPrimaryKey personId) const;
 

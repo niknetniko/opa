@@ -17,7 +17,7 @@ using namespace Qt::StringLiterals;
 struct SourceEntity {
     IntegerPrimaryKey id = -1;
     QString title;
-    QString type;
+    std::optional<IntegerPrimaryKey> typeId;
     QString author;
     QString publication;
     QString confidence;
@@ -28,7 +28,7 @@ struct SourceEntity {
         return {
             .id = query.value(u"id").toLongLong(),
             .title = query.value(u"title").toString(),
-            .type = query.value(u"type").toString(),
+            .typeId = validOrOptional<IntegerPrimaryKey>(query.value(u"type_id")),
             .author = query.value(u"author").toString(),
             .publication = query.value(u"publication").toString(),
             .confidence = query.value(u"confidence").toString(),

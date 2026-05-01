@@ -49,11 +49,25 @@ add_library(
   domain/family/parents_model.cpp
   domain/family/family_members_model.h
   domain/family/family_members_model.cpp
+  domain/media/media_entities.h
+  domain/media/media_list_model.h
+  domain/media/media_list_model.cpp
+  domain/media/media_repository.h
+  domain/media/media_repository.cpp
+  domain/media/media_service.h
+  domain/media/media_service.cpp
   domain/source/source_entities.h
   domain/source/source_repository.h
   domain/source/source_repository.cpp
   domain/source/source_list_model.h
   domain/source/source_list_model.cpp
+  domain/source/source_type_entities.h
+  domain/source/source_type_translation_entities.h
+  domain/source/source_type_translation_repository.h
+  domain/source/source_type_translation_repository.cpp
+  domain/source/source_types.h
+  domain/source/source_types_list_model.h
+  domain/source/source_types_list_model.cpp
   domain/location/location_entities.h
   domain/location/location_repository.h
   domain/location/location_repository.cpp
@@ -71,6 +85,9 @@ add_library(
   domain/event/event_type_translation_entities.h
   domain/event/event_type_translation_repository.h
   domain/event/event_type_translation_repository.cpp
+  domain/event/event_role_translation_entities.h
+  domain/event/event_role_translation_repository.h
+  domain/event/event_role_translation_repository.cpp
   domain/event/event_types.h
   domain/event/event_types.cpp
   person_detail/person_detail_view.h
@@ -81,6 +98,9 @@ add_library(
   utils/multi_filter_proxy_model.cpp
   domain/name/names.h
   domain/name/names.cpp
+  domain/name/name_origin_translation_entities.h
+  domain/name/name_origin_translation_repository.h
+  domain/name/name_origin_translation_repository.cpp
   utils/formatted_identifier_delegate.h
   utils/formatted_identifier_delegate.cpp
   person_detail/person_name_tab.h
@@ -111,6 +131,8 @@ add_library(
   lists/event_types_management_window.cpp
   lists/location_types_management_window.h
   lists/location_types_management_window.cpp
+  lists/source_types_management_window.h
+  lists/source_types_management_window.cpp
   lists/location_management_window.h
   lists/location_management_window.cpp
   editors/event_editor_dialog.h
@@ -137,6 +159,8 @@ add_library(
   editors/note_editor_dialog.cpp
   person_detail/person_family_tab.cpp
   person_detail/person_family_tab.h
+  person_detail/person_media_tab.h
+  person_detail/person_media_tab.cpp
   utils/model_utils.cpp
   utils/model_utils.h
   tree_view/tree_view_window.cpp
@@ -164,7 +188,15 @@ add_library(
   link_existing/choose_existing_source_window.cpp
   link_existing/choose_existing_source_window.h
   link_existing/choose_existing_location_window.cpp
+  link_existing/choose_existing_media_window.h
+  link_existing/choose_existing_media_window.cpp
   link_existing/choose_existing_location_window.h
+  ui/media/media_list_widget.h
+  ui/media/media_list_widget.cpp
+  ui/media/media_edit_dialog.h
+  ui/media/media_edit_dialog.cpp
+  ui/media/media_list_dock.h
+  ui/media/media_list_dock.cpp
   ui/source/citation_list_widget.h
   ui/source/citation_list_widget.cpp
   utils/pending_list_model.h
@@ -244,6 +276,8 @@ target_link_libraries(
          KF6::TextWidgets
          KF6::WidgetsAddons
          Qt6::Network
+         Qt6::Pdf
+         Qt6::PdfWidgets
          ${SQLite3_LIBRARIES}
          ${QtNodes_LIBRARIES}
          KDAB::kddockwidgets
@@ -256,7 +290,10 @@ qt_add_resources(
   FILES database/init.sql database/schema.sql database/seed.sql
         database/migrations/001_event_relations_surrogate_key.sql
         database/migrations/002_add_locations.sql
-        database/migrations/003_add_type_translations.sql)
+        database/migrations/003_add_type_translations.sql
+        database/migrations/004_add_role_origin_translations_and_source_types.sql
+        database/migrations/005_add_media.sql
+        database/migrations/006_fix_media_note_nullable.sql)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

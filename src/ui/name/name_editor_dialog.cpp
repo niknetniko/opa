@@ -5,11 +5,14 @@
  */
 #include "./name_editor_dialog.h"
 
+#include "../../domain/name/name_origin_translation_repository.h"
 #include "../../domain/name/name_origins_model.h"
 #include "../../domain/name/name_repository.h"
+#include "../../domain/name/names.h"
 #include "../../editors/note_editor_dialog.h"
 #include "ui_name_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
+#include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QCompleter>
@@ -34,7 +37,17 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
 
     // Populate origin combo box from the name origins model.
     originsModel = new NameOriginsModel(this);
-    form->origin->setModel(originsModel);
+    auto* originsProxy = new TranslatingProxyModel(
+        TypeTranslationResolver(
+            [](IntegerPrimaryKey originId, const QString& locale) {
+                return NameOriginTranslationRepository().findByTypeIdAndLocale(originId, locale);
+            },
+            NameOrigins::toDisplayString
+        ),
+        this
+    );
+    originsProxy->setSourceModel(originsModel);
+    form->origin->setModel(originsProxy);
     form->origin->setModelColumn(NameOriginsModel::ORIGIN);
     form->origin->setEditable(true);
 

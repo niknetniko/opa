@@ -8,6 +8,8 @@
 #include "../domain/name/name_origins_model.h"
 #include "simple_list_manager.h"
 
+#include <QAction>
+
 class NameOriginsManagementWindow : public SimpleListManagementWindow {
     Q_OBJECT
 
@@ -36,4 +38,5 @@ protected:
 
 private:
     NameOriginsModel* originsModel = nullptr;
+    QAction* translationsAction = nullptr;
 };
