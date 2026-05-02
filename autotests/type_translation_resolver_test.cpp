@@ -5,9 +5,9 @@
  */
 // ReSharper disable CppMemberFunctionMayBeStatic
 // ReSharper disable CppMemberFunctionMayBeConst
-#include "../src/domain/event/event_type_translation_repository.h"
 #include "../src/utils/type_translation_resolver.h"
 
+#include "../src/domain/event/event_type_translation_repository.h"
 #include "./test_utils.h"
 #include "database/database.h"
 #include "database/schema.h"
@@ -48,32 +48,24 @@ private Q_SLOTS:
     }
 
     void testUserType_noTranslation_returnsStoredName() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s);
         const auto result = makeResolver(identity).resolve(u"Adoptie"_s, false, typeId, u"en"_s);
         QCOMPARE(result, u"Adoptie"_s);
     }
 
     void testUserType_exactLocaleMatch() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s);
         insertQuery(
-            u"INSERT INTO event_type_translations (type_id, locale, name) VALUES (%1, 'en', 'Adoption')"_s
-                .arg(typeId)
+            u"INSERT INTO event_type_translations (type_id, locale, name) VALUES (%1, 'en', 'Adoption')"_s.arg(typeId)
         );
         const auto result = makeResolver(identity).resolve(u"Adoptie"_s, false, typeId, u"en"_s);
         QCOMPARE(result, u"Adoption"_s);
     }
 
     void testUserType_languageOnlyFallback() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s);
         insertQuery(
-            u"INSERT INTO event_type_translations (type_id, locale, name) VALUES (%1, 'nl', 'Adoptie NL')"_s
-                .arg(typeId)
+            u"INSERT INTO event_type_translations (type_id, locale, name) VALUES (%1, 'nl', 'Adoptie NL')"_s.arg(typeId)
         );
         // nl_BE -> nl fallback
         const auto result = makeResolver(identity).resolve(u"Adoptie"_s, false, typeId, u"nl_BE"_s);
@@ -81,13 +73,9 @@ private Q_SLOTS:
     }
 
     void testUserType_noMatchAtAll_returnsStoredName() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s
-        );
-        insertQuery(
-            u"INSERT INTO event_type_translations (type_id, locale, name) VALUES (%1, 'fr', 'Adoption FR')"_s
-                .arg(typeId)
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s);
+        insertQuery(u"INSERT INTO event_type_translations (type_id, locale, name) VALUES (%1, 'fr', 'Adoption FR')"_s
+                        .arg(typeId));
         const auto result = makeResolver(identity).resolve(u"Adoptie"_s, false, typeId, u"en"_s);
         QCOMPARE(result, u"Adoptie"_s);
     }

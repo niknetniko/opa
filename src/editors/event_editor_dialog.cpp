@@ -9,30 +9,29 @@
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_editor_dialog.h"
 #include "domain/event/event_repository.h"
+#include "domain/event/event_role_translation_repository.h"
+#include "domain/event/event_roles.h"
 #include "domain/event/event_roles_model.h"
+#include "domain/event/event_type_translation_repository.h"
+#include "domain/event/event_types.h"
 #include "domain/event/event_types_model.h"
 #include "domain/location/location_paths_model.h"
 #include "domain/location/location_repository.h"
+#include "domain/media/media_repository.h"
 #include "domain/source/source_repository.h"
 #include "editors/location_editor_dialog.h"
 #include "note_editor_dialog.h"
-#include "domain/media/media_repository.h"
 #include "ui/media/media_list_widget.h"
 #include "ui/source/citation_list_widget.h"
 #include "ui_event_editor_dialog.h"
-
-#include <QLabel>
-#include <QVBoxLayout>
-#include "domain/event/event_role_translation_repository.h"
-#include "domain/event/event_roles.h"
-#include "domain/event/event_type_translation_repository.h"
-#include "domain/event/event_types.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QComboBox>
+#include <QLabel>
 #include <QMessageBox>
+#include <QVBoxLayout>
 
 using namespace Qt::StringLiterals;
 
@@ -259,8 +258,10 @@ void EventEditorDialog::accept() {
 
     auto locationRow = form->eventLocationComboBox->currentIndex();
     auto selectedLocationId = locationRow >= 0
-        ? std::optional<IntegerPrimaryKey>(locationsModel->index(locationRow, LocationPathsModel::ID).data().toLongLong())
-        : std::nullopt;
+                                  ? std::optional<IntegerPrimaryKey>(
+                                        locationsModel->index(locationRow, LocationPathsModel::ID).data().toLongLong()
+                                    )
+                                  : std::nullopt;
 
     auto result = executeInTransaction([&]() -> std::optional<bool> {
         EventRepository repo;

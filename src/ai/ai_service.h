@@ -10,7 +10,7 @@
 #include <QString>
 
 /**
- * Abstract AI service interface.
+ * Represents an AI service implementation.
  *
  * Use `createAiService()` to obtain an instance.
  */

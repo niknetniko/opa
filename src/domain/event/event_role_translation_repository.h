@@ -17,7 +17,6 @@ public:
     std::optional<IntegerPrimaryKey> insert(IntegerPrimaryKey roleId, const QString& locale, const QString& name) const;
     bool remove(IntegerPrimaryKey id) const;
     [[nodiscard]] std::optional<QString> findByTypeIdAndLocale(IntegerPrimaryKey roleId, const QString& locale) const;
-    [[nodiscard]] std::optional<QString> findByTypeStringAndLocale(
-        const QString& roleString, const QString& locale
-    ) const;
+    [[nodiscard]] std::optional<QString>
+    findByTypeStringAndLocale(const QString& roleString, const QString& locale) const;
 };

@@ -10,7 +10,9 @@
 #include <KLocalizedString>
 
 /**
- * Placeholder for a future local (llama.cpp) AI service.
+ * Placeholder for a future local AI service.
+ *
+ * For now, use the OpenAI compatible API.
  */
 class LocalAiService : public AiService {
     Q_OBJECT
@@ -18,9 +20,7 @@ class LocalAiService : public AiService {
 public:
     using AiService::AiService;
 
-    void complete(
-        const QString& /*systemPrompt*/, const QString& /*userMessage*/, const QJsonObject& /*schema*/ = {}
-    ) override {
+    void complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) override {
         Q_EMIT requestFailed(i18n("Local AI is not yet implemented."));
     }
 };

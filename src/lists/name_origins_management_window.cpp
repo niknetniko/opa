@@ -64,7 +64,7 @@ NameOriginsManagementWindow::NameOriginsManagementWindow() {
             [originId]() -> QList<TypeTranslationsDialog::TranslationEntry> {
                 NameOriginTranslationRepository repo;
                 QList<TypeTranslationsDialog::TranslationEntry> result;
-                for (const auto& e : repo.findAllForType(originId)) {
+                for (const auto& e: repo.findAllForType(originId)) {
                     result.append({.id = e.id, .locale = e.locale, .name = e.name});
                 }
                 return result;
@@ -194,7 +194,8 @@ bool NameOriginsManagementWindow::repairConfirmation() {
 }
 
 void NameOriginsManagementWindow::removeMarkedReferences(
-    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
+    const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
+    const QHash<IntegerPrimaryKey, QString>& idToValue
 ) {
     // Update names that reference a duplicate origin to point to the surviving (first) origin.
     const auto sql = QStringLiteral("SELECT id, origin_id FROM names WHERE origin_id IS NOT NULL");

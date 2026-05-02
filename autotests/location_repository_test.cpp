@@ -122,8 +122,16 @@ private Q_SLOTS:
         auto id = repo.insert(u"Netherlands"_s, std::nullopt, std::nullopt);
         QVERIFY(id.has_value());
 
-        QVERIFY(repo.update(*id, u"The Netherlands"_s, std::nullopt, std::nullopt,
-                            u"A note"_s, Coordinates{52.3, 4.9}, u"1815"_s, QString{}));
+        QVERIFY(repo.update(
+            *id,
+            u"The Netherlands"_s,
+            std::nullopt,
+            std::nullopt,
+            u"A note"_s,
+            Coordinates{52.3, 4.9},
+            u"1815"_s,
+            QString{}
+        ));
 
         auto result = repo.findById(*id);
         QVERIFY(result.has_value());

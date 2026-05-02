@@ -18,7 +18,6 @@ public:
     insert(IntegerPrimaryKey originId, const QString& locale, const QString& name) const;
     bool remove(IntegerPrimaryKey id) const;
     [[nodiscard]] std::optional<QString> findByTypeIdAndLocale(IntegerPrimaryKey originId, const QString& locale) const;
-    [[nodiscard]] std::optional<QString> findByTypeStringAndLocale(
-        const QString& originString, const QString& locale
-    ) const;
+    [[nodiscard]] std::optional<QString>
+    findByTypeStringAndLocale(const QString& originString, const QString& locale) const;
 };

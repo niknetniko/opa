@@ -5,6 +5,7 @@ CREATE TABLE event_type_translations (
   name TEXT NOT NULL,
   UNIQUE (type_id, locale)
 );
+
 CREATE TABLE location_type_translations (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   type_id INTEGER NOT NULL REFERENCES location_types (id) ON DELETE CASCADE,

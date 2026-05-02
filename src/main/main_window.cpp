@@ -7,9 +7,9 @@
 
 #include "ai_settings_widget.h"
 #include "database/database.h"
-#include "domain/media/media_service.h"
 #include "docks/person_list_dock.h"
 #include "domain/event/event_types.h"
+#include "domain/media/media_service.h"
 #include "domain/name/names.h"
 #include "editors/new_person_editor_dialog.h"
 #include "lists/event_roles_management_window.h"

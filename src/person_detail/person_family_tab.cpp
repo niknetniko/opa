@@ -37,10 +37,12 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     partnerAndDescendantTreeView->setUniformRowHeights(true);
     partnerAndDescendantTreeView->expandAll();
     partnerAndDescendantTreeView->setItemDelegateForColumn(
-        FamilyMembersModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
+        FamilyMembersModel::PERSON_ID,
+        new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
     );
     partnerAndDescendantTreeView->setItemDelegateForColumn(
-        FamilyMembersModel::EVENT_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::EVENT)
+        FamilyMembersModel::EVENT_ID,
+        new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::EVENT)
     );
     if (familyModel->hasBastardChildren()) {
         partnerAndDescendantTreeView->setFirstColumnSpanned(familyModel->rowCount() - 1, {}, true);
@@ -72,7 +74,8 @@ PersonFamilyTab::PersonFamilyTab(IntegerPrimaryKey person, QWidget* parent) : QW
     parentsTreeView->setMinimumHeight(100);
     parentsTreeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     parentsTreeView->setItemDelegateForColumn(
-        ParentsModel::PERSON_ID, new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
+        ParentsModel::PERSON_ID,
+        new FormattedIdentifierDelegate(this, FormattedIdentifierDelegate::PERSON)
     );
     connect(parentsTreeView, &QTreeView::doubleClicked, this, &PersonFamilyTab::onParentClicked);
 

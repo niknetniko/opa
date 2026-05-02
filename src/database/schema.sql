@@ -35,29 +35,29 @@ CREATE TABLE event_roles (
 );
 
 CREATE TABLE location_types (
-  id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type    TEXT NOT NULL,
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type TEXT NOT NULL,
   builtin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE locations (
-  id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name       TEXT NOT NULL,
-  type_id    INTEGER NULL REFERENCES location_types (id) ON DELETE SET NULL,
-  parent_id  INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
-  note       TEXT,
-  latitude   REAL,
-  longitude  REAL,
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  type_id INTEGER NULL REFERENCES location_types (id) ON DELETE SET NULL,
+  parent_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
+  note TEXT,
+  latitude REAL,
+  longitude REAL,
   date_start TEXT,
-  date_end   TEXT
+  date_end TEXT
 );
 
 CREATE TABLE events (
-  id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type_id     INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
-  date        TEXT,
-  name        TEXT,
-  note        TEXT,
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
+  date TEXT,
+  name TEXT,
+  note TEXT,
   location_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL
 );
 
@@ -121,16 +121,16 @@ CREATE TABLE name_origin_translations (
 );
 
 CREATE TABLE source_types (
-  id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type    TEXT NOT NULL,
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type TEXT NOT NULL,
   builtin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE source_type_translations (
-  id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   type_id INTEGER NOT NULL REFERENCES source_types (id) ON DELETE CASCADE,
-  locale  TEXT NOT NULL,
-  name    TEXT NOT NULL,
+  locale TEXT NOT NULL,
+  name TEXT NOT NULL,
   UNIQUE (type_id, locale)
 );
 
@@ -151,45 +151,45 @@ CREATE TABLE location_type_translations (
 );
 
 CREATE TABLE media (
-  id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  path      TEXT    NOT NULL,
-  title     TEXT,
-  note      TEXT,
-  mime_type TEXT    NOT NULL
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  path TEXT NOT NULL,
+  title TEXT,
+  note TEXT,
+  mime_type TEXT NOT NULL
 );
 
 CREATE TABLE person_media (
-  person_id INTEGER NOT NULL REFERENCES people (id)  ON DELETE CASCADE,
-  media_id  INTEGER NOT NULL REFERENCES media  (id)  ON DELETE CASCADE,
+  person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
+  media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
   PRIMARY KEY (person_id, media_id)
 );
 
 CREATE TABLE name_media (
-  name_id  INTEGER NOT NULL REFERENCES names (id) ON DELETE CASCADE,
+  name_id INTEGER NOT NULL REFERENCES names (id) ON DELETE CASCADE,
   media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
   PRIMARY KEY (name_id, media_id)
 );
 
 CREATE TABLE event_media (
   event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
-  media_id INTEGER NOT NULL REFERENCES media  (id) ON DELETE CASCADE,
+  media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
   PRIMARY KEY (event_id, media_id)
 );
 
 CREATE TABLE event_relation_media (
   event_relation_id INTEGER NOT NULL REFERENCES event_relations (id) ON DELETE CASCADE,
-  media_id          INTEGER NOT NULL REFERENCES media            (id) ON DELETE CASCADE,
+  media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
   PRIMARY KEY (event_relation_id, media_id)
 );
 
 CREATE TABLE source_media (
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  media_id  INTEGER NOT NULL REFERENCES media   (id) ON DELETE CASCADE,
+  media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
   PRIMARY KEY (source_id, media_id)
 );
 
 CREATE TABLE location_media (
   location_id INTEGER NOT NULL REFERENCES locations (id) ON DELETE CASCADE,
-  media_id    INTEGER NOT NULL REFERENCES media     (id) ON DELETE CASCADE,
+  media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
   PRIMARY KEY (location_id, media_id)
 );

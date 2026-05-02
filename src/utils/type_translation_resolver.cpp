@@ -14,7 +14,10 @@ TypeTranslationResolver::TypeTranslationResolver(
 }
 
 QString TypeTranslationResolver::resolve(
-    const QString& typeString, bool builtin, IntegerPrimaryKey typeId, const QString& locale
+    const QString& typeString,
+    bool builtin,
+    IntegerPrimaryKey typeId,
+    const QString& locale
 ) const {
     if (builtin) {
         return builtinTranslator(typeString);

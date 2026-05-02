@@ -23,7 +23,8 @@ protected:
     bool repairConfirmation() override;
 
     void removeMarkedReferences(
-        const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
+        const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
+        const QHash<IntegerPrimaryKey, QString>& idToValue
     ) override;
 
     bool isUsed(const QVariant& id) override;

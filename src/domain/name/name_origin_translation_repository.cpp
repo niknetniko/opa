@@ -17,9 +17,8 @@ QList<NameOriginTranslationEntity> NameOriginTranslationRepository::findAllForTy
     );
 }
 
-std::optional<IntegerPrimaryKey> NameOriginTranslationRepository::insert(
-    IntegerPrimaryKey originId, const QString& locale, const QString& name
-) const {
+std::optional<IntegerPrimaryKey>
+NameOriginTranslationRepository::insert(IntegerPrimaryKey originId, const QString& locale, const QString& name) const {
     auto newId = QueryHelper::insert(
         u"INSERT INTO name_origin_translations (origin_id, locale, name) VALUES (:origin_id, :locale, :name)"_s,
         {{u":origin_id"_s, originId}, {u":locale"_s, locale}, {u":name"_s, name}}
@@ -38,9 +37,8 @@ bool NameOriginTranslationRepository::remove(IntegerPrimaryKey id) const {
     );
 }
 
-std::optional<QString> NameOriginTranslationRepository::findByTypeIdAndLocale(
-    IntegerPrimaryKey originId, const QString& locale
-) const {
+std::optional<QString>
+NameOriginTranslationRepository::findByTypeIdAndLocale(IntegerPrimaryKey originId, const QString& locale) const {
     struct StringResult {
         QString name;
         static StringResult fromSql(const QSqlQuery& q) {
@@ -52,13 +50,14 @@ std::optional<QString> NameOriginTranslationRepository::findByTypeIdAndLocale(
         u"SELECT name FROM name_origin_translations WHERE origin_id = :origin_id AND locale = :locale"_s,
         {{u":origin_id"_s, originId}, {u":locale"_s, locale}}
     );
-    if (result) return result->name;
+    if (result) {
+        return result->name;
+    }
     return std::nullopt;
 }
 
-std::optional<QString> NameOriginTranslationRepository::findByTypeStringAndLocale(
-    const QString& originString, const QString& locale
-) const {
+std::optional<QString>
+NameOriginTranslationRepository::findByTypeStringAndLocale(const QString& originString, const QString& locale) const {
     struct StringResult {
         QString name;
         static StringResult fromSql(const QSqlQuery& q) {
@@ -72,6 +71,8 @@ std::optional<QString> NameOriginTranslationRepository::findByTypeStringAndLocal
         u"WHERE no.origin = :origin AND not_.locale = :locale"_s,
         {{u":origin"_s, originString}, {u":locale"_s, locale}}
     );
-    if (result) return result->name;
+    if (result) {
+        return result->name;
+    }
     return std::nullopt;
 }

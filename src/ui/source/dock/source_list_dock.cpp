@@ -49,7 +49,8 @@ SourceTreeWidget::SourceTreeWidget(QWidget* parent) : QWidget(parent) {
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->header()->setSectionResizeMode(SourcesListModel::TITLE, QHeaderView::Stretch);
     treeView->setItemDelegateForColumn(
-        SourcesListModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::SOURCE)
+        SourcesListModel::ID,
+        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::SOURCE)
     );
     treeView->setItemDelegateForColumn(SourcesListModel::NOTE, new RichTextPlainDelegate(treeView));
     treeView->hideColumn(SourcesListModel::PARENT_ID);

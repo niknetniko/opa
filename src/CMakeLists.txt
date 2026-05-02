@@ -287,13 +287,16 @@ qt_add_resources(
   opa-lib "opa-database"
   PREFIX "/"
   BASE "database"
-  FILES database/init.sql database/schema.sql database/seed.sql
-        database/migrations/001_event_relations_surrogate_key.sql
-        database/migrations/002_add_locations.sql
-        database/migrations/003_add_type_translations.sql
-        database/migrations/004_add_role_origin_translations_and_source_types.sql
-        database/migrations/005_add_media.sql
-        database/migrations/006_fix_media_note_nullable.sql)
+  FILES
+    database/init.sql
+    database/schema.sql
+    database/seed.sql
+    database/migrations/001_event_relations_surrogate_key.sql
+    database/migrations/002_add_locations.sql
+    database/migrations/003_add_type_translations.sql
+    database/migrations/004_add_role_origin_translations_and_source_types.sql
+    database/migrations/005_add_media.sql
+    database/migrations/006_fix_media_note_nullable.sql)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

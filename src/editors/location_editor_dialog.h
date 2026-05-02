@@ -19,7 +19,11 @@ class LocationEditorDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit LocationEditorDialog(std::optional<IntegerPrimaryKey> locationId, std::optional<IntegerPrimaryKey> initialParentId, QWidget* parent);
+    explicit LocationEditorDialog(
+        std::optional<IntegerPrimaryKey> locationId,
+        std::optional<IntegerPrimaryKey> initialParentId,
+        QWidget* parent
+    );
     ~LocationEditorDialog() override;
 
     static QVariant showDialogForNewLocation(std::optional<IntegerPrimaryKey> parentId, QWidget* parent);

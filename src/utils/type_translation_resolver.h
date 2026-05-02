@@ -30,9 +30,8 @@ public:
         std::function<QString(const QString&)> builtinTranslator
     );
 
-    [[nodiscard]] QString resolve(
-        const QString& typeString, bool builtin, IntegerPrimaryKey typeId, const QString& locale
-    ) const;
+    [[nodiscard]] QString
+    resolve(const QString& typeString, bool builtin, IntegerPrimaryKey typeId, const QString& locale) const;
 
 private:
     std::function<std::optional<QString>(IntegerPrimaryKey typeId, const QString& locale)> lookupFn;

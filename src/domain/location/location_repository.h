@@ -26,8 +26,11 @@ public:
     [[nodiscard]] QList<LocationEntity> findAll() const;
     [[nodiscard]] QList<LocationDisplayEntity> findAllWithPaths() const;
     [[nodiscard]] std::optional<LocationEntity> findById(IntegerPrimaryKey id) const;
-    std::optional<IntegerPrimaryKey>
-    insert(const QString& name, std::optional<IntegerPrimaryKey> typeId, std::optional<IntegerPrimaryKey> parentId) const;
+    std::optional<IntegerPrimaryKey> insert(
+        const QString& name,
+        std::optional<IntegerPrimaryKey> typeId,
+        std::optional<IntegerPrimaryKey> parentId
+    ) const;
     bool update(
         IntegerPrimaryKey id,
         const QString& name,
@@ -42,6 +45,9 @@ public:
     [[nodiscard]] bool isUsed(IntegerPrimaryKey id) const;
     [[nodiscard]] bool hasChildren(IntegerPrimaryKey id) const;
     /// Finds an existing location by (name, parent_id) or creates one. typeId is ignored for matching.
-    std::optional<IntegerPrimaryKey>
-    findOrCreate(const QString& name, std::optional<IntegerPrimaryKey> typeId, std::optional<IntegerPrimaryKey> parentId) const;
+    std::optional<IntegerPrimaryKey> findOrCreate(
+        const QString& name,
+        std::optional<IntegerPrimaryKey> typeId,
+        std::optional<IntegerPrimaryKey> parentId
+    ) const;
 };

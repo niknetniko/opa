@@ -8,12 +8,12 @@
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_editor_dialog.h"
 #include "domain/location/location_repository.h"
+#include "domain/location/location_type_translation_repository.h"
+#include "domain/location/location_types.h"
 #include "domain/location/location_types_list_model.h"
 #include "link_existing/choose_existing_location_window.h"
 #include "note_editor_dialog.h"
 #include "ui_location_editor_dialog.h"
-#include "domain/location/location_type_translation_repository.h"
-#include "domain/location/location_types.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/translating_proxy_model.h"
 
@@ -134,13 +134,13 @@ void LocationEditorDialog::accept() {
 
     const auto dateStartText = form->dateStartEdit->text();
     const auto dateStart = dateStartText.isEmpty()
-        ? QString{}
-        : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
+                               ? QString{}
+                               : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
 
     const auto dateEndText = form->dateEndEdit->text();
     const auto dateEnd = dateEndText.isEmpty()
-        ? QString{}
-        : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
+                             ? QString{}
+                             : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
 
     if (!locationId.has_value()) {
         const auto newId = repo.insert(name, typeId, parentId);

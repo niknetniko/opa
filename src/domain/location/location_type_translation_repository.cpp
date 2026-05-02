@@ -17,9 +17,8 @@ QList<LocationTypeTranslationEntity> LocationTypeTranslationRepository::findAllF
     );
 }
 
-std::optional<IntegerPrimaryKey> LocationTypeTranslationRepository::insert(
-    IntegerPrimaryKey typeId, const QString& locale, const QString& name
-) const {
+std::optional<IntegerPrimaryKey>
+LocationTypeTranslationRepository::insert(IntegerPrimaryKey typeId, const QString& locale, const QString& name) const {
     auto newId = QueryHelper::insert(
         u"INSERT INTO location_type_translations (type_id, locale, name) VALUES (:type_id, :locale, :name)"_s,
         {{u":type_id"_s, typeId}, {u":locale"_s, locale}, {u":name"_s, name}}
@@ -38,9 +37,8 @@ bool LocationTypeTranslationRepository::remove(IntegerPrimaryKey id) const {
     );
 }
 
-std::optional<QString> LocationTypeTranslationRepository::findByTypeIdAndLocale(
-    IntegerPrimaryKey typeId, const QString& locale
-) const {
+std::optional<QString>
+LocationTypeTranslationRepository::findByTypeIdAndLocale(IntegerPrimaryKey typeId, const QString& locale) const {
     struct StringResult {
         QString name;
         static StringResult fromSql(const QSqlQuery& q) {
@@ -52,13 +50,14 @@ std::optional<QString> LocationTypeTranslationRepository::findByTypeIdAndLocale(
         u"SELECT name FROM location_type_translations WHERE type_id = :type_id AND locale = :locale"_s,
         {{u":type_id"_s, typeId}, {u":locale"_s, locale}}
     );
-    if (result) return result->name;
+    if (result) {
+        return result->name;
+    }
     return std::nullopt;
 }
 
-std::optional<QString> LocationTypeTranslationRepository::findByTypeStringAndLocale(
-    const QString& typeString, const QString& locale
-) const {
+std::optional<QString>
+LocationTypeTranslationRepository::findByTypeStringAndLocale(const QString& typeString, const QString& locale) const {
     struct StringResult {
         QString name;
         static StringResult fromSql(const QSqlQuery& q) {
@@ -72,6 +71,8 @@ std::optional<QString> LocationTypeTranslationRepository::findByTypeStringAndLoc
         u"WHERE lt.type = :type AND ltt.locale = :locale"_s,
         {{u":type"_s, typeString}, {u":locale"_s, locale}}
     );
-    if (result) return result->name;
+    if (result) {
+        return result->name;
+    }
     return std::nullopt;
 }

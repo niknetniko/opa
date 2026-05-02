@@ -12,7 +12,13 @@
 #include <QStringBuilder>
 
 GenealogicalDate::GenealogicalDate(
-    Modifier modifier, Quality quality, const QDate& proleptic, bool hasYear, bool hasMonth, bool hasDay, QString text
+    Modifier modifier,
+    Quality quality,
+    const QDate& proleptic,
+    bool hasYear,
+    bool hasMonth,
+    bool hasDay,
+    QString text
 ) :
     dateModifier(modifier),
     dateQuality(quality),

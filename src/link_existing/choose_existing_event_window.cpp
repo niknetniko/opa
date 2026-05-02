@@ -58,7 +58,8 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
         {EventListModel::ID, EventListModel::TYPE, EventListModel::DATE, EventListModel::NAME}
     );
     tableView->setItemDelegateForColumn(
-        EventListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::EVENT)
+        EventListModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::EVENT)
     );
     tableView->horizontalHeader()->setSectionResizeMode(EventListModel::ID, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(EventListModel::DATE, QHeaderView::ResizeToContents);

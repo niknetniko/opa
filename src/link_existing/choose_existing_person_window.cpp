@@ -30,7 +30,8 @@ ChooseExistingPersonWindow::ChooseExistingPersonWindow(QWidget* parent) :
     displayModel->setSourceColumns({PersonDisplayModel::ID, PersonDisplayModel::NAME});
 
     tableView->setItemDelegateForColumn(
-        PersonDisplayModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
+        PersonDisplayModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
     );
     tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::ID, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::NAME, QHeaderView::ResizeToContents);

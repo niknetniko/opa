@@ -73,7 +73,13 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
         }
     } else {
         deathDate = GenealogicalDate(
-            GenealogicalDate::NONE, GenealogicalDate::ESTIMATED, QDate::currentDate(), true, true, true, {}
+            GenealogicalDate::NONE,
+            GenealogicalDate::ESTIMATED,
+            QDate::currentDate(),
+            true,
+            true,
+            true,
+            {}
         );
     }
 

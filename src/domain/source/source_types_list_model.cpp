@@ -13,16 +13,14 @@
 
 SourceTypesListModel::SourceTypesListModel(QObject* parent) : ObjectTableModel(parent) {
     this->setColumn(ID, i18n("ID"), &SourceTypeEntity::id);
-    this->setColumn(
-        TYPE, i18n("Type"), &SourceTypeEntity::type, [](SourceTypeEntity& entity, const QVariant& value) {
-            const QString newType = value.toString();
-            if (newType.isEmpty()) {
-                return false;
-            }
-            SourceRepository repo;
-            return repo.updateSourceType(entity.id, newType);
+    this->setColumn(TYPE, i18n("Type"), &SourceTypeEntity::type, [](SourceTypeEntity& entity, const QVariant& value) {
+        const QString newType = value.toString();
+        if (newType.isEmpty()) {
+            return false;
         }
-    );
+        SourceRepository repo;
+        return repo.updateSourceType(entity.id, newType);
+    });
     this->setColumn(BUILTIN, i18n("Built-in"), &SourceTypeEntity::builtin);
 
     connectToTable<Schema::SourceTypes>(this);

@@ -12,8 +12,7 @@
 
 using namespace Qt::StringLiterals;
 
-static const auto SELECT_MEDIA =
-    u"SELECT m.id, m.path, m.title, m.note, m.mime_type FROM media m"_s;
+static const auto SELECT_MEDIA = u"SELECT m.id, m.path, m.title, m.note, m.mime_type FROM media m"_s;
 
 QList<MediaEntity> MediaRepository::findAll() const {
     return fetchAll<MediaEntity>(SELECT_MEDIA + u" ORDER BY m.title ASC, m.path ASC"_s, {});
@@ -29,32 +28,38 @@ std::optional<IntegerPrimaryKey> MediaRepository::insert(
     const std::optional<QString>& note,
     const QString& mimeType
 ) const {
-    const auto sql =
-        u"INSERT INTO media (path, title, note, mime_type) VALUES (:path, :title, :note, :mime_type)"_s;
-    const auto newId = QueryHelper::insert(sql, {
-        {u":path"_s, path},
-        {u":title"_s, title ? QVariant(*title) : QVariant{}},
-        {u":note"_s, note ? QVariant(*note) : QVariant{}},
-        {u":mime_type"_s, mimeType},
-    });
+    const auto sql = u"INSERT INTO media (path, title, note, mime_type) VALUES (:path, :title, :note, :mime_type)"_s;
+    const auto newId = QueryHelper::insert(
+        sql,
+        {
+            {u":path"_s, path},
+            {u":title"_s, title ? QVariant(*title) : QVariant{}},
+            {u":note"_s, note ? QVariant(*note) : QVariant{}},
+            {u":mime_type"_s, mimeType},
+        }
+    );
     if (newId) {
         DataEventBroker::instance().notifyChanged<Schema::Media>(*newId);
     }
     return newId;
 }
 
-bool MediaRepository::update(IntegerPrimaryKey id, const std::optional<QString>& title, const std::optional<QString>& note) const {
+bool MediaRepository::update(
+    IntegerPrimaryKey id,
+    const std::optional<QString>& title,
+    const std::optional<QString>& note
+) const {
     return QueryHelper::executeAndNotify<Schema::Media>(
         id,
         u"UPDATE media SET title = :title, note = :note WHERE id = :id"_s,
-        {{u":title"_s, title ? QVariant(*title) : QVariant{}}, {u":note"_s, note ? QVariant(*note) : QVariant{}}, {u":id"_s, id}}
+        {{u":title"_s, title ? QVariant(*title) : QVariant{}},
+         {u":note"_s, note ? QVariant(*note) : QVariant{}},
+         {u":id"_s, id}}
     );
 }
 
 bool MediaRepository::remove(IntegerPrimaryKey id) const {
-    return QueryHelper::executeAndNotify<Schema::Media>(
-        id, u"DELETE FROM media WHERE id = :id"_s, {{u":id"_s, id}}
-    );
+    return QueryHelper::executeAndNotify<Schema::Media>(id, u"DELETE FROM media WHERE id = :id"_s, {{u":id"_s, id}});
 }
 
 // --- Person ---
@@ -177,8 +182,7 @@ bool MediaRepository::detachFromSource(IntegerPrimaryKey sourceId, IntegerPrimar
 
 QList<MediaEntity> MediaRepository::findForLocation(IntegerPrimaryKey locationId) const {
     return fetchAll<MediaEntity>(
-        SELECT_MEDIA +
-            u" JOIN location_media j ON j.media_id = m.id WHERE j.location_id = :id ORDER BY m.title ASC"_s,
+        SELECT_MEDIA + u" JOIN location_media j ON j.media_id = m.id WHERE j.location_id = :id ORDER BY m.title ASC"_s,
         {{u":id"_s, locationId}}
     );
 }

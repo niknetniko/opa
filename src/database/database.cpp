@@ -47,7 +47,8 @@ constexpr std::array migrations = {
     },
     Migration{
         .version = 4,
-        .description = "Add event_role_translations, name_origin_translations, source_types and source_type_translations"_L1,
+        .description =
+            "Add event_role_translations, name_origin_translations, source_types and source_type_translations"_L1,
         .resourcePath = ":/migrations/004_add_role_origin_translations_and_source_types.sql"_L1,
     },
     Migration{
@@ -129,7 +130,8 @@ void runMigrations(QSqlDatabase& database) {
         executeScriptOrAbort(sql, database);
         QSqlQuery stamp(database);
         if (!stamp.exec(u"PRAGMA user_version = %1"_s.arg(m.version))) {
-            qCritical() << "Failed to stamp schema version after migration" << m.version << ":" << stamp.lastError().text();
+            qCritical() << "Failed to stamp schema version after migration" << m.version << ":"
+                        << stamp.lastError().text();
             abort();
         }
         if (!database.commit()) {

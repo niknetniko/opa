@@ -8,12 +8,12 @@ AlignConsecutiveDeclarations: false
 AlignOperands: true
 AlignTrailingComments: false
 AlwaysBreakTemplateDeclarations: Yes
-AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortFunctionsOnASingleLine: None
 BinPackArguments: false
 BinPackParameters: false
-BraceWrapping: 
+BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
   AfterControlStatement: false
@@ -37,7 +37,7 @@ ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
-IncludeCategories: 
+IncludeCategories:
   - Regex: '<([A-Za-z0-9\Q/-_\E])+>'
     Priority: 2
   - Regex: '.*'
@@ -63,4 +63,5 @@ QualifierAlignment: Left
 PointerAlignment: Left
 FixNamespaceComments: false
 PenaltyBreakAssignment: 50
+InsertBraces: true
 ...

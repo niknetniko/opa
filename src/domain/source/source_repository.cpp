@@ -104,20 +104,18 @@ bool SourceRepository::remove(IntegerPrimaryKey id) const {
 
 QList<SourceTypeEntity> SourceRepository::findAllSourceTypes() const {
     return fetchAll<SourceTypeEntity>(
-        u"SELECT id, type, builtin FROM source_types ORDER BY builtin DESC, type ASC"_s, {}
+        u"SELECT id, type, builtin FROM source_types ORDER BY builtin DESC, type ASC"_s,
+        {}
     );
 }
 
 std::optional<SourceTypeEntity> SourceRepository::findSourceTypeById(IntegerPrimaryKey id) const {
-    return fetchOne<SourceTypeEntity>(
-        u"SELECT id, type, builtin FROM source_types WHERE id = :id"_s, {{u":id"_s, id}}
-    );
+    return fetchOne<SourceTypeEntity>(u"SELECT id, type, builtin FROM source_types WHERE id = :id"_s, {{u":id"_s, id}});
 }
 
 std::optional<IntegerPrimaryKey> SourceRepository::insertSourceType(const QString& type) const {
-    auto newId = QueryHelper::insert(
-        u"INSERT INTO source_types (type, builtin) VALUES (:type, FALSE)"_s, {{u":type"_s, type}}
-    );
+    auto newId =
+        QueryHelper::insert(u"INSERT INTO source_types (type, builtin) VALUES (:type, FALSE)"_s, {{u":type"_s, type}});
     if (newId) {
         DataEventBroker::instance().notifyChanged<Schema::SourceTypes>(*newId);
     }
@@ -148,8 +146,7 @@ bool SourceRepository::isSourceTypeUsed(IntegerPrimaryKey typeId) const {
             return {.count = q.value(0).toInt()};
         }
     };
-    auto result = fetchOne<CountResult>(
-        u"SELECT COUNT(*) FROM sources WHERE type_id = :type_id"_s, {{u":type_id"_s, typeId}}
-    );
+    auto result =
+        fetchOne<CountResult>(u"SELECT COUNT(*) FROM sources WHERE type_id = :type_id"_s, {{u":type_id"_s, typeId}});
     return result && result->count > 0;
 }

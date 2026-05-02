@@ -13,10 +13,10 @@
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>
+#include <QAction>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QAction>
 #include <QHeaderView>
 #include <QMimeDatabase>
 #include <QTableView>
@@ -84,7 +84,8 @@ MediaListWidget::MediaListWidget(LoadFn load, AttachFn attach, DetachFn detach, 
     tableView->horizontalHeader()->setStretchLastSection(true);
     tableView->verticalHeader()->hide();
     tableView->setItemDelegateForColumn(
-        MediaListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::MEDIA)
+        MediaListModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::MEDIA)
     );
     layout->addWidget(tableView);
 
@@ -94,12 +95,7 @@ MediaListWidget::MediaListWidget(LoadFn load, AttachFn attach, DetachFn detach, 
     connect(openAction, &QAction::triggered, this, &MediaListWidget::onOpen);
     connect(removeAction, &QAction::triggered, this, &MediaListWidget::onRemove);
     connect(tableView, &QTableView::doubleClicked, this, [this] { onEdit(); });
-    connect(
-        tableView->selectionModel(),
-        &QItemSelectionModel::selectionChanged,
-        this,
-        &MediaListWidget::updateButtons
-    );
+    connect(tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MediaListWidget::updateButtons);
 
     reload();
 }

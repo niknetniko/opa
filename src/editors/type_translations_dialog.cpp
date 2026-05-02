@@ -5,9 +5,8 @@
  */
 #include "type_translations_dialog.h"
 
-#include "ui_type_translations_dialog.h"
-
 #include "database/database.h"
+#include "ui_type_translations_dialog.h"
 
 #include <KLocalizedString>
 #include <QLocale>
@@ -77,7 +76,7 @@ TypeTranslationsDialog::~TypeTranslationsDialog() {
 void TypeTranslationsDialog::reload() {
     QSignalBlocker blocker(tableModel);
     tableModel->removeRows(0, tableModel->rowCount());
-    for (const auto& entry : loadFn()) {
+    for (const auto& entry: loadFn()) {
         auto* localeItem = new QStandardItem(formatLocale(entry.locale));
         localeItem->setData(entry.locale, LOCALE_CODE_ROLE);
         localeItem->setData(entry.id, ROW_ID_ROLE);
@@ -102,8 +101,12 @@ void TypeTranslationsDialog::addTranslation() {
         }
     }
     const auto ok = executeInTransaction([&]() -> std::optional<bool> {
-        if (existingId && !removeFn(*existingId)) return std::nullopt;
-        if (!insertFn(locale, name)) return std::nullopt;
+        if (existingId && !removeFn(*existingId)) {
+            return std::nullopt;
+        }
+        if (!insertFn(locale, name)) {
+            return std::nullopt;
+        }
         return true;
     });
     if (ok) {
@@ -137,8 +140,12 @@ void TypeTranslationsDialog::onItemChanged(QStandardItem* item) {
     }
     // Update by removing the old row and inserting a new one with the same locale.
     const auto ok = executeInTransaction([&]() -> std::optional<bool> {
-        if (!removeFn(id)) return std::nullopt;
-        if (!insertFn(locale, newName)) return std::nullopt;
+        if (!removeFn(id)) {
+            return std::nullopt;
+        }
+        if (!insertFn(locale, newName)) {
+            return std::nullopt;
+        }
         return true;
     });
     if (ok) {

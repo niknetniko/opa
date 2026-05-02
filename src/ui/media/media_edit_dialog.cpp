@@ -10,14 +10,14 @@
 
 #include <KIO/OpenFileManagerWindowJob>
 #include <KLocalizedString>
-#include <QPdfDocument>
-#include <QPdfView>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPdfDocument>
+#include <QPdfView>
 #include <QPixmap>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -28,9 +28,7 @@
 
 using namespace Qt::StringLiterals;
 
-MediaEditDialog::MediaEditDialog(const MediaEntity& entity, QWidget* parent) :
-    QDialog(parent),
-    mediaId(entity.id) {
+MediaEditDialog::MediaEditDialog(const MediaEntity& entity, QWidget* parent) : QDialog(parent), mediaId(entity.id) {
 
     if (MediaService::isActive()) {
         absolutePath = MediaService::instance().resolveAbsolutePath(entity.path);

@@ -24,6 +24,9 @@ private:
     QNetworkAccessManager network{this};
 
     void doRequest(
-        const QString& apiKey, const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema
+        const QString& apiKey,
+        const QString& systemPrompt,
+        const QString& userMessage,
+        const QJsonObject& schema
     );
 };

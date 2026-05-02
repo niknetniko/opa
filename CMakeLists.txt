@@ -7,7 +7,7 @@ set(KF_MIN_VERSION "6.4.0")
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
@@ -34,8 +34,7 @@ find_package(
              QuickWidgets
              Test
              Pdf
-             PdfWidgets
-)
+             PdfWidgets)
 
 find_package(
   KF6 ${KF_MIN_VERSION} REQUIRED

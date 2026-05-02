@@ -52,7 +52,8 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
 
     // The ID_AND_ROLE column shows role names for group rows and formatted event IDs for leaf rows.
     treeView->setItemDelegateForColumn(
-        PersonEventListModel::ROLE, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
+        PersonEventListModel::ROLE,
+        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::EVENT)
     );
     // Change resizes.
     treeView->header()->setSortIndicatorClearable(false);
@@ -141,7 +142,11 @@ void PersonEventTab::onEditSelectedEvent() {
     auto relationId = selectedIndex.siblingAtColumn(PersonEventListModel::RELATION_ID).data();
 
     EventEditorDialog::showDialogForExistingEvent(
-        eventId.toLongLong(), eventRoleId.toLongLong(), relationId.toLongLong(), person, this
+        eventId.toLongLong(),
+        eventRoleId.toLongLong(),
+        relationId.toLongLong(),
+        person,
+        this
     );
 }
 
@@ -235,7 +240,9 @@ void PersonEventTab::onLinkExistingEvent() {
     if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong())
              .has_value()) {
         QMessageBox::warning(
-            this, tr("Could not link event"), tr("Problem inserting new event relation into database.")
+            this,
+            tr("Could not link event"),
+            tr("Problem inserting new event relation into database.")
         );
         qDebug() << "Could not insert event relation for some reason";
     }

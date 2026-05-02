@@ -507,9 +507,9 @@ private Q_SLOTS:
         auto personId = insertPerson();
         auto roleId = insertEventRole();
 
-        auto eventId = EventRepository().insertFullEvent(
-            typeId, u"1950-06-15"_s, u"Birth of John"_s, u"<p>Hospital</p>"_s, personId, roleId
-        );
+        auto eventId =
+            EventRepository()
+                .insertFullEvent(typeId, u"1950-06-15"_s, u"Birth of John"_s, u"<p>Hospital</p>"_s, personId, roleId);
         QVERIFY(eventId.has_value());
 
         EventRepository repo;

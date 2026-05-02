@@ -36,7 +36,8 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidge
 
     // The ID should be formatted properly.
     treeView->setItemDelegateForColumn(
-        PersonNamesModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME)
+        PersonNamesModel::ID,
+        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::NAME)
     );
     // Origins must be translated.
     auto* originTranslator = new BuiltinTextTranslatingDelegate(treeView);
@@ -227,6 +228,7 @@ void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow
     }
 
     treeView->selectionModel()->select(
-        model->index(destinationRow, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows
+        model->index(destinationRow, 0),
+        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows
     );
 }

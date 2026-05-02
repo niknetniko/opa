@@ -60,7 +60,7 @@ SourceTypesManagementWindow::SourceTypesManagementWindow() {
             [typeId]() -> QList<TypeTranslationsDialog::TranslationEntry> {
                 SourceTypeTranslationRepository repo;
                 QList<TypeTranslationsDialog::TranslationEntry> result;
-                for (const auto& e : repo.findAllForType(typeId)) {
+                for (const auto& e: repo.findAllForType(typeId)) {
                     result.append({.id = e.id, .locale = e.locale, .name = e.name});
                 }
                 return result;

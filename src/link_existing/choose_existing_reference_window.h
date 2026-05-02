@@ -40,7 +40,10 @@ protected:
      * @param parent
      */
     explicit ChooseExistingReferenceWindow(
-        int searchColumn, int resultColumn, QAbstractItemModel* sourceModel, QWidget* parent
+        int searchColumn,
+        int resultColumn,
+        QAbstractItemModel* sourceModel,
+        QWidget* parent
     );
 
     QTableView* tableView;

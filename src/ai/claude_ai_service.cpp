@@ -42,7 +42,10 @@ void ClaudeAiService::complete(const QString& systemPrompt, const QString& userM
 }
 
 void ClaudeAiService::doRequest(
-    const QString& apiKey, const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema
+    const QString& apiKey,
+    const QString& systemPrompt,
+    const QString& userMessage,
+    const QJsonObject& schema
 ) {
     qCDebug(OPA) << "Claude AI: sending request, model=" << model << "schema empty=" << schema.isEmpty();
 

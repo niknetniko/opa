@@ -52,7 +52,8 @@ PersonListWidget::PersonListWidget(QWidget* parent) : QWidget(parent) {
     tableView->horizontalHeader()->setSectionResizeMode(PersonDisplayModel::ROOT, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setHighlightSections(false);
     tableView->setItemDelegateForColumn(
-        PersonDisplayModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
+        PersonDisplayModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::PERSON)
     );
 
     auto* layout = new QVBoxLayout(this);

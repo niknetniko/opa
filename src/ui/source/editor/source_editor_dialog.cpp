@@ -15,12 +15,11 @@
 #include "editors/note_editor_dialog.h"
 #include "link_existing/choose_existing_source_window.h"
 #include "opaSettings.h"
+#include "ui/media/media_list_widget.h"
 #include "ui_source_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
 #include "utils/translating_proxy_model.h"
-
-#include "ui/media/media_list_widget.h"
 
 #include <KCollapsibleGroupBox>
 #include <KLocalizedString>
@@ -42,7 +41,10 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
     connect(form->noteEditButton, &QPushButton::clicked, this, &SourceEditorDialog::editNoteWithEditor);
     connect(form->sourceParentAdd, &QPushButton::clicked, this, &SourceEditorDialog::addNewSourceAsParent);
     connect(
-        form->sourceParentPickButton, &QPushButton::clicked, this, &SourceEditorDialog::selectExistingSourceAsParent
+        form->sourceParentPickButton,
+        &QPushButton::clicked,
+        this,
+        &SourceEditorDialog::selectExistingSourceAsParent
     );
 
     // Populate the type combo box from the source types lookup table.
@@ -125,7 +127,10 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
     connect(form->parentSuggestionUseButton, &QPushButton::clicked, this, &SourceEditorDialog::onUseSuggestedParent);
     connect(form->parentSuggestionPickButton, &QPushButton::clicked, this, &SourceEditorDialog::onPickDifferentParent);
     connect(
-        form->parentSuggestionCreateButton, &QPushButton::clicked, this, &SourceEditorDialog::onCreateSuggestedParent
+        form->parentSuggestionCreateButton,
+        &QPushButton::clicked,
+        this,
+        &SourceEditorDialog::onCreateSuggestedParent
     );
 }
 
@@ -135,10 +140,10 @@ void SourceEditorDialog::accept() {
     auto title = form->sourcetTitleEdit->text();
     const auto typeRow = form->sourceTypeComboBox->currentIndex();
     const auto typeId = typeRow >= 0
-        ? std::optional<IntegerPrimaryKey>(
-              sourceTypesModel->index(typeRow, SourceTypesListModel::ID).data().toLongLong()
-          )
-        : std::nullopt;
+                            ? std::optional<IntegerPrimaryKey>(
+                                  sourceTypesModel->index(typeRow, SourceTypesListModel::ID).data().toLongLong()
+                              )
+                            : std::nullopt;
     auto author = form->sourceAuthorEdit->text();
     auto publication = form->sourcePublicationEdit->text();
     auto note = form->noteEdit->textOrHtml();
@@ -229,7 +234,8 @@ const QJsonObject extractionSchema = QJsonObject{
           }},
          {u"message"_s,
           QJsonObject{
-              {u"type"_s, u"string"_s}, {u"description"_s, u"Optional note about ambiguous or missing fields"_s}
+              {u"type"_s, u"string"_s},
+              {u"description"_s, u"Optional note about ambiguous or missing fields"_s}
           }},
      }},
     {u"required"_s, QJsonArray{u"title"_s, u"type"_s, u"confidence"_s}},

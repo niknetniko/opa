@@ -61,10 +61,7 @@ public:
      * @param subfolder          Optional subfolder within the media root.
      * @return Relative path on success, nullopt if the copy failed.
      */
-    [[nodiscard]] std::optional<QString> importFile(
-        const QString& absoluteSourcePath,
-        const QString& subfolder = {}
-    );
+    [[nodiscard]] std::optional<QString> importFile(const QString& absoluteSourcePath, const QString& subfolder = {});
 
 private:
     explicit MediaService(const QString& mediaRoot);

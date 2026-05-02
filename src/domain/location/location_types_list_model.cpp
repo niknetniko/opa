@@ -13,17 +13,22 @@
 
 LocationTypesListModel::LocationTypesListModel(QObject* parent) : ObjectTableModel(parent) {
     this->setColumn(ID, i18n("ID"), &LocationTypeEntity::id);
-    this->setColumn(TYPE, i18n("Type"), &LocationTypeEntity::type, [](LocationTypeEntity& entity, const QVariant& value) {
-        QString newType = value.toString();
-        if (newType.isEmpty()) {
-            return false;
+    this->setColumn(
+        TYPE,
+        i18n("Type"),
+        &LocationTypeEntity::type,
+        [](LocationTypeEntity& entity, const QVariant& value) {
+            QString newType = value.toString();
+            if (newType.isEmpty()) {
+                return false;
+            }
+            LocationRepository repo;
+            if (!repo.updateLocationType(entity.id, newType)) {
+                return false;
+            }
+            return true;
         }
-        LocationRepository repo;
-        if (!repo.updateLocationType(entity.id, newType)) {
-            return false;
-        }
-        return true;
-    });
+    );
     this->setColumn(BUILTIN, i18n("Built-in"), &LocationTypeEntity::builtin);
 
     connectToTable<Schema::LocationTypes>(this);

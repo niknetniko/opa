@@ -6,7 +6,10 @@
 #include "names.h"
 
 QString construct_display_name(
-    const QString& titles, const QString& givenNames, const QString& prefix, const QString& surname
+    const QString& titles,
+    const QString& givenNames,
+    const QString& prefix,
+    const QString& surname
 ) {
     QStringList nameParts;
     if (!titles.isEmpty()) {

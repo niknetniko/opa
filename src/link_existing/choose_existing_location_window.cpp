@@ -26,7 +26,8 @@ ChooseExistingLocationWindow::ChooseExistingLocationWindow(QWidget* parent) :
     tableHelpText->setText(i18n("Choose an existing location"));
     displayModel->setSourceColumns({LocationListModel::ID, LocationListModel::NAME});
     tableView->setItemDelegateForColumn(
-        LocationListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::LOCATION)
+        LocationListModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::LOCATION)
     );
     tableView->horizontalHeader()->setSectionResizeMode(LocationListModel::ID, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setStretchLastSection(true);

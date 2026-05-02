@@ -12,7 +12,10 @@
 #include <QSqlError>
 
 ForeignKey::ForeignKey(
-    const int foreignKeyColumn, QSqlTableModel* foreignModel, const int displayColumn, const int primaryKeyColumn
+    const int foreignKeyColumn,
+    QSqlTableModel* foreignModel,
+    const int displayColumn,
+    const int primaryKeyColumn
 ) :
     _displayColumn(displayColumn),
     _primaryKeyColumn(primaryKeyColumn),
@@ -68,7 +71,10 @@ QSqlTableModel* CustomSqlRelationalModel::relationModel(const int column) const 
 }
 
 void CustomSqlRelationalModel::setRelation(
-    const int foreignKeyColumn, QSqlTableModel* foreignModel, const int displayColumn, const int sourceModel
+    const int foreignKeyColumn,
+    QSqlTableModel* foreignModel,
+    const int displayColumn,
+    const int sourceModel
 ) {
     Q_ASSERT(0 <= foreignKeyColumn);
     Q_ASSERT(foreignKeyColumn < QSqlTableModel::columnCount());
@@ -199,7 +205,9 @@ CustomSqlRelationalDelegate::CustomSqlRelationalDelegate(QObject* parent) : QSty
 }
 
 QWidget* CustomSqlRelationalDelegate::createEditor(
-    QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index
+    QWidget* parent,
+    const QStyleOptionViewItem& option,
+    const QModelIndex& index
 ) const {
     const auto* proxyModel = qobject_cast<const QAbstractProxyModel*>(index.model());
     if (proxyModel == nullptr) {
@@ -227,7 +235,9 @@ QWidget* CustomSqlRelationalDelegate::createEditor(
 }
 
 void CustomSqlRelationalDelegate::setModelData(
-    QWidget* editor, QAbstractItemModel* model, const QModelIndex& index
+    QWidget* editor,
+    QAbstractItemModel* model,
+    const QModelIndex& index
 ) const {
     if (!index.isValid()) {
         return;

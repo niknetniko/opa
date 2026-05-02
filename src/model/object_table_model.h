@@ -54,9 +54,8 @@ public:
         if (columns.size() <= index) {
             columns.resize(index + 1);
         }
-        columns[index] = {
-            header, [field](const T& item) { return QVariant::fromValue(item.*field); }, std::move(setter)
-        };
+        columns[index] =
+            {header, [field](const T& item) { return QVariant::fromValue(item.*field); }, std::move(setter)};
     }
 
     void setItems(const QList<T>& itemsParam) {

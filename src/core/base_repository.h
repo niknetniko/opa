@@ -74,9 +74,9 @@ protected:
         if (query.next()) {
             auto value = T::fromSql(query);
 
-            // Be strict about this at the moment.
+            // Be strict about this, to prevent accidental errors or wrong assumptions.
             if (query.next()) {
-                qCritical() << "More than one result returned for fetchOne query, refusing to return";
+                qCritical() << "More than one result returned for fetchOne query, refusing to return.";
                 return std::nullopt;
             }
 

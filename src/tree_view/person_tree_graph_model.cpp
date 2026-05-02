@@ -93,7 +93,10 @@ PersonTreeGraphModel::connections(NodeId nodeId, PortType portType, PortIndex in
 
 bool PersonTreeGraphModel::connectionExists(const ConnectionId connectionId) const {
     auto matches = sourceModel_->match(
-        sourceModel_->index(0, AncestorModel::CHILD_ID), Qt::DisplayRole, connectionId.inNodeId, -1
+        sourceModel_->index(0, AncestorModel::CHILD_ID),
+        Qt::DisplayRole,
+        connectionId.inNodeId,
+        -1
     );
 
     return std::ranges::any_of(matches, [&](const QModelIndex& matchedIndex) {
@@ -196,7 +199,11 @@ QVariant PersonTreeGraphModel::portData(NodeId nodeId, PortType portType, PortIn
 }
 
 bool PersonTreeGraphModel::setPortData(
-    NodeId nodeId, PortType portType, PortIndex index, const QVariant& value, PortRole role
+    NodeId nodeId,
+    PortType portType,
+    PortIndex index,
+    const QVariant& value,
+    PortRole role
 ) {
     Q_UNUSED(nodeId);
     Q_UNUSED(portType);

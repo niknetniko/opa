@@ -25,7 +25,7 @@ class MediaListWidget : public QWidget {
     Q_OBJECT
 
 public:
-    using LoadFn   = std::function<QList<MediaEntity>()>;
+    using LoadFn = std::function<QList<MediaEntity>()>;
     using AttachFn = std::function<bool(IntegerPrimaryKey mediaId)>;
     using DetachFn = std::function<bool(IntegerPrimaryKey mediaId)>;
 

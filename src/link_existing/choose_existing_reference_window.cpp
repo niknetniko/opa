@@ -42,13 +42,17 @@ void ChooseExistingReferenceWindow::itemSelected(const QModelIndex& selected) {
 }
 
 void ChooseExistingReferenceWindow::selectionChanged(
-    const QItemSelection& selected, [[maybe_unused]] const QItemSelection& deselected
+    const QItemSelection& selected,
+    [[maybe_unused]] const QItemSelection& deselected
 ) const {
     buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(!selected.indexes().isEmpty());
 }
 
 ChooseExistingReferenceWindow::ChooseExistingReferenceWindow(
-    int searchColumn, int resultColumn, QAbstractItemModel* sourceModel, QWidget* parent
+    int searchColumn,
+    int resultColumn,
+    QAbstractItemModel* sourceModel,
+    QWidget* parent
 ) :
     QDialog(parent),
     searchColumn(searchColumn),

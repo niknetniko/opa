@@ -174,7 +174,11 @@ QString genericToDisplayString(const QString& databaseValue, QHash<E, KLazyLocal
  */
 template<typename E>
 IntegerPrimaryKey getTypeId(
-    QAbstractItemModel* model, E eventType, QHash<E, KLazyLocalizedString> enumMapping, int typeColumn, int idColumn
+    QAbstractItemModel* model,
+    E eventType,
+    QHash<E, KLazyLocalizedString> enumMapping,
+    int typeColumn,
+    int idColumn
 ) {
     auto databaseValue = QString::fromLatin1(enumMapping[eventType].untranslatedText());
     auto defaultEventRoleIndex = model->match(model->index(0, typeColumn), Qt::DisplayRole, databaseValue).constFirst();

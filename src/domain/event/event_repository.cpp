@@ -130,7 +130,9 @@ QList<EventRelationEntity> EventRepository::findRelationsForPerson(IntegerPrimar
 }
 
 std::optional<IntegerPrimaryKey> EventRepository::insertEventRelation(
-    IntegerPrimaryKey eventId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId
+    IntegerPrimaryKey eventId,
+    IntegerPrimaryKey personId,
+    IntegerPrimaryKey roleId
 ) const {
     const auto sql = u"INSERT INTO event_relations (event_id, person_id, role_id) "
                      u"VALUES (:event_id, :person_id, :role_id)"_s;
@@ -161,40 +163,43 @@ bool EventRepository::updateEventRelationRole(IntegerPrimaryKey relationId, Inte
 }
 
 QList<PersonEventEntity> EventRepository::findEventsForPerson(IntegerPrimaryKey personId) const {
-    const auto sql = u"SELECT events.id, erel.id AS relation_id, er.id AS role_id, er.role, et.type, events.date, events.name "
-                     u"FROM events "
-                     u"LEFT JOIN event_types AS et ON events.type_id = et.id "
-                     u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                     u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                     u"WHERE erel.person_id = :person_id "
-                     u"ORDER BY events.date ASC"_s;
+    const auto sql =
+        u"SELECT events.id, erel.id AS relation_id, er.id AS role_id, er.role, et.type, events.date, events.name "
+        u"FROM events "
+        u"LEFT JOIN event_types AS et ON events.type_id = et.id "
+        u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        u"WHERE erel.person_id = :person_id "
+        u"ORDER BY events.date ASC"_s;
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 
 QList<PersonEventEntity> EventRepository::findBirthEventsForPerson(IntegerPrimaryKey personId) const {
-    const auto sql = u"SELECT events.id, erel.id AS relation_id, er.id AS role_id, er.role, et.type, events.date, events.name "
-                     u"FROM events "
-                     u"LEFT JOIN event_types AS et ON events.type_id = et.id "
-                     u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                     u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                     u"WHERE erel.person_id = :person_id "
-                     u"AND er.role = 'Primary' "
-                     u"AND et.type IN ('Birth', 'Baptism') "
-                     u"AND LENGTH(events.date) != 0 "
-                     u"ORDER BY et.type = 'Birth' DESC, et.type = 'Baptism' DESC"_s;
+    const auto sql =
+        u"SELECT events.id, erel.id AS relation_id, er.id AS role_id, er.role, et.type, events.date, events.name "
+        u"FROM events "
+        u"LEFT JOIN event_types AS et ON events.type_id = et.id "
+        u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        u"WHERE erel.person_id = :person_id "
+        u"AND er.role = 'Primary' "
+        u"AND et.type IN ('Birth', 'Baptism') "
+        u"AND LENGTH(events.date) != 0 "
+        u"ORDER BY et.type = 'Birth' DESC, et.type = 'Baptism' DESC"_s;
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 
 QList<PersonEventEntity> EventRepository::findDeathEventsForPerson(IntegerPrimaryKey personId) const {
-    const auto sql = u"SELECT events.id, erel.id AS relation_id, er.id AS role_id, er.role, et.type, events.date, events.name "
-                     u"FROM events "
-                     u"LEFT JOIN event_types AS et ON events.type_id = et.id "
-                     u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
-                     u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
-                     u"WHERE erel.person_id = :person_id "
-                     u"AND er.role = 'Primary' "
-                     u"AND et.type IN ('Death', 'Funeral') "
-                     u"ORDER BY et.type = 'Death' DESC, et.type = 'Funeral' DESC"_s;
+    const auto sql =
+        u"SELECT events.id, erel.id AS relation_id, er.id AS role_id, er.role, et.type, events.date, events.name "
+        u"FROM events "
+        u"LEFT JOIN event_types AS et ON events.type_id = et.id "
+        u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
+        u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
+        u"WHERE erel.person_id = :person_id "
+        u"AND er.role = 'Primary' "
+        u"AND et.type IN ('Death', 'Funeral') "
+        u"ORDER BY et.type = 'Death' DESC, et.type = 'Funeral' DESC"_s;
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 
@@ -319,7 +324,9 @@ bool EventRepository::removeEventRelationCitation(IntegerPrimaryKey relationId, 
 }
 
 std::optional<IntegerPrimaryKey> EventRepository::insertEventWithRelation(
-    IntegerPrimaryKey typeId, IntegerPrimaryKey personId, IntegerPrimaryKey roleId
+    IntegerPrimaryKey typeId,
+    IntegerPrimaryKey personId,
+    IntegerPrimaryKey roleId
 ) const {
     return executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
         auto eventId = insertEvent(typeId);

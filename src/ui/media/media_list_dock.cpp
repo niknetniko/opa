@@ -45,7 +45,8 @@ MediaTableWidget::MediaTableWidget(QWidget* parent) : QWidget(parent) {
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tableView->horizontalHeader()->setSectionResizeMode(MediaListModel::TITLE, QHeaderView::Stretch);
     tableView->setItemDelegateForColumn(
-        MediaListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::MEDIA)
+        MediaListModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::MEDIA)
     );
     tableView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -71,8 +72,7 @@ void MediaTableWidget::onDoubleClicked(const QModelIndex& index) {
     if (!index.isValid()) {
         return;
     }
-    const auto mediaId =
-        index.siblingAtColumn(MediaListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
+    const auto mediaId = index.siblingAtColumn(MediaListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
     openEditDialog(mediaId);
 }
 
@@ -82,16 +82,13 @@ void MediaTableWidget::onContextMenuRequested(const QPoint& pos) {
         return;
     }
 
-    const auto mediaId =
-        index.siblingAtColumn(MediaListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
+    const auto mediaId = index.siblingAtColumn(MediaListModel::ID).data(Qt::EditRole).value<IntegerPrimaryKey>();
 
     QMenu menu(tableView);
 
     auto* editAction = new QAction(i18n("&Edit..."), &menu);
     editAction->setIcon(QIcon::fromTheme(u"document-edit"_s));
-    connect(editAction, &QAction::triggered, this, [this, mediaId]() {
-        openEditDialog(mediaId);
-    });
+    connect(editAction, &QAction::triggered, this, [this, mediaId]() { openEditDialog(mediaId); });
     menu.addAction(editAction);
 
     auto* openAction = new QAction(i18n("&Open File"), &menu);
@@ -128,7 +125,6 @@ void MediaTableWidget::onContextMenuRequested(const QPoint& pos) {
     menu.exec(tableView->viewport()->mapToGlobal(pos));
 }
 
-MediaListDock::MediaListDock() :
-    DockWidget(u"Media"_s, KDDockWidgets::DockWidgetOption_DeleteOnClose) {
+MediaListDock::MediaListDock() : DockWidget(u"Media"_s, KDDockWidgets::DockWidgetOption_DeleteOnClose) {
     setWidget(new MediaTableWidget(this));
 }

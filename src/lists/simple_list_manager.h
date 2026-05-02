@@ -78,7 +78,8 @@ protected:
     virtual bool isUsed(const QVariant& id) = 0;
 
     virtual void removeMarkedReferences(
-        const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds, const QHash<IntegerPrimaryKey, QString>& idToValue
+        const QHash<QString, QVector<IntegerPrimaryKey>>& valueToIds,
+        const QHash<IntegerPrimaryKey, QString>& idToValue
     ) = 0;
 
     /**

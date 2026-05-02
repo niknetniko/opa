@@ -7,7 +7,6 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "../src/domain/event/event_type_translation_repository.h"
 #include "../src/domain/location/location_type_translation_repository.h"
-
 #include "./test_utils.h"
 #include "database/database.h"
 #include "database/schema.h"
@@ -32,9 +31,7 @@ private Q_SLOTS:
     }
 
     void testEventTypeTranslation_insertAndFetch() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Custom', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Custom', false)"_s);
 
         EventTypeTranslationRepository repo;
         auto id = repo.insert(typeId, u"nl"_s, u"Aangepast"_s);
@@ -48,9 +45,7 @@ private Q_SLOTS:
     }
 
     void testEventTypeTranslation_remove() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Custom', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Custom', false)"_s);
 
         EventTypeTranslationRepository repo;
         auto id = repo.insert(typeId, u"nl"_s, u"Aangepast"_s);
@@ -60,9 +55,7 @@ private Q_SLOTS:
     }
 
     void testEventTypeTranslation_cascadeDelete() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Custom', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Custom', false)"_s);
 
         EventTypeTranslationRepository repo;
         QVERIFY(repo.insert(typeId, u"nl"_s, u"Aangepast"_s).has_value());
@@ -77,9 +70,7 @@ private Q_SLOTS:
     }
 
     void testEventTypeTranslation_findByTypeStringAndLocale() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('Adoptie', false)"_s);
 
         EventTypeTranslationRepository repo;
         QVERIFY(repo.insert(typeId, u"en"_s, u"Adoption"_s).has_value());
@@ -93,9 +84,7 @@ private Q_SLOTS:
     }
 
     void testLocationTypeTranslation_insertAndFetch() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO location_types (type, builtin) VALUES ('Boerderij', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO location_types (type, builtin) VALUES ('Boerderij', false)"_s);
 
         LocationTypeTranslationRepository repo;
         auto id = repo.insert(typeId, u"en"_s, u"Farm"_s);
@@ -107,9 +96,7 @@ private Q_SLOTS:
     }
 
     void testLocationTypeTranslation_findByTypeStringAndLocale() {
-        const auto typeId = insertQuery(
-            u"INSERT INTO location_types (type, builtin) VALUES ('Boerderij', false)"_s
-        );
+        const auto typeId = insertQuery(u"INSERT INTO location_types (type, builtin) VALUES ('Boerderij', false)"_s);
 
         LocationTypeTranslationRepository repo;
         QVERIFY(repo.insert(typeId, u"en"_s, u"Farm"_s).has_value());

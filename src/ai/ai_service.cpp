@@ -18,7 +18,9 @@ AiService* createAiService(QObject* parent) {
             return new LocalAiService(parent);
         case opaSettings::EnumAiProvider::OpenAiCompatible:
             return new OpenAiCompatibleService(
-                opaSettings::openAiCompatibleEndpoint(), opaSettings::openAiCompatibleModel(), parent
+                opaSettings::openAiCompatibleEndpoint(),
+                opaSettings::openAiCompatibleModel(),
+                parent
             );
         case opaSettings::EnumAiProvider::None:
         default:

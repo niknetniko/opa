@@ -26,7 +26,8 @@ ChooseExistingSourceWindow::ChooseExistingSourceWindow(QWidget* parent) :
     tableHelpText->setText(i18n("Choose an existing person"));
     displayModel->setSourceColumns({SourcesListModel::ID, SourcesListModel::AUTHOR, SourcesListModel::TITLE});
     tableView->setItemDelegateForColumn(
-        SourcesListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::SOURCE)
+        SourcesListModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::SOURCE)
     );
     tableView->horizontalHeader()->setSectionResizeMode(SourcesListModel::ID, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(SourcesListModel::AUTHOR, QHeaderView::ResizeToContents);

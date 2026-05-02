@@ -18,13 +18,15 @@ QList<LocationTypeEntity> LocationRepository::findAllLocationTypes() const {
 
 std::optional<LocationTypeEntity> LocationRepository::findLocationTypeById(IntegerPrimaryKey id) const {
     return fetchOne<LocationTypeEntity>(
-        u"SELECT id, type, builtin FROM location_types WHERE id = :id"_s, {{u":id"_s, id}}
+        u"SELECT id, type, builtin FROM location_types WHERE id = :id"_s,
+        {{u":id"_s, id}}
     );
 }
 
 std::optional<IntegerPrimaryKey> LocationRepository::insertLocationType(const QString& type) const {
     auto newId = QueryHelper::insert(
-        u"INSERT INTO location_types (type, builtin) VALUES (:type, false)"_s, {{u":type"_s, type}}
+        u"INSERT INTO location_types (type, builtin) VALUES (:type, false)"_s,
+        {{u":type"_s, type}}
     );
     if (newId) {
         DataEventBroker::instance().notifyChanged<Schema::LocationTypes>(*newId);
@@ -64,13 +66,12 @@ QList<LocationEntity> LocationRepository::findAll() const {
 }
 
 QList<LocationDisplayEntity> LocationRepository::findAllWithPaths() const {
-    const auto sql =
-        u"WITH RECURSIVE path(id, name, type_id, parent_id, full_path) AS ("
-        u"  SELECT id, name, type_id, parent_id, name FROM locations WHERE parent_id IS NULL"
-        u"  UNION ALL"
-        u"  SELECT l.id, l.name, l.type_id, l.parent_id, path.full_path || ' > ' || l.name"
-        u"  FROM locations l JOIN path ON l.parent_id = path.id"
-        u") SELECT id, name, full_path FROM path ORDER BY full_path"_s;
+    const auto sql = u"WITH RECURSIVE path(id, name, type_id, parent_id, full_path) AS ("
+                     u"  SELECT id, name, type_id, parent_id, name FROM locations WHERE parent_id IS NULL"
+                     u"  UNION ALL"
+                     u"  SELECT l.id, l.name, l.type_id, l.parent_id, path.full_path || ' > ' || l.name"
+                     u"  FROM locations l JOIN path ON l.parent_id = path.id"
+                     u") SELECT id, name, full_path FROM path ORDER BY full_path"_s;
     return fetchAll<LocationDisplayEntity>(sql);
 }
 

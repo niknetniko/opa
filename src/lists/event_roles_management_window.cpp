@@ -60,7 +60,7 @@ EventRolesManagementWindow::EventRolesManagementWindow() {
             [roleId]() -> QList<TypeTranslationsDialog::TranslationEntry> {
                 EventRoleTranslationRepository repo;
                 QList<TypeTranslationsDialog::TranslationEntry> result;
-                for (const auto& e : repo.findAllForType(roleId)) {
+                for (const auto& e: repo.findAllForType(roleId)) {
                     result.append({.id = e.id, .locale = e.locale, .name = e.name});
                 }
                 return result;

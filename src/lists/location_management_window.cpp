@@ -52,7 +52,8 @@ LocationManagementWindow::LocationManagementWindow(QWidget* parent) : QMainWindo
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->header()->setSectionResizeMode(LocationListModel::NAME, QHeaderView::Stretch);
     treeView->setItemDelegateForColumn(
-        LocationListModel::ID, new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::LOCATION)
+        LocationListModel::ID,
+        new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::LOCATION)
     );
     treeView->hideColumn(LocationListModel::PARENT_ID);
     treeView->hideColumn(LocationListModel::TYPE_ID);
@@ -95,7 +96,8 @@ LocationManagementWindow::LocationManagementWindow(QWidget* parent) : QMainWindo
 }
 
 void LocationManagementWindow::onSelectionChanged(
-    const QItemSelection& selected, [[maybe_unused]] const QItemSelection& deselected
+    const QItemSelection& selected,
+    [[maybe_unused]] const QItemSelection& deselected
 ) {
     const bool hasSelection = !selected.isEmpty();
     addChildAction->setEnabled(hasSelection);

@@ -67,7 +67,8 @@ void SimpleListManagementWindow::addItem() const {
     tableView->scrollTo(insertedIndex);
     tableView->setFocus();
     tableView->selectionModel()->select(
-        insertedIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent
+        insertedIndex,
+        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectCurrent
     );
     tableView->edit(editIndex);
 }
@@ -151,7 +152,8 @@ void SimpleListManagementWindow::repairItems() {
 }
 
 void SimpleListManagementWindow::onSelectionChanged(
-    const QItemSelection& selected, [[maybe_unused]] const QItemSelection& deselected
+    const QItemSelection& selected,
+    [[maybe_unused]] const QItemSelection& deselected
 ) {
     if (selected.isEmpty()) {
         this->removeAction->setEnabled(false);

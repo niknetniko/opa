@@ -26,7 +26,9 @@ OpenAiCompatibleService::OpenAiCompatibleService(QString endpoint, QString model
 }
 
 void OpenAiCompatibleService::complete(
-    const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema
+    const QString& systemPrompt,
+    const QString& userMessage,
+    const QJsonObject& schema
 ) {
     qDebug() << "OpenAI-compatible request starting: endpoint=" << endpoint << "model=" << model
              << "userMessage length=" << userMessage.size();
@@ -44,7 +46,10 @@ void OpenAiCompatibleService::complete(
 }
 
 void OpenAiCompatibleService::doRequest(
-    const QString& apiKey, const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema
+    const QString& apiKey,
+    const QString& systemPrompt,
+    const QString& userMessage,
+    const QJsonObject& schema
 ) {
     const QUrl url(endpoint + u"/chat/completions"_s);
     qDebug() << "OpenAI-compatible: sending request to" << url << "schema empty=" << schema.isEmpty();

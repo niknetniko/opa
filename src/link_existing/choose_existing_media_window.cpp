@@ -24,9 +24,12 @@ ChooseExistingMediaWindow::ChooseExistingMediaWindow(QWidget* parent) :
     ChooseExistingReferenceWindow(MediaListModel::TITLE, MediaListModel::ID, new MediaListModel(parent), parent) {
     setWindowTitle(i18n("Link existing media"));
     tableHelpText->setText(i18n("Choose an existing media file"));
-    displayModel->setSourceColumns({MediaListModel::ID, MediaListModel::TITLE, MediaListModel::PATH, MediaListModel::MIME_TYPE});
+    displayModel->setSourceColumns(
+        {MediaListModel::ID, MediaListModel::TITLE, MediaListModel::PATH, MediaListModel::MIME_TYPE}
+    );
     tableView->setItemDelegateForColumn(
-        MediaListModel::ID, new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::MEDIA)
+        MediaListModel::ID,
+        new FormattedIdentifierDelegate(tableView, FormattedIdentifierDelegate::MEDIA)
     );
     tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
