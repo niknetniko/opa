@@ -35,68 +35,77 @@ VALUES
   (9, 9, 1, '', 'Ebenezer', '', 'No name', '', 1);
 
 INSERT INTO
-  events (id, type_id, date, name, note)
+  events (id, type_id, date, date_sort, name, note)
 VALUES
   (
     1,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of John',
     ''
   ),
   (
     2,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of Jane',
     ''
   ),
   (
     6,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of Michael',
     ''
   ),
   (
     7,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of Emily',
     ''
   ),
   (
     8,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of William',
     ''
   ),
   (
     9,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of Elizabeth',
     ''
   ),
   (
     10,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of George',
     ''
   ),
   (
     11,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of Mary',
     ''
   ),
   (
     16,
     1,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Birth of Ebenezer',
     ''
   );
@@ -129,26 +138,29 @@ VALUES
   (10, 9, 5);
 
 INSERT INTO
-  events (id, type_id, date, name, note)
+  events (id, type_id, date, date_sort, name, note)
 VALUES
   (
     3,
     3,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Marriage of Michael and Emily',
     ''
   ),
   (
     4,
     3,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Marriage of William and Elizabeth',
     ''
   ),
   (
     5,
     3,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Marriage of George and Mary',
     ''
   );
@@ -164,33 +176,37 @@ VALUES
   (5, 8, 2);
 
 INSERT INTO
-  events (id, type_id, date, name, note)
+  events (id, type_id, date, date_sort, name, note)
 VALUES
   (
     12,
     2,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Death of William',
     ''
   ),
   (
     13,
     2,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Death of Elizabeth',
     ''
   ),
   (
     14,
     2,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Death of George',
     ''
   ),
   (
     15,
     2,
-    '{"dateModifier":"NONE","dateQuality":"EXACT","day":true,"month":true,"proleptic":2451160,"userText":"","year":true}',
+    '{"dateModifier":"NONE","dateQuality":"EXACT","dateType":"SINGLE","day":true,"endDay":false,"month":true,"endMonth":false,"proleptic":2451160,"endProleptic":0,"userText":"","year":true,"endYear":false}',
+    2451160,
     'Death of Mary',
     ''
   );

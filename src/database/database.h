@@ -8,7 +8,6 @@
 #include "core/data_event_broker.h"
 
 #include <QLoggingCategory>
-// ReSharper disable once CppUnusedIncludeDirective
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QString>

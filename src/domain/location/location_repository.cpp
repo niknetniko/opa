@@ -7,6 +7,7 @@
 
 #include "core/data_event_broker.h"
 #include "core/query_helper.h"
+#include "dates/genealogical_date.h"
 
 using namespace Qt::StringLiterals;
 
@@ -112,11 +113,14 @@ bool LocationRepository::update(
     const QString& dateStart,
     const QString& dateEnd
 ) const {
+    const auto parsedStart = GenealogicalDate::fromDatabaseRepresentation(dateStart);
+    const auto parsedEnd = GenealogicalDate::fromDatabaseRepresentation(dateEnd);
     return QueryHelper::executeAndNotify<Schema::Locations>(
         id,
         u"UPDATE locations SET name = :name, type_id = :type_id, parent_id = :parent_id, "
         u"note = :note, latitude = :latitude, longitude = :longitude, "
-        u"date_start = :date_start, date_end = :date_end WHERE id = :id"_s,
+        u"date_start = :date_start, date_start_sort = :date_start_sort, "
+        u"date_end = :date_end, date_end_sort = :date_end_sort WHERE id = :id"_s,
         {
             {u":name"_s, name},
             {u":type_id"_s, typeId.has_value() ? QVariant(*typeId) : QVariant{}},
@@ -125,7 +129,9 @@ bool LocationRepository::update(
             {u":latitude"_s, coordinates.has_value() ? QVariant(coordinates->latitude) : QVariant{}},
             {u":longitude"_s, coordinates.has_value() ? QVariant(coordinates->longitude) : QVariant{}},
             {u":date_start"_s, dateStart},
+            {u":date_start_sort"_s, parsedStart.isNull() ? QVariant{} : QVariant{parsedStart.sortKey()}},
             {u":date_end"_s, dateEnd},
+            {u":date_end_sort"_s, parsedEnd.isNull() ? QVariant{} : QVariant{parsedEnd.sortKey()}},
             {u":id"_s, id},
         }
     );

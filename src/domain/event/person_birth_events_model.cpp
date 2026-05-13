@@ -23,7 +23,7 @@ PersonBirthEventsModel::PersonBirthEventsModel(IntegerPrimaryKey personId, QObje
         if (e.date.isEmpty()) {
             return {};
         }
-        return GenealogicalDate::fromDatabaseRepresentation(e.date).toDisplayText();
+        return GenealogicalDate::fromDatabaseRepresentation(e.date).toLocalizedText();
     });
     this->setColumn(NAME, i18n("Name"), &PersonEventEntity::name);
     this->setColumn(DATE_RAW, i18n("Date (raw)"), &PersonEventEntity::date);

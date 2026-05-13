@@ -11,7 +11,6 @@
   # C++
   programs.clang-format.enable = true;
   settings.formatter.clang-format.options = [
-    "-i"
     "--style=file:./.clang-format"
   ];
   # SQL

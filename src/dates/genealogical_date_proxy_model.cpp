@@ -31,7 +31,7 @@ QVariant GenealogicalDateProxyModel::data(const QModelIndex& index, int role) co
             case Qt::DisplayRole:
             case Qt::EditRole: {
                 auto raw = QIdentityProxyModel::data(index, role).toString();
-                return GenealogicalDate::fromDatabaseRepresentation(raw).toDisplayText();
+                return GenealogicalDate::fromDatabaseRepresentation(raw).toLocalizedText();
             }
             case RawDateRole: {
                 auto raw = QIdentityProxyModel::data(index, Qt::DisplayRole).toString();

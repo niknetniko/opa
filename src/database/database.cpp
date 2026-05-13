@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-// ReSharper disable CppParameterMayBeConstPtrOrRef
 #include "database.h"
 
 using namespace Qt::StringLiterals;
@@ -11,7 +10,6 @@ using namespace Qt::StringLiterals;
 #include <sqlite3.h>
 
 #include <QDebug>
-#include <QFile>
 #include <QFileInfo>
 #include <QSqlDriver>
 #include <QSqlError>
@@ -24,7 +22,7 @@ const static auto driver = u"QSQLITE"_s;
 
 namespace {
 struct Migration {
-    int version = 0;
+    int version;
     QLatin1StringView description;
     QLatin1StringView resourcePath;
 };
@@ -60,6 +58,11 @@ constexpr std::array migrations = {
         .version = 6,
         .description = "Fix media.note to be nullable"_L1,
         .resourcePath = ":/migrations/006_fix_media_note_nullable.sql"_L1,
+    },
+    Migration{
+        .version = 7,
+        .description = "Add date_sort columns (Julian day) for SQL ordering on events and locations"_L1,
+        .resourcePath = ":/migrations/007_add_date_sort.sql"_L1,
     },
 };
 
@@ -103,12 +106,12 @@ void runMigrations(QSqlDatabase& database) {
         return vq.value(0).toInt();
     }();
 
-    for (const auto& m: migrations) {
-        if (m.version <= current) {
+    for (const auto& [version, description, resourcePath]: migrations) {
+        if (version <= current) {
             continue;
         }
 
-        qDebug() << "Applying migration" << m.version << "-" << m.description;
+        qDebug() << "Applying migration" << version << "-" << description;
 
         QSqlQuery fkOff(database);
         if (!fkOff.exec(u"PRAGMA foreign_keys = OFF"_s)) {
@@ -116,9 +119,9 @@ void runMigrations(QSqlDatabase& database) {
             abort();
         }
 
-        QFile sqlFile(m.resourcePath);
+        QFile sqlFile(resourcePath);
         if (!sqlFile.open(QFile::ReadOnly | QFile::Text)) {
-            qCritical() << "Could not open migration file" << m.resourcePath;
+            qCritical() << "Could not open migration file" << resourcePath;
             abort();
         }
         const QString sql = QTextStream(&sqlFile).readAll();
@@ -129,13 +132,13 @@ void runMigrations(QSqlDatabase& database) {
         }
         executeScriptOrAbort(sql, database);
         QSqlQuery stamp(database);
-        if (!stamp.exec(u"PRAGMA user_version = %1"_s.arg(m.version))) {
-            qCritical() << "Failed to stamp schema version after migration" << m.version << ":"
+        if (!stamp.exec(u"PRAGMA user_version = %1"_s.arg(version))) {
+            qCritical() << "Failed to stamp schema version after migration" << version << ":"
                         << stamp.lastError().text();
             abort();
         }
         if (!database.commit()) {
-            qCritical() << "Failed to commit migration" << m.version << ":" << database.lastError().text();
+            qCritical() << "Failed to commit migration" << version << ":" << database.lastError().text();
             abort();
         }
 
@@ -145,11 +148,12 @@ void runMigrations(QSqlDatabase& database) {
             abort();
         }
 
-        qDebug() << "Migration" << m.version << "complete.";
+        qDebug() << "Migration" << version << "complete.";
     }
 }
 
 // NOLINTNEXTLINE(*-use-internal-linkage)
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 int sql_trace_callback(unsigned int type, void* context, void* p, void* x) {
     Q_UNUSED(context);
     Q_UNUSED(x);

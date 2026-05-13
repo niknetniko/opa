@@ -296,7 +296,8 @@ qt_add_resources(
     database/migrations/003_add_type_translations.sql
     database/migrations/004_add_role_origin_translations_and_source_types.sql
     database/migrations/005_add_media.sql
-    database/migrations/006_fix_media_note_nullable.sql)
+    database/migrations/006_fix_media_note_nullable.sql
+    database/migrations/007_add_date_sort.sql)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

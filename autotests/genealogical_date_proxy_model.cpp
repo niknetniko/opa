@@ -56,7 +56,7 @@ private Q_SLOTS:
 
         proxy.setDateColumn(1);
 
-        QCOMPARE(proxy.index(0, 1).data(), date.toDisplayText());
+        QCOMPARE(proxy.index(0, 1).data(), date.toLocalizedText());
         QCOMPARE(proxy.index(0, 1).data(GenealogicalDateProxyModel::RawDateRole).value<GenealogicalDate>(), date);
     }
 

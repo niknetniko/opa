@@ -19,6 +19,7 @@ WITH parent_events AS
        (SELECT child_relation.person_id AS child_id,
                events.id                AS birth_event_id,
                events.date              AS birth_date,
+               events.date_sort         AS birth_date_sort,
                events.type_id           AS birth_type_id,
                event_types.type         AS birth_type
         FROM events
@@ -40,6 +41,7 @@ WITH parent_events AS
      relationships AS
        (SELECT events.id                 AS marriage_event_id,
                events.date               AS marriage_date,
+               events.date_sort          AS marriage_date_sort,
                parent_relation.person_id AS partner_id,
                events.type_id            AS marriage_type_id,
                event_types.type          AS marriage_type
@@ -53,8 +55,9 @@ SELECT child.birth_type     AS event_type,
        child.birth_event_id AS event_type_id,
        child.child_id       AS person_id,
        parent.partner_id    AS partner_id,
-       child.birth_event_id AS event_id,
-       child.birth_date     AS event_date,
+       child.birth_event_id  AS event_id,
+       child.birth_date      AS event_date,
+       child.birth_date_sort AS event_date_sort,
        names.titles         AS titles,
        names.given_names    AS given_names,
        names.prefix         AS prefix,
@@ -70,8 +73,9 @@ SELECT marriage.marriage_type     AS event_type,
        marriage.marriage_type_id  AS event_type_id,
        marriage.partner_id        AS person_id,
        NULL                       AS partner_id,
-       marriage.marriage_event_id AS event_id,
-       marriage.marriage_date     AS event_date,
+       marriage.marriage_event_id  AS event_id,
+       marriage.marriage_date      AS event_date,
+       marriage.marriage_date_sort AS event_date_sort,
        names.titles               AS titles,
        names.given_names          AS given_names,
        names.prefix               AS prefix,
@@ -80,7 +84,7 @@ FROM relationships AS marriage
        LEFT JOIN names ON marriage.partner_id = names.person_id
 WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = marriage.partner_id) OR names.sort = NULL
 
-ORDER BY event_type, event_date;
+ORDER BY event_type, event_date_sort ASC NULLS LAST;
 )-");
 
 static const auto ANCESTORS_SQL = QStringLiteral(R"-(

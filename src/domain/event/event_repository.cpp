@@ -7,6 +7,7 @@
 
 #include "../../core/data_event_broker.h"
 #include "database/database.h"
+#include "dates/genealogical_date.h"
 
 using namespace Qt::StringLiterals;
 
@@ -71,7 +72,7 @@ bool EventRepository::deleteEventRole(IntegerPrimaryKey id) const {
 QList<EventDisplayEntity> EventRepository::findAllEvents() const {
     const auto sql = u"SELECT e.id, e.type_id, et.type, e.date, e.name "
                      u"FROM events e LEFT JOIN event_types et ON e.type_id = et.id "
-                     u"ORDER BY e.date ASC"_s;
+                     u"ORDER BY e.date_sort ASC NULLS LAST"_s;
     return fetchAll<EventDisplayEntity>(sql);
 }
 
@@ -98,10 +99,12 @@ bool EventRepository::updateEvent(
     std::optional<IntegerPrimaryKey> locationId
 ) const {
     const auto sql =
-        u"UPDATE events SET type_id = :type_id, date = :date, name = :name, note = :note, location_id = :location_id WHERE id = :id"_s;
+        u"UPDATE events SET type_id = :type_id, date = :date, date_sort = :date_sort, name = :name, note = :note, location_id = :location_id WHERE id = :id"_s;
+    const auto parsedDate = GenealogicalDate::fromDatabaseRepresentation(date);
     const QVariantMap bindings = {
         {u":type_id"_s, typeId},
         {u":date"_s, date},
+        {u":date_sort"_s, parsedDate.isNull() ? QVariant{} : QVariant{parsedDate.sortKey()}},
         {u":name"_s, name},
         {u":note"_s, note},
         {u":location_id"_s, locationId.has_value() ? QVariant(*locationId) : QVariant{}},
@@ -170,7 +173,7 @@ QList<PersonEventEntity> EventRepository::findEventsForPerson(IntegerPrimaryKey 
         u"LEFT JOIN event_relations AS erel ON events.id = erel.event_id "
         u"LEFT JOIN event_roles AS er ON er.id = erel.role_id "
         u"WHERE erel.person_id = :person_id "
-        u"ORDER BY events.date ASC"_s;
+        u"ORDER BY events.date_sort ASC NULLS LAST"_s;
     return fetchAll<PersonEventEntity>(sql, {{u":person_id"_s, personId}});
 }
 

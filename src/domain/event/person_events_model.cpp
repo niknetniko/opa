@@ -21,7 +21,7 @@ PersonEventListModel::PersonEventListModel(IntegerPrimaryKey personId, QObject* 
         if (e.date.isEmpty()) {
             return {};
         }
-        return GenealogicalDate::fromDatabaseRepresentation(e.date).toDisplayText();
+        return GenealogicalDate::fromDatabaseRepresentation(e.date).toLocalizedText();
     });
     this->setColumn(NAME, i18n("Name"), &PersonEventEntity::name);
     this->setColumn(ID, i18n("ID"), &PersonEventEntity::id);

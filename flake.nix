@@ -61,11 +61,11 @@
           llvmPackages.openmp
           kdePackages.wrapQtAppsHook
           kdePackages.qtwayland
+          kdePackages.extra-cmake-modules
           clang-tools
           cmake
           git
           valgrind
-          extra-cmake-modules
           clazy
           atlas
         ];
