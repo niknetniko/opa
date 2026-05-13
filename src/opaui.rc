@@ -24,6 +24,7 @@
       <Action name="show_people_list"/>
       <Action name="show_sources_list"/>
       <Action name="show_media_list"/>
+      <Action name="show_families_list"/>
     </Menu>
 
     <Menu name="manage">

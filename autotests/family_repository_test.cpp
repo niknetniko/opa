@@ -92,6 +92,14 @@ class TestFamilyRepository : public QObject {
             query
         );
 
+        auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
+        VERIFY_OR_THROW2(
+            query.exec(
+                u"UPDATE events SET family_id = %1 WHERE id IN (%2, %3)"_s.arg(familyId).arg(marriageEvent).arg(birthEvent)
+            ),
+            query
+        );
+
         return {fatherId, motherId, childId};
     }
 
@@ -233,6 +241,57 @@ private Q_SLOTS:
             QVERIFY(!parent.givenNames.isEmpty());
             QVERIFY(!parent.surname.isEmpty());
         }
+    }
+
+    void testCreateFamilyReturnsId() {
+        FamilyRepository repo;
+        auto id = repo.createFamily();
+        QVERIFY(id.has_value());
+        QVERIFY(*id > 0);
+    }
+
+    void testCreateFamilyCreatesRecord() {
+        FamilyRepository repo;
+        auto id = repo.createFamily();
+        QVERIFY(id.has_value());
+
+        QSqlQuery q;
+        QVERIFY(q.exec(u"SELECT COUNT(*) FROM families WHERE id = %1"_s.arg(*id)));
+        QVERIFY(q.next());
+        QCOMPARE(q.value(0).toInt(), 1);
+    }
+
+    void testCreateFamilyIdsAreUnique() {
+        FamilyRepository repo;
+        auto id1 = repo.createFamily();
+        auto id2 = repo.createFamily();
+        QVERIFY(id1.has_value());
+        QVERIFY(id2.has_value());
+        QVERIFY(*id1 != *id2);
+    }
+
+    void testLinkEventToFamilyReturnsTrueOnSuccess() {
+        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
+        auto eventId = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        FamilyRepository repo;
+        auto familyId = repo.createFamily();
+        QVERIFY(familyId.has_value());
+
+        QVERIFY(repo.linkEventToFamily(eventId, *familyId));
+    }
+
+    void testLinkEventToFamilyUpdatesEvent() {
+        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
+        auto eventId = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        FamilyRepository repo;
+        auto familyId = repo.createFamily();
+        QVERIFY(familyId.has_value());
+        repo.linkEventToFamily(eventId, *familyId);
+
+        QSqlQuery q;
+        QVERIFY(q.exec(u"SELECT family_id FROM events WHERE id = %1"_s.arg(eventId)));
+        QVERIFY(q.next());
+        QCOMPARE(q.value(0).toLongLong(), *familyId);
     }
 };
 

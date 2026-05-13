@@ -79,17 +79,23 @@ class TestFamilyProxyModel : public QObject {
                                .arg(birthEvent)
                                .arg(motherId)
                                .arg(motherRoleId)));
+
+        // Create a family and link both events to it.
+        auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
+        QVERIFY(query.exec(
+            u"UPDATE events SET family_id = %1 WHERE id IN (%2, %3)"_s.arg(familyId).arg(marriageEvent).arg(birthEvent)
+        ));
     }
 
     void addBastardChild() {
         QSqlQuery query;
-        // Add a bastard child.
+        // Add a child with only one known parent.
         auto bastardChildId = addPerson(u"Bastard"_s, u"Bober"_s, u"Female"_s);
         auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
         auto birthEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
         auto fatherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Father'"_s);
         auto primaryRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Primary'"_s);
-        // Link it to the parent.
+        // Link the child to person 1 as sole parent.
         QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
                                .arg(birthEvent)
                                .arg(1)
@@ -98,6 +104,10 @@ class TestFamilyProxyModel : public QObject {
                                .arg(birthEvent)
                                .arg(bastardChildId)
                                .arg(primaryRoleId)));
+        // Assign to a single-parent family (no marriage event), so FamilyMembersModel
+        // groups this child under BASTARD_PARENT_KEY.
+        auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
+        QVERIFY(query.exec(u"UPDATE events SET family_id = %1 WHERE id = %2"_s.arg(familyId).arg(birthEvent)));
     }
 
 private Q_SLOTS:

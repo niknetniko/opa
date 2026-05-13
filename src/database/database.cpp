@@ -64,6 +64,16 @@ constexpr std::array migrations = {
         .description = "Add date_sort columns (Julian day) for SQL ordering on events and locations"_L1,
         .resourcePath = ":/migrations/007_add_date_sort.sql"_L1,
     },
+    Migration{
+        .version = 8,
+        .description = "Add families table and family_id to events"_L1,
+        .resourcePath = ":/migrations/008_add_families.sql"_L1,
+    },
+    Migration{
+        .version = 9,
+        .description = "Backfill family_id on existing birth and marriage events"_L1,
+        .resourcePath = ":/migrations/009_backfill_family_ids.sql"_L1,
+    },
 };
 
 void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {

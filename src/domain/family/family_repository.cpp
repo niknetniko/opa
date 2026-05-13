@@ -5,85 +5,47 @@
  */
 #include "./family_repository.h"
 
+#include "../../core/data_event_broker.h"
+
+#include <QSqlQuery>
+
 using namespace Qt::StringLiterals;
 
 static const auto FAMILY_MEMBERS_SQL = QStringLiteral(R"-(
-WITH parent_events AS
-       (SELECT events.id AS event_id
-        FROM events
-               JOIN event_relations AS parent_relation ON events.id = parent_relation.event_id
-               JOIN event_roles ON parent_relation.role_id = event_roles.id
-        WHERE parent_relation.person_id = :id
-          AND event_roles.role IN ('Father', 'Mother')),
-     children AS
-       (SELECT child_relation.person_id AS child_id,
-               events.id                AS birth_event_id,
-               events.date              AS birth_date,
-               events.date_sort         AS birth_date_sort,
-               events.type_id           AS birth_type_id,
-               event_types.type         AS birth_type
-        FROM events
-               JOIN event_relations AS child_relation ON events.id = child_relation.event_id
-               JOIN event_roles ON child_relation.role_id = event_roles.id
-               JOIN event_types ON events.type_id = event_types.id
-        WHERE event_types.type = 'Birth'
-          AND event_roles.role = 'Primary'
-          AND events.id IN (SELECT event_id FROM parent_events)),
-     parents_of_children AS
-       (SELECT DISTINCT parent_relation.person_id AS partner_id,
-                        child_relation.person_id  AS child_id
-        FROM event_relations AS parent_relation
-               JOIN event_relations AS child_relation ON parent_relation.event_id = child_relation.event_id
-               JOIN event_roles ON parent_relation.role_id = event_roles.id
-        WHERE parent_relation.event_id IN (SELECT event_id FROM parent_events)
-          AND event_roles.role IN ('Father', 'Mother')
-          AND parent_relation.person_id != :id),
-     relationships AS
-       (SELECT events.id                 AS marriage_event_id,
-               events.date               AS marriage_date,
-               events.date_sort          AS marriage_date_sort,
-               parent_relation.person_id AS partner_id,
-               events.type_id            AS marriage_type_id,
-               event_types.type          AS marriage_type
-        FROM events
-               JOIN event_relations AS parent_relation ON events.id = parent_relation.event_id
-               JOIN event_roles ON parent_relation.role_id = event_roles.id
-               JOIN event_types ON events.type_id = event_types.id
-        WHERE event_types.type = 'Marriage'
-          AND parent_relation.person_id IN (SELECT partner_id FROM parents_of_children))
-SELECT child.birth_type     AS event_type,
-       child.birth_event_id AS event_type_id,
-       child.child_id       AS person_id,
-       parent.partner_id    AS partner_id,
-       child.birth_event_id  AS event_id,
-       child.birth_date      AS event_date,
-       child.birth_date_sort AS event_date_sort,
-       names.titles         AS titles,
-       names.given_names    AS given_names,
-       names.prefix         AS prefix,
-       names.surname        AS surname
-FROM children AS child
-       LEFT JOIN parents_of_children AS parent ON child.child_id = parent.child_id
-       LEFT JOIN names ON child.child_id = names.person_id
-WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = child.child_id) OR names.sort = NULL
-
-UNION ALL
-
-SELECT marriage.marriage_type     AS event_type,
-       marriage.marriage_type_id  AS event_type_id,
-       marriage.partner_id        AS person_id,
-       NULL                       AS partner_id,
-       marriage.marriage_event_id  AS event_id,
-       marriage.marriage_date      AS event_date,
-       marriage.marriage_date_sort AS event_date_sort,
-       names.titles               AS titles,
-       names.given_names          AS given_names,
-       names.prefix               AS prefix,
-       names.surname              AS surname
-FROM relationships AS marriage
-       LEFT JOIN names ON marriage.partner_id = names.person_id
-WHERE names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = marriage.partner_id) OR names.sort = NULL
-
+WITH my_families AS (
+    SELECT DISTINCT e.family_id
+    FROM events e
+    JOIN event_relations er ON e.id = er.event_id
+    JOIN event_roles r ON er.role_id = r.id
+    JOIN event_types et ON e.type_id = et.id
+    WHERE er.person_id = :id
+      AND r.role IN ('Father', 'Mother')
+      AND et.type = 'Birth'
+      AND e.family_id IS NOT NULL
+)
+SELECT et.type           AS event_type,
+       e.type_id         AS event_type_id,
+       er.person_id      AS person_id,
+       NULL              AS partner_id,
+       e.id              AS event_id,
+       e.date            AS event_date,
+       e.date_sort       AS event_date_sort,
+       e.family_id       AS family_id,
+       names.titles      AS titles,
+       names.given_names AS given_names,
+       names.prefix      AS prefix,
+       names.surname     AS surname
+FROM events e
+JOIN event_types et ON e.type_id = et.id
+JOIN event_relations er ON e.id = er.event_id
+JOIN event_roles r ON er.role_id = r.id
+LEFT JOIN names ON er.person_id = names.person_id
+WHERE e.family_id IN (SELECT family_id FROM my_families)
+  AND (
+      (et.type = 'Birth' AND r.role = 'Primary')
+      OR (et.type = 'Marriage' AND r.role IN ('Primary', 'Partner') AND er.person_id != :id)
+  )
+  AND (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = er.person_id) OR names.sort IS NULL)
 ORDER BY event_type, event_date_sort ASC NULLS LAST;
 )-");
 
@@ -153,6 +115,51 @@ GROUP BY child_id
 ORDER BY level, child_id
 )-");
 
+static const auto FAMILIES_OVERVIEW_SQL = QStringLiteral(R"-(
+WITH parent_surnames AS (
+    SELECT e.family_id, er.person_id, n.surname
+    FROM events e
+    JOIN event_types et ON e.type_id = et.id
+    JOIN event_relations er ON e.id = er.event_id
+    JOIN event_roles r ON er.role_id = r.id
+    JOIN names n ON er.person_id = n.person_id
+    WHERE et.type = 'Birth'
+      AND r.role IN ('Father', 'Mother')
+      AND (n.sort = (SELECT MIN(n2.sort) FROM names n2 WHERE n2.person_id = er.person_id) OR n.sort IS NULL)
+    GROUP BY e.family_id, er.person_id
+),
+parent_names AS (
+    SELECT family_id, GROUP_CONCAT(surname, ' — ') AS display_name
+    FROM (SELECT family_id, person_id, surname FROM parent_surnames ORDER BY family_id, person_id)
+    GROUP BY family_id
+)
+SELECT f.id                                           AS family_id,
+       COALESCE(pn.display_name, 'Family #' || f.id) AS family_display_name,
+       e.id                                           AS event_id,
+       et.type                                        AS event_type,
+       e.date                                         AS event_date,
+       e.date_sort                                    AS event_date_sort,
+       er.person_id                                   AS person_id,
+       r.role                                         AS role,
+       n.titles                                       AS titles,
+       n.given_names                                  AS given_names,
+       n.prefix                                       AS prefix,
+       n.surname                                      AS surname
+FROM families f
+LEFT JOIN parent_names pn ON f.id = pn.family_id
+JOIN events e ON e.family_id = f.id
+JOIN event_types et ON e.type_id = et.id
+JOIN event_relations er ON e.id = er.event_id
+JOIN event_roles r ON er.role_id = r.id
+LEFT JOIN names n ON er.person_id = n.person_id
+WHERE ((et.type = 'Birth' AND r.role = 'Primary')
+    OR (et.type = 'Marriage' AND r.role IN ('Primary', 'Partner')))
+  AND (n.sort = (SELECT MIN(n2.sort) FROM names n2 WHERE n2.person_id = er.person_id) OR n.sort IS NULL)
+ORDER BY f.id,
+         CASE WHEN et.type = 'Marriage' THEN 0 ELSE 1 END,
+         e.date_sort ASC NULLS LAST
+)-");
+
 static const auto PARENTS_SQL = QStringLiteral(R"-(
 SELECT parent_relation.person_id,
        parent_relation.role_id,
@@ -172,6 +179,10 @@ WHERE child_relation.person_id = :person
 ORDER BY parent_relation.person_id;
 )-");
 
+QList<FamilyOverviewRow> FamilyRepository::findAllFamiliesOverview() const {
+    return fetchAll<FamilyOverviewRow>(FAMILIES_OVERVIEW_SQL, {});
+}
+
 QList<FamilyMemberEntity> FamilyRepository::findFamilyMembersForPerson(IntegerPrimaryKey personId) const {
     return fetchAll<FamilyMemberEntity>(FAMILY_MEMBERS_SQL, {{u":id"_s, personId}});
 }
@@ -182,4 +193,26 @@ QList<AncestorEntity> FamilyRepository::findAncestorsForPerson(IntegerPrimaryKey
 
 QList<ParentEntity> FamilyRepository::findParentsForPerson(IntegerPrimaryKey personId) const {
     return fetchAll<ParentEntity>(PARENTS_SQL, {{u":person"_s, personId}});
+}
+
+std::optional<IntegerPrimaryKey> FamilyRepository::createFamily() {
+    QSqlQuery query;
+    if (!query.exec(u"INSERT INTO families DEFAULT VALUES"_s)) {
+        return std::nullopt;
+    }
+    auto id = query.lastInsertId().toLongLong();
+    DataEventBroker::instance().notifyChanged<Schema::Families>(id);
+    return id;
+}
+
+bool FamilyRepository::linkEventToFamily(IntegerPrimaryKey eventId, IntegerPrimaryKey familyId) {
+    QSqlQuery query;
+    query.prepare(u"UPDATE events SET family_id = :fid WHERE id = :eid"_s);
+    query.bindValue(u":fid"_s, familyId);
+    query.bindValue(u":eid"_s, eventId);
+    if (!query.exec()) {
+        return false;
+    }
+    DataEventBroker::instance().notifyChanged<Schema::Events>(eventId);
+    return true;
 }

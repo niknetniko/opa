@@ -39,6 +39,7 @@ FamilyMembersModel::FamilyMembersModel(IntegerPrimaryKey personId, QObject* pare
 
     connectToTable<Schema::People>(this);
     connectToTable<Schema::Names>(this);
+    connectToTable<Schema::Families>(this);
     connectToTable<Schema::Events>(this);
     connectToTable<Schema::EventTypes>(this);
     connectToTable<Schema::EventRoles>(this);
@@ -58,27 +59,21 @@ void FamilyMembersModel::reload() {
 void FamilyMembersModel::rebuildMapping() {
     mapping.clear();
 
-    // Map partner person ID -> index in items (of their marriage/relationship row)
-    QHash<IntegerPrimaryKey, int> partnerToRelationshipRow;
+    QHash<IntegerPrimaryKey, int> familyToRelationshipRow;
     for (int i = 0; i < items.size(); ++i) {
         const auto& item = items[i];
         auto eventType = enumFromString<EventTypes::Values>(item.eventType);
-        if (EventTypes::relationshipStartingEvents().contains(eventType)) {
-            partnerToRelationshipRow[item.personId] = i;
+        if (EventTypes::relationshipStartingEvents().contains(eventType) && item.familyId.has_value()) {
+            familyToRelationshipRow[*item.familyId] = i;
         }
     }
 
-    // Each birth row nests under its co-parent's relationship row (or bastard key if none)
     for (int i = 0; i < items.size(); ++i) {
         const auto& item = items[i];
-        auto eventType = enumFromString<EventTypes::Values>(item.eventType);
-        if (eventType == EventTypes::Values::Birth) {
+        if (enumFromString<EventTypes::Values>(item.eventType) == EventTypes::Values::Birth) {
             int parentKey = BASTARD_PARENT_KEY;
-            if (item.partnerId.has_value()) {
-                auto partnerId = *item.partnerId;
-                if (partnerToRelationshipRow.contains(partnerId)) {
-                    parentKey = partnerToRelationshipRow[partnerId];
-                }
+            if (item.familyId.has_value() && familyToRelationshipRow.contains(*item.familyId)) {
+                parentKey = familyToRelationshipRow[*item.familyId];
             }
             mapping[parentKey].append(i);
         }

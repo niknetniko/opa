@@ -28,6 +28,11 @@ struct NameOrigins : TableTag {
 };
 inline constexpr auto NameOriginsTable = NameOrigins::table;
 
+struct Families : TableTag {
+    static constexpr auto table = QLatin1String("families");
+};
+inline constexpr auto FamiliesTable = Families::table;
+
 struct Events : TableTag {
     static constexpr auto table = QLatin1String("events");
 };

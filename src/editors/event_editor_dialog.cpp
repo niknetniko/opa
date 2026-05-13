@@ -268,6 +268,9 @@ void EventEditorDialog::accept() {
 
         if (!eventId.has_value()) {
             // New event: create everything.
+            // TODO: allow assigning the new event to a family (family_id) so that marriage and
+            // birth events created here participate in explicit family grouping.
+            // Issue URL: https://github.com/niknetniko/opa/issues/62
             auto newEventId = repo.insertFullEvent(typeId, date, name, note, personId, newRoleId, selectedLocationId);
             if (!newEventId) {
                 return std::nullopt;

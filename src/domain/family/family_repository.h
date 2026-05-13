@@ -15,7 +15,13 @@ class FamilyRepository : public BaseRepository {
 public:
     [[nodiscard]] QList<FamilyMemberEntity> findFamilyMembersForPerson(IntegerPrimaryKey personId) const;
 
+    [[nodiscard]] QList<FamilyOverviewRow> findAllFamiliesOverview() const;
+
     [[nodiscard]] QList<AncestorEntity> findAncestorsForPerson(IntegerPrimaryKey personId) const;
 
     [[nodiscard]] QList<ParentEntity> findParentsForPerson(IntegerPrimaryKey personId) const;
+
+    [[nodiscard]] std::optional<IntegerPrimaryKey> createFamily();
+
+    bool linkEventToFamily(IntegerPrimaryKey eventId, IntegerPrimaryKey familyId);
 };

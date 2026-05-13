@@ -49,6 +49,7 @@ struct EventEntity {
     QString name;
     QString note;
     std::optional<IntegerPrimaryKey> locationId;
+    std::optional<IntegerPrimaryKey> familyId;
 
     static EventEntity fromSql(const QSqlQuery& query) {
         return {
@@ -58,6 +59,7 @@ struct EventEntity {
             .name = query.value(u"name").toString(),
             .note = query.value(u"note").toString(),
             .locationId = validOrOptional<IntegerPrimaryKey>(query.value(u"location_id")),
+            .familyId = validOrOptional<IntegerPrimaryKey>(query.value(u"family_id")),
         };
     }
 };

@@ -107,17 +107,17 @@ private Q_SLOTS:
     void testFreshDatabaseIsStampedWithLatestVersion() {
         openDatabase(u":memory:"_s, false, false);
         auto db = QSqlDatabase::database();
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
     }
 
     void testRunMigrationsIsNoopOnCurrentDatabase() {
         openDatabase(u":memory:"_s, false, false);
         auto db = QSqlDatabase::database();
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
 
         runMigrations(db);
 
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
     }
 
     void testRunMigrationsSkipsAlreadyAppliedMigration() {
@@ -134,7 +134,7 @@ private Q_SLOTS:
         // Migration 1 schema should be untouched — it was skipped.
         QVERIFY(!columnExists(db, u"event_relations"_s, u"id"_s));
         // Migrations 2 through 5 ran, bumping to version 5.
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
     }
 
     // ==================== Migration 1 ====================
@@ -146,7 +146,7 @@ private Q_SLOTS:
         runMigrations(db);
 
         QVERIFY(columnExists(db, u"event_relations"_s, u"id"_s));
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
     }
 
     void testMigration1ReplacesCompositeKeyWithUniqueConstraint() {
@@ -297,7 +297,7 @@ private Q_SLOTS:
         runMigrations(db);
 
         QVERIFY(columnExists(db, u"location_types"_s, u"id"_s));
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
     }
 
     // ==================== Migration 3 ====================
@@ -325,7 +325,7 @@ private Q_SLOTS:
         QVERIFY(columnExists(db, u"event_type_translations"_s, u"type_id"_s));
         QVERIFY(columnExists(db, u"event_type_translations"_s, u"locale"_s));
         QVERIFY(columnExists(db, u"event_type_translations"_s, u"name"_s));
-        QCOMPARE(userVersion(db), 7);
+        QCOMPARE(userVersion(db), 9);
     }
 
     void testMigration3AddsLocationTypeTranslationsTable() {

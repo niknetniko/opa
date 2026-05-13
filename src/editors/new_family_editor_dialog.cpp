@@ -10,6 +10,7 @@
 #include "database/database.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/parent_event_roles_list_model.h"
+#include "domain/family/family_repository.h"
 #include "domain/event/person_birth_events_model.h"
 #include "domain/person/person_detail_model.h"
 #include "link_existing/choose_existing_person_window.h"
@@ -105,6 +106,13 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
     // Issue URL: https://github.com/niknetniko/opa/issues/63
     Q_ASSERT(data.birthEventId.isValid());
 
+    FamilyRepository familyRepo;
+    auto familyId = familyRepo.createFamily();
+    if (!familyId.has_value()) {
+        qWarning() << "Could not create family record";
+        return false;
+    }
+
     EventRepository repo;
 
     auto chosenMotherId = data.motherId;
@@ -136,6 +144,11 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
             qWarning() << "Could not insert father to relationship event";
             return false;
         }
+
+        if (!familyRepo.linkEventToFamily(*eventId, *familyId)) {
+            qWarning() << "Could not link relationship event to family";
+            return false;
+        }
     }
 
     // Now, link the parents to the child.
@@ -157,6 +170,11 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
             qWarning() << "Could not insert father to birth event relationship";
             return false;
         }
+    }
+
+    if (!familyRepo.linkEventToFamily(data.birthEventId.toLongLong(), *familyId)) {
+        qWarning() << "Could not link birth event to family";
+        return false;
     }
 
     return true;

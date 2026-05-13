@@ -49,6 +49,10 @@ add_library(
   domain/family/parents_model.cpp
   domain/family/family_members_model.h
   domain/family/family_members_model.cpp
+  domain/family/family_list_model.h
+  domain/family/family_list_model.cpp
+  ui/family/family_list_dock.h
+  ui/family/family_list_dock.cpp
   domain/media/media_entities.h
   domain/media/media_list_model.h
   domain/media/media_list_model.cpp
@@ -297,7 +301,9 @@ qt_add_resources(
     database/migrations/004_add_role_origin_translations_and_source_types.sql
     database/migrations/005_add_media.sql
     database/migrations/006_fix_media_note_nullable.sql
-    database/migrations/007_add_date_sort.sql)
+    database/migrations/007_add_date_sort.sql
+    database/migrations/008_add_families.sql
+    database/migrations/009_backfill_family_ids.sql)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

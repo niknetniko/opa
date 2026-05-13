@@ -109,6 +109,7 @@ private Q_SLOTS:
     void showPeopleList();
     void showSourcesList();
     void showMediaList();
+    void showFamiliesList();
 
 private:
     QString currentFile;
@@ -135,6 +136,7 @@ private:
     QAction* showPeopleListAction_ = nullptr;
     QAction* showSourcesListAction_ = nullptr;
     QAction* showMediaListAction_ = nullptr;
+    QAction* showFamiliesListAction_ = nullptr;
 
     [[nodiscard]] PersonDock* findDockFor(IntegerPrimaryKey personId) const;
 

@@ -17,6 +17,8 @@ ecm_add_tests(
   name_repository_test.cpp
   event_repository_test.cpp
   family_repository_test.cpp
+  family_overview_test.cpp
+  family_list_model_test.cpp
   source_repository_test.cpp
   location_repository_test.cpp
   pending_list_model_test.cpp

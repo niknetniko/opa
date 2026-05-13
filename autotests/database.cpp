@@ -83,6 +83,7 @@ private Q_SLOTS:
             Schema::EventRolesTable,
             Schema::EventTypesTable,
             Schema::EventsTable,
+            Schema::FamiliesTable,
             Schema::SourcesTable,
             Schema::EventCitationsTable,
             Schema::EventRelationCitationsTable,

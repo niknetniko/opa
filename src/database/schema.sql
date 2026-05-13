@@ -54,6 +54,11 @@ CREATE TABLE locations (
   date_end_sort INTEGER
 );
 
+CREATE TABLE families (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  note TEXT
+);
+
 CREATE TABLE events (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
@@ -61,7 +66,8 @@ CREATE TABLE events (
   date_sort INTEGER,
   name TEXT,
   note TEXT,
-  location_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL
+  location_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
+  family_id INTEGER NULL REFERENCES families (id) ON DELETE SET NULL
 );
 
 CREATE TABLE event_relations (

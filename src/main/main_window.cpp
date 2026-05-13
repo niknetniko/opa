@@ -20,6 +20,7 @@
 #include "lists/source_types_management_window.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
+#include "ui/family/family_list_dock.h"
 #include "ui/media/media_list_dock.h"
 #include "ui/source/dock/source_list_dock.h"
 #include "ui/source/editor/source_editor_dialog.h"
@@ -124,6 +125,11 @@ MainWindow::MainWindow() {
     showMediaListAction_->setIcon(QIcon::fromTheme(QStringLiteral("folder-images")));
     connect(showMediaListAction_, &QAction::triggered, this, &MainWindow::showMediaList);
 
+    showFamiliesListAction_ = new QAction(this);
+    showFamiliesListAction_->setText(i18n("Show families list"));
+    showFamiliesListAction_->setIcon(QIcon::fromTheme(QStringLiteral("view-group")));
+    connect(showFamiliesListAction_, &QAction::triggered, this, &MainWindow::showFamiliesList);
+
     auto* actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
@@ -137,6 +143,7 @@ MainWindow::MainWindow() {
     actionCollection->addAction(QStringLiteral("show_people_list"), showPeopleListAction_);
     actionCollection->addAction(QStringLiteral("show_sources_list"), showSourcesListAction_);
     actionCollection->addAction(QStringLiteral("show_media_list"), showMediaListAction_);
+    actionCollection->addAction(QStringLiteral("show_families_list"), showFamiliesListAction_);
 
     openNewAction_ = KStandardAction::openNew(this, &MainWindow::newFile, actionCollection);
     openAction_ = KStandardAction::open(this, &MainWindow::openFile, actionCollection);
@@ -211,6 +218,7 @@ void MainWindow::syncActions() {
         showPeopleListAction_,
         showSourcesListAction_,
         showMediaListAction_,
+        showFamiliesListAction_,
     };
     for (auto* manageAction: fileActions) {
         manageAction->setEnabled(!currentFile.isEmpty());
@@ -527,6 +535,26 @@ void MainWindow::showMediaList() {
     auto* container = getMainDockHost();
     auto* mediaListDock = new MediaListDock;
     container->addDockWidget(mediaListDock, KDDockWidgets::Location_OnRight);
+
+    syncActions();
+}
+
+void MainWindow::showFamiliesList() {
+    auto dockWidgets = findChildren<FamilyListDock*>();
+    if (!dockWidgets.empty()) {
+        auto* dock = dockWidgets.first();
+        if (dock->isFloating()) {
+            dock->raise();
+            dock->activateWindow();
+        }
+        dock->setAsCurrentTab();
+        return;
+    }
+
+    auto* container = getMainDockHost();
+    auto* familyListDock = new FamilyListDock;
+    connect(familyListDock, &FamilyListDock::personSelected, this, &MainWindow::openOrSelectPerson);
+    container->addDockWidget(familyListDock, KDDockWidgets::Location_OnRight);
 
     syncActions();
 }
