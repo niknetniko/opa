@@ -58,5 +58,6 @@ bin/
 opa_autogen/
 src/opa_autogen/
 build/
-/.claude/settings.local.json
+.claude/settings.local.json
 .worktrees/
+.junie/
