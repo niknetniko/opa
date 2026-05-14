@@ -64,6 +64,10 @@ include_directories(${KDDockWidgets_INCLUDE_DIRS})
 find_package(Qt6Keychain REQUIRED)
 include_directories(${Qt6Keychain_INCLUDE_DIRS})
 
+find_package(QCoro6 REQUIRED COMPONENTS Core Network DBus)
+include_directories(${QCoro6_INCLUDE_DIRS})
+qcoro_enable_coroutines()
+
 kde_enable_exceptions()
 
 add_subdirectory(src)

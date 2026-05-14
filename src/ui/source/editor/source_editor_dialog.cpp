@@ -30,6 +30,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QVBoxLayout>
+#include <exception>
 
 SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId, QWidget* parent) :
     QDialog(parent),
@@ -250,9 +251,9 @@ void SourceEditorDialog::onExtractClicked() {
     form->extractButton->setEnabled(false);
     form->aiStatusLabel->setText(i18n("Extracting…"));
 
-    connect(svc, &AiService::responseReady, this, &SourceEditorDialog::onAiResponse);
-    connect(svc, &AiService::requestFailed, this, &SourceEditorDialog::onAiFailed);
-    svc->complete(opaSettings::sourceExtractionPrompt(), form->rawTextEdit->toPlainText(), extractionSchema);
+    svc->ask(opaSettings::sourceExtractionPrompt(), form->rawTextEdit->toPlainText(), extractionSchema)
+        .then(this, [this](const QString& response) { onAiResponse(response); })
+        .onFailed(this, [this](const std::exception& e) { onAiFailed(QString::fromStdString(e.what())); });
 }
 
 void SourceEditorDialog::onAiResponse(const QString& response) {

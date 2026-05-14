@@ -219,12 +219,37 @@ VALUES
   (14, 7, 1),
   (15, 8, 1);
 
-INSERT INTO families (id) VALUES (1), (2), (3), (4);
+INSERT INTO
+  families (id)
+VALUES
+  (1),
+  (2),
+  (3),
+  (4);
 
-UPDATE events SET family_id = 1 WHERE id IN (1, 2, 3);
-UPDATE events SET family_id = 2 WHERE id IN (4, 6);
-UPDATE events SET family_id = 3 WHERE id IN (5, 7);
-UPDATE events SET family_id = 4 WHERE id IN (9, 10);
+UPDATE events
+SET
+  family_id = 1
+WHERE
+  id IN (1, 2, 3);
+
+UPDATE events
+SET
+  family_id = 2
+WHERE
+  id IN (4, 6);
+
+UPDATE events
+SET
+  family_id = 3
+WHERE
+  id IN (5, 7);
+
+UPDATE events
+SET
+  family_id = 4
+WHERE
+  id IN (9, 10);
 
 INSERT INTO
   sources (

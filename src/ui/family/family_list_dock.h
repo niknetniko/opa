@@ -6,7 +6,6 @@
 #pragma once
 
 #include "database/schema.h"
-
 #include <kddockwidgets/qtwidgets/views/DockWidget.h>
 
 #include <QTreeView>

@@ -38,8 +38,6 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void onExtractClicked();
-    void onAiResponse(const QString& json);
-    void onAiFailed(const QString& error);
     void onUseSuggestedParent();
     void onPickDifferentParent();
     void onCreateSuggestedParent();
@@ -56,6 +54,8 @@ private:
     QList<QFrame*> fieldSuggestionFrames;
     QList<QAction*> fieldIndicatorActions;
 
+    void onAiResponse(const QString& json);
+    void onAiFailed(const QString& error);
     void updateParentDisplay() const;
     void showParentSuggestion();
     void hideParentSuggestion();

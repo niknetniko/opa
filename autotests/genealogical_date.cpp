@@ -92,7 +92,8 @@ private Q_SLOTS:
 
     // Phase 3: ABOUT modifier
     void testAboutModifierRoundtrip() {
-        GenealogicalDate d(GenealogicalDate::ABOUT, GenealogicalDate::EXACT, QDate(1850, 7, 4), true, true, true, u""_s);
+        GenealogicalDate
+            d(GenealogicalDate::ABOUT, GenealogicalDate::EXACT, QDate(1850, 7, 4), true, true, true, u""_s);
         QVERIFY(d.toDisplayText().startsWith(u"about"_s));
         auto reparsed = GenealogicalDate::fromDisplayText(d.toDisplayText());
         QCOMPARE(reparsed.modifier(), GenealogicalDate::ABOUT);
@@ -101,7 +102,8 @@ private Q_SLOTS:
 
     // Phase 3: partial date display and parsing
     void testYearOnlyRoundtrip() {
-        GenealogicalDate d(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1850, 1, 1), true, false, false, u""_s);
+        GenealogicalDate
+            d(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1850, 1, 1), true, false, false, u""_s);
         QCOMPARE(d.toDisplayText(), u"1850"_s);
         auto reparsed = GenealogicalDate::fromDisplayText(u"1850"_s);
         QVERIFY(reparsed.hasYear());
@@ -112,7 +114,8 @@ private Q_SLOTS:
     }
 
     void testYearMonthRoundtrip() {
-        GenealogicalDate d(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1850, 7, 1), true, true, false, u""_s);
+        GenealogicalDate
+            d(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1850, 7, 1), true, true, false, u""_s);
         QCOMPARE(d.toDisplayText(), u"1850-07"_s);
         auto reparsed = GenealogicalDate::fromDisplayText(u"1850-07"_s);
         QVERIFY(reparsed.hasYear());
@@ -135,8 +138,14 @@ private Q_SLOTS:
     void testRangeRoundtrip() {
         auto d = GenealogicalDate::makeRange(
             GenealogicalDate::EXACT,
-            QDate(1850, 1, 1), true, true, true,
-            QDate(1900, 12, 31), true, true, true
+            QDate(1850, 1, 1),
+            true,
+            true,
+            true,
+            QDate(1900, 12, 31),
+            true,
+            true,
+            true
         );
         QCOMPARE(d.type(), GenealogicalDate::RANGE);
         QVERIFY(d.isValid());
@@ -152,8 +161,14 @@ private Q_SLOTS:
     void testSpanRoundtrip() {
         auto d = GenealogicalDate::makeSpan(
             GenealogicalDate::EXACT,
-            QDate(1850, 1, 1), true, true, true,
-            QDate(1900, 12, 31), true, true, true
+            QDate(1850, 1, 1),
+            true,
+            true,
+            true,
+            QDate(1900, 12, 31),
+            true,
+            true,
+            true
         );
         QCOMPARE(d.type(), GenealogicalDate::SPAN);
         QVERIFY(d.isValid());
@@ -169,8 +184,14 @@ private Q_SLOTS:
     void testRangeJsonRoundtrip() {
         auto d = GenealogicalDate::makeRange(
             GenealogicalDate::ESTIMATED,
-            QDate(1850, 6, 1), true, true, false,
-            QDate(1850, 9, 1), true, true, false
+            QDate(1850, 6, 1),
+            true,
+            true,
+            false,
+            QDate(1850, 9, 1),
+            true,
+            true,
+            false
         );
         const auto reparsed = GenealogicalDate::fromDatabaseRepresentation(d.toDatabaseRepresentation());
         QCOMPARE(reparsed.type(), GenealogicalDate::RANGE);
@@ -203,9 +224,11 @@ private Q_SLOTS:
     }
 
     void testSortKeyIgnoresTime() {
-        GenealogicalDate d1(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1950, 7, 4), true, true, true, u""_s);
+        GenealogicalDate
+            d1(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1950, 7, 4), true, true, true, u""_s);
         d1.setStartTime(QTime(3, 47));
-        GenealogicalDate d2(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1950, 7, 4), true, true, true, u""_s);
+        GenealogicalDate
+            d2(GenealogicalDate::NONE, GenealogicalDate::EXACT, QDate(1950, 7, 4), true, true, true, u""_s);
         d2.setStartTime(QTime(23, 59));
         QCOMPARE(d1.sortKey(), d2.sortKey());
     }

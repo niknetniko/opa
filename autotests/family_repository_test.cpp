@@ -94,9 +94,9 @@ class TestFamilyRepository : public QObject {
 
         auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
         VERIFY_OR_THROW2(
-            query.exec(
-                u"UPDATE events SET family_id = %1 WHERE id IN (%2, %3)"_s.arg(familyId).arg(marriageEvent).arg(birthEvent)
-            ),
+            query.exec(u"UPDATE events SET family_id = %1 WHERE id IN (%2, %3)"_s.arg(familyId)
+                           .arg(marriageEvent)
+                           .arg(birthEvent)),
             query
         );
 

@@ -22,38 +22,48 @@ GenealogicalDateEditorDialog::GenealogicalDateEditorDialog(const GenealogicalDat
     // Type combo
     const QList<QPair<GenealogicalDate::DateType, QString>> typeItems = {
         {GenealogicalDate::SINGLE, i18nc("date type", "Single")},
-        {GenealogicalDate::RANGE,  i18nc("date type", "Range (between … and …)")},
-        {GenealogicalDate::SPAN,   i18nc("date type", "Span (from … to …)")},
+        {GenealogicalDate::RANGE, i18nc("date type", "Range (between … and …)")},
+        {GenealogicalDate::SPAN, i18nc("date type", "Span (from … to …)")},
     };
-    for (auto& [value, label] : typeItems) {
+    for (auto& [value, label]: typeItems) {
         ui->typeInput->addItem(label, QVariant::fromValue(value));
     }
 
     // Modifier combo
     const QList<QPair<GenealogicalDate::Modifier, QString>> modifierItems = {
-        {GenealogicalDate::NONE,   i18nc("date modifier", "None")},
+        {GenealogicalDate::NONE, i18nc("date modifier", "None")},
         {GenealogicalDate::BEFORE, i18nc("date modifier", "Before")},
-        {GenealogicalDate::AFTER,  i18nc("date modifier", "After")},
-        {GenealogicalDate::ABOUT,  i18nc("date modifier", "About")},
+        {GenealogicalDate::AFTER, i18nc("date modifier", "After")},
+        {GenealogicalDate::ABOUT, i18nc("date modifier", "About")},
         {GenealogicalDate::DURING, i18nc("date modifier", "During")},
     };
-    for (auto& [value, label] : modifierItems) {
+    for (auto& [value, label]: modifierItems) {
         ui->modifierInput->addItem(label, QVariant::fromValue(value));
     }
 
     // Quality combo
     const QList<QPair<GenealogicalDate::Quality, QString>> qualityItems = {
-        {GenealogicalDate::EXACT,       i18nc("date quality", "Exact")},
-        {GenealogicalDate::ESTIMATED,   i18nc("date quality", "Estimated")},
-        {GenealogicalDate::CALCULATED,  i18nc("date quality", "Calculated")},
+        {GenealogicalDate::EXACT, i18nc("date quality", "Exact")},
+        {GenealogicalDate::ESTIMATED, i18nc("date quality", "Estimated")},
+        {GenealogicalDate::CALCULATED, i18nc("date quality", "Calculated")},
     };
-    for (auto& [value, label] : qualityItems) {
+    for (auto& [value, label]: qualityItems) {
         ui->qualityInput->addItem(label, QVariant::fromValue(value));
     }
 
     connect(ui->typeInput, &QComboBox::currentIndexChanged, this, &GenealogicalDateEditorDialog::updateDateFromForms);
-    connect(ui->modifierInput, &QComboBox::currentIndexChanged, this, &GenealogicalDateEditorDialog::updateDateFromForms);
-    connect(ui->qualityInput, &QComboBox::currentIndexChanged, this, &GenealogicalDateEditorDialog::updateDateFromForms);
+    connect(
+        ui->modifierInput,
+        &QComboBox::currentIndexChanged,
+        this,
+        &GenealogicalDateEditorDialog::updateDateFromForms
+    );
+    connect(
+        ui->qualityInput,
+        &QComboBox::currentIndexChanged,
+        this,
+        &GenealogicalDateEditorDialog::updateDateFromForms
+    );
     connect(ui->daySpinBox, &QSpinBox::valueChanged, this, &GenealogicalDateEditorDialog::updateDateFromForms);
     connect(ui->monthSpinBox, &QSpinBox::valueChanged, this, &GenealogicalDateEditorDialog::updateDateFromForms);
     connect(ui->yearSpinBox, &QSpinBox::valueChanged, this, &GenealogicalDateEditorDialog::updateDateFromForms);
@@ -156,13 +166,27 @@ void GenealogicalDateEditorDialog::updateDateFromForms() {
 
         if (type == GenealogicalDate::RANGE) {
             this->date = GenealogicalDate::makeRange(
-                quality, proleptic, true, hasMonth, hasDay && hasMonth,
-                proleptic2, true, hasMonth2, hasDay2 && hasMonth2
+                quality,
+                proleptic,
+                true,
+                hasMonth,
+                hasDay && hasMonth,
+                proleptic2,
+                true,
+                hasMonth2,
+                hasDay2 && hasMonth2
             );
         } else {
             this->date = GenealogicalDate::makeSpan(
-                quality, proleptic, true, hasMonth, hasDay && hasMonth,
-                proleptic2, true, hasMonth2, hasDay2 && hasMonth2
+                quality,
+                proleptic,
+                true,
+                hasMonth,
+                hasDay && hasMonth,
+                proleptic2,
+                true,
+                hasMonth2,
+                hasDay2 && hasMonth2
             );
         }
         this->date.setStartTime(hasTime ? ui->timeEdit->time() : QTime{});

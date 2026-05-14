@@ -3,4 +3,5 @@ CREATE TABLE families (
   note TEXT
 );
 
-ALTER TABLE events ADD COLUMN family_id INTEGER NULL REFERENCES families (id) ON DELETE SET NULL;
+ALTER TABLE events
+ADD COLUMN family_id INTEGER NULL REFERENCES families (id) ON DELETE SET NULL;

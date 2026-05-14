@@ -7,7 +7,6 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 // ReSharper disable CppDFAUnreachableFunctionCall
 #include "../src/domain/family/family_repository.h"
-
 #include "./test_utils.h"
 #include "database/database.h"
 
@@ -97,9 +96,8 @@ private Q_SLOTS:
         auto p1 = insertQuery(u"INSERT INTO people (root, sex) VALUES (false, 'Male')"_s);
         auto p2 = insertQuery(u"INSERT INTO people (root, sex) VALUES (false, 'Female')"_s);
         auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
-        auto marriageEvent = insertQuery(u"INSERT INTO events (type_id, family_id) VALUES (%1, %2)"_s
-                                             .arg(marriageTypeId)
-                                             .arg(familyId));
+        auto marriageEvent =
+            insertQuery(u"INSERT INTO events (type_id, family_id) VALUES (%1, %2)"_s.arg(marriageTypeId).arg(familyId));
 
         QSqlQuery q;
         QVERIFY(q.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s

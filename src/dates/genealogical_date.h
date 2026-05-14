@@ -73,11 +73,11 @@ public:
 
     struct DatePoint {
         QDate proleptic;
-        QTime wallTime;          // recorded wall time only — not used for sorting/calculation
+        QTime wallTime; // recorded wall time only — not used for sorting/calculation
         bool year = false;
         bool month = false;
         bool day = false;
-        bool hasTime = false;    // only meaningful when day is true
+        bool hasTime = false; // only meaningful when day is true
 
         bool operator==(const DatePoint&) const = default;
     };
@@ -145,7 +145,6 @@ public:
     static GenealogicalDate fromDisplayText(const QString& text);
 
 private:
-
     DateType dateType = SINGLE;
     Modifier dateModifier = NONE;
     Quality dateQuality = EXACT;

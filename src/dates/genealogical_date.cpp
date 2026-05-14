@@ -79,7 +79,7 @@ GenealogicalDate GenealogicalDate::makeRange(
     d.dateType = RANGE;
     d.dateQuality = quality;
     d.start = {.proleptic = from, .year = fromHasYear, .month = fromHasMonth, .day = fromHasDay};
-    d.end   = {.proleptic = to,   .year = toHasYear,   .month = toHasMonth,   .day = toHasDay};
+    d.end = {.proleptic = to, .year = toHasYear, .month = toHasMonth, .day = toHasDay};
     return d;
 }
 
@@ -98,7 +98,7 @@ GenealogicalDate GenealogicalDate::makeSpan(
     d.dateType = SPAN;
     d.dateQuality = quality;
     d.start = {.proleptic = from, .year = fromHasYear, .month = fromHasMonth, .day = fromHasDay};
-    d.end   = {.proleptic = to,   .year = toHasYear,   .month = toHasMonth,   .day = toHasDay};
+    d.end = {.proleptic = to, .year = toHasYear, .month = toHasMonth, .day = toHasDay};
     return d;
 }
 
@@ -143,8 +143,8 @@ qint64 GenealogicalDate::sortKey() const {
 }
 
 bool GenealogicalDate::isNull() const {
-    return dateType == SINGLE && !start.proleptic.isValid() && !start.year && !start.month && !start.day
-        && userText.isEmpty();
+    return dateType == SINGLE && !start.proleptic.isValid() && !start.year && !start.month && !start.day &&
+           userText.isEmpty();
 }
 
 bool GenealogicalDate::isValid() const {
@@ -211,7 +211,9 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     const auto quality = isValidEnum<Quality>(rawQuality) ? enumFromString<Quality>(rawQuality) : EXACT;
 
     const auto parseTime = [](const QString& s) -> std::pair<QTime, bool> {
-        if (s.isEmpty()) return {{}, false};
+        if (s.isEmpty()) {
+            return {{}, false};
+        }
         auto t = QTime::fromString(s, TIME_FORMAT);
         return {t, t.isValid()};
     };
@@ -240,8 +242,14 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     if (dateType == RANGE) {
         auto d = makeRange(
             quality,
-            startPoint.proleptic, startPoint.year, startPoint.month, startPoint.day,
-            endPoint.proleptic, endPoint.year, endPoint.month, endPoint.day
+            startPoint.proleptic,
+            startPoint.year,
+            startPoint.month,
+            startPoint.day,
+            endPoint.proleptic,
+            endPoint.year,
+            endPoint.month,
+            endPoint.day
         );
         d.start.wallTime = startPoint.wallTime;
         d.start.hasTime = startPoint.hasTime;
@@ -253,8 +261,14 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     if (dateType == SPAN) {
         auto d = makeSpan(
             quality,
-            startPoint.proleptic, startPoint.year, startPoint.month, startPoint.day,
-            endPoint.proleptic, endPoint.year, endPoint.month, endPoint.day
+            startPoint.proleptic,
+            startPoint.year,
+            startPoint.month,
+            startPoint.day,
+            endPoint.proleptic,
+            endPoint.year,
+            endPoint.month,
+            endPoint.day
         );
         d.start.wallTime = startPoint.wallTime;
         d.start.hasTime = startPoint.hasTime;
@@ -264,7 +278,8 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
         return d;
     }
 
-    GenealogicalDate d{modifier, quality, startPoint.proleptic, startPoint.year, startPoint.month, startPoint.day, userText};
+    GenealogicalDate
+        d{modifier, quality, startPoint.proleptic, startPoint.year, startPoint.month, startPoint.day, userText};
     d.start.wallTime = startPoint.wallTime;
     d.start.hasTime = startPoint.hasTime;
     return d;
@@ -296,30 +311,20 @@ QString GenealogicalDate::toDisplayText() const {
 QString GenealogicalDate::toLocalizedText() const {
     static const QHash<Modifier, QString> modifierLabels = {
         {BEFORE, i18nc("date modifier", "before")},
-        {AFTER,  i18nc("date modifier", "after")},
-        {ABOUT,  i18nc("date modifier", "about")},
+        {AFTER, i18nc("date modifier", "after")},
+        {ABOUT, i18nc("date modifier", "about")},
         {DURING, i18nc("date modifier", "during")},
     };
     static const QHash<Quality, QString> qualityLabels = {
-        {ESTIMATED,  i18nc("date quality", "estimated")},
+        {ESTIMATED, i18nc("date quality", "estimated")},
         {CALCULATED, i18nc("date quality", "calculated")},
     };
 
     if (dateType == RANGE) {
-        return i18nc(
-            "date range display",
-            "between %1 and %2",
-            formatDateLocalized(start),
-            formatDateLocalized(end)
-        );
+        return i18nc("date range display", "between %1 and %2", formatDateLocalized(start), formatDateLocalized(end));
     }
     if (dateType == SPAN) {
-        return i18nc(
-            "date span display",
-            "from %1 to %2",
-            formatDateLocalized(start),
-            formatDateLocalized(end)
-        );
+        return i18nc("date span display", "from %1 to %2", formatDateLocalized(start), formatDateLocalized(end));
     }
 
     QStringList result;
@@ -380,11 +385,19 @@ GenealogicalDate GenealogicalDate::fromDisplayText(const QString& text) {
             if (fromPoint.proleptic.isValid() && toPoint.proleptic.isValid()) {
                 auto d = makeRange(
                     EXACT,
-                    fromPoint.proleptic, fromPoint.year, fromPoint.month, fromPoint.day,
-                    toPoint.proleptic, toPoint.year, toPoint.month, toPoint.day
+                    fromPoint.proleptic,
+                    fromPoint.year,
+                    fromPoint.month,
+                    fromPoint.day,
+                    toPoint.proleptic,
+                    toPoint.year,
+                    toPoint.month,
+                    toPoint.day
                 );
-                d.start.wallTime = fromPoint.wallTime; d.start.hasTime = fromPoint.hasTime;
-                d.end.wallTime = toPoint.wallTime;     d.end.hasTime = toPoint.hasTime;
+                d.start.wallTime = fromPoint.wallTime;
+                d.start.hasTime = fromPoint.hasTime;
+                d.end.wallTime = toPoint.wallTime;
+                d.end.hasTime = toPoint.hasTime;
                 return d;
             }
         }
@@ -401,11 +414,19 @@ GenealogicalDate GenealogicalDate::fromDisplayText(const QString& text) {
             if (fromPoint.proleptic.isValid() && toPoint.proleptic.isValid()) {
                 auto d = makeSpan(
                     EXACT,
-                    fromPoint.proleptic, fromPoint.year, fromPoint.month, fromPoint.day,
-                    toPoint.proleptic, toPoint.year, toPoint.month, toPoint.day
+                    fromPoint.proleptic,
+                    fromPoint.year,
+                    fromPoint.month,
+                    fromPoint.day,
+                    toPoint.proleptic,
+                    toPoint.year,
+                    toPoint.month,
+                    toPoint.day
                 );
-                d.start.wallTime = fromPoint.wallTime; d.start.hasTime = fromPoint.hasTime;
-                d.end.wallTime = toPoint.wallTime;     d.end.hasTime = toPoint.hasTime;
+                d.start.wallTime = fromPoint.wallTime;
+                d.start.hasTime = fromPoint.hasTime;
+                d.end.wallTime = toPoint.wallTime;
+                d.end.hasTime = toPoint.hasTime;
                 return d;
             }
         }
