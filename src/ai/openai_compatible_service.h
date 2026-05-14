@@ -9,7 +9,9 @@
 
 #include <QJsonObject>
 #include <QNetworkAccessManager>
+#include <QPromise>
 #include <QString>
+#include <memory>
 
 class OpenAiCompatibleService : public AiService {
     Q_OBJECT
@@ -17,7 +19,8 @@ class OpenAiCompatibleService : public AiService {
 public:
     explicit OpenAiCompatibleService(QString endpoint, QString model, QObject* parent = nullptr);
 
-    void complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) override;
+    QFuture<QString>
+    ask(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) override;
 
 private:
     QString endpoint;
@@ -28,6 +31,7 @@ private:
         const QString& apiKey,
         const QString& systemPrompt,
         const QString& userMessage,
-        const QJsonObject& schema
+        const QJsonObject& schema,
+        std::unique_ptr<QPromise<QString>> promise
     );
 };

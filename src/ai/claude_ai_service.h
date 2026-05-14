@@ -17,16 +17,10 @@ class ClaudeAiService : public AiService {
 public:
     explicit ClaudeAiService(QString model, QObject* parent = nullptr);
 
-    void complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) override;
+    QFuture<QString>
+    ask(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) override;
 
 private:
     QString model;
     QNetworkAccessManager network{this};
-
-    void doRequest(
-        const QString& apiKey,
-        const QString& systemPrompt,
-        const QString& userMessage,
-        const QJsonObject& schema
-    );
 };

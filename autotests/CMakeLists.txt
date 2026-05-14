@@ -1,6 +1,7 @@
 enable_testing()
 
 ecm_add_tests(
+  async_test.cpp
   database.cpp
   database_migration_test.cpp
   genealogical_date.cpp

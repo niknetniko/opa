@@ -5,12 +5,16 @@
  */
 #pragma once
 
+#include <QFuture>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
 
 /**
  * Represents an AI service implementation.
+ *
+ * Note that in many cases, you can just re-use the OpenAI-compatible API,
+ * so no need to have an implementation per provider.
  *
  * Use `createAiService()` to obtain an instance.
  */
@@ -21,15 +25,15 @@ public:
     using QObject::QObject;
 
     /**
-     * Send a request to the AI provider.
+     * Ask something of the AI provider, which returns a response string.
      *
-     * Results are delivered asynchronously via responseReady() or requestFailed().
+     * @return A future with the response string, or a failed future with a std::exception.
      */
-    virtual void complete(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) = 0;
-
-Q_SIGNALS:
-    void responseReady(const QString& response);
-    void requestFailed(const QString& errorMessage);
+    virtual QFuture<QString>
+    ask(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema = {}) = 0;
 };
 
+/**
+ * Create an AI service based on the settings and config of the user.
+ */
 AiService* createAiService(QObject* parent = nullptr);

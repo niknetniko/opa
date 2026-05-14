@@ -15,6 +15,9 @@
 #include <QJsonObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <exception>
+#include <memory>
+#include <stdexcept>
 #include <utility>
 
 using namespace Qt::StringLiterals;
@@ -25,31 +28,39 @@ OpenAiCompatibleService::OpenAiCompatibleService(QString endpoint, QString model
     model(std::move(model)) {
 }
 
-void OpenAiCompatibleService::complete(
-    const QString& systemPrompt,
-    const QString& userMessage,
-    const QJsonObject& schema
-) {
+QFuture<QString>
+OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema) {
     qDebug() << "OpenAI-compatible request starting: endpoint=" << endpoint << "model=" << model
              << "userMessage length=" << userMessage.size();
+
+    auto promise = std::make_unique<QPromise<QString>>();
+    promise->start();
+    auto future = promise->future();
 
     auto* job = new QKeychain::ReadPasswordJob(KeychainKeys::Service, this);
     job->setKey(KeychainKeys::OpenAiCompatibleApiKey);
     job->setAutoDelete(true);
 
-    connect(job, &QKeychain::ReadPasswordJob::finished, this, [this, job, systemPrompt, userMessage, schema] {
-        const QString apiKey = (job->error() == QKeychain::NoError) ? job->textData() : QString{};
-        doRequest(apiKey, systemPrompt, userMessage, schema);
-    });
+    connect(
+        job,
+        &QKeychain::ReadPasswordJob::finished,
+        this,
+        [this, job, systemPrompt, userMessage, schema, promise = std::move(promise)]() mutable {
+            const QString apiKey = (job->error() == QKeychain::NoError) ? job->textData() : QString{};
+            doRequest(apiKey, systemPrompt, userMessage, schema, std::move(promise));
+        }
+    );
 
     job->start();
+    return future;
 }
 
 void OpenAiCompatibleService::doRequest(
     const QString& apiKey,
     const QString& systemPrompt,
     const QString& userMessage,
-    const QJsonObject& schema
+    const QJsonObject& schema,
+    std::unique_ptr<QPromise<QString>> promise
 ) {
     const QUrl url(endpoint + u"/chat/completions"_s);
     qDebug() << "OpenAI-compatible: sending request to" << url << "schema empty=" << schema.isEmpty();
@@ -86,12 +97,13 @@ void OpenAiCompatibleService::doRequest(
 
     auto* reply = network.post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply] {
+    connect(reply, &QNetworkReply::finished, this, [reply, promise = std::move(promise)]() mutable {
         reply->deleteLater();
 
         if (reply->error() != QNetworkReply::NoError) {
             qWarning() << "OpenAI-compatible: network error:" << reply->errorString();
-            Q_EMIT requestFailed(reply->errorString());
+            promise->setException(std::make_exception_ptr(std::runtime_error(reply->errorString().toStdString())));
+            promise->finish();
             return;
         }
 
@@ -100,7 +112,12 @@ void OpenAiCompatibleService::doRequest(
 
         if (status < 200 || status >= 300) {
             qWarning() << "OpenAI-compatible: HTTP error" << status << data;
-            Q_EMIT requestFailed(i18n("HTTP %1: %2").arg(status).arg(QString::fromUtf8(data)));
+            promise->setException(
+                std::make_exception_ptr(
+                    std::runtime_error(i18n("HTTP %1: %2").arg(status).arg(QString::fromUtf8(data)).toStdString())
+                )
+            );
+            promise->finish();
             return;
         }
 
@@ -108,12 +125,18 @@ void OpenAiCompatibleService::doRequest(
         const QJsonArray choices = doc[u"choices"_s].toArray();
         if (choices.isEmpty()) {
             qWarning() << "OpenAI-compatible: empty choices array in response";
-            Q_EMIT requestFailed(i18n("Empty response from OpenAI-compatible API"));
+            promise->setException(
+                std::make_exception_ptr(
+                    std::runtime_error(i18n("Empty response from OpenAI-compatible API").toStdString())
+                )
+            );
+            promise->finish();
             return;
         }
 
         const QString text = choices.first()[u"message"_s][u"content"_s].toString();
         qDebug() << "OpenAI-compatible: response received" << text;
-        Q_EMIT responseReady(text);
+        promise->addResult(text);
+        promise->finish();
     });
 }

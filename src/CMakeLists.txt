@@ -232,7 +232,11 @@ add_library(
   ai/openai_compatible_service.h
   ai/openai_compatible_service.cpp
   main/ai_settings_widget.h
-  main/ai_settings_widget.cpp)
+  main/ai_settings_widget.cpp
+  ai/utils.cpp
+  ai/utils.h
+        utils/async.cpp
+        utils/async.h)
 
 ecm_qt_declare_logging_category(
   opa-lib
@@ -285,7 +289,10 @@ target_link_libraries(
          ${SQLite3_LIBRARIES}
          ${QtNodes_LIBRARIES}
          KDAB::kddockwidgets
-         qt6keychain)
+         qt6keychain
+         QCoro::Core
+         QCoro::Network
+         QCoro::DBus)
 
 qt_add_resources(
   opa-lib "opa-database"
