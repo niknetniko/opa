@@ -9,7 +9,6 @@
 
 #include <QFuture>
 #include <QPromise>
-
 #include <memory>
 #include <optional>
 

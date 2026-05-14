@@ -235,8 +235,8 @@ add_library(
   main/ai_settings_widget.cpp
   ai/utils.cpp
   ai/utils.h
-        utils/async.cpp
-        utils/async.h)
+  utils/async.cpp
+  utils/async.h)
 
 ecm_qt_declare_logging_category(
   opa-lib
