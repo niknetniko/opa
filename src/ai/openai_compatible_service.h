@@ -26,12 +26,4 @@ private:
     QString endpoint;
     QString model;
     QNetworkAccessManager network{this};
-
-    void doRequest(
-        const QString& apiKey,
-        const QString& systemPrompt,
-        const QString& userMessage,
-        const QJsonObject& schema,
-        std::unique_ptr<QPromise<QString>> promise
-    );
 };

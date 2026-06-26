@@ -7,15 +7,17 @@
 
 #include "../core/keychain_keys.h"
 #include "logging.h"
-#include <qt6keychain/keychain.h>
+#include "utils.h"
+#include "utils/async.h"
 
 #include <KLocalizedString>
+#include <QCoro/QCoroFuture>
+#include <QCoro/QCoroNetworkReply>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <exception>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -30,46 +32,19 @@ OpenAiCompatibleService::OpenAiCompatibleService(QString endpoint, QString model
 
 QFuture<QString>
 OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema) {
-    qDebug() << "OpenAI-compatible request starting: endpoint=" << endpoint << "model=" << model
-             << "userMessage length=" << userMessage.size();
+    qCDebug(OPA) << "OpenAI request starting: endpoint=" << endpoint << "model=" << model
+                 << "userMessage length=" << userMessage.size();
 
-    auto promise = std::make_unique<QPromise<QString>>();
-    promise->start();
-    auto future = promise->future();
-
-    auto* job = new QKeychain::ReadPasswordJob(KeychainKeys::Service, this);
-    job->setKey(KeychainKeys::OpenAiCompatibleApiKey);
-    job->setAutoDelete(true);
-
-    connect(
-        job,
-        &QKeychain::ReadPasswordJob::finished,
-        this,
-        [this, job, systemPrompt, userMessage, schema, promise = std::move(promise)]() mutable {
-            const QString apiKey = (job->error() == QKeychain::NoError) ? job->textData() : QString{};
-            doRequest(apiKey, systemPrompt, userMessage, schema, std::move(promise));
-        }
-    );
-
-    job->start();
-    return future;
-}
-
-void OpenAiCompatibleService::doRequest(
-    const QString& apiKey,
-    const QString& systemPrompt,
-    const QString& userMessage,
-    const QJsonObject& schema,
-    std::unique_ptr<QPromise<QString>> promise
-) {
-    const QUrl url(endpoint + u"/chat/completions"_s);
-    qDebug() << "OpenAI-compatible: sending request to" << url << "schema empty=" << schema.isEmpty();
-
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, u"application/json"_s);
-    if (!apiKey.isEmpty()) {
-        request.setRawHeader("Authorization", (u"Bearer "_s + apiKey).toUtf8());
-    }
+    // Pre-compute the request data outside the coroutine. Capturing implicitly-shared Qt types
+    // (QString, QByteArray, QUrl) by value in a lambda coroutine causes use-after-free in clang's
+    // optimised coroutine-frame layout. Storing behind a shared_ptr ensures only raw pointers
+    // (which are trivially relocatable) cross the co_await suspension points.
+    struct RequestData {
+        QUrl url;
+        QByteArray body;
+    };
+    auto request = std::make_shared<RequestData>();
+    request->url = QUrl(endpoint + u"/chat/completions"_s);
 
     QJsonObject body;
     body[u"model"_s] = model;
@@ -94,49 +69,47 @@ void OpenAiCompatibleService::doRequest(
             {u"content"_s, userMessage},
         },
     };
+    request->body = QJsonDocument(body).toJson(QJsonDocument::Compact);
 
-    auto* reply = network.post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
+    qCDebug(OPA) << "OpenAI: sending request to" << request->url << "schema empty=" << schema.isEmpty();
 
-    connect(reply, &QNetworkReply::finished, this, [reply, promise = std::move(promise)]() mutable {
-        reply->deleteLater();
+    return spawn([this, request]() -> QCoro::Task<QString> {
+        const QString apiKey =
+            co_await readFromKeychainLax(KeychainKeys::Service, KeychainKeys::OpenAiCompatibleApiKey, this);
 
-        if (reply->error() != QNetworkReply::NoError) {
-            qWarning() << "OpenAI-compatible: network error:" << reply->errorString();
-            promise->setException(std::make_exception_ptr(std::runtime_error(reply->errorString().toStdString())));
-            promise->finish();
-            return;
+        QNetworkRequest req(request->url);
+        req.setHeader(QNetworkRequest::ContentTypeHeader, u"application/json"_s);
+        if (!apiKey.isEmpty()) {
+            req.setRawHeader("Authorization", (u"Bearer "_s + apiKey).toUtf8());
         }
 
+        auto* reply = co_await network.post(req, request->body);
+        const auto replyError = reply->error();
+        const auto replyErrorString = reply->errorString();
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QByteArray data = reply->readAll();
+        reply->deleteLater();
+
+        if (replyError != QNetworkReply::NoError) {
+            qCWarning(OPA) << "OpenAI: network error:" << replyErrorString;
+            throw std::runtime_error(replyErrorString.toStdString());
+        }
 
         if (status < 200 || status >= 300) {
-            qWarning() << "OpenAI-compatible: HTTP error" << status << data;
-            promise->setException(
-                std::make_exception_ptr(
-                    std::runtime_error(i18n("HTTP %1: %2").arg(status).arg(QString::fromUtf8(data)).toStdString())
-                )
-            );
-            promise->finish();
-            return;
+            qCWarning(OPA) << "OpenAI: HTTP error" << status << data;
+            throw std::runtime_error(i18n("HTTP %1: %2").arg(status).arg(QString::fromUtf8(data)).toStdString());
         }
 
         const QJsonDocument doc = QJsonDocument::fromJson(data);
         const QJsonArray choices = doc[u"choices"_s].toArray();
         if (choices.isEmpty()) {
-            qWarning() << "OpenAI-compatible: empty choices array in response";
-            promise->setException(
-                std::make_exception_ptr(
-                    std::runtime_error(i18n("Empty response from OpenAI-compatible API").toStdString())
-                )
-            );
-            promise->finish();
-            return;
+            qCWarning(OPA) << "OpenAI: empty choices array in response";
+            throw std::runtime_error(i18n("Empty response from OpenAI API").toStdString());
         }
 
         const QString text = choices.first()[u"message"_s][u"content"_s].toString();
-        qDebug() << "OpenAI-compatible: response received" << text;
-        promise->addResult(text);
-        promise->finish();
-    });
+        qCDebug(OPA) << "OpenAI: response received, length=" << text.size();
+
+        co_return text;
+    }());
 }

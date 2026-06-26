@@ -33,7 +33,7 @@ ClaudeAiService::ask(const QString& systemPrompt, const QString& userMessage, co
     return spawn([this, systemPrompt, userMessage, schema]() -> QCoro::Task<QString> {
         const QString apiKey = co_await readFromKeychain(KeychainKeys::Service, KeychainKeys::ClaudeApiKey, this);
 
-        qCDebug(OPA) << "Claude AI: sending request, model=" << model << "schema empty=" << schema.isEmpty();
+        qCDebug(OPA) << "Claude AI: sending request, schema empty=" << schema.isEmpty();
 
         QNetworkRequest request(QUrl(u"https://api.anthropic.com/v1/messages"_s));
         request.setHeader(QNetworkRequest::ContentTypeHeader, u"application/json"_s);

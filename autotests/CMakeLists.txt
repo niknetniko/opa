@@ -26,4 +26,5 @@ ecm_add_tests(
   transaction_batching_test.cpp
   type_translation_repository_test.cpp
   type_translation_resolver_test.cpp
+  openai_compatible_service_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)

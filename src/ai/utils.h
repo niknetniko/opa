@@ -18,6 +18,17 @@
  */
 QFuture<QString> readFromKeychain(const QString& service, const QString& key, QObject* parent);
 
+/**
+ * Reads a value from the keychain asynchronously that can be empty.
+ *
+ * @param service The service name in the keychain.
+ * @param key The key to retrieve.
+ * @param parent The parent object for the future.
+ *
+ * @return A future that resolves to the retrieved value or a KeychainException.
+ */
+QFuture<QString> readFromKeychainLax(const QString& service, const QString& key, QObject* parent);
+
 class KeychainException : public QException {
 public:
     explicit KeychainException(const QString& message) : m_message(message), m_byteArray(message.toUtf8()) {
