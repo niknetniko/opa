@@ -35,10 +35,12 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
     qCDebug(OPA) << "OpenAI request starting: endpoint=" << endpoint << "model=" << model
                  << "userMessage length=" << userMessage.size();
 
-    // Pre-compute the request data outside the coroutine. Capturing implicitly-shared Qt types
-    // (QString, QByteArray, QUrl) by value in a lambda coroutine causes use-after-free in clang's
-    // optimised coroutine-frame layout. Storing behind a shared_ptr ensures only raw pointers
-    // (which are trivially relocatable) cross the co_await suspension points.
+    // Pre-compute the request data outside the coroutine. The work below runs in a lambda
+    // coroutine that is invoked as a temporary, so its closure object is destroyed at the end of
+    // this function while the coroutine is still suspended on its first co_await. Anything the
+    // coroutine needs must therefore be passed as a *parameter* (which is copied into the
+    // coroutine frame and lives for the coroutine's duration), never as a capture (which lives in
+    // the now-destroyed closure and would dangle across suspension points).
     struct RequestData {
         QUrl url;
         QByteArray body;
@@ -73,9 +75,10 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
 
     qCDebug(OPA) << "OpenAI: sending request to" << request->url << "schema empty=" << schema.isEmpty();
 
-    return spawn([this, request]() -> QCoro::Task<QString> {
+    auto coroutine = [](OpenAiCompatibleService* self,
+                        std::shared_ptr<RequestData> request) -> QCoro::Task<QString> {
         const QString apiKey =
-            co_await readFromKeychainLax(KeychainKeys::Service, KeychainKeys::OpenAiCompatibleApiKey, this);
+            co_await readFromKeychainLax(KeychainKeys::Service, KeychainKeys::OpenAiCompatibleApiKey, self);
 
         QNetworkRequest req(request->url);
         req.setHeader(QNetworkRequest::ContentTypeHeader, u"application/json"_s);
@@ -83,7 +86,7 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
             req.setRawHeader("Authorization", (u"Bearer "_s + apiKey).toUtf8());
         }
 
-        auto* reply = co_await network.post(req, request->body);
+        auto* reply = co_await self->network.post(req, request->body);
         const auto replyError = reply->error();
         const auto replyErrorString = reply->errorString();
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -111,5 +114,7 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
         qCDebug(OPA) << "OpenAI: response received, length=" << text.size();
 
         co_return text;
-    }());
+    };
+
+    return spawn(coroutine(this, request));
 }
