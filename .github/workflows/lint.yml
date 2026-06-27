@@ -26,4 +26,4 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - run: .#checks.x86_64-linux.formatting
+      - run: nix build .#checks.x86_64-linux.formatting
