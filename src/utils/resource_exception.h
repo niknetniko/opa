@@ -7,9 +7,12 @@
 
 #include <QException>
 
-class ResourceNotFoundException : public QException
-{
+class ResourceNotFoundException : public QException {
 public:
-    void raise() const override { throw *this; }
-    ResourceNotFoundException *clone() const override { return new ResourceNotFoundException(*this); }
+    void raise() const override {
+        throw *this;
+    }
+    ResourceNotFoundException* clone() const override {
+        return new ResourceNotFoundException(*this);
+    }
 };

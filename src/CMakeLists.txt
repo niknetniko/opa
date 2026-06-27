@@ -237,14 +237,13 @@ add_library(
   ai/utils.h
   utils/async.cpp
   utils/async.h
-        import/gramps_xml.cpp
-        import/gramps_xml.h
-        import/import_wizard.cpp
-        import/import_wizard.h
-    utils/resource_exception.h)
+  import/gramps_xml.cpp
+  import/gramps_xml.h
+  import/import_wizard.cpp
+  import/import_wizard.h
+  utils/resource_exception.h)
 
 target_compile_features(opa-lib PUBLIC cxx_std_23)
-
 
 ecm_qt_declare_logging_category(
   opa-lib
@@ -301,8 +300,7 @@ target_link_libraries(
          QCoro::Core
          QCoro::Network
          QCoro::DBus
-         LibXml2::LibXml2
-)
+         LibXml2::LibXml2)
 
 qt_add_resources(
   opa-lib "opa-database"
@@ -322,14 +320,11 @@ qt_add_resources(
     database/migrations/008_add_families.sql
     database/migrations/009_backfill_family_ids.sql)
 
-
 qt_add_resources(
-    opa-lib "opa-schemas"
-    PREFIX "/"
-    BASE "import"
-    FILES
-      import/schema/grampsxml-1.7.2.rng
-)
+  opa-lib "opa-schemas"
+  PREFIX "/"
+  BASE "import"
+  FILES import/schema/grampsxml-1.7.2.rng)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})

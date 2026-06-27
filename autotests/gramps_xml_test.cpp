@@ -23,12 +23,11 @@ QString grampsXml(const QString& body = {}) {
            "<database xmlns=\""_s +
            ns +
            u"\">\n"
-            "  <header>\n"
-            "    <created date=\"2024-01-01\" version=\"5.1.3\"/>\n"
-            "    <researcher/>\n"
-            "  </header>\n"_s +
-           body +
-           u"</database>\n"_s;
+           "  <header>\n"
+           "    <created date=\"2024-01-01\" version=\"5.1.3\"/>\n"
+           "    <researcher/>\n"
+           "  </header>\n"_s +
+           body + u"</database>\n"_s;
 }
 
 GrampsXmlAnalysis runValidation(const QString& xml) {
@@ -69,24 +68,24 @@ private Q_SLOTS:
     void testEntityCountsAreCorrect() {
         const auto body =
             u"  <events>\n"
-             "    <event handle=\"ee0001\" change=\"0\"><type>Birth</type></event>\n"
-             "  </events>\n"
-             "  <people>\n"
-             "    <person handle=\"pp0001\" change=\"0\"><gender>M</gender></person>\n"
-             "    <person handle=\"pp0002\" change=\"0\"><gender>F</gender></person>\n"
-             "  </people>\n"
-             "  <families>\n"
-             "    <family handle=\"ff0001\" change=\"0\"/>\n"
-             "  </families>\n"
-             "  <sources>\n"
-             "    <source handle=\"ss0001\" change=\"0\"/>\n"
-             "    <source handle=\"ss0002\" change=\"0\"/>\n"
-             "  </sources>\n"
-             "  <places>\n"
-             "    <placeobj handle=\"pl0001\" change=\"0\" type=\"\"><pname value=\"Somewhere\"/></placeobj>\n"
-             "    <placeobj handle=\"pl0002\" change=\"0\" type=\"\"><pname value=\"Elsewhere\"/></placeobj>\n"
-             "    <placeobj handle=\"pl0003\" change=\"0\" type=\"\"><pname value=\"Nowhere\"/></placeobj>\n"
-             "  </places>\n"_s;
+            "    <event handle=\"ee0001\" change=\"0\"><type>Birth</type></event>\n"
+            "  </events>\n"
+            "  <people>\n"
+            "    <person handle=\"pp0001\" change=\"0\"><gender>M</gender></person>\n"
+            "    <person handle=\"pp0002\" change=\"0\"><gender>F</gender></person>\n"
+            "  </people>\n"
+            "  <families>\n"
+            "    <family handle=\"ff0001\" change=\"0\"/>\n"
+            "  </families>\n"
+            "  <sources>\n"
+            "    <source handle=\"ss0001\" change=\"0\"/>\n"
+            "    <source handle=\"ss0002\" change=\"0\"/>\n"
+            "  </sources>\n"
+            "  <places>\n"
+            "    <placeobj handle=\"pl0001\" change=\"0\" type=\"\"><pname value=\"Somewhere\"/></placeobj>\n"
+            "    <placeobj handle=\"pl0002\" change=\"0\" type=\"\"><pname value=\"Elsewhere\"/></placeobj>\n"
+            "    <placeobj handle=\"pl0003\" change=\"0\" type=\"\"><pname value=\"Nowhere\"/></placeobj>\n"
+            "  </places>\n"_s;
 
         const auto result = runValidation(grampsXml(body));
 

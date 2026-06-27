@@ -49,20 +49,28 @@ private Q_SLOTS:
         connect(socket, &QTcpSocket::readyRead, this, [this, socket, buffer]() {
             *buffer += socket->readAll();
             const int sep = buffer->indexOf("\r\n\r\n");
-            if (sep < 0) return;
-            int contentLength = 0;
-            for (const auto& line : buffer->left(sep).split('\n')) {
-                if (line.toLower().startsWith("content-length:"))
-                    contentLength = line.mid(15).trimmed().toInt();
+            if (sep < 0) {
+                return;
             }
-            if (buffer->size() < sep + 4 + contentLength) return;
+            int contentLength = 0;
+            for (const auto& line: buffer->left(sep).split('\n')) {
+                if (line.toLower().startsWith("content-length:")) {
+                    contentLength = line.mid(15).trimmed().toInt();
+                }
+            }
+            if (buffer->size() < sep + 4 + contentLength) {
+                return;
+            }
             receivedBody = buffer->mid(sep + 4, contentLength);
-            const QByteArray response =
-                "HTTP/1.1 " + QByteArray::number(nextStatus) + " OK\r\n"
-                "Content-Type: application/json\r\n"
-                "Content-Length: " + QByteArray::number(nextBody.size()) + "\r\n"
-                "Connection: close\r\n"
-                "\r\n" + nextBody;
+            const QByteArray response = "HTTP/1.1 " + QByteArray::number(nextStatus) +
+                                        " OK\r\n"
+                                        "Content-Type: application/json\r\n"
+                                        "Content-Length: " +
+                                        QByteArray::number(nextBody.size()) +
+                                        "\r\n"
+                                        "Connection: close\r\n"
+                                        "\r\n" +
+                                        nextBody;
             socket->write(response);
             socket->flush();
             socket->disconnectFromHost();

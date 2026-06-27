@@ -75,8 +75,7 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
 
     qCDebug(OPA) << "OpenAI: sending request to" << request->url << "schema empty=" << schema.isEmpty();
 
-    auto coroutine = [](OpenAiCompatibleService* self,
-                        std::shared_ptr<RequestData> request) -> QCoro::Task<QString> {
+    auto coroutine = [](OpenAiCompatibleService* self, std::shared_ptr<RequestData> request) -> QCoro::Task<QString> {
         const QString apiKey =
             co_await readFromKeychainLax(KeychainKeys::Service, KeychainKeys::OpenAiCompatibleApiKey, self);
 

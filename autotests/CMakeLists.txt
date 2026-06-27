@@ -29,7 +29,6 @@ ecm_add_tests(
   openai_compatible_service_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)
 
-ecm_add_test(gramps_xml_test.cpp
-  LINK_LIBRARIES opa-lib Qt::Test)
-target_compile_definitions(gramps_xml_test PRIVATE
-  QTEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+ecm_add_test(gramps_xml_test.cpp LINK_LIBRARIES opa-lib Qt::Test)
+target_compile_definitions(
+  gramps_xml_test PRIVATE QTEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

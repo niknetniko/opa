@@ -9,12 +9,12 @@
 #include "ai/ai_service.h"
 #include "gramps_xml.h"
 
+#include <KBusyIndicatorWidget>
 #include <KUrlRequester>
+#include <QFutureWatcher>
 #include <QLabel>
 #include <QRadioButton>
 #include <QWizardPage>
-#include <QFutureWatcher>
-#include <KBusyIndicatorWidget>
 
 class ImportWizard : public QWizard {
     Q_OBJECT
@@ -24,7 +24,7 @@ public:
     explicit ImportWizard(QWidget* parent = nullptr);
 };
 
-class IntroPage: public QWizardPage {
+class IntroPage : public QWizardPage {
     Q_OBJECT
 public:
     explicit IntroPage(QWidget* parent = nullptr);
@@ -32,11 +32,11 @@ public:
     int nextId() const override;
 
 private:
-    QRadioButton *grampsXmlRadioButton;
+    QRadioButton* grampsXmlRadioButton;
 };
 
 
-class GrampsXmlSelectPage: public QWizardPage {
+class GrampsXmlSelectPage : public QWizardPage {
     Q_OBJECT
 public:
     explicit GrampsXmlSelectPage(QWidget* parent = nullptr);
@@ -44,10 +44,10 @@ public:
     int nextId() const override;
 
 private:
-    KUrlRequester *urlRequester;
+    KUrlRequester* urlRequester;
 };
 
-class GrampsCheckPage: public QWizardPage {
+class GrampsCheckPage : public QWizardPage {
     Q_OBJECT
 public:
     explicit GrampsCheckPage(QWidget* parent = nullptr);

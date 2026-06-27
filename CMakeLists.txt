@@ -33,8 +33,7 @@ find_package(
              QuickWidgets
              Pdf
              PdfWidgets
-             Concurrent
-)
+             Concurrent)
 
 find_package(
   KF6 ${KF_MIN_VERSION} REQUIRED
@@ -50,8 +49,7 @@ find_package(
              Kirigami
              KIO
              TextWidgets
-             WidgetsAddons
-)
+             WidgetsAddons)
 
 find_package(SQLite3 REQUIRED)
 
