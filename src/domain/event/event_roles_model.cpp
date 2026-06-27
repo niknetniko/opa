@@ -19,10 +19,7 @@ EventRolesListModel::EventRolesListModel(QObject* parent) : ObjectTableModel(par
             return false;
         }
         EventRepository repo;
-        if (!repo.updateEventRole(entity.id, newRole)) {
-            return false;
-        }
-        return true;
+        return repo.updateEventRole(entity.id, newRole);
     });
     this->setColumn(BUILTIN, i18n("Built-in"), &EventRoleEntity::builtin);
 

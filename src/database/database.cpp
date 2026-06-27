@@ -22,7 +22,7 @@ const static auto driver = u"QSQLITE"_s;
 
 namespace {
 struct Migration {
-    int version;
+    int version{};
     QLatin1StringView description;
     QLatin1StringView resourcePath;
 };
@@ -162,8 +162,8 @@ void runMigrations(QSqlDatabase& database) {
     }
 }
 
-// NOLINTNEXTLINE(*-use-internal-linkage)
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
+// NOLINTNEXTLINE(*-use-internal-linkage)
 int sql_trace_callback(unsigned int type, void* context, void* p, void* x) {
     Q_UNUSED(context);
     Q_UNUSED(x);

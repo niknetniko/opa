@@ -19,10 +19,7 @@ EventTypesListModel::EventTypesListModel(QObject* parent) : ObjectTableModel(par
             return false;
         }
         EventRepository repo;
-        if (!repo.updateEventType(entity.id, newType)) {
-            return false;
-        }
-        return true;
+        return repo.updateEventType(entity.id, newType);
     });
     this->setColumn(BUILTIN, i18n("Built-in"), &EventTypeEntity::builtin);
 
