@@ -19,6 +19,5 @@ jobs:
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('**/flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-
-          gc-max-store-size-linux: 4G
 
       - run: nix build .#checks.x86_64-linux.ctests
