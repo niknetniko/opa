@@ -1,17 +1,16 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(opa)
+project(opa LANGUAGES CXX C)
 
 set(QT_MIN_VERSION "6.0.0")
 set(KF_MIN_VERSION "6.4.0")
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
@@ -32,9 +31,10 @@ find_package(
              Quick
              QuickControls2
              QuickWidgets
-             Test
              Pdf
-             PdfWidgets)
+             PdfWidgets
+             Concurrent
+)
 
 find_package(
   KF6 ${KF_MIN_VERSION} REQUIRED
@@ -50,23 +50,21 @@ find_package(
              Kirigami
              KIO
              TextWidgets
-             WidgetsAddons)
+             WidgetsAddons
+)
 
 find_package(SQLite3 REQUIRED)
-include_directories(${SQLite3_INCLUDE_DIRS})
 
 find_package(QtNodes REQUIRED)
-include_directories(${QtNodes_INCLUDE_DIRS})
 
 find_package(KDDockWidgets-qt6 REQUIRED)
-include_directories(${KDDockWidgets_INCLUDE_DIRS})
 
 find_package(Qt6Keychain REQUIRED)
-include_directories(${Qt6Keychain_INCLUDE_DIRS})
 
 find_package(QCoro6 REQUIRED COMPONENTS Core Network DBus)
-include_directories(${QCoro6_INCLUDE_DIRS})
 qcoro_enable_coroutines()
+
+find_package(LibXml2 REQUIRED)
 
 kde_enable_exceptions()
 
@@ -74,7 +72,7 @@ add_subdirectory(src)
 add_subdirectory(icons)
 
 if(BUILD_TESTING)
-  find_package(Qt6 ${QT_MIN_VERSION} NO_MODULE COMPONENTS Test)
+  find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Test)
   add_subdirectory(autotests)
 endif()
 

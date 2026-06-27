@@ -57,6 +57,7 @@
           kdePackages.qtmultimedia
           kdePackages.qtkeychain
           pipewire
+          libxml2
         ];
         native-build-inputs = with pkgs; [
           llvmPackages.openmp

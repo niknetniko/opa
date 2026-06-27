@@ -8,10 +8,10 @@
 #include "ai_settings_widget.h"
 #include "database/database.h"
 #include "docks/person_list_dock.h"
-#include "domain/event/event_types.h"
 #include "domain/media/media_service.h"
 #include "domain/name/names.h"
 #include "editors/new_person_editor_dialog.h"
+#include "import/import_wizard.h"
 #include "lists/event_roles_management_window.h"
 #include "lists/event_types_management_window.h"
 #include "lists/location_management_window.h"
@@ -33,7 +33,6 @@
 #include <KActionCollection>
 #include <KConfigDialog>
 #include <KLocalizedString>
-#include <KMessageBox>
 #include <QFileDialog>
 #include <QSqlError>
 
@@ -130,6 +129,11 @@ MainWindow::MainWindow() {
     showFamiliesListAction_->setIcon(QIcon::fromTheme(QStringLiteral("view-group")));
     connect(showFamiliesListAction_, &QAction::triggered, this, &MainWindow::showFamiliesList);
 
+    importAction_ = new QAction(this);
+    importAction_->setText(i18n("Import..."));
+    importAction_->setIcon(QIcon::fromTheme(QStringLiteral("document-import")));
+    connect(importAction_, &QAction::triggered, this, &MainWindow::importData);
+
     auto* actionCollection = KXMLGUIClient::actionCollection();
     actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
     actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
@@ -144,6 +148,7 @@ MainWindow::MainWindow() {
     actionCollection->addAction(QStringLiteral("show_sources_list"), showSourcesListAction_);
     actionCollection->addAction(QStringLiteral("show_media_list"), showMediaListAction_);
     actionCollection->addAction(QStringLiteral("show_families_list"), showFamiliesListAction_);
+    actionCollection->addAction(QStringLiteral("import_data"), importAction_);
 
     openNewAction_ = KStandardAction::openNew(this, &MainWindow::newFile, actionCollection);
     openAction_ = KStandardAction::open(this, &MainWindow::openFile, actionCollection);
@@ -219,6 +224,7 @@ void MainWindow::syncActions() {
         showSourcesListAction_,
         showMediaListAction_,
         showFamiliesListAction_,
+        importAction_,
     };
     for (auto* manageAction: fileActions) {
         manageAction->setEnabled(!currentFile.isEmpty());
@@ -557,4 +563,12 @@ void MainWindow::showFamiliesList() {
     container->addDockWidget(familyListDock, KDDockWidgets::Location_OnRight);
 
     syncActions();
+}
+
+void MainWindow::importData() {
+    ImportWizard wizard(this);
+
+    if (wizard.exec() == QDialog::Accepted) {
+        qDebug() << "Import accepted";
+    }
 }

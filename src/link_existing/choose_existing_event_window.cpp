@@ -1,4 +1,3 @@
-
 /*
  * SPDX-FileCopyrightText: Niko Strijbol <niko@strijbol.be>
  *

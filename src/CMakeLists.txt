@@ -236,7 +236,15 @@ add_library(
   ai/utils.cpp
   ai/utils.h
   utils/async.cpp
-  utils/async.h)
+  utils/async.h
+        import/gramps_xml.cpp
+        import/gramps_xml.h
+        import/import_wizard.cpp
+        import/import_wizard.h
+    utils/resource_exception.h)
+
+target_compile_features(opa-lib PUBLIC cxx_std_23)
+
 
 ecm_qt_declare_logging_category(
   opa-lib
@@ -272,27 +280,29 @@ target_link_libraries(
          KF6::Crash
          KF6::IconThemes
          KF6::ItemModels
-         Qt6::Widgets
-         Qt6::Sql
-         Qt6::Quick
-         Qt6::QuickControls2
-         Qt6::QuickWidgets
-         Qt6::Test
          KF6::KIOCore
          KF6::KIOFileWidgets
          KF6::KIOWidgets
          KF6::TextWidgets
          KF6::WidgetsAddons
+         Qt6::Widgets
+         Qt6::Sql
+         Qt6::Quick
+         Qt6::QuickControls2
+         Qt6::QuickWidgets
          Qt6::Network
          Qt6::Pdf
          Qt6::PdfWidgets
-         ${SQLite3_LIBRARIES}
-         ${QtNodes_LIBRARIES}
+         Qt6::Concurrent
+         SQLite::SQLite3
+         QtNodes::QtNodes
          KDAB::kddockwidgets
          qt6keychain
          QCoro::Core
          QCoro::Network
-         QCoro::DBus)
+         QCoro::DBus
+         LibXml2::LibXml2
+)
 
 qt_add_resources(
   opa-lib "opa-database"
@@ -311,6 +321,15 @@ qt_add_resources(
     database/migrations/007_add_date_sort.sql
     database/migrations/008_add_families.sql
     database/migrations/009_backfill_family_ids.sql)
+
+
+qt_add_resources(
+    opa-lib "opa-schemas"
+    PREFIX "/"
+    BASE "import"
+    FILES
+      import/schema/grampsxml-1.7.2.rng
+)
 
 install(TARGETS opa ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(PROGRAMS org.example.opa.desktop DESTINATION ${KDE_INSTALL_APPDIR})
