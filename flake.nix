@@ -26,7 +26,7 @@
       system:
       let
         pkgs = import nixpkgs {
-          system = system;
+          inherit system;
           config = {
             allowUnfree = true;
           };
@@ -60,16 +60,21 @@
           libxml2
         ];
         native-build-inputs = with pkgs; [
-          llvmPackages.openmp
           kdePackages.wrapQtAppsHook
-          kdePackages.qtwayland
           kdePackages.extra-cmake-modules
-          clang-tools
           cmake
-          git
-          valgrind
+        ];
+        dev-tools = with pkgs; [
+          clang-tools
           clazy
-          atlas
+          valgrind
+          gdb
+          lldb
+          qtcreator
+          gersemi
+          nodejs_24
+          claude-code
+          bashInteractive
         ];
         opa = pkgs.clangStdenv.mkDerivation {
           pname = "opa";
@@ -86,7 +91,7 @@
           src = pkgs.fetchFromGitHub {
             owner = "paceholder";
             repo = "nodeeditor";
-            rev = "${version}";
+            rev = version;
             hash = "sha256-Y9W6CtNB36l2vzWDvlC0BnHJSNe/dN0wW7Pct+/d+1Q=";
           };
 
@@ -107,7 +112,7 @@
           default = opa;
           qtnodes = qtnodes;
         };
-        checks = rec {
+        checks = {
           ctests = opa.overrideAttrs (
             finalAttrs: previousAttrs: {
               name = "opa-ctests";
@@ -121,7 +126,9 @@
             finalAttrs: previousAttrs: {
               name = "opa-clang-tidy";
               cmakeFlags = [
-                "-DCMAKE_CXX_CLANG_TIDY='clang-tidy'"
+                # Run using the normal CMake build so we have generated headers etc. in the correct
+                # places automatically.
+                "-DCMAKE_CXX_CLANG_TIDY=clang-tidy"
               ];
               dontInstall = true;
             }
@@ -129,27 +136,9 @@
           formatting = treefmtEval.config.build.check self;
         };
         devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
-          buildInputs =
-            build-inputs
-            ++ native-build-inputs
-            ++ [
-              pkgs.qtcreator
-              pkgs.gdb
-              pkgs.lldb
-              # run-clang-tidy is not included in the normal clang?
-              # https://github.com/NixOS/nixpkgs/issues/33386
-              # TODO: whut
-              pkgs.llvmPackages.clang-unwrapped.python
-              pkgs.gersemi
-              treefmtEval.config.build.wrapper
-              pkgs.bashInteractive
-              pkgs.gemini-cli
-              pkgs.nodejs_24
-              pkgs.claude-code
-            ];
+          inputsFrom = [ opa ];
+          packages = dev-tools ++ [ treefmtEval.config.build.wrapper ];
           shellHook = ''
-            export KF5ConfigWidgets_DIR=${pkgs.kdePackages.kconfigwidgets}
-            export KF5KIconThemes_DIR=${pkgs.kdePackages.kiconthemes}
             export QML_DIR=${pkgs.kdePackages.qtdeclarative}
           '';
         };
