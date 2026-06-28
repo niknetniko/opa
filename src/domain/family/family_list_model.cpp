@@ -105,7 +105,7 @@ QModelIndex FamilyListModel::parent(const QModelIndex& child) const {
 
 int FamilyListModel::rowCount(const QModelIndex& parent) const {
     if (!parent.isValid()) {
-        return families.size();
+        return static_cast<int>(families.size());
     }
     if (parent.column() != 0) {
         return 0;
@@ -120,7 +120,7 @@ int FamilyListModel::rowCount(const QModelIndex& parent) const {
     if (familyListIndex >= families.size()) {
         return 0;
     }
-    return childRows[families[familyListIndex]].size();
+    return static_cast<int>(childRows[families[familyListIndex]].size());
 }
 
 int FamilyListModel::columnCount(const QModelIndex& parent) const {

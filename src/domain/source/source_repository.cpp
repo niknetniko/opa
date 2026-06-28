@@ -117,7 +117,7 @@ std::optional<IntegerPrimaryKey> SourceRepository::insertSourceType(const QStrin
     auto newId =
         QueryHelper::insert(u"INSERT INTO source_types (type, builtin) VALUES (:type, FALSE)"_s, {{u":type"_s, type}});
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::SourceTypes>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::SourceTypes>(newId);
     }
     return newId;
 }

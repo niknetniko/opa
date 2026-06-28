@@ -24,7 +24,7 @@ EventRoleTranslationRepository::insert(IntegerPrimaryKey roleId, const QString& 
         {{u":role_id"_s, roleId}, {u":locale"_s, locale}, {u":name"_s, name}}
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::EventRoleTranslations>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::EventRoleTranslations>(newId);
     }
     return newId;
 }

@@ -30,7 +30,7 @@ std::optional<IntegerPrimaryKey> LocationRepository::insertLocationType(const QS
         {{u":type"_s, type}}
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::LocationTypes>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::LocationTypes>(newId);
     }
     return newId;
 }
@@ -98,7 +98,7 @@ std::optional<IntegerPrimaryKey> LocationRepository::insert(
         }
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::Locations>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::Locations>(newId);
     }
     return newId;
 }

@@ -23,10 +23,7 @@ LocationTypesListModel::LocationTypesListModel(QObject* parent) : ObjectTableMod
                 return false;
             }
             LocationRepository repo;
-            if (!repo.updateLocationType(entity.id, newType)) {
-                return false;
-            }
-            return true;
+            return repo.updateLocationType(entity.id, newType);
         }
     );
     this->setColumn(BUILTIN, i18n("Built-in"), &LocationTypeEntity::builtin);

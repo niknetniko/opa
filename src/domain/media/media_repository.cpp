@@ -39,7 +39,7 @@ std::optional<IntegerPrimaryKey> MediaRepository::insert(
         }
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::Media>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::Media>(newId);
     }
     return newId;
 }

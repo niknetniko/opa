@@ -64,7 +64,7 @@ public:
     [[nodiscard]] std::optional<QString> importFile(const QString& absoluteSourcePath, const QString& subfolder = {});
 
 private:
-    explicit MediaService(const QString& mediaRoot);
+    explicit MediaService(QString mediaRoot);
 
     QString m_mediaRoot;
 

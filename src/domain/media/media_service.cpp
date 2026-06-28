@@ -15,7 +15,7 @@ using namespace Qt::StringLiterals;
 
 MediaService* MediaService::s_instance = nullptr;
 
-MediaService::MediaService(const QString& mediaRoot) : m_mediaRoot(mediaRoot) {
+MediaService::MediaService(QString mediaRoot) : m_mediaRoot(std::move(mediaRoot)) {
 }
 
 void MediaService::initialize(const QString& databasePath) {
@@ -77,10 +77,10 @@ std::optional<QString> MediaService::importFile(const QString& absoluteSourcePat
         const QString baseName = sourceInfo.completeBaseName();
         const QString suffix = sourceInfo.suffix();
         int counter = 1;
-        do {
+        while (QFile::exists(targetAbsolute)) {
             targetName = u"%1_%2.%3"_s.arg(baseName).arg(counter++).arg(suffix);
             targetAbsolute = targetDir.filePath(targetName);
-        } while (QFile::exists(targetAbsolute));
+        }
     }
 
     if (!QFile::copy(absoluteSourcePath, targetAbsolute)) {
@@ -89,6 +89,5 @@ std::optional<QString> MediaService::importFile(const QString& absoluteSourcePat
     }
 
     // Return path relative to the media root.
-    const QString relativePath = QDir(m_mediaRoot).relativeFilePath(targetAbsolute);
-    return relativePath;
+    return QDir(m_mediaRoot).relativeFilePath(targetAbsolute);
 }
