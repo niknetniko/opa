@@ -106,14 +106,46 @@
           pkgs.kdePackages.callPackage "${pkgs.path}/pkgs/by-name/kd/kddockwidgets/package.nix"
             { };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
-        tidy = pkgs.writeShellApplication {
-          name = "tidy";
+        run-tidy = pkgs.writeShellApplication {
+          name = "run-tidy";
           runtimeInputs = [ pkgs.clang-tools pkgs.cmake ];
           # TODO: enable on test code later
           text = ''
             cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             cmake --build build-tidy --target opa_autogen opa-lib_autogen
             run-clang-tidy -p build-tidy -quiet "$PWD/src/.*"
+          '';
+        };
+        # Wrap clazy-standalone
+        clazy-standalone = pkgs.clangStdenv.mkDerivation {
+          name = "clazy-standalone-wrapped";
+          dontUnpack = true;
+          dontWrapQtApps = true;
+          buildInputs = build-inputs;
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          installPhase = ''
+            cc=${pkgs.clangStdenv.cc}
+            flags="$NIX_CFLAGS_COMPILE $(cat "$cc/nix-support/libcxx-cxxflags") $(cat "$cc/nix-support/libc-cflags")"
+            extra=""
+            for flag in $flags; do
+              extra="$extra -extra-arg=$flag"
+            done
+            makeWrapper ${pkgs.clazy}/bin/clazy-standalone $out/bin/clazy-standalone \
+              --add-flags "$extra"
+          '';
+        };
+        run-clazy = pkgs.writeShellApplication {
+          name = "run-clazy";
+          runtimeInputs = [
+            pkgs.clang-tools
+            clazy-standalone
+            pkgs.cmake
+          ];
+          # TODO: enable on test code later
+          text = ''
+            cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            cmake --build build-tidy --target opa_autogen opa-lib_autogen
+            run-clang-tidy -clang-tidy-binary=clazy-standalone -p build-tidy -checks=level1,no-non-pod-global-static "$PWD/src/.*"
           '';
         };
       in
@@ -143,11 +175,23 @@
               dontInstall = true;
             }
           );
+          clang-clazy = opa.overrideAttrs (
+            finalAttrs: previousAttrs: {
+              name = "opa-clang-clazy";
+              cmakeFlags = [
+                # Run using the normal CMake build so we have generated headers etc. in the correct
+                # places automatically.
+                "-DCMAKE_CXX_COMPILER=clazy"
+              ];
+              CLAZY_CHECKS = "level1,no-non-pod-global-static";
+              dontInstall = true;
+            }
+          );
           formatting = treefmtEval.config.build.check self;
         };
         devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
           inputsFrom = [ opa ];
-          packages = dev-tools ++ [ treefmtEval.config.build.wrapper tidy ];
+          packages = dev-tools ++ [ treefmtEval.config.build.wrapper run-tidy run-clazy ];
           shellHook = ''
             export QML_DIR=${pkgs.kdePackages.qtdeclarative}
           '';
