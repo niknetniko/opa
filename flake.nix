@@ -106,6 +106,16 @@
           pkgs.kdePackages.callPackage "${pkgs.path}/pkgs/by-name/kd/kddockwidgets/package.nix"
             { };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+        tidy = pkgs.writeShellApplication {
+          name = "tidy";
+          runtimeInputs = [ pkgs.clang-tools pkgs.cmake ];
+          # TODO: enable on test code later
+          text = ''
+            cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            cmake --build build-tidy --target opa_autogen opa-lib_autogen
+            run-clang-tidy -p build-tidy -quiet "$PWD/src/.*"
+          '';
+        };
       in
       {
         packages = {
@@ -137,7 +147,7 @@
         };
         devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
           inputsFrom = [ opa ];
-          packages = dev-tools ++ [ treefmtEval.config.build.wrapper ];
+          packages = dev-tools ++ [ treefmtEval.config.build.wrapper tidy ];
           shellHook = ''
             export QML_DIR=${pkgs.kdePackages.qtdeclarative}
           '';

@@ -59,12 +59,12 @@ private:
     IntegerPrimaryKey roleId = 0;
     std::optional<IntegerPrimaryKey> relationId;
 
-    EventTypesListModel* typesModel;
-    EventRolesListModel* rolesModel;
-    LocationPathsModel* locationsModel;
+    EventTypesListModel* typesModel{};
+    EventRolesListModel* rolesModel{};
+    LocationPathsModel* locationsModel{};
 
-    CitationListWidget* eventRelationCitationsWidget;
-    CitationListWidget* eventCitationsWidget;
+    CitationListWidget* eventRelationCitationsWidget{};
+    CitationListWidget* eventCitationsWidget{};
 
     PendingListModel<SourceEntity> eventCitationsPending;
     PendingListModel<SourceEntity> relationCitationsPending;

@@ -24,7 +24,7 @@ NameOriginTranslationRepository::insert(IntegerPrimaryKey originId, const QStrin
         {{u":origin_id"_s, originId}, {u":locale"_s, locale}, {u":name"_s, name}}
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::NameOriginTranslations>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::NameOriginTranslations>(newId);
     }
     return newId;
 }

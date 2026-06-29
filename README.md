@@ -25,6 +25,17 @@ where `$KDEDIRS` points to your KDE installation prefix.
 If running manually, you should ensure all required dependencies are present.
 For example, we use [QtNodes](https://github.com/paceholder/nodeeditor).
 
+## Running linting
+
+`clang-tidy` needs a "compilation database" to run.
+If not running via the flake, you need to:
+
+```console
+$ cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+$ cmake --build build-tidy
+$ run-clang-tidy -p build-tidy
+```
+
 ## Licence
 
 Unless otherwise noted, the code of this project is available under GPLv3 or later.

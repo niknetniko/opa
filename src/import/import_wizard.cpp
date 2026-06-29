@@ -31,13 +31,13 @@ ImportWizard::ImportWizard(QWidget* parent) : QWizard(parent) {
 IntroPage::IntroPage(QWidget* parent) : QWizardPage(parent) {
     setTitle(i18n("Choose data type"));
 
-    auto topLabel = new QLabel(i18n("This wizard will help you import data into Gramps."));
-    auto secondLabel = new QLabel(i18n("Select the type of data to import:"));
+    auto *topLabel = new QLabel(i18n("This wizard will help you import data into Gramps."));
+    auto *secondLabel = new QLabel(i18n("Select the type of data to import:"));
 
     grampsXmlRadioButton = new QRadioButton(i18n("Gramps XML file"));
     grampsXmlRadioButton->setChecked(true);
 
-    auto layout = new QVBoxLayout;
+    auto *layout = new QVBoxLayout;
     layout->addWidget(topLabel);
     layout->addWidget(secondLabel);
     layout->addWidget(grampsXmlRadioButton);
@@ -55,14 +55,14 @@ int IntroPage::nextId() const {
 GrampsXmlSelectPage::GrampsXmlSelectPage(QWidget* parent) : QWizardPage(parent) {
     setTitle(i18n("Choose data source"));
 
-    auto topLabel = new QLabel(i18n("Select which Gramps XML file should be imported."));
+    auto *topLabel = new QLabel(i18n("Select which Gramps XML file should be imported."));
 
     urlRequester = new KUrlRequester(this);
     urlRequester->setMode(KFile::File | KFile::ExistingOnly);
     urlRequester->setNameFilter(i18n("Gramps XML") + u" (*.gramps *.xml)"_s);
     urlRequester->setPlaceholderText(i18n("Select a Gramps XML file…"));
 
-    auto bottomLabel = new QLabel(i18n(
+    auto *bottomLabel = new QLabel(i18n(
         "Opa supports Gramps XML up to Gramps version 6.0.x (XML schema 1.7.2). It does not support gpkg files at the "
         "moment."
     ));
@@ -70,7 +70,7 @@ GrampsXmlSelectPage::GrampsXmlSelectPage(QWidget* parent) : QWizardPage(parent) 
 
     registerField(u"grampsXmlFile*"_s, urlRequester, "url", SIGNAL(urlSelected(QUrl)));
 
-    auto layout = new QVBoxLayout;
+    auto *layout = new QVBoxLayout;
     layout->addWidget(topLabel);
     layout->addWidget(urlRequester);
     layout->addWidget(bottomLabel);
@@ -93,7 +93,7 @@ GrampsCheckPage::GrampsCheckPage(QWidget* parent) : QWizardPage(parent) {
     resultLabel->setWordWrap(true);
     resultLabel->hide();
 
-    auto layout = new QVBoxLayout;
+    auto *layout = new QVBoxLayout;
     layout->addWidget(busyIndicator);
     layout->addWidget(busyText);
     layout->addWidget(resultLabel);

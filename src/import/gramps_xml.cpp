@@ -26,7 +26,7 @@ static void relaxNgErrorCollector(void* ctx, const char* msg, ...) {
         return;
     }
 
-    auto errorList = static_cast<QStringList*>(ctx);
+    auto *errorList = static_cast<QStringList*>(ctx);
 
     va_list args;
     va_start(args, msg);

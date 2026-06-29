@@ -24,7 +24,7 @@ LocationTypeTranslationRepository::insert(IntegerPrimaryKey typeId, const QStrin
         {{u":type_id"_s, typeId}, {u":locale"_s, locale}, {u":name"_s, name}}
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::LocationTypeTranslations>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::LocationTypeTranslations>(newId);
     }
     return newId;
 }

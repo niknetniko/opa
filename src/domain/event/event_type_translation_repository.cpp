@@ -24,7 +24,7 @@ EventTypeTranslationRepository::insert(IntegerPrimaryKey typeId, const QString& 
         {{u":type_id"_s, typeId}, {u":locale"_s, locale}, {u":name"_s, name}}
     );
     if (newId) {
-        DataEventBroker::instance().notifyChanged<Schema::EventTypeTranslations>(*newId);
+        DataEventBroker::instance().notifyChanged<Schema::EventTypeTranslations>(newId);
     }
     return newId;
 }

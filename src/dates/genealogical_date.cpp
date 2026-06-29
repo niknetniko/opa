@@ -222,20 +222,20 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     const auto [endWallTime, endHasTime] = parseTime(result[u"endTime"_s].toString());
 
     DatePoint startPoint{
-        QDate::fromJulianDay(result[u"proleptic"_s].toInteger()),
-        startWallTime,
-        result[u"year"_s].toBool(),
-        result[u"month"_s].toBool(),
-        result[u"day"_s].toBool(),
-        startHasTime,
+        .proleptic=QDate::fromJulianDay(result[u"proleptic"_s].toInteger()),
+        .wallTime=startWallTime,
+        .year=result[u"year"_s].toBool(),
+        .month=result[u"month"_s].toBool(),
+        .day=result[u"day"_s].toBool(),
+        .hasTime=startHasTime,
     };
     DatePoint endPoint{
-        QDate::fromJulianDay(result[u"endProleptic"_s].toInteger()),
-        endWallTime,
-        result[u"endYear"_s].toBool(),
-        result[u"endMonth"_s].toBool(),
-        result[u"endDay"_s].toBool(),
-        endHasTime,
+        .proleptic=QDate::fromJulianDay(result[u"endProleptic"_s].toInteger()),
+        .wallTime=endWallTime,
+        .year=result[u"endYear"_s].toBool(),
+        .month=result[u"endMonth"_s].toBool(),
+        .day=result[u"endDay"_s].toBool(),
+        .hasTime=endHasTime,
     };
     const auto userText = result[u"userText"_s].toString();
 
@@ -354,18 +354,18 @@ static GenealogicalDate::DatePoint parsePartialDate(const QString& text) {
     // Full date
     auto date = QDate::fromString(datePart, DATE_FORMAT_FULL);
     if (date.isValid()) {
-        return {date, wallTime, true, true, true, hasTime};
+        return {.proleptic=date, .wallTime=wallTime, .year=true, .month=true, .day=true, .hasTime=hasTime};
     }
     // Year+month (time ignored for partial dates without a day)
     date = QDate::fromString(datePart + u"-01"_s, DATE_FORMAT_FULL);
     if (date.isValid()) {
-        return {date, {}, true, true, false, false};
+        return {.proleptic=date, .wallTime={}, .year=true, .month=true, .day=false, .hasTime=false};
     }
     // Year-only
     bool ok = false;
     const int yearVal = datePart.toInt(&ok);
     if (ok && yearVal != 0) {
-        return {QDate(yearVal, 1, 1), {}, true, false, false, false};
+        return {.proleptic=QDate(yearVal, 1, 1), .wallTime={}, .year=true, .month=false, .day=false, .hasTime=false};
     }
     return {};
 }

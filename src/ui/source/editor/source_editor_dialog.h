@@ -54,7 +54,7 @@ private:
     QList<QFrame*> fieldSuggestionFrames;
     QList<QAction*> fieldIndicatorActions;
 
-    void onAiResponse(const QString& json);
+    void onAiResponse(const QString& response);
     void onAiFailed(const QString& error);
     void updateParentDisplay() const;
     void showParentSuggestion();

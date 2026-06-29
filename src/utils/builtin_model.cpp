@@ -6,6 +6,7 @@
 #include "builtin_model.h"
 
 #include <QIcon>
+#include <numeric>
 
 BuiltinModel::BuiltinModel(QObject* parent) : KRearrangeColumnsProxyModel(parent) {
 }
@@ -58,7 +59,7 @@ void BuiltinModel::syncColumns() {
     }
 
     QList<int> columns(QIdentityProxyModel::columnCount()); // NOLINT(bugprone-parent-virtual-call)
-    std::iota(columns.begin(), columns.end(), 0);
+    std::ranges::iota(columns, 0);
     columns.removeAt(this->builtinColumn);
     this->setSourceColumns(columns);
 }

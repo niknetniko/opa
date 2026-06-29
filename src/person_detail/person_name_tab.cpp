@@ -19,6 +19,7 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <numeric>
 
 PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidget(parent) {
     this->person = person;
@@ -216,7 +217,7 @@ void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow
     Q_ASSERT(destinationRow >= 0 && destinationRow < model->rowCount());
 
     QVector<int> sortValues(model->rowCount());
-    std::iota(std::begin(sortValues), std::end(sortValues), 1);
+    std::ranges::iota(sortValues, 1);
     std::swap(sortValues[sourceRow], sortValues[destinationRow]);
 
     NameRepository nameRepo;

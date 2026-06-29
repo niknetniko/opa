@@ -129,7 +129,7 @@ void LocationEditorDialog::accept() {
     const auto lat = form->latitudeSpinBox->value();
     const auto lon = form->longitudeSpinBox->value();
     if (lat != LATITUDE_NOT_SET && lon != LONGITUDE_NOT_SET) {
-        coordinates = Coordinates{lat, lon};
+        coordinates = Coordinates{.latitude=lat, .longitude=lon};
     }
 
     const auto dateStartText = form->dateStartEdit->text();
