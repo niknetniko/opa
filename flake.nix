@@ -167,6 +167,7 @@
           clang-tidy = opa.overrideAttrs (
             finalAttrs: previousAttrs: {
               name = "opa-clang-tidy";
+              nativeBuildInputs = previousAttrs.nativeBuildInputs ++ [ pkgs.clang-tools ];
               cmakeFlags = [
                 # Run using the normal CMake build so we have generated headers etc. in the correct
                 # places automatically.
@@ -178,13 +179,14 @@
           clang-clazy = opa.overrideAttrs (
             finalAttrs: previousAttrs: {
               name = "opa-clang-clazy";
+              nativeBuildInputs = previousAttrs.nativeBuildInputs ++ [ pkgs.clazy ];
               cmakeFlags = [
                 # Run using the normal CMake build so we have generated headers etc. in the correct
                 # places automatically.
                 "-DCMAKE_CXX_COMPILER=clazy"
               ];
               CLAZY_CHECKS = "level1,no-non-pod-global-static";
-              dontInstall = true;
+              installPhase = "mkdir -p $out";
             }
           );
           formatting = treefmtEval.config.build.check self;
