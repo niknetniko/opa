@@ -45,7 +45,7 @@ GrampsXmlAnalysis runValidation(const QString& xml) {
     validateGrampsXml(promise, file.fileName());
     promise.finish();
 
-    return promise.future().result();
+    return promise.future().takeResult();
 }
 
 } // namespace
@@ -120,7 +120,7 @@ private Q_SLOTS:
         validateGrampsXml(promise, path);
         promise.finish();
 
-        const auto result = promise.future().result();
+        const auto result = promise.future().takeResult();
 
         QVERIFY(result.valid);
         QCOMPARE(result.people, 2157);
@@ -136,7 +136,7 @@ private Q_SLOTS:
         validateGrampsXml(promise, u"/tmp/this-file-does-not-exist-opa-test.xml"_s);
         promise.finish();
 
-        const auto result = promise.future().result();
+        const auto result = promise.future().takeResult();
 
         QVERIFY(!result.valid);
         QVERIFY(!result.error.isEmpty());

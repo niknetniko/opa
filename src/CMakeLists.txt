@@ -318,7 +318,8 @@ qt_add_resources(
     database/migrations/006_fix_media_note_nullable.sql
     database/migrations/007_add_date_sort.sql
     database/migrations/008_add_families.sql
-    database/migrations/009_backfill_family_ids.sql)
+    database/migrations/009_backfill_family_ids.sql
+    database/migrations/010_add_external_ids.sql)
 
 qt_add_resources(
   opa-lib "opa-schemas"

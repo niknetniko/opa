@@ -13,6 +13,7 @@
 #include <KUrlRequester>
 #include <QFutureWatcher>
 #include <QLabel>
+#include <QProgressDialog>
 #include <QRadioButton>
 #include <QWizardPage>
 
@@ -58,6 +59,8 @@ public:
 
     int nextId() const override;
 
+    GrampsXmlAnalysis takeAnalysis();
+
 private:
     KBusyIndicatorWidget* busyIndicator;
     QLabel* busyText;
@@ -65,9 +68,27 @@ private:
 
     QString analyzedFile;
     QFutureWatcher<GrampsXmlAnalysis>* watcher_ = nullptr;
-    GrampsXmlAnalysis analysis_;
+    GrampsXmlAnalysis analysis_ = {};
 
     void setBusy(bool busy) const;
+
+private Q_SLOTS:
+    void onFinished();
+};
+
+class GrampsImportPage : public QWizardPage {
+    Q_OBJECT
+public:
+    explicit GrampsImportPage(QWidget* parent = nullptr);
+
+    void initializePage() override;
+    void cleanupPage() override;
+    bool isComplete() const override;
+
+private:
+    QProgressBar* progressBar;
+    QLabel* progressLabel;
+    QFutureWatcher<bool>* watcher_ = nullptr;
 
 private Q_SLOTS:
     void onFinished();

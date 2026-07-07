@@ -367,15 +367,16 @@ private Q_SLOTS:
     // ==================== executeInTransaction nesting correctness ====================
 
     void testHasActiveTransactionDuringTransaction() {
-        QVERIFY(!hasActiveTransaction());
+        auto database = QSqlDatabase::database();
+        QVERIFY(!hasActiveTransaction(database));
 
         auto result = executeInTransaction([&]() -> std::optional<bool> {
-            VERIFY_OR_THROW(hasActiveTransaction());
+            VERIFY_OR_THROW(hasActiveTransaction(database));
             return true;
         });
 
         QVERIFY(result.has_value());
-        QVERIFY(!hasActiveTransaction());
+        QVERIFY(!hasActiveTransaction(database));
     }
 
     void testNestedExecuteInTransactionSkipsInnerTransaction() {

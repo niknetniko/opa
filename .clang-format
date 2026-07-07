@@ -37,6 +37,7 @@ ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
+SpaceBeforeCpp11BracedList: true
 IncludeCategories:
   - Regex: '<([A-Za-z0-9\Q/-_\E])+>'
     Priority: 2

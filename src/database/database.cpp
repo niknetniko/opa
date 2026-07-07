@@ -74,6 +74,11 @@ constexpr std::array migrations = {
         .description = "Backfill family_id on existing birth and marriage events"_L1,
         .resourcePath = ":/migrations/009_backfill_family_ids.sql"_L1,
     },
+    Migration{
+        .version = 10,
+        .description = "Add external ID tables for import sources"_L1,
+        .resourcePath = ":/migrations/010_add_external_ids.sql"_L1,
+    },
 };
 
 void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
@@ -278,8 +283,7 @@ void closeDatabase() {
     QSqlDatabase::database().close();
 }
 
-bool hasActiveTransaction() {
-    auto database = QSqlDatabase::database();
+bool hasActiveTransaction(const QSqlDatabase& database) {
     auto qtHandle = database.driver()->handle();
     if (qtHandle.isValid() && qstrcmp(qtHandle.typeName(), "sqlite3*") == 0) {
         // v.data() returns a pointer to the handle

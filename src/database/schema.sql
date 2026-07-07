@@ -4,6 +4,13 @@ CREATE TABLE people (
   sex TEXT
 );
 
+CREATE TABLE person_external_ids (
+    person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    PRIMARY KEY (person_id, external_id)
+);
+
 CREATE TABLE name_origins (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   origin TEXT,
@@ -54,9 +61,23 @@ CREATE TABLE locations (
   date_end_sort INTEGER
 );
 
+CREATE TABLE location_external_ids (
+    location_id INTEGER NOT NULL REFERENCES locations (id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    PRIMARY KEY (location_id, external_id)
+);
+
 CREATE TABLE families (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   note TEXT
+);
+
+CREATE TABLE family_external_ids (
+    family_id INTEGER NOT NULL REFERENCES families (id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    PRIMARY KEY (family_id, external_id)
 );
 
 CREATE TABLE events (
@@ -68,6 +89,13 @@ CREATE TABLE events (
   note TEXT,
   location_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
   family_id INTEGER NULL REFERENCES families (id) ON DELETE SET NULL
+);
+
+CREATE TABLE event_external_ids (
+    event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    PRIMARY KEY (event_id, external_id)
 );
 
 CREATE TABLE event_relations (
@@ -87,6 +115,13 @@ CREATE TABLE sources (
   confidence TEXT NOT NULL,
   note TEXT,
   parent_id INTEGER REFERENCES sources (id) ON DELETE SET NULL
+);
+
+CREATE TABLE source_external_ids (
+    source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    PRIMARY KEY (source_id, external_id)
 );
 
 CREATE TABLE event_citations (
@@ -165,6 +200,13 @@ CREATE TABLE media (
   title TEXT,
   note TEXT,
   mime_type TEXT NOT NULL
+);
+
+CREATE TABLE media_external_ids (
+     media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
+     type TEXT NOT NULL,
+     external_id TEXT NOT NULL,
+     PRIMARY KEY (media_id, external_id)
 );
 
 CREATE TABLE person_media (

@@ -10,6 +10,8 @@
 
 #include <KLocalizedString>
 #include <QLabel>
+#include <QProgressBar>
+#include <QSqlDatabase>
 #include <QStringLiteral>
 #include <QVBoxLayout>
 #include <QtConcurrent>
@@ -21,6 +23,7 @@ ImportWizard::ImportWizard(QWidget* parent) : QWizard(parent) {
     setPage(Page_Intro, new IntroPage);
     setPage(Page_GrampsFileSelect, new GrampsXmlSelectPage);
     setPage(Page_GrampsCheck, new GrampsCheckPage);
+    setPage(Page_GrampsImport, new GrampsImportPage);
 
     setStartId(Page_Intro);
 
@@ -31,13 +34,13 @@ ImportWizard::ImportWizard(QWidget* parent) : QWizard(parent) {
 IntroPage::IntroPage(QWidget* parent) : QWizardPage(parent) {
     setTitle(i18n("Choose data type"));
 
-    auto *topLabel = new QLabel(i18n("This wizard will help you import data into Gramps."));
-    auto *secondLabel = new QLabel(i18n("Select the type of data to import:"));
+    auto* topLabel = new QLabel(i18n("This wizard will help you import data into Gramps."));
+    auto* secondLabel = new QLabel(i18n("Select the type of data to import:"));
 
     grampsXmlRadioButton = new QRadioButton(i18n("Gramps XML file"));
     grampsXmlRadioButton->setChecked(true);
 
-    auto *layout = new QVBoxLayout;
+    auto* layout = new QVBoxLayout;
     layout->addWidget(topLabel);
     layout->addWidget(secondLabel);
     layout->addWidget(grampsXmlRadioButton);
@@ -55,14 +58,14 @@ int IntroPage::nextId() const {
 GrampsXmlSelectPage::GrampsXmlSelectPage(QWidget* parent) : QWizardPage(parent) {
     setTitle(i18n("Choose data source"));
 
-    auto *topLabel = new QLabel(i18n("Select which Gramps XML file should be imported."));
+    auto* topLabel = new QLabel(i18n("Select which Gramps XML file should be imported."));
 
     urlRequester = new KUrlRequester(this);
     urlRequester->setMode(KFile::File | KFile::ExistingOnly);
     urlRequester->setNameFilter(i18n("Gramps XML") + u" (*.gramps *.xml)"_s);
     urlRequester->setPlaceholderText(i18n("Select a Gramps XML file…"));
 
-    auto *bottomLabel = new QLabel(i18n(
+    auto* bottomLabel = new QLabel(i18n(
         "Opa supports Gramps XML up to Gramps version 6.0.x (XML schema 1.7.2). It does not support gpkg files at the "
         "moment."
     ));
@@ -70,7 +73,7 @@ GrampsXmlSelectPage::GrampsXmlSelectPage(QWidget* parent) : QWizardPage(parent) 
 
     registerField(u"grampsXmlFile*"_s, urlRequester, "url", SIGNAL(urlSelected(QUrl)));
 
-    auto *layout = new QVBoxLayout;
+    auto* layout = new QVBoxLayout;
     layout->addWidget(topLabel);
     layout->addWidget(urlRequester);
     layout->addWidget(bottomLabel);
@@ -93,7 +96,7 @@ GrampsCheckPage::GrampsCheckPage(QWidget* parent) : QWizardPage(parent) {
     resultLabel->setWordWrap(true);
     resultLabel->hide();
 
-    auto *layout = new QVBoxLayout;
+    auto* layout = new QVBoxLayout;
     layout->addWidget(busyIndicator);
     layout->addWidget(busyText);
     layout->addWidget(resultLabel);
@@ -137,7 +140,11 @@ bool GrampsCheckPage::isComplete() const {
 }
 
 int GrampsCheckPage::nextId() const {
-    return QWizardPage::nextId();
+    return ImportWizard::Page_GrampsImport;
+}
+
+GrampsXmlAnalysis GrampsCheckPage::takeAnalysis() {
+    return std::move(this->analysis_);
 }
 
 void GrampsCheckPage::setBusy(bool busy) const {
@@ -165,7 +172,7 @@ void GrampsCheckPage::setBusy(bool busy) const {
 
 void GrampsCheckPage::onFinished() {
     try {
-        analysis_ = watcher_->result();
+        analysis_ = watcher_->future().takeResult();
     } catch (const ResourceNotFoundException&) {
         analysis_.valid = false;
     }
@@ -174,4 +181,66 @@ void GrampsCheckPage::onFinished() {
     setBusy(false);
 
     Q_EMIT completeChanged();
+}
+
+GrampsImportPage::GrampsImportPage(QWidget* parent) : QWizardPage(parent) {
+    setTitle(i18n("Gramps Import"));
+
+    progressBar = new QProgressBar(this);
+    progressLabel = new QLabel(this);
+
+    auto* layout = new QVBoxLayout;
+    layout->addWidget(progressBar);
+    layout->addWidget(progressLabel);
+    setLayout(layout);
+}
+
+void GrampsImportPage::initializePage() {
+    QWizardPage::initializePage();
+
+    auto previousPage = static_cast<GrampsCheckPage*>(wizard()->page(ImportWizard::Page_GrampsCheck));
+
+    auto analysis = previousPage->takeAnalysis();
+    auto databaseName = QSqlDatabase::database().connectionName();
+
+    watcher_ = new QFutureWatcher<bool>(this);
+    connect(watcher_, &QFutureWatcher<bool>::finished, this, &GrampsImportPage::onFinished);
+    connect(watcher_, &QFutureWatcher<bool>::progressTextChanged, this, [this](const QString& text) {
+        progressLabel->setText(text);
+    });
+    connect(watcher_, &QFutureWatcher<bool>::progressValueChanged, this, [this](int progressValue) {
+        qDebug() << "progressValueChanged:" << progressValue;
+        progressBar->setValue(progressValue);
+    });
+    connect(watcher_, &QFutureWatcher<bool>::progressRangeChanged, this, [this](int minimum, int maximum) {
+        progressBar->setRange(minimum, maximum);
+    });
+
+    watcher_->setFuture(QtConcurrent::run(importGrampsResult, std::move(analysis), databaseName));
+}
+
+void GrampsImportPage::cleanupPage() {
+    QWizardPage::cleanupPage();
+
+    if (watcher_) {
+        watcher_->cancel();
+        watcher_->disconnect(this);
+        watcher_->deleteLater();
+        watcher_ = nullptr;
+    }
+}
+
+bool GrampsImportPage::isComplete() const {
+    // TODO
+    return false;
+}
+
+void GrampsImportPage::onFinished() {
+    if (watcher_) {
+        Q_EMIT completeChanged();
+        watcher_->cancel();
+        watcher_->disconnect(this);
+        watcher_->deleteLater();
+        watcher_ = nullptr;
+    }
 }
