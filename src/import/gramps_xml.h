@@ -23,4 +23,4 @@ struct GrampsXmlAnalysis {
 
 void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& filename);
 
-void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result, const QString& databaseName);
+void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result);

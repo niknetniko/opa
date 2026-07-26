@@ -14,6 +14,7 @@
 
 #include "gramps_xml.h"
 
+#include "database/database.h"
 #include "utils/resource_exception.h"
 #include <libxml/parser.h>
 #include <libxml/relaxng.h>
@@ -21,10 +22,12 @@
 #include <KLocalizedString>
 #include <QFile>
 #include <QLoggingCategory>
+#include <QSqlError>
+#include <QSqlQuery>
 #include <QString>
 #include <QStringList>
-#include <cstdarg>
 #include <QThread>
+#include <cstdarg>
 
 using namespace Qt::StringLiterals;
 
@@ -395,7 +398,8 @@ struct GrampsData {
     QHash<QString, GrampsFamily> families;
     QHash<QString, GrampsEvent> events;
     QHash<QString, GrampsPlace> places;
-    QHash<QString, GrampsNote> notes;
+    QHash<QString, GrampsNote> notesById;
+    QHash<QString, GrampsNote> notesByHandle;
     QHash<QString, GrampsCitation> citations;
     QHash<QString, GrampsSource> sources;
     QHash<QString, GrampsMedia> media;
@@ -834,9 +838,7 @@ static GrampsRepository parseRepository(const xmlNode* node) {
     return repository;
 }
 
-static GrampsData parseGrampsData(QPromise<bool>& promise, const GrampsXmlRoot& root) {
-    int progress = 1;
-
+static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const GrampsXmlRoot& root) {
     const xmlNode* db = xmlDocGetRootElement(root.get());
     if (!db) {
         return {};
@@ -916,7 +918,8 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, const GrampsXmlRoot& 
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing notes"));
                     auto note = parseNote(d);
-                    data.notes.insert(note.id, note);
+                    data.notesById.insert(note.id, note);
+                    data.notesByHandle.insert(note.handle, note);
                 }
             }
         }
@@ -925,13 +928,173 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, const GrampsXmlRoot& 
     return data;
 }
 
-void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result, const QString& databaseName) {
+static std::optional<QHash<QString, IntegerPrimaryKey>>
+importMedia(QPromise<bool>& promise, int& progress, const GrampsData& data, const QSqlDatabase& db) {
+    QSqlQuery insert(db);
+    if (!insert.prepare(
+            u"INSERT INTO media (path, mime_type, title, note) VALUES (:path, :mime_type, :title, :note)"_s
+        )) {
+        qCritical() << "Failed to prepare media insert statement" << insert.lastError().text();
+        return {};
+    }
+
+    QSqlQuery externalIdInsert(db);
+    if (!externalIdInsert.prepare(
+            u"INSERT INTO media_external_id (media_id, type, external_id) VALUES (:media_id, :type, :external_id)"_s
+        )) {
+        qCritical() << "Failed to prepare media external id insert statement" << externalIdInsert.lastError().text();
+        return {};
+    }
+
+    QHash<QString, IntegerPrimaryKey> mediaIdByHandle;
+
+    for (const auto& media: data.media) {
+        if (promise.isCanceled()) {
+            return {};
+        }
+        promise.setProgressValueAndText(progress++, i18n("Importing media"));
+
+        QStringList noteParts;
+        for (const auto& handle: media.noteHandles) {
+            if (const auto it = data.notesByHandle.constFind(handle); it != data.notesByHandle.constEnd()) {
+                noteParts.append(it->text);
+            }
+        }
+
+        insert.bindValue(u":path"_s, media.filePath);
+        insert.bindValue(u":mime_type"_s, media.mimeType.isEmpty() ? u"application/octet-stream"_s : media.mimeType);
+        insert.bindValue(u":title"_s, media.description);
+        insert.bindValue(u":note"_s, noteParts.isEmpty() ? QVariant() : noteParts.join(u"\n"_s));
+
+        if (!insert.exec()) {
+            qCritical() << "Failed to insert media" << media.filePath << insert.lastError().text();
+            return {};
+        }
+
+        qlonglong insertedId = insert.lastInsertId().toLongLong();
+        mediaIdByHandle.insert(media.handle, insertedId);
+
+        externalIdInsert.bindValue(u":media_id"_s, insertedId);
+        externalIdInsert.bindValue(u":type"_s, GRAMPS_ID);
+        externalIdInsert.bindValue(u":external_id"_s, media.id);
+
+        if (!externalIdInsert.exec()) {
+            qCritical() << "Failed to insert media" << media.filePath << externalIdInsert.lastError().text();
+            return {};
+        }
+    }
+
+    return mediaIdByHandle;
+}
+
+static std::optional<QHash<QString, qlonglong>>
+importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData& data, const QSqlDatabase& db) {
+    QHash<QString, IntegerPrimaryKey> sourceIdByRepositoryHandle;
+
+    QSqlQuery insertRepository(db);
+    if (!insertRepository.prepare(u"INSERT INTO sources (title, type, note, confidence) VALUES (:title, :type, :note, 5)"_s)) {
+        qCritical() << "Failed to prepare repositore insert statement" << insertRepository.lastError().text();
+        return {};
+    }
+
+    QSqlQuery externalIdInsert(db);
+    if (!externalIdInsert.prepare(
+            u"INSERT INTO source_external_ids (media_id, type, external_id) VALUES (:media_id, :type, :external_id)"_s
+        )) {
+        qCritical() << "Failed to prepare repository external id insert statement"
+                    << externalIdInsert.lastError().text();
+        return {};
+    }
+
+    for (const auto& repository: data.repositories) {
+        if (promise.isCanceled()) {
+            return {};
+        }
+
+        promise.setProgressValueAndText(progress++, i18n("Importing repositores"));
+
+        QStringList noteParts;
+        for (const auto& handle: repository.noteHandles) {
+            if (const auto it = data.notesByHandle.constFind(handle); it != data.notesByHandle.constEnd()) {
+                noteParts.append(it->text);
+            }
+        }
+
+        insertRepository.bindValue(u":title"_s, repository.name);
+        insertRepository.bindValue(u":type"_s, repository.type);
+        insertRepository.bindValue(u":note"_s, noteParts.isEmpty() ? QVariant() : noteParts.join(u"\n"_s));
+
+        if (!insertRepository.exec()) {
+            qCritical() << "Failed to insert media" << repository.id << insertRepository.lastError().text();
+            return {};
+        }
+
+        qlonglong insertedId = insertRepository.lastInsertId().toLongLong();
+        sourceIdByRepositoryHandle.insert(repository.handle, insertedId);
+
+        externalIdInsert.bindValue(u":media_id"_s, insertedId);
+        externalIdInsert.bindValue(u":type"_s, GRAMPS_ID);
+        externalIdInsert.bindValue(u":external_id"_s, repository.id);
+
+        if (!externalIdInsert.exec()) {
+            qCritical() << "Failed to insert media" << repository.id << externalIdInsert.lastError().text();
+            return {};
+        }
+    }
+
+    return sourceIdByRepositoryHandle;
+}
+
+void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result) {
     int total = result.people + result.families + result.events + result.sources + result.places + result.media +
                 result.repositories + result.notes + result.citations;
+    int progress = 0;
     // We first parse everything into one, and then insert it, and one extra step for preparation.
     promise.setProgressRange(0, total * 2 + 1);
-    promise.setProgressValueAndText(1, i18n("Preparing"));
+    promise.setProgressValueAndText(progress++, i18n("Preparing"));
 
     // Begin by creating lookup tables.
-    auto data = parseGrampsData(promise, result.document);
+    auto data = parseGrampsData(promise, progress, result.document);
+
+    if (promise.isCanceled()) {
+        return;
+    }
+
+    const auto connectionName = u"gramps_import_%1"_s.arg(reinterpret_cast<quintptr>(QThread::currentThreadId()));
+
+    auto db = QSqlDatabase::cloneDatabase(QSqlDatabase::database(), connectionName);
+    if (!db.open()) {
+        qCritical() << "Failed to open import DB connection:" << db.lastError().text();
+        return;
+    }
+
+    QSqlQuery fk(db);
+    if (!fk.exec(u"PRAGMA foreign_keys = ON"_s)) {
+        qCritical() << "Failed to enable foreign keys:" << fk.lastError().text();
+        return;
+    }
+
+    auto transactionResult = rawExecuteInTransaction(db, [&]() -> std::optional<bool> {
+        auto mediaIdByHandle = importMedia(promise, progress, data, db);
+        if (!mediaIdByHandle) {
+            qWarning() << "Failed to import media, aborting...";
+            return {};
+        }
+
+        auto sourceByRepositoryHandle = importRepositorySource(promise, progress, data, db);
+        if (!sourceByRepositoryHandle) {
+            qWarning() << "Failed to import repositories, aborting...";
+            return {};
+        }
+
+        return true;
+    });
+
+    if (transactionResult.has_value()) {
+        promise.addResult(*transactionResult);
+    } else {
+        qWarning() << "Failed to import...";
+        // TODO
+        // promise.setException()
+    }
 }

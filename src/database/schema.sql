@@ -109,10 +109,11 @@ CREATE TABLE event_relations (
 CREATE TABLE sources (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   title TEXT,
-  type_id INTEGER NULL REFERENCES source_types (id) ON DELETE SET NULL,
+  type TEXT,
   author TEXT,
   publication TEXT,
-  confidence TEXT NOT NULL,
+  -- 1 (min) -> 5 (max)
+  confidence INTEGER DEFAULT 3,
   note TEXT,
   parent_id INTEGER REFERENCES sources (id) ON DELETE SET NULL
 );
@@ -162,20 +163,6 @@ CREATE TABLE name_origin_translations (
   locale TEXT NOT NULL,
   name TEXT NOT NULL,
   UNIQUE (origin_id, locale)
-);
-
-CREATE TABLE source_types (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type TEXT NOT NULL,
-  builtin BOOLEAN NOT NULL DEFAULT FALSE
-);
-
-CREATE TABLE source_type_translations (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type_id INTEGER NOT NULL REFERENCES source_types (id) ON DELETE CASCADE,
-  locale TEXT NOT NULL,
-  name TEXT NOT NULL,
-  UNIQUE (type_id, locale)
 );
 
 CREATE TABLE event_type_translations (
