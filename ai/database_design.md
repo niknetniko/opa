@@ -45,7 +45,6 @@ Data in the database should be highly normalized. Avoid storing derived or redun
 ## Schema files
 
 - `src/database/schema.sql` — defines the full schema for new databases.
-- `src/database/init.sql` — run after schema creation (e.g. enabling foreign keys).
 - `src/database/seed.sql` — inserts built-in types, roles, and origins.
 - `src/database/migrations/NNN_description.sql` — incremental migrations.
 - Table name constants live in `src/database/schema.h` as `Schema::FooTable` / `Schema::Foo` tag structs.

@@ -216,7 +216,7 @@ void GrampsImportPage::initializePage() {
         progressBar->setRange(minimum, maximum);
     });
 
-    watcher_->setFuture(QtConcurrent::run(importGrampsResult, std::move(analysis), databaseName));
+    watcher_->setFuture(QtConcurrent::run(importGrampsResult, std::move(analysis)));
 }
 
 void GrampsImportPage::cleanupPage() {

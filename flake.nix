@@ -108,7 +108,10 @@
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
         run-tidy = pkgs.writeShellApplication {
           name = "run-tidy";
-          runtimeInputs = [ pkgs.clang-tools pkgs.cmake ];
+          runtimeInputs = [
+            pkgs.clang-tools
+            pkgs.cmake
+          ];
           # TODO: enable on test code later
           text = ''
             cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -193,7 +196,11 @@
         };
         devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
           inputsFrom = [ opa ];
-          packages = dev-tools ++ [ treefmtEval.config.build.wrapper run-tidy run-clazy ];
+          packages = dev-tools ++ [
+            treefmtEval.config.build.wrapper
+            run-tidy
+            run-clazy
+          ];
           shellHook = ''
             export QML_DIR=${pkgs.kdePackages.qtdeclarative}
           '';

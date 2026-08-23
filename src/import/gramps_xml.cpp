@@ -992,7 +992,9 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
     QHash<QString, IntegerPrimaryKey> sourceIdByRepositoryHandle;
 
     QSqlQuery insertRepository(db);
-    if (!insertRepository.prepare(u"INSERT INTO sources (title, type, note, confidence) VALUES (:title, :type, :note, 5)"_s)) {
+    if (!insertRepository.prepare(
+            u"INSERT INTO sources (title, type, note, confidence) VALUES (:title, :type, :note, 5)"_s
+        )) {
         qCritical() << "Failed to prepare repositore insert statement" << insertRepository.lastError().text();
         return {};
     }
@@ -1046,8 +1048,8 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
 }
 
 void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result) {
-    int total = result.people + result.families + result.events + result.sources + result.places + result.media +
-                result.repositories + result.notes + result.citations;
+    const int total = result.people + result.families + result.events + result.sources + result.places + result.media +
+                      result.repositories + result.notes + result.citations;
     int progress = 0;
     // We first parse everything into one, and then insert it, and one extra step for preparation.
     promise.setProgressRange(0, total * 2 + 1);

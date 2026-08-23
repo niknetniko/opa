@@ -62,7 +62,7 @@ Never write SQL in UI code. Never modify the DB from a model directly.
 ## Database Schema
 
 SQLite.
-Schema defined in `src/database/schema.sql`. Initialized via `init.sql` + `seed.sql` (built-in types/roles/origins).
+Schema defined in `src/database/schema.sql`. Initialized via `seed.sql`.
 Read `ai/database_design.md` for database design guidelines, including nullability rules and migration conventions.
 
 Logging categories: `opa` (general), `opa.sql` (SQL queries).
