@@ -940,7 +940,7 @@ importMedia(QPromise<bool>& promise, int& progress, const GrampsData& data, cons
 
     QSqlQuery externalIdInsert(db);
     if (!externalIdInsert.prepare(
-            u"INSERT INTO media_external_id (media_id, type, external_id) VALUES (:media_id, :type, :external_id)"_s
+            u"INSERT INTO media_external_ids (media_id, type, external_id) VALUES (:media_id, :type, :external_id)"_s
         )) {
         qCritical() << "Failed to prepare media external id insert statement" << externalIdInsert.lastError().text();
         return {};
@@ -995,13 +995,13 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
     if (!insertRepository.prepare(
             u"INSERT INTO sources (title, type, note, confidence) VALUES (:title, :type, :note, 5)"_s
         )) {
-        qCritical() << "Failed to prepare repositore insert statement" << insertRepository.lastError().text();
+        qCritical() << "Failed to prepare repository insert statement" << insertRepository.lastError().text();
         return {};
     }
 
     QSqlQuery externalIdInsert(db);
     if (!externalIdInsert.prepare(
-            u"INSERT INTO source_external_ids (media_id, type, external_id) VALUES (:media_id, :type, :external_id)"_s
+            u"INSERT INTO source_external_ids (source_id, type, external_id) VALUES (:source_id, :type, :external_id)"_s
         )) {
         qCritical() << "Failed to prepare repository external id insert statement"
                     << externalIdInsert.lastError().text();
@@ -1013,7 +1013,7 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
             return {};
         }
 
-        promise.setProgressValueAndText(progress++, i18n("Importing repositores"));
+        promise.setProgressValueAndText(progress++, i18n("Importing repositories"));
 
         QStringList noteParts;
         for (const auto& handle: repository.noteHandles) {
@@ -1027,19 +1027,19 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
         insertRepository.bindValue(u":note"_s, noteParts.isEmpty() ? QVariant() : noteParts.join(u"\n"_s));
 
         if (!insertRepository.exec()) {
-            qCritical() << "Failed to insert media" << repository.id << insertRepository.lastError().text();
+            qCritical() << "Failed to insert repositories" << repository.id << insertRepository.lastError().text();
             return {};
         }
 
         qlonglong insertedId = insertRepository.lastInsertId().toLongLong();
         sourceIdByRepositoryHandle.insert(repository.handle, insertedId);
 
-        externalIdInsert.bindValue(u":media_id"_s, insertedId);
+        externalIdInsert.bindValue(u":source_id"_s, insertedId);
         externalIdInsert.bindValue(u":type"_s, GRAMPS_ID);
         externalIdInsert.bindValue(u":external_id"_s, repository.id);
 
         if (!externalIdInsert.exec()) {
-            qCritical() << "Failed to insert media" << repository.id << externalIdInsert.lastError().text();
+            qCritical() << "Failed to insert repositories" << repository.id << externalIdInsert.lastError().text();
             return {};
         }
     }
