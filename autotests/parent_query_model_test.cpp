@@ -38,7 +38,7 @@ private Q_SLOTS:
     }
 
     void testRootHasParents() {
-        ParentsModel model{1};
+        ParentsModel model {1};
 
         QCOMPARE(model.rowCount(), 2);
 
@@ -50,7 +50,7 @@ private Q_SLOTS:
     }
 
     void testSiblingHasSameParents() {
-        ParentsModel model{2};
+        ParentsModel model {2};
 
         QCOMPARE(model.rowCount(), 2);
 
@@ -62,7 +62,7 @@ private Q_SLOTS:
     }
 
     void testParentHasParents() {
-        ParentsModel model{3};
+        ParentsModel model {3};
 
         QCOMPARE(model.rowCount(), 2);
 
@@ -74,7 +74,7 @@ private Q_SLOTS:
     }
 
     void testGrandParentsHaveParents() {
-        ParentsModel model{6};
+        ParentsModel model {6};
 
         QCOMPARE(model.rowCount(), 1);
 

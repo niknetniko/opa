@@ -26,14 +26,6 @@ class TestTransactionBatching : public QObject {
         return insertQuery(u"INSERT INTO people (root, sex) VALUES (false, 'Unknown')"_s);
     }
 
-    IntegerPrimaryKey insertEventType(const QString& type = u"Birth"_s) {
-        return insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('%1', false)"_s.arg(type));
-    }
-
-    IntegerPrimaryKey insertEventRole(const QString& role = u"Primary"_s) {
-        return insertQuery(u"INSERT INTO event_roles (role, builtin) VALUES ('%1', false)"_s.arg(role));
-    }
-
 private Q_SLOTS:
     void init() {
         QVERIFY(QSqlDatabase::isDriverAvailable(u"QSQLITE"_s));
@@ -79,8 +71,8 @@ private Q_SLOTS:
         {
             auto guard = DataEventBroker::instance().batchNotifications();
             DataEventBroker::instance().notifyChanged<Schema::Events>(1);
-            DataEventBroker::instance().notifyChanged<Schema::EventTypes>(2);
-            DataEventBroker::instance().notifyChanged<Schema::EventRoles>(3);
+            DataEventBroker::instance().notifyChanged<Schema::Names>(2);
+            DataEventBroker::instance().notifyChanged<Schema::Sources>(3);
             QCOMPARE(spy.count(), 0);
         }
 
@@ -181,13 +173,13 @@ private Q_SLOTS:
 
             {
                 auto inner = DataEventBroker::instance().batchNotifications();
-                DataEventBroker::instance().notifyChanged<Schema::EventTypes>(2);
+                DataEventBroker::instance().notifyChanged<Schema::Names>(2);
                 QCOMPARE(spy.count(), 0);
             }
 
             // Inner guard destructed, but outer is still active — no flush yet.
             QCOMPARE(spy.count(), 0);
-            DataEventBroker::instance().notifyChanged<Schema::EventRoles>(3);
+            DataEventBroker::instance().notifyChanged<Schema::Sources>(3);
         }
 
         // Outer guard destructed — all three notifications flush.
@@ -244,12 +236,9 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
-        spy.clear();
-
         auto result = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
             EventRepository repo;
-            auto eventId = repo.insertEvent(typeId);
+            auto eventId = repo.insertEvent(u"Birth"_s);
             // Notification should be queued, not emitted.
             VERIFY_OR_THROW(spy.count() == 0);
             return eventId;
@@ -264,12 +253,9 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
-        spy.clear();
-
         auto result = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
             EventRepository repo;
-            repo.insertEvent(typeId);
+            repo.insertEvent(u"Birth"_s);
             // Signal abort — transaction will be rolled back.
             return std::nullopt;
         });
@@ -280,14 +266,12 @@ private Q_SLOTS:
     }
 
     void testNestedTransactionDoesNotStartNewTransaction() {
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
 
         auto result = executeInTransaction([&]() -> std::optional<bool> {
             // Inner transaction should detect active transaction and skip.
             EventRepository repo;
-            auto eventId = repo.insertEventWithRelation(typeId, personId, roleId);
+            auto eventId = repo.insertEventWithRelation(u"Birth"_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
             return true;
         });
@@ -304,16 +288,14 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
         spy.clear();
 
         auto result = executeInTransaction([&]() -> std::optional<bool> {
             EventRepository repo;
 
             // insertEventWithRelation calls executeInTransaction internally.
-            auto eventId = repo.insertEventWithRelation(typeId, personId, roleId);
+            auto eventId = repo.insertEventWithRelation(u"Birth"_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
 
             // Inner transaction's guard destructed, but outer is still active.
@@ -331,15 +313,13 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
         spy.clear();
 
         auto result = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
             EventRepository repo;
 
-            auto eventId = repo.insertFullEvent(typeId, u"1900-01-01"_s, u"Test"_s, u"Note"_s, personId, roleId);
+            auto eventId = repo.insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u"Note"_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
 
             // Nothing should have been emitted yet.
@@ -364,82 +344,147 @@ private Q_SLOTS:
         QCOMPARE(relations.first().personId, personId);
     }
 
-    // ==================== executeInTransaction nesting correctness ====================
+    // ==================== Notification ordering ====================
 
-    void testHasActiveTransactionDuringTransaction() {
-        auto database = QSqlDatabase::database();
-        QVERIFY(!hasActiveTransaction(database));
+    void testNotificationsPreserveInsertionOrder() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
 
-        auto result = executeInTransaction([&]() -> std::optional<bool> {
-            VERIFY_OR_THROW(hasActiveTransaction(database));
-            return true;
-        });
+        {
+            auto guard = DataEventBroker::instance().batchNotifications();
+            DataEventBroker::instance().notifyChanged<Schema::Events>(1);
+            DataEventBroker::instance().notifyChanged<Schema::EventRelations>(2);
+            DataEventBroker::instance().notifyChanged<Schema::Names>(3);
+        }
 
-        QVERIFY(result.has_value());
-        QVERIFY(!hasActiveTransaction(database));
+        QCOMPARE(spy.count(), 3);
+        QCOMPARE(spy.at(0).at(0).toString(), Schema::Events::table);
+        QCOMPARE(spy.at(1).at(0).toString(), Schema::EventRelations::table);
+        QCOMPARE(spy.at(2).at(0).toString(), Schema::Names::table);
     }
 
-    void testNestedExecuteInTransactionSkipsInnerTransaction() {
-        auto typeId = insertEventType();
+    // ==================== Multiple sequential transactions ====================
 
-        int outerInserts = 0;
-        int innerInserts = 0;
+    void testSequentialTransactionsEachFlushIndependently() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
 
-        auto result = executeInTransaction([&]() -> std::optional<bool> {
-            EventRepository repo;
-
-            auto id1 = repo.insertEvent(typeId);
-            VERIFY_OR_THROW(id1.has_value());
-            outerInserts++;
-
-            // Nested transaction — should just run the lambda.
-            auto innerResult = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
-                auto id2 = repo.insertEvent(typeId);
-                VERIFY_OR_THROW(id2.has_value());
-                innerInserts++;
-                return id2;
-            });
-            VERIFY_OR_THROW(innerResult.has_value());
-
-            return true;
+        // First transaction.
+        auto result1 = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+            return EventRepository().insertEvent(u"Birth"_s);
         });
+        QVERIFY(result1.has_value());
+        auto countAfterFirst = spy.count();
+        QVERIFY(countAfterFirst > 0);
 
-        QVERIFY(result.has_value());
-        QCOMPARE(outerInserts, 1);
-        QCOMPARE(innerInserts, 1);
-
-        // Both events should exist.
-        EventRepository repo;
-        auto events = repo.findAllEvents();
-        QCOMPARE(events.size(), 2);
+        // Second transaction.
+        auto result2 = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+            return EventRepository().insertEvent(u"Death"_s);
+        });
+        QVERIFY(result2.has_value());
+        QVERIFY(spy.count() > countAfterFirst);
     }
 
-    void testInnerTransactionFailureRollsBackOuter() {
-        auto typeId = insertEventType();
+    // ==================== BatchGuard::discard ====================
 
-        auto result = executeInTransaction([&]() -> std::optional<bool> {
-            EventRepository repo;
+    void testDiscardClearsPendingNotifications() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
 
-            auto id1 = repo.insertEvent(typeId);
-            VERIFY_OR_THROW(id1.has_value());
+        {
+            auto guard = DataEventBroker::instance().batchNotifications();
+            DataEventBroker::instance().notifyChanged<Schema::Events>(1);
+            DataEventBroker::instance().notifyChanged<Schema::Names>(2);
+            QCOMPARE(spy.count(), 0);
 
-            // Nested call returns nullopt — signals failure.
-            auto innerResult = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> { return std::nullopt; });
+            guard.discard();
+        }
 
-            if (!innerResult.has_value()) {
-                return std::nullopt;
+        // Notifications were discarded — nothing emitted on destruction.
+        QCOMPARE(spy.count(), 0);
+    }
+
+    void testDiscardInNestedBatchGuard() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
+
+        {
+            auto outer = DataEventBroker::instance().batchNotifications();
+            DataEventBroker::instance().notifyChanged<Schema::Events>(1);
+
+            {
+                auto inner = DataEventBroker::instance().batchNotifications();
+                DataEventBroker::instance().notifyChanged<Schema::Names>(2);
+
+                // Discard clears ALL pending notifications (shared queue).
+                inner.discard();
             }
 
-            return true;
+            // Inner destructed but outer still active — no flush yet.
+            QCOMPARE(spy.count(), 0);
+        }
+
+        // Outer destructed — queue was cleared by inner discard, so nothing emitted.
+        QCOMPARE(spy.count(), 0);
+    }
+
+    void testTransactionRollbackAfterExceptionDiscardsNotifications() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
+
+        bool exceptionCaught = false;
+        try {
+            executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+                EventRepository repo;
+                repo.insertEvent(u"Birth"_s);
+                throw std::runtime_error("test failure");
+            });
+        } catch (const std::runtime_error&) {
+            exceptionCaught = true;
+        }
+
+        QVERIFY(exceptionCaught);
+        // Notifications should have been discarded on the exception rollback path.
+        QCOMPARE(spy.count(), 0);
+    }
+
+    void testCallerTransactionRollbackDiscardsAllNestedNotifications() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
+
+        auto personId = insertPerson();
+        spy.clear();
+
+        auto result = executeInTransaction([&]() -> std::optional<bool> {
+            EventRepository repo;
+
+            // This nested call queues notifications for Events and EventRelations.
+            auto eventId = repo.insertEventWithRelation(u"Birth"_s, personId, u"Primary"_s);
+            VERIFY_OR_THROW(eventId.has_value());
+
+            // Signal abort — outer transaction rolls back.
+            return std::nullopt;
         });
 
-        // Outer transaction should have rolled back.
         QVERIFY(!result.has_value());
+        // All notifications (including from nested repo calls) should be discarded.
+        QCOMPARE(spy.count(), 0);
+    }
 
-        // The event created before the inner failure should be rolled back.
-        EventRepository repo;
-        auto events = repo.findAllEvents();
-        QCOMPARE(events.size(), 0);
+    void testBatchingDoesNotLeakBetweenTransactions() {
+        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
+        QVERIFY(spy.isValid());
+
+        // First transaction with batching.
+        executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+            return EventRepository().insertEvent(u"Birth"_s);
+        });
+
+        spy.clear();
+
+        // After the transaction, notifications should fire immediately again.
+        DataEventBroker::instance().notifyChanged<Schema::Events>(999);
+        QCOMPARE(spy.count(), 1);
     }
 
     // ==================== Composite repository methods ====================
@@ -448,12 +493,10 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
         spy.clear();
 
-        auto result = EventRepository().insertEventWithRelation(typeId, personId, roleId);
+        auto result = EventRepository().insertEventWithRelation(u"Birth"_s, personId, u"Primary"_s);
         QVERIFY(result.has_value());
 
         // Notifications should have been flushed after the transaction.
@@ -479,12 +522,10 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
         spy.clear();
 
-        auto result = EventRepository().insertFullEvent(typeId, u"1900-01-01"_s, u"Test"_s, u""_s, personId, roleId);
+        auto result = EventRepository().insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u""_s, personId, u"Primary"_s);
         QVERIFY(result.has_value());
 
         // Check that Events and EventRelations notifications were emitted.
@@ -504,19 +545,17 @@ private Q_SLOTS:
     }
 
     void testInsertFullEventDataIntegrity() {
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
 
-        auto eventId =
-            EventRepository()
-                .insertFullEvent(typeId, u"1950-06-15"_s, u"Birth of John"_s, u"<p>Hospital</p>"_s, personId, roleId);
+        auto eventId = EventRepository().insertFullEvent(
+            u"Birth"_s, u"1950-06-15"_s, u"Birth of John"_s, u"<p>Hospital</p>"_s, personId, u"Primary"_s
+        );
         QVERIFY(eventId.has_value());
 
         EventRepository repo;
         auto event = repo.findEventById(*eventId);
         QVERIFY(event.has_value());
-        QCOMPARE(event->typeId, typeId);
+        QCOMPARE(event->type, u"Birth"_s);
         QCOMPARE(event->date, u"1950-06-15"_s);
         QCOMPARE(event->name, u"Birth of John"_s);
         QCOMPARE(event->note, u"<p>Hospital</p>"_s);
@@ -524,7 +563,7 @@ private Q_SLOTS:
         auto relations = repo.findRelationsForEvent(*eventId);
         QCOMPARE(relations.size(), 1);
         QCOMPARE(relations.first().personId, personId);
-        QCOMPARE(relations.first().roleId, roleId);
+        QCOMPARE(relations.first().role, u"Primary"_s);
     }
 
     // ==================== Multi-operation caller transaction ====================
@@ -533,20 +572,18 @@ private Q_SLOTS:
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
 
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
         spy.clear();
 
         auto result = executeInTransaction([&]() -> std::optional<bool> {
             EventRepository repo;
 
             // Simulate what EventEditorDialog::accept() does.
-            auto eventId = repo.insertFullEvent(typeId, u"1900-01-01"_s, u"Test"_s, u""_s, personId, roleId);
+            auto eventId = repo.insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u""_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
 
             // Additional operations that would fail without batching.
-            bool ok = repo.updateEvent(*eventId, typeId, u"1900-02-02"_s, u"Updated"_s, u"New note"_s);
+            bool ok = repo.updateEvent(*eventId, u"Birth"_s, u"1900-02-02"_s, u"Updated"_s, u"New note"_s);
             VERIFY_OR_THROW(ok);
 
             // All notifications should still be queued.
@@ -565,10 +602,8 @@ private Q_SLOTS:
     }
 
     void testCallerTransactionWithCitations() {
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
-        auto sourceId = insertQuery(u"INSERT INTO sources (title, confidence) VALUES ('Test Source', 'High')"_s);
+        auto sourceId = insertQuery(u"INSERT INTO sources (title, type, confidence) VALUES ('Test Source', '', 4)"_s);
 
         QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
         QVERIFY(spy.isValid());
@@ -576,7 +611,7 @@ private Q_SLOTS:
         auto result = executeInTransaction([&]() -> std::optional<bool> {
             EventRepository repo;
 
-            auto eventId = repo.insertFullEvent(typeId, u"1900-01-01"_s, u"Test"_s, u""_s, personId, roleId);
+            auto eventId = repo.insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u""_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
 
             bool ok = repo.addEventCitation(*eventId, sourceId);
@@ -614,14 +649,12 @@ private Q_SLOTS:
     }
 
     void testCallerTransactionRollbackOnCitationFailure() {
-        auto typeId = insertEventType();
         auto personId = insertPerson();
-        auto roleId = insertEventRole();
 
         auto result = executeInTransaction([&]() -> std::optional<bool> {
             EventRepository repo;
 
-            auto eventId = repo.insertFullEvent(typeId, u"1900-01-01"_s, u"Test"_s, u""_s, personId, roleId);
+            auto eventId = repo.insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u""_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
 
             // Try to add a citation with a non-existent source — fails due to FK constraint.
@@ -641,157 +674,78 @@ private Q_SLOTS:
         QCOMPARE(events.size(), 0);
     }
 
-    // ==================== Notification ordering ====================
+    // ==================== executeInTransaction nesting correctness ====================
 
-    void testNotificationsPreserveInsertionOrder() {
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
+    void testHasActiveTransactionDuringTransaction() {
+        auto database = QSqlDatabase::database();
+        QVERIFY(!hasActiveTransaction(database));
 
-        {
-            auto guard = DataEventBroker::instance().batchNotifications();
-            DataEventBroker::instance().notifyChanged<Schema::Events>(1);
-            DataEventBroker::instance().notifyChanged<Schema::EventRelations>(2);
-            DataEventBroker::instance().notifyChanged<Schema::EventTypes>(3);
-        }
-
-        QCOMPARE(spy.count(), 3);
-        QCOMPARE(spy.at(0).at(0).toString(), Schema::Events::table);
-        QCOMPARE(spy.at(1).at(0).toString(), Schema::EventRelations::table);
-        QCOMPARE(spy.at(2).at(0).toString(), Schema::EventTypes::table);
-    }
-
-    // ==================== Multiple sequential transactions ====================
-
-    void testSequentialTransactionsEachFlushIndependently() {
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
-
-        auto typeId = insertEventType();
-        spy.clear();
-
-        // First transaction.
-        auto result1 = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
-            return EventRepository().insertEvent(typeId);
+        auto result = executeInTransaction([&]() -> std::optional<bool> {
+            VERIFY_OR_THROW(hasActiveTransaction(database));
+            return true;
         });
-        QVERIFY(result1.has_value());
-        auto countAfterFirst = spy.count();
-        QVERIFY(countAfterFirst > 0);
 
-        // Second transaction.
-        auto result2 = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
-            return EventRepository().insertEvent(typeId);
-        });
-        QVERIFY(result2.has_value());
-        QVERIFY(spy.count() > countAfterFirst);
+        QVERIFY(result.has_value());
+        QVERIFY(!hasActiveTransaction(database));
     }
 
-    // ==================== BatchGuard::discard ====================
-
-    void testDiscardClearsPendingNotifications() {
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
-
-        {
-            auto guard = DataEventBroker::instance().batchNotifications();
-            DataEventBroker::instance().notifyChanged<Schema::Events>(1);
-            DataEventBroker::instance().notifyChanged<Schema::EventTypes>(2);
-            QCOMPARE(spy.count(), 0);
-
-            guard.discard();
-        }
-
-        // Notifications were discarded — nothing emitted on destruction.
-        QCOMPARE(spy.count(), 0);
-    }
-
-    void testDiscardInNestedBatchGuard() {
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
-
-        {
-            auto outer = DataEventBroker::instance().batchNotifications();
-            DataEventBroker::instance().notifyChanged<Schema::Events>(1);
-
-            {
-                auto inner = DataEventBroker::instance().batchNotifications();
-                DataEventBroker::instance().notifyChanged<Schema::EventTypes>(2);
-
-                // Discard clears ALL pending notifications (shared queue).
-                inner.discard();
-            }
-
-            // Inner destructed but outer still active — no flush yet.
-            QCOMPARE(spy.count(), 0);
-        }
-
-        // Outer destructed — queue was cleared by inner discard, so nothing emitted.
-        QCOMPARE(spy.count(), 0);
-    }
-
-    void testTransactionRollbackAfterExceptionDiscardsNotifications() {
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
-
-        auto typeId = insertEventType();
-        spy.clear();
-
-        bool exceptionCaught = false;
-        try {
-            executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
-                EventRepository repo;
-                repo.insertEvent(typeId);
-                throw std::runtime_error("test failure");
-            });
-        } catch (const std::runtime_error&) {
-            exceptionCaught = true;
-        }
-
-        QVERIFY(exceptionCaught);
-        // Notifications should have been discarded on the exception rollback path.
-        QCOMPARE(spy.count(), 0);
-    }
-
-    void testCallerTransactionRollbackDiscardsAllNestedNotifications() {
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
-
-        auto typeId = insertEventType();
-        auto personId = insertPerson();
-        auto roleId = insertEventRole();
-        spy.clear();
+    void testNestedExecuteInTransactionSkipsInnerTransaction() {
+        int outerInserts = 0;
+        int innerInserts = 0;
 
         auto result = executeInTransaction([&]() -> std::optional<bool> {
             EventRepository repo;
 
-            // This nested call queues notifications for Events and EventRelations.
-            auto eventId = repo.insertEventWithRelation(typeId, personId, roleId);
-            VERIFY_OR_THROW(eventId.has_value());
+            auto id1 = repo.insertEvent(u"Birth"_s);
+            VERIFY_OR_THROW(id1.has_value());
+            outerInserts++;
 
-            // Signal abort — outer transaction rolls back.
-            return std::nullopt;
+            // Nested transaction — should just run the lambda.
+            auto innerResult = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+                auto id2 = repo.insertEvent(u"Death"_s);
+                VERIFY_OR_THROW(id2.has_value());
+                innerInserts++;
+                return id2;
+            });
+            VERIFY_OR_THROW(innerResult.has_value());
+
+            return true;
         });
 
-        QVERIFY(!result.has_value());
-        // All notifications (including from nested repo calls) should be discarded.
-        QCOMPARE(spy.count(), 0);
+        QVERIFY(result.has_value());
+        QCOMPARE(outerInserts, 1);
+        QCOMPARE(innerInserts, 1);
+
+        // Both events should exist.
+        EventRepository repo;
+        auto events = repo.findAllEvents();
+        QCOMPARE(events.size(), 2);
     }
 
-    void testBatchingDoesNotLeakBetweenTransactions() {
-        auto typeId = insertEventType();
+    void testInnerTransactionFailureRollsBackOuter() {
+        auto result = executeInTransaction([&]() -> std::optional<bool> {
+            EventRepository repo;
 
-        QSignalSpy spy(&DataEventBroker::instance(), &DataEventBroker::entityChanged);
-        QVERIFY(spy.isValid());
+            auto id1 = repo.insertEvent(u"Birth"_s);
+            VERIFY_OR_THROW(id1.has_value());
 
-        // First transaction with batching.
-        executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
-            return EventRepository().insertEvent(typeId);
+            // Nested call returns nullopt — signals failure.
+            auto innerResult = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> { return std::nullopt; });
+
+            if (!innerResult.has_value()) {
+                return std::nullopt;
+            }
+
+            return true;
         });
 
-        spy.clear();
+        // Outer transaction should have rolled back.
+        QVERIFY(!result.has_value());
 
-        // After the transaction, notifications should fire immediately again.
-        DataEventBroker::instance().notifyChanged<Schema::Events>(999);
-        QCOMPARE(spy.count(), 1);
+        // The event created before the inner failure should be rolled back.
+        EventRepository repo;
+        auto events = repo.findAllEvents();
+        QCOMPARE(events.size(), 0);
     }
 };
 

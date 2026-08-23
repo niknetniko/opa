@@ -25,14 +25,6 @@ class TestEventRepository : public QObject {
         return insertQuery(u"INSERT INTO people (root, sex) VALUES (false, 'Unknown')"_s);
     }
 
-    IntegerPrimaryKey insertEventType(const QString& type = u"Birth"_s) {
-        return insertQuery(u"INSERT INTO event_types (type, builtin) VALUES ('%1', false)"_s.arg(type));
-    }
-
-    IntegerPrimaryKey insertEventRole(const QString& role = u"Primary"_s) {
-        return insertQuery(u"INSERT INTO event_roles (role, builtin) VALUES ('%1', false)"_s.arg(role));
-    }
-
 private Q_SLOTS:
     void init() {
         QVERIFY(QSqlDatabase::isDriverAvailable(u"QSQLITE"_s));
@@ -44,134 +36,28 @@ private Q_SLOTS:
         db.close();
     }
 
-    // EventType tests
-
-    void testInsertAndFindEventTypeById() {
-        EventRepository repo;
-        auto id = repo.insertEventType(u"Birth"_s);
-        QVERIFY(id.has_value());
-
-        auto result = repo.findEventTypeById(*id);
-        QVERIFY(result.has_value());
-        QCOMPARE(result->id, *id);
-        QCOMPARE(result->type, u"Birth"_s);
-        QCOMPARE(result->builtin, false);
-    }
-
-    void testFindAllEventTypes() {
-        EventRepository repo;
-        const auto before = repo.findAllEventTypes().size();
-        repo.insertEventType(u"TestTypeA"_s);
-        repo.insertEventType(u"TestTypeB"_s);
-
-        auto types = repo.findAllEventTypes();
-        QCOMPARE(types.size(), before + 2);
-    }
-
-    void testUpdateEventType() {
-        EventRepository repo;
-        auto id = repo.insertEventType(u"Birth"_s);
-        QVERIFY(id.has_value());
-
-        bool ok = repo.updateEventType(*id, u"Baptism"_s);
-        QVERIFY(ok);
-
-        auto result = repo.findEventTypeById(*id);
-        QVERIFY(result.has_value());
-        QCOMPARE(result->type, u"Baptism"_s);
-    }
-
-    void testDeleteEventType() {
-        EventRepository repo;
-        auto id = repo.insertEventType(u"Birth"_s);
-        QVERIFY(id.has_value());
-
-        bool ok = repo.deleteEventType(*id);
-        QVERIFY(ok);
-
-        auto result = repo.findEventTypeById(*id);
-        QVERIFY(!result.has_value());
-    }
-
-    void testFindEventTypeByIdNotFound() {
-        EventRepository repo;
-        auto result = repo.findEventTypeById(9999);
-        QVERIFY(!result.has_value());
-    }
-
-    // EventRole tests
-
-    void testInsertAndFindEventRoleById() {
-        EventRepository repo;
-        auto id = repo.insertEventRole(u"Primary"_s);
-        QVERIFY(id.has_value());
-
-        auto result = repo.findEventRoleById(*id);
-        QVERIFY(result.has_value());
-        QCOMPARE(result->id, *id);
-        QCOMPARE(result->role, u"Primary"_s);
-        QCOMPARE(result->builtin, false);
-    }
-
-    void testFindAllEventRoles() {
-        EventRepository repo;
-        const auto before = repo.findAllEventRoles().size();
-        repo.insertEventRole(u"TestRoleA"_s);
-        repo.insertEventRole(u"TestRoleB"_s);
-
-        auto roles = repo.findAllEventRoles();
-        QCOMPARE(roles.size(), before + 2);
-    }
-
-    void testUpdateEventRole() {
-        EventRepository repo;
-        auto id = repo.insertEventRole(u"Primary"_s);
-        QVERIFY(id.has_value());
-
-        bool ok = repo.updateEventRole(*id, u"Witness"_s);
-        QVERIFY(ok);
-
-        auto result = repo.findEventRoleById(*id);
-        QVERIFY(result.has_value());
-        QCOMPARE(result->role, u"Witness"_s);
-    }
-
-    void testDeleteEventRole() {
-        EventRepository repo;
-        auto id = repo.insertEventRole(u"Primary"_s);
-        QVERIFY(id.has_value());
-
-        bool ok = repo.deleteEventRole(*id);
-        QVERIFY(ok);
-
-        auto result = repo.findEventRoleById(*id);
-        QVERIFY(!result.has_value());
-    }
-
     // Event tests
 
     void testInsertAndFindEventById() {
-        auto typeId = insertEventType();
         EventRepository repo;
-        auto id = repo.insertEvent(typeId);
+        auto id = repo.insertEvent(u"Birth"_s);
         QVERIFY(id.has_value());
 
         auto result = repo.findEventById(*id);
         QVERIFY(result.has_value());
         QCOMPARE(result->id, *id);
-        QCOMPARE(result->typeId, typeId);
+        QCOMPARE(result->type, u"Birth"_s);
         QVERIFY(result->date.isEmpty());
         QVERIFY(result->name.isEmpty());
         QVERIFY(result->note.isEmpty());
     }
 
     void testUpdateEvent() {
-        auto typeId = insertEventType();
         EventRepository repo;
-        auto id = repo.insertEvent(typeId);
+        auto id = repo.insertEvent(u"Birth"_s);
         QVERIFY(id.has_value());
 
-        bool ok = repo.updateEvent(*id, typeId, u"1900-01-01"_s, u"Test event"_s, u"A note"_s);
+        bool ok = repo.updateEvent(*id, u"Birth"_s, u"1900-01-01"_s, u"Test event"_s, u"A note"_s);
         QVERIFY(ok);
 
         auto result = repo.findEventById(*id);
@@ -182,9 +68,8 @@ private Q_SLOTS:
     }
 
     void testDeleteEvent() {
-        auto typeId = insertEventType();
         EventRepository repo;
-        auto id = repo.insertEvent(typeId);
+        auto id = repo.insertEvent(u"Birth"_s);
         QVERIFY(id.has_value());
 
         bool ok = repo.deleteEvent(*id);
@@ -204,13 +89,11 @@ private Q_SLOTS:
 
     void testInsertAndFindRelationsForEvent() {
         auto personId = insertPerson();
-        auto typeId = insertEventType();
-        auto roleId = insertEventRole();
         EventRepository repo;
-        auto eventId = repo.insertEvent(typeId);
+        auto eventId = repo.insertEvent(u"Birth"_s);
         QVERIFY(eventId.has_value());
 
-        auto relationId = repo.insertEventRelation(*eventId, personId, roleId);
+        auto relationId = repo.insertEventRelation(*eventId, personId, u"Primary"_s);
         QVERIFY(relationId.has_value());
 
         auto relations = repo.findRelationsForEvent(*eventId);
@@ -218,21 +101,19 @@ private Q_SLOTS:
         QCOMPARE(relations.first().id, *relationId);
         QCOMPARE(relations.first().eventId, *eventId);
         QCOMPARE(relations.first().personId, personId);
-        QCOMPARE(relations.first().roleId, roleId);
+        QCOMPARE(relations.first().role, u"Primary"_s);
     }
 
     void testFindRelationsForPerson() {
         auto personId = insertPerson();
-        auto typeId = insertEventType();
-        auto roleId = insertEventRole();
         EventRepository repo;
-        auto eventId1 = repo.insertEvent(typeId);
-        auto eventId2 = repo.insertEvent(typeId);
+        auto eventId1 = repo.insertEvent(u"Birth"_s);
+        auto eventId2 = repo.insertEvent(u"Death"_s);
         QVERIFY(eventId1.has_value());
         QVERIFY(eventId2.has_value());
 
-        repo.insertEventRelation(*eventId1, personId, roleId);
-        repo.insertEventRelation(*eventId2, personId, roleId);
+        repo.insertEventRelation(*eventId1, personId, u"Primary"_s);
+        repo.insertEventRelation(*eventId2, personId, u"Primary"_s);
 
         auto relations = repo.findRelationsForPerson(personId);
         QCOMPARE(relations.size(), 2);
@@ -240,13 +121,11 @@ private Q_SLOTS:
 
     void testDeleteEventRelation() {
         auto personId = insertPerson();
-        auto typeId = insertEventType();
-        auto roleId = insertEventRole();
         EventRepository repo;
-        auto eventId = repo.insertEvent(typeId);
+        auto eventId = repo.insertEvent(u"Birth"_s);
         QVERIFY(eventId.has_value());
 
-        auto relationId = repo.insertEventRelation(*eventId, personId, roleId);
+        auto relationId = repo.insertEventRelation(*eventId, personId, u"Primary"_s);
         QVERIFY(relationId.has_value());
         bool ok = repo.deleteEventRelation(*relationId);
         QVERIFY(ok);
@@ -256,9 +135,8 @@ private Q_SLOTS:
     }
 
     void testFindRelationsForEventEmpty() {
-        auto typeId = insertEventType();
         EventRepository repo;
-        auto eventId = repo.insertEvent(typeId);
+        auto eventId = repo.insertEvent(u"Birth"_s);
         QVERIFY(eventId.has_value());
 
         auto relations = repo.findRelationsForEvent(*eventId);
@@ -267,43 +145,37 @@ private Q_SLOTS:
 
     void testUpdateEventRelationRole() {
         auto personId = insertPerson();
-        auto typeId = insertEventType();
-        auto roleId = insertEventRole(u"Primary"_s);
-        auto newRoleId = insertEventRole(u"Witness"_s);
         EventRepository repo;
-        auto eventId = repo.insertEvent(typeId);
+        auto eventId = repo.insertEvent(u"Birth"_s);
         QVERIFY(eventId.has_value());
 
-        auto relationId = repo.insertEventRelation(*eventId, personId, roleId);
+        auto relationId = repo.insertEventRelation(*eventId, personId, u"Primary"_s);
         QVERIFY(relationId.has_value());
 
-        bool ok = repo.updateEventRelationRole(*relationId, newRoleId);
+        bool ok = repo.updateEventRelationRole(*relationId, u"Witness"_s);
         QVERIFY(ok);
 
         auto relations = repo.findRelationsForEvent(*eventId);
         QCOMPARE(relations.size(), 1);
-        QCOMPARE(relations.first().roleId, newRoleId);
+        QCOMPARE(relations.first().role, u"Witness"_s);
         QCOMPARE(relations.first().id, *relationId);
     }
 
     void testCitationsSurviveRoleChange() {
         auto personId = insertPerson();
-        auto typeId = insertEventType();
-        auto roleId = insertEventRole(u"Primary"_s);
-        auto newRoleId = insertEventRole(u"Witness"_s);
-        auto sourceId = insertQuery(u"INSERT INTO sources (title, confidence) VALUES ('Test', 'High')"_s);
+        auto sourceId = insertQuery(u"INSERT INTO sources (title, type, confidence) VALUES ('Test', '', 3)"_s);
 
         EventRepository repo;
-        auto eventId = repo.insertEvent(typeId);
+        auto eventId = repo.insertEvent(u"Birth"_s);
         QVERIFY(eventId.has_value());
 
-        auto relationId = repo.insertEventRelation(*eventId, personId, roleId);
+        auto relationId = repo.insertEventRelation(*eventId, personId, u"Primary"_s);
         QVERIFY(relationId.has_value());
 
         QVERIFY(repo.addEventRelationCitation(*relationId, sourceId));
 
         // Change role.
-        QVERIFY(repo.updateEventRelationRole(*relationId, newRoleId));
+        QVERIFY(repo.updateEventRelationRole(*relationId, u"Witness"_s));
 
         // Citations should still be there.
         auto citations = repo.findCitationsForEventRelation(*relationId);

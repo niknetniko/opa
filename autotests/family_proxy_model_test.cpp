@@ -37,48 +37,35 @@ class TestFamilyProxyModel : public QObject {
     void addParentAndChild() {
         QSqlQuery query;
 
-        // Query some data we need.
-        auto marriageTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Marriage'"_s);
-        auto primaryRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Primary'"_s);
-        auto partnerRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Partner'"_s);
-        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
-        auto motherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Mother'"_s);
-        auto fatherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Father'"_s);
-
         // Add two people.
         auto fatherId = addPerson(u"Bob"_s, u"Bober"_s, u"Male"_s);
         auto motherId = addPerson(u"Alice"_s, u"English"_s, u"Female"_s);
 
         // Marry them.
-        auto marriageEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(marriageTypeId));
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+        auto marriageEvent = insertQuery(u"INSERT INTO events (type) VALUES ('Marriage')"_s);
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Primary')"_s
                                .arg(marriageEvent)
-                               .arg(fatherId)
-                               .arg(primaryRoleId)));
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                               .arg(fatherId)));
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Partner')"_s
                                .arg(marriageEvent)
-                               .arg(motherId)
-                               .arg(partnerRoleId)));
+                               .arg(motherId)));
 
         // Add a child.
         auto childId = addPerson(u"Child"_s, u"Bober"_s, u"Female"_s);
-        auto birthEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        auto birthEvent = insertQuery(u"INSERT INTO events (type) VALUES ('Birth')"_s);
 
         qDebug() << "Father has ID" << fatherId;
 
         // Link the child.
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Primary')"_s
                                .arg(birthEvent)
-                               .arg(childId)
-                               .arg(primaryRoleId)));
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                               .arg(childId)));
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Father')"_s
                                .arg(birthEvent)
-                               .arg(fatherId)
-                               .arg(fatherRoleId)));
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                               .arg(fatherId)));
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Mother')"_s
                                .arg(birthEvent)
-                               .arg(motherId)
-                               .arg(motherRoleId)));
+                               .arg(motherId)));
 
         // Create a family and link both events to it.
         auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
@@ -91,19 +78,14 @@ class TestFamilyProxyModel : public QObject {
         QSqlQuery query;
         // Add a child with only one known parent.
         auto bastardChildId = addPerson(u"Bastard"_s, u"Bober"_s, u"Female"_s);
-        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
-        auto birthEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
-        auto fatherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Father'"_s);
-        auto primaryRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Primary'"_s);
+        auto birthEvent = insertQuery(u"INSERT INTO events (type) VALUES ('Birth')"_s);
         // Link the child to person 1 as sole parent.
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Father')"_s
                                .arg(birthEvent)
-                               .arg(1)
-                               .arg(fatherRoleId)));
-        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                               .arg(1)));
+        QVERIFY(query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Primary')"_s
                                .arg(birthEvent)
-                               .arg(bastardChildId)
-                               .arg(primaryRoleId)));
+                               .arg(bastardChildId)));
         // Assign to a single-parent family (no marriage event), so FamilyMembersModel
         // groups this child under BASTARD_PARENT_KEY.
         auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);

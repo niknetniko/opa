@@ -125,7 +125,7 @@ private Q_SLOTS:
         FakeHttpServer server;
         server.respond(200, R"({"choices":[{"message":{"role":"assistant","content":"{}"}}]})");
 
-        const QJsonObject schema{{u"type"_s, u"object"_s}};
+        const QJsonObject schema {{u"type"_s, u"object"_s}};
         OpenAiCompatibleService service(server.url(), u"test-model"_s);
         auto future = service.ask(u"system"_s, u"user"_s, schema);
 

@@ -41,7 +41,7 @@ private Q_SLOTS:
     }
 
     void testRootPersonGetsAllAncestors() {
-        AncestorModel model{1};
+        AncestorModel model {1};
 
         QCOMPARE(model.rowCount(), 8);
 
@@ -79,7 +79,7 @@ private Q_SLOTS:
     }
 
     void testSiblingGetsAllAncestors() {
-        AncestorModel model{2};
+        AncestorModel model {2};
 
         QCOMPARE(model.rowCount(), 8);
 
@@ -117,7 +117,7 @@ private Q_SLOTS:
     }
 
     void testParentGetsLessAncestors() {
-        AncestorModel model{3};
+        AncestorModel model {3};
 
         QCOMPARE(model.rowCount(), 4);
 
@@ -139,7 +139,7 @@ private Q_SLOTS:
     }
 
     void testGrandParentGetsNoAncestors() {
-        AncestorModel model{5};
+        AncestorModel model {5};
 
         QCOMPARE(model.rowCount(), 1);
 

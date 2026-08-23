@@ -81,7 +81,7 @@ private Q_SLOTS:
         auto nameId = repo.insertName(personId, 1);
         QVERIFY(nameId.has_value());
 
-        bool ok = repo.updateName(*nameId, u"Dr."_s, u"John"_s, u"van"_s, u"Doe"_s, u"A note"_s, -1);
+        bool ok = repo.updateName(*nameId, u"Dr."_s, u"John"_s, u"van"_s, u"Doe"_s, u"A note"_s, QString{});
         QVERIFY(ok);
 
         auto updated = repo.findById(*nameId);
@@ -91,7 +91,7 @@ private Q_SLOTS:
         QCOMPARE(updated->prefix, u"van"_s);
         QCOMPARE(updated->surname, u"Doe"_s);
         QCOMPARE(updated->note, u"A note"_s);
-        QVERIFY(!updated->originId.has_value());
+        QVERIFY(updated->origin.isEmpty());
     }
 
     void testUpdateNameSort() {
@@ -129,15 +129,12 @@ private Q_SLOTS:
 
     void testFindWithOriginById() {
         auto personId = insertPerson();
-        // Get an existing origin ID from the seeded data (database.cpp opens with seed=false, so insert one).
-        auto originId = insertQuery(u"INSERT INTO name_origins (origin, builtin) VALUES ('Inherited', false)"_s);
-
         NameRepository repo;
         auto nameId = repo.insertName(personId, 1);
         QVERIFY(nameId.has_value());
-        repo.updateName(*nameId, QString(), u"Alice"_s, QString(), u"Smith"_s, QString(), originId);
+        repo.updateName(*nameId, QString(), u"Alice"_s, QString(), u"Smith"_s, QString(), u"Inherited"_s);
 
-        auto result = repo.findWithOriginById(*nameId);
+        auto result = repo.findById(*nameId);
         QVERIFY(result.has_value());
         QCOMPARE(result->givenNames, u"Alice"_s);
         QCOMPARE(result->origin, u"Inherited"_s);

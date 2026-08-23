@@ -42,53 +42,41 @@ class TestFamilyRepository : public QObject {
     FamilySetup addParentAndChild() {
         QSqlQuery query;
 
-        auto marriageTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Marriage'"_s);
-        auto primaryRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Primary'"_s);
-        auto partnerRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Partner'"_s);
-        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
-        auto motherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Mother'"_s);
-        auto fatherRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Father'"_s);
-
         auto fatherId = addPerson(u"Bob"_s, u"Bober"_s, u"Male"_s);
         auto motherId = addPerson(u"Alice"_s, u"English"_s, u"Female"_s);
 
-        auto marriageEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(marriageTypeId));
+        auto marriageEvent = insertQuery(u"INSERT INTO events (type) VALUES ('Marriage')"_s);
         VERIFY_OR_THROW2(
-            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Primary')"_s
                            .arg(marriageEvent)
-                           .arg(fatherId)
-                           .arg(primaryRoleId)),
+                           .arg(fatherId)),
             query
         );
         VERIFY_OR_THROW2(
-            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Partner')"_s
                            .arg(marriageEvent)
-                           .arg(motherId)
-                           .arg(partnerRoleId)),
+                           .arg(motherId)),
             query
         );
 
         auto childId = addPerson(u"Child"_s, u"Bober"_s, u"Female"_s);
-        auto birthEvent = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        auto birthEvent = insertQuery(u"INSERT INTO events (type) VALUES ('Birth')"_s);
         VERIFY_OR_THROW2(
-            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Primary')"_s
                            .arg(birthEvent)
-                           .arg(childId)
-                           .arg(primaryRoleId)),
+                           .arg(childId)),
             query
         );
         VERIFY_OR_THROW2(
-            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Father')"_s
                            .arg(birthEvent)
-                           .arg(fatherId)
-                           .arg(fatherRoleId)),
+                           .arg(fatherId)),
             query
         );
         VERIFY_OR_THROW2(
-            query.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+            query.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Mother')"_s
                            .arg(birthEvent)
-                           .arg(motherId)
-                           .arg(motherRoleId)),
+                           .arg(motherId)),
             query
         );
 
@@ -271,8 +259,7 @@ private Q_SLOTS:
     }
 
     void testLinkEventToFamilyReturnsTrueOnSuccess() {
-        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
-        auto eventId = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        auto eventId = insertQuery(u"INSERT INTO events (type) VALUES ('Birth')"_s);
         FamilyRepository repo;
         auto familyId = repo.createFamily();
         QVERIFY(familyId.has_value());
@@ -281,8 +268,7 @@ private Q_SLOTS:
     }
 
     void testLinkEventToFamilyUpdatesEvent() {
-        auto birthTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Birth'"_s);
-        auto eventId = insertQuery(u"INSERT INTO events (type_id) VALUES (%1)"_s.arg(birthTypeId));
+        auto eventId = insertQuery(u"INSERT INTO events (type) VALUES ('Birth')"_s);
         FamilyRepository repo;
         auto familyId = repo.createFamily();
         QVERIFY(familyId.has_value());

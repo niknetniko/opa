@@ -7,11 +7,7 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "database/database.h"
 
-#include "../src/domain/event/event_types.h"
-#include "../src/domain/location/location_types.h"
-#include "../src/domain/name/names.h"
 #include "database/schema.h"
-#include "domain/event/event_roles.h"
 
 #include <QSqlDatabase>
 #include <QSqlDriver>
@@ -19,34 +15,6 @@
 #include <QTest>
 
 using namespace Qt::Literals::StringLiterals;
-
-template<typename Enum>
-void runEnumValueCheck(const QString& tableName, int nameColumn = 1, int builtinColumn = 2) {
-    auto database = QSqlDatabase::database();
-    QSqlQuery eventTypesQuery{u"SELECT * FROM %1"_s.arg(tableName)};
-    QVERIFY(eventTypesQuery.exec());
-
-    auto metaTypeObject = QMetaEnum::fromType<Enum>();
-    QStringList possibilities;
-    for (int i = 0; i < metaTypeObject.keyCount(); ++i) {
-        auto value = metaTypeObject.key(i);
-        possibilities.append(QString::fromLatin1(value));
-    }
-
-    QSet<Enum> valuesInDatabase;
-    while (eventTypesQuery.next()) {
-        auto databaseValue = eventTypesQuery.value(nameColumn).toString();
-        const auto* const errorMessage = qPrintable(
-            u"%1 is not a valid enum, possibilities are %2"_s.arg(databaseValue, possibilities.join(u", "_s))
-        );
-        QVERIFY2(isValidEnum<Enum>(databaseValue), errorMessage);
-        valuesInDatabase.insert(enumFromString<Enum>(databaseValue));
-        auto isBuiltin = eventTypesQuery.value(builtinColumn).toBool();
-        QVERIFY(isBuiltin);
-    }
-
-    QCOMPARE(valuesInDatabase.size(), metaTypeObject.keyCount());
-}
 
 class TestDatabase : public QObject {
     Q_OBJECT
@@ -76,12 +44,9 @@ private Q_SLOTS:
         qDebug() << tables;
         tables.sort();
         QStringList expected = {
-            Schema::NameOriginsTable,
             Schema::NamesTable,
             Schema::PeopleTable,
             Schema::EventRelationsTable,
-            Schema::EventRolesTable,
-            Schema::EventTypesTable,
             Schema::EventsTable,
             Schema::FamiliesTable,
             Schema::SourcesTable,
@@ -89,14 +54,7 @@ private Q_SLOTS:
             Schema::EventRelationCitationsTable,
             Schema::NameCitationsTable,
             Schema::PersonCitationsTable,
-            Schema::LocationTypesTable,
             Schema::LocationsTable,
-            Schema::EventTypeTranslationsTable,
-            Schema::LocationTypeTranslationsTable,
-            Schema::EventRoleTranslationsTable,
-            Schema::NameOriginTranslationsTable,
-            Schema::SourceTypesTable,
-            Schema::SourceTypeTranslationsTable,
             Schema::MediaTable,
             Schema::PersonMediaTable,
             Schema::NameMediaTable,
@@ -104,27 +62,17 @@ private Q_SLOTS:
             Schema::EventRelationMediaTable,
             Schema::SourceMediaTable,
             Schema::LocationMediaTable,
+            u"person_external_ids"_s,
+            u"location_external_ids"_s,
+            u"family_external_ids"_s,
+            u"event_external_ids"_s,
+            u"source_external_ids"_s,
+            u"media_external_ids"_s,
             // Special SQLite tables...
             u"sqlite_sequence"_s
         };
         expected.sort();
         QCOMPARE(tables, expected);
-    }
-
-    void testEventRolesAreInserted() {
-        runEnumValueCheck<EventRoles::Values>(Schema::EventRolesTable);
-    }
-
-    void testEventTypesAreInserted() {
-        runEnumValueCheck<EventTypes::Values>(Schema::EventTypesTable);
-    }
-
-    void testNameOriginsAreInserted() {
-        runEnumValueCheck<NameOrigins::Values>(Schema::NameOriginsTable);
-    }
-
-    void testBuiltinLocationTypesAreInserted() {
-        runEnumValueCheck<LocationTypes::Values>(Schema::LocationTypesTable);
     }
 };
 

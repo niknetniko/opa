@@ -90,24 +90,19 @@ private Q_SLOTS:
 
     void testDisplayNameFallbackForFamilyWithNoParents() {
         // Create a family with a marriage event but no birth events, so no Father/Mother roles exist.
-        auto marriageTypeId = selectQuery(u"SELECT id FROM event_types WHERE type = 'Marriage'"_s);
-        auto primaryRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Primary'"_s);
-        auto partnerRoleId = selectQuery(u"SELECT id FROM event_roles WHERE role = 'Partner'"_s);
         auto p1 = insertQuery(u"INSERT INTO people (root, sex) VALUES (false, 'Male')"_s);
         auto p2 = insertQuery(u"INSERT INTO people (root, sex) VALUES (false, 'Female')"_s);
         auto familyId = insertQuery(u"INSERT INTO families DEFAULT VALUES"_s);
         auto marriageEvent =
-            insertQuery(u"INSERT INTO events (type_id, family_id) VALUES (%1, %2)"_s.arg(marriageTypeId).arg(familyId));
+            insertQuery(u"INSERT INTO events (type, family_id) VALUES ('Marriage', %1)"_s.arg(familyId));
 
         QSqlQuery q;
-        QVERIFY(q.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+        QVERIFY(q.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Primary')"_s
                            .arg(marriageEvent)
-                           .arg(p1)
-                           .arg(primaryRoleId)));
-        QVERIFY(q.exec(u"INSERT INTO event_relations (event_id, person_id, role_id) VALUES (%1, %2, %3)"_s
+                           .arg(p1)));
+        QVERIFY(q.exec(u"INSERT INTO event_relations (event_id, person_id, role) VALUES (%1, %2, 'Partner')"_s
                            .arg(marriageEvent)
-                           .arg(p2)
-                           .arg(partnerRoleId)));
+                           .arg(p2)));
 
         FamilyRepository repo;
         auto rows = repo.findAllFamiliesOverview();

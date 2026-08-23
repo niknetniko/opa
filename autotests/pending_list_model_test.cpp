@@ -54,7 +54,7 @@ private Q_SLOTS:
     void initialItemsReturnedUnchanged() {
         QList<Item> initial = {{1, u"A"_s}, {2, u"B"_s}, {3, u"C"_s}};
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 2, 3}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 2, 3}));
     }
 
     // ── add() ──
@@ -64,7 +64,7 @@ private Q_SLOTS:
         PendingListModel<Item> model({}, idExtractor, makeLookup(available));
 
         QVERIFY(model.add(10));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{10});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {10});
     }
 
     void addAppendsAfterInitial() {
@@ -73,7 +73,7 @@ private Q_SLOTS:
         PendingListModel<Item> model(initial, idExtractor, makeLookup(available));
 
         QVERIFY(model.add(2));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 2}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 2}));
     }
 
     void addMultipleItems() {
@@ -83,7 +83,7 @@ private Q_SLOTS:
         QVERIFY(model.add(1));
         QVERIFY(model.add(2));
         QVERIFY(model.add(3));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 2, 3}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 2, 3}));
     }
 
     void addDuplicateOfInitialFails() {
@@ -91,7 +91,7 @@ private Q_SLOTS:
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
 
         QVERIFY(!model.add(1));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{1});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {1});
     }
 
     void addDuplicateOfPendingAddFails() {
@@ -100,7 +100,7 @@ private Q_SLOTS:
 
         QVERIFY(model.add(1));
         QVERIFY(!model.add(1));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{1});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {1});
     }
 
     void addUnknownIdFails() {
@@ -114,11 +114,11 @@ private Q_SLOTS:
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
 
         QVERIFY(model.remove(1));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{2});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {2});
 
         // Re-adding should un-remove rather than lookup.
         QVERIFY(model.add(1));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 2}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 2}));
     }
 
     // ── remove() ──
@@ -128,7 +128,7 @@ private Q_SLOTS:
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
 
         QVERIFY(model.remove(1));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{2});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {2});
     }
 
     void removeAllInitialItems() {
@@ -154,7 +154,7 @@ private Q_SLOTS:
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
 
         QVERIFY(!model.remove(999));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{1});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {1});
     }
 
     void removeAlreadyRemovedInitialFails() {
@@ -180,7 +180,7 @@ private Q_SLOTS:
 
         // Re-add after removing a pending add.
         QVERIFY(model.add(1));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{1});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {1});
     }
 
     void removeInitialThenAddNewThenRemoveNew() {
@@ -190,7 +190,7 @@ private Q_SLOTS:
 
         QVERIFY(model.remove(1));
         QVERIFY(model.add(2));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{2});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {2});
 
         QVERIFY(model.remove(2));
         QVERIFY(model.items().isEmpty());
@@ -201,14 +201,14 @@ private Q_SLOTS:
         PendingListModel<Item> model(initial, idExtractor, makeLookup({}));
 
         QVERIFY(model.remove(2));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 3}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 3}));
 
         QVERIFY(model.add(2));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 2, 3}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 2, 3}));
 
         QVERIFY(model.remove(1));
         QVERIFY(model.remove(3));
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{2});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {2});
     }
 
     // ── items() ordering ──
@@ -221,7 +221,7 @@ private Q_SLOTS:
         QVERIFY(model.add(2));
         QVERIFY(model.add(4));
         // Initial order preserved, then adds in order of insertion.
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{3, 1, 2, 4}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {3, 1, 2, 4}));
     }
 
     void itemsWithRemovedInitialPreservesGaps() {
@@ -231,7 +231,7 @@ private Q_SLOTS:
 
         QVERIFY(model.remove(2));
         QVERIFY(model.add(4));
-        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey>{1, 3, 4}));
+        QCOMPARE(ids(model.items()), (QList<IntegerPrimaryKey> {1, 3, 4}));
     }
 
     // ── commit() ──
@@ -293,7 +293,7 @@ private Q_SLOTS:
                 return true;
             }
         );
-        QCOMPARE(added, (QList<IntegerPrimaryKey>{1, 2}));
+        QCOMPARE(added, (QList<IntegerPrimaryKey> {1, 2}));
         QVERIFY(removed.isEmpty());
     }
 
@@ -318,7 +318,7 @@ private Q_SLOTS:
         QVERIFY(added.isEmpty());
         // QSet order is not guaranteed, so sort.
         std::sort(removed.begin(), removed.end());
-        QCOMPARE(removed, (QList<IntegerPrimaryKey>{1, 2}));
+        QCOMPARE(removed, (QList<IntegerPrimaryKey> {1, 2}));
     }
 
     void commitMixedAddsAndRemovals() {
@@ -340,8 +340,8 @@ private Q_SLOTS:
                 return true;
             }
         );
-        QCOMPARE(added, QList<IntegerPrimaryKey>{3});
-        QCOMPARE(removed, QList<IntegerPrimaryKey>{1});
+        QCOMPARE(added, QList<IntegerPrimaryKey> {3});
+        QCOMPARE(removed, QList<IntegerPrimaryKey> {1});
     }
 
     void commitDoesNotIncludeRemovedPendingAdds() {
@@ -399,7 +399,7 @@ private Q_SLOTS:
 
         QVERIFY(!model.add(99));
         // State is unchanged.
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{1});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {1});
     }
 
     void addAfterFailedLookupSucceedsWithValidLookup() {
@@ -408,7 +408,7 @@ private Q_SLOTS:
 
         QVERIFY(!model.add(99)); // Fails.
         QVERIFY(model.add(2)); // Succeeds.
-        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey>{2});
+        QCOMPARE(ids(model.items()), QList<IntegerPrimaryKey> {2});
     }
 
     void singleItemFullLifecycle() {
@@ -436,7 +436,7 @@ private Q_SLOTS:
             },
             [&](IntegerPrimaryKey) { return true; }
         );
-        QCOMPARE(added, QList<IntegerPrimaryKey>{1});
+        QCOMPARE(added, QList<IntegerPrimaryKey> {1});
     }
 
     void itemsPreservesEntityData() {
