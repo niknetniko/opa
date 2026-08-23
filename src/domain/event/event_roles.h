@@ -86,7 +86,7 @@ enum class Values {
 
 Q_ENUM_NS(Values);
 
-const QHash<Values, KLazyLocalizedString> nameOriginToString{
+const QHash<Values, KLazyLocalizedString> nameOriginToString {
     {Values::Primary, kli18n("Primary")},
     {Values::Partner, kli18n("Partner")},
     {Values::Witness, kli18n("Witness")},

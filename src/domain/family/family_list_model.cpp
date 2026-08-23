@@ -17,16 +17,16 @@
 //   Child rows:     high 32 bits = (familyListIndex + 1), low 32 = (rowIndex + 1)
 
 namespace {
-quintptr encodeParent(int familyListIndex) {
-    return static_cast<quintptr>(static_cast<quint32>(familyListIndex));
+quintptr encodeParent(const int familyListIndex) {
+    return static_cast<quint32>(familyListIndex);
 }
 
-quintptr encodeChild(int familyListIndex, int rowIndex) {
+quintptr encodeChild(const int familyListIndex, int rowIndex) {
     return (static_cast<quintptr>(static_cast<quint32>(familyListIndex + 1)) << 32U) |
            static_cast<quintptr>(static_cast<quint32>(rowIndex + 1));
 }
 
-bool isChildId(quintptr id) {
+bool isChildId(const quintptr id) {
     return (id >> 32U) != 0;
 }
 }

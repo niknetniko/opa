@@ -22,64 +22,15 @@ const static auto driver = u"QSQLITE"_s;
 
 namespace {
 struct Migration {
-    int version{};
+    int version {};
     QLatin1StringView description;
     QLatin1StringView resourcePath;
 };
 
-constexpr std::array migrations = {
-    Migration{
-        .version = 1,
-        .description = "Add surrogate key to event_relations, rekey event_relation_citations"_L1,
-        .resourcePath = ":/migrations/001_event_relations_surrogate_key.sql"_L1,
-    },
-    Migration{
-        .version = 2,
-        .description = "Add location_types and locations tables, add location_id to events"_L1,
-        .resourcePath = ":/migrations/002_add_locations.sql"_L1,
-    },
-    Migration{
-        .version = 3,
-        .description = "Add event_type_translations and location_type_translations tables"_L1,
-        .resourcePath = ":/migrations/003_add_type_translations.sql"_L1,
-    },
-    Migration{
-        .version = 4,
-        .description =
-            "Add event_role_translations, name_origin_translations, source_types and source_type_translations"_L1,
-        .resourcePath = ":/migrations/004_add_role_origin_translations_and_source_types.sql"_L1,
-    },
-    Migration{
-        .version = 5,
-        .description = "Add media table and junction tables for all entity types"_L1,
-        .resourcePath = ":/migrations/005_add_media.sql"_L1,
-    },
-    Migration{
-        .version = 6,
-        .description = "Fix media.note to be nullable"_L1,
-        .resourcePath = ":/migrations/006_fix_media_note_nullable.sql"_L1,
-    },
-    Migration{
-        .version = 7,
-        .description = "Add date_sort columns (Julian day) for SQL ordering on events and locations"_L1,
-        .resourcePath = ":/migrations/007_add_date_sort.sql"_L1,
-    },
-    Migration{
-        .version = 8,
-        .description = "Add families table and family_id to events"_L1,
-        .resourcePath = ":/migrations/008_add_families.sql"_L1,
-    },
-    Migration{
-        .version = 9,
-        .description = "Backfill family_id on existing birth and marriage events"_L1,
-        .resourcePath = ":/migrations/009_backfill_family_ids.sql"_L1,
-    },
-    Migration{
-        .version = 10,
-        .description = "Add external ID tables for import sources"_L1,
-        .resourcePath = ":/migrations/010_add_external_ids.sql"_L1,
-    },
-};
+constexpr auto migrations = std::array<Migration, 0>();
+// constexpr auto migrations = std::to_array<Migration>({
+//
+// });
 
 void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
     for (auto& command: script.split(u";"_s)) {
@@ -241,7 +192,8 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
     qDebug() << "Running database creation script...";
     executeScriptOrAbort(schema, database);
     QSqlQuery initStamp(database);
-    if (!initStamp.exec(u"PRAGMA user_version = %1"_s.arg(migrations.back().version))) {
+    const int latestVersion = migrations.empty() ? 0 : migrations.back().version;
+    if (!initStamp.exec(u"PRAGMA user_version = %1"_s.arg(latestVersion))) {
         qCritical() << "Failed to stamp schema version on new database:" << initStamp.lastError().text();
         abort();
     }
@@ -250,16 +202,6 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
         qDebug() << "Not initialising database.";
         return;
     }
-
-    qDebug() << "Adding built-in data";
-    QFile initFile(u":/init.sql"_s);
-    if (!initFile.open(QFile::ReadOnly | QFile::Text)) {
-        qWarning() << "Error occurred opening database init file";
-        abort();
-    }
-    QTextStream initStream(&initFile);
-    QString init = initStream.readAll();
-    executeScriptOrAbort(init, database);
 
     if (!seed) {
         qDebug() << "Not seeding database.";

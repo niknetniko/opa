@@ -16,7 +16,7 @@ enum class Values { Country, Province, County, City, Village, Parish, Address };
 
 Q_ENUM_NS(Values);
 
-const QHash<Values, KLazyLocalizedString> typeToString{
+const QHash<Values, KLazyLocalizedString> typeToString {
     {Values::Country, kli18n("Country")},
     {Values::Province, kli18n("Province")},
     {Values::County, kli18n("County")},

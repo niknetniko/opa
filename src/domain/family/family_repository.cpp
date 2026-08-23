@@ -16,15 +16,12 @@ WITH my_families AS (
     SELECT DISTINCT e.family_id
     FROM events e
     JOIN event_relations er ON e.id = er.event_id
-    JOIN event_roles r ON er.role_id = r.id
-    JOIN event_types et ON e.type_id = et.id
     WHERE er.person_id = :id
-      AND r.role IN ('Father', 'Mother')
-      AND et.type = 'Birth'
+      AND er.role IN ('Father', 'Mother')
+      AND e.type = 'Birth'
       AND e.family_id IS NOT NULL
 )
-SELECT et.type           AS event_type,
-       e.type_id         AS event_type_id,
+SELECT e.type            AS event_type,
        er.person_id      AS person_id,
        NULL              AS partner_id,
        e.id              AS event_id,
@@ -36,14 +33,12 @@ SELECT et.type           AS event_type,
        names.prefix      AS prefix,
        names.surname     AS surname
 FROM events e
-JOIN event_types et ON e.type_id = et.id
 JOIN event_relations er ON e.id = er.event_id
-JOIN event_roles r ON er.role_id = r.id
 LEFT JOIN names ON er.person_id = names.person_id
 WHERE e.family_id IN (SELECT family_id FROM my_families)
   AND (
-      (et.type = 'Birth' AND r.role = 'Primary')
-      OR (et.type = 'Marriage' AND r.role IN ('Primary', 'Partner') AND er.person_id != :id)
+      (e.type = 'Birth' AND er.role = 'Primary')
+      OR (e.type = 'Marriage' AND er.role IN ('Primary', 'Partner') AND er.person_id != :id)
   )
   AND (names.sort = (SELECT MIN(n2.sort) FROM names AS n2 WHERE n2.person_id = er.person_id) OR names.sort IS NULL)
 ORDER BY event_type, event_date_sort ASC NULLS LAST;
@@ -58,22 +53,21 @@ WITH RECURSIVE
      FROM event_relations AS child_relation
             LEFT JOIN event_relations AS father_relation
                       ON child_relation.event_id = father_relation.event_id
-                        AND father_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Father')
+                        AND father_relation.role = 'Father'
             LEFT JOIN event_relations AS mother_relation
                       ON child_relation.event_id = mother_relation.event_id
-                        AND mother_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Mother')
-     WHERE child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
+                        AND mother_relation.role = 'Mother'
+     WHERE child_relation.role = 'Primary'
      GROUP BY child_relation.person_id
 
      UNION ALL
 
      SELECT er.person_id AS child_id, NULL AS father_id, NULL AS mother_id
      FROM event_relations er
-            JOIN event_roles ON er.role_id = event_roles.id
-     WHERE event_roles.role IN ('Father', 'Mother')
+     WHERE er.role IN ('Father', 'Mother')
        AND er.person_id NOT IN (SELECT person_id
                                 FROM event_relations
-                                WHERE role_id = (SELECT id FROM event_roles WHERE role = 'Primary'))
+                                WHERE role = 'Primary')
      GROUP BY er.person_id
 
      UNION ALL
@@ -119,12 +113,10 @@ static const auto FAMILIES_OVERVIEW_SQL = QStringLiteral(R"-(
 WITH parent_surnames AS (
     SELECT e.family_id, er.person_id, n.surname
     FROM events e
-    JOIN event_types et ON e.type_id = et.id
     JOIN event_relations er ON e.id = er.event_id
-    JOIN event_roles r ON er.role_id = r.id
     JOIN names n ON er.person_id = n.person_id
-    WHERE et.type = 'Birth'
-      AND r.role IN ('Father', 'Mother')
+    WHERE e.type = 'Birth'
+      AND er.role IN ('Father', 'Mother')
       AND (n.sort = (SELECT MIN(n2.sort) FROM names n2 WHERE n2.person_id = er.person_id) OR n.sort IS NULL)
     GROUP BY e.family_id, er.person_id
 ),
@@ -134,13 +126,13 @@ parent_names AS (
     GROUP BY family_id
 )
 SELECT f.id                                           AS family_id,
-       COALESCE(pn.display_name, 'Family #' || f.id) AS family_display_name,
+       COALESCE(pn.display_name, 'Family #' || f.id)  AS family_display_name,
        e.id                                           AS event_id,
-       et.type                                        AS event_type,
+       e.type                                         AS event_type,
        e.date                                         AS event_date,
        e.date_sort                                    AS event_date_sort,
        er.person_id                                   AS person_id,
-       r.role                                         AS role,
+       er.role                                        AS role,
        n.titles                                       AS titles,
        n.given_names                                  AS given_names,
        n.prefix                                       AS prefix,
@@ -148,34 +140,30 @@ SELECT f.id                                           AS family_id,
 FROM families f
 LEFT JOIN parent_names pn ON f.id = pn.family_id
 JOIN events e ON e.family_id = f.id
-JOIN event_types et ON e.type_id = et.id
 JOIN event_relations er ON e.id = er.event_id
-JOIN event_roles r ON er.role_id = r.id
 LEFT JOIN names n ON er.person_id = n.person_id
-WHERE ((et.type = 'Birth' AND r.role = 'Primary')
-    OR (et.type = 'Marriage' AND r.role IN ('Primary', 'Partner')))
+WHERE ((e.type = 'Birth' AND er.role = 'Primary')
+    OR (e.type = 'Marriage' AND er.role IN ('Primary', 'Partner')))
   AND (n.sort = (SELECT MIN(n2.sort) FROM names n2 WHERE n2.person_id = er.person_id) OR n.sort IS NULL)
 ORDER BY f.id,
-         CASE WHEN et.type = 'Marriage' THEN 0 ELSE 1 END,
+         CASE WHEN e.type = 'Marriage' THEN 0 ELSE 1 END,
          e.date_sort ASC NULLS LAST
 )-");
 
 static const auto PARENTS_SQL = QStringLiteral(R"-(
 SELECT parent_relation.person_id,
-       parent_relation.role_id,
-       event_roles.role,
+       parent_relation.role,
        names.titles,
        names.given_names,
        names.prefix,
        names.surname
 FROM event_relations AS child_relation
        LEFT JOIN event_relations AS parent_relation ON child_relation.event_id = parent_relation.event_id
-       LEFT JOIN event_roles ON parent_relation.role_id = event_roles.id
        LEFT JOIN names ON parent_relation.person_id = names.person_id
 WHERE child_relation.person_id = :person
-  AND child_relation.role_id = (SELECT id FROM event_roles WHERE role = 'Primary')
-  AND event_roles.role IN ('Father', 'Mother')
-  AND (names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id) OR names.sort = NULL)
+  AND child_relation.role = 'Primary'
+  AND parent_relation.role IN ('Father', 'Mother')
+  AND (names.sort = (SELECT MIN(name2.sort) FROM names AS name2 WHERE name2.person_id = parent_relation.person_id) OR names.sort IS NULL)
 ORDER BY parent_relation.person_id;
 )-");
 

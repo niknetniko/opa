@@ -12,7 +12,7 @@ class QComboBox;
 
 struct ExistingEventSelection {
     QVariant eventId;
-    QVariant roleId;
+    QString role;
 
     [[nodiscard]] bool isValid() const;
 };

@@ -3,29 +3,26 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "event_editor_dialog.h"
+#include "./event_editor_dialog.h"
 
 #include "database/database.h"
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_editor_dialog.h"
 #include "domain/event/event_repository.h"
-#include "domain/event/event_role_translation_repository.h"
-#include "domain/event/event_roles.h"
-#include "domain/event/event_roles_model.h"
-#include "domain/event/event_type_translation_repository.h"
 #include "domain/event/event_types.h"
-#include "domain/event/event_types_model.h"
 #include "domain/location/location_paths_model.h"
 #include "domain/location/location_repository.h"
 #include "domain/media/media_repository.h"
 #include "domain/source/source_repository.h"
-#include "editors/location_editor_dialog.h"
-#include "note_editor_dialog.h"
+#include "../location/location_editor_dialog.h"
+#include "../../editors/note_editor_dialog.h"
 #include "ui/media/media_list_widget.h"
 #include "ui/source/citation_list_widget.h"
 #include "ui_event_editor_dialog.h"
+#include "domain/event/event_list_model.h"
+#include "domain/event/event_roles_model.h"
+#include "domain/event/event_types_model.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QComboBox>
@@ -55,7 +52,7 @@ EventEditorDialog::EventEditorDialog(IntegerPrimaryKey personId, QWidget* parent
 
 EventEditorDialog::EventEditorDialog(
     IntegerPrimaryKey eventId,
-    IntegerPrimaryKey roleId,
+    const QString& role,
     IntegerPrimaryKey relationId,
     IntegerPrimaryKey personId,
     QWidget* parent
@@ -64,7 +61,7 @@ EventEditorDialog::EventEditorDialog(
     form(new Ui::EventEditorForm),
     eventId(eventId),
     personId(personId),
-    roleId(roleId),
+    role(role),
     relationId(relationId),
     eventCitationsPending(
         EventRepository().findCitationsForEvent(eventId),
@@ -81,17 +78,13 @@ EventEditorDialog::EventEditorDialog(
     // Load the event data and pre-fill the form.
     EventRepository repo;
     if (const auto event = repo.findEventById(eventId); event) {
-        auto typeIndex =
-            typesModel->match(typesModel->index(0, EventTypesListModel::ID), Qt::DisplayRole, event->typeId);
-        if (!typeIndex.isEmpty()) {
-            form->eventTypeComboBox->setCurrentIndex(typeIndex.constFirst().row());
-        }
-
         if (!event->date.isEmpty()) {
             form->eventDatePicker->setText(GenealogicalDate::fromDatabaseRepresentation(event->date).toDisplayText());
         }
         form->eventNameEdit->setText(event->name);
         form->noteEdit->setTextOrHtml(event->note);
+        form->eventTypeComboBox->setCurrentText(event->type);
+        form->eventRoleComboBox->setCurrentText(role);
 
         if (event->locationId.has_value()) {
             for (int i = 0; i < locationsModel->rowCount(); ++i) {
@@ -106,12 +99,6 @@ EventEditorDialog::EventEditorDialog(
         qWarning() << "Event" << eventId << "not found in database — form will open with empty fields";
     }
 
-    // Pre-select the role.
-    auto roleIndex = rolesModel->match(rolesModel->index(0, EventRolesListModel::ID), Qt::DisplayRole, roleId);
-    if (!roleIndex.isEmpty()) {
-        form->eventRoleComboBox->setCurrentIndex(roleIndex.constFirst().row());
-    }
-
     auto nameId = format_id(FormattedIdentifierDelegate::EVENT, eventId);
     setWindowTitle(i18n("%1 bewerken", nameId));
 }
@@ -122,33 +109,11 @@ void EventEditorDialog::setupUi() {
     connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditorDialog::editDateWithEditor);
     connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
 
-    typesModel = new EventTypesListModel(this);
-    auto* typesProxy = new TranslatingProxyModel(
-        TypeTranslationResolver(
-            [](IntegerPrimaryKey typeId, const QString& locale) {
-                return EventTypeTranslationRepository().findByTypeIdAndLocale(typeId, locale);
-            },
-            EventTypes::toDisplayString
-        ),
-        this
-    );
-    typesProxy->setSourceModel(typesModel);
-    form->eventTypeComboBox->setModel(typesProxy);
-    form->eventTypeComboBox->setModelColumn(EventTypesListModel::TYPE);
+    auto typesModel = new EventTypesModel(this);
+    form->eventTypeComboBox->setModel(typesModel);
 
-    rolesModel = new EventRolesListModel(this);
-    auto* rolesProxy = new TranslatingProxyModel(
-        TypeTranslationResolver(
-            [](IntegerPrimaryKey roleId, const QString& locale) {
-                return EventRoleTranslationRepository().findByTypeIdAndLocale(roleId, locale);
-            },
-            EventRoles::toDisplayString
-        ),
-        this
-    );
-    rolesProxy->setSourceModel(rolesModel);
-    form->eventRoleComboBox->setModel(rolesProxy);
-    form->eventRoleComboBox->setModelColumn(EventRolesListModel::ROLE);
+    auto rolesModel = new EventRolesModel(this);
+    form->eventRoleComboBox->setModel(rolesModel);
 
     locationsModel = new LocationPathsModel(this);
     form->eventLocationComboBox->setModel(locationsModel);
@@ -244,17 +209,14 @@ void EventEditorDialog::setupUi() {
 
 void EventEditorDialog::accept() {
     // Collect values from widgets before the transaction.
-    auto typeRow = form->eventTypeComboBox->currentIndex();
-    auto typeId = typesModel->index(typeRow, EventTypesListModel::ID).data().toLongLong();
+    auto type = form->eventTypeComboBox->currentText();
 
     auto displayDate = form->eventDatePicker->text();
-    auto date = displayDate.isEmpty() ? QString{}
+    auto date = displayDate.isEmpty() ? QString {}
                                       : GenealogicalDate::fromDisplayText(displayDate).toDatabaseRepresentation();
     auto name = form->eventNameEdit->text();
     auto note = form->noteEdit->textOrHtml();
-
-    auto roleRow = form->eventRoleComboBox->currentIndex();
-    auto newRoleId = rolesModel->index(roleRow, EventRolesListModel::ID).data().toLongLong();
+    auto role = form->eventRoleComboBox->currentText();
 
     auto locationRow = form->eventLocationComboBox->currentIndex();
     auto selectedLocationId = locationRow >= 0
@@ -271,14 +233,13 @@ void EventEditorDialog::accept() {
             // TODO: allow assigning the new event to a family (family_id) so that marriage and
             // birth events created here participate in explicit family grouping.
             // Issue URL: https://github.com/niknetniko/opa/issues/62
-            auto newEventId = repo.insertFullEvent(typeId, date, name, note, personId, newRoleId, selectedLocationId);
+            auto newEventId = repo.insertFullEvent(type, date, name, note, personId, role, selectedLocationId);
             if (!newEventId) {
                 return std::nullopt;
             }
 
             auto createdEventId = *newEventId;
             eventId = createdEventId;
-            roleId = newRoleId;
 
             // Look up the relation id for the just-created relation.
             auto relations = repo.findRelationsForEvent(createdEventId);
@@ -298,16 +259,8 @@ void EventEditorDialog::accept() {
             );
         } else {
             // Existing event: update fields.
-            if (!repo.updateEvent(*eventId, typeId, date, name, note, selectedLocationId)) {
+            if (!repo.updateEvent(*eventId, type, date, name, note, selectedLocationId)) {
                 return std::nullopt;
-            }
-
-            // Update the role if it changed — simple UPDATE on the relation row.
-            if (newRoleId != roleId) {
-                if (!repo.updateEventRelationRole(*relationId, newRoleId)) {
-                    return std::nullopt;
-                }
-                roleId = newRoleId;
             }
 
             // Commit pending citation changes.
@@ -344,12 +297,12 @@ void EventEditorDialog::showDialogForNewEvent(IntegerPrimaryKey personId, QWidge
 
 void EventEditorDialog::showDialogForExistingEvent(
     IntegerPrimaryKey eventId,
-    IntegerPrimaryKey roleId,
+    const QString& role,
     IntegerPrimaryKey relationId,
     IntegerPrimaryKey personId,
     QWidget* parent
 ) {
-    auto* dialog = new EventEditorDialog(eventId, roleId, relationId, personId, parent);
+    auto* dialog = new EventEditorDialog(eventId, role, relationId, personId, parent);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }

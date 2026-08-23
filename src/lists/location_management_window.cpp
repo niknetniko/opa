@@ -7,7 +7,7 @@
 
 #include "domain/location/location_list_model.h"
 #include "domain/location/location_repository.h"
-#include "editors/location_editor_dialog.h"
+#include "../ui/location/location_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/tree_proxy_model.h"
 
@@ -56,7 +56,6 @@ LocationManagementWindow::LocationManagementWindow(QWidget* parent) : QMainWindo
         new FormattedIdentifierDelegate(treeView, FormattedIdentifierDelegate::LOCATION)
     );
     treeView->hideColumn(LocationListModel::PARENT_ID);
-    treeView->hideColumn(LocationListModel::TYPE_ID);
     treeView->setUniformRowHeights(true);
     treeView->expandToDepth(1);
 

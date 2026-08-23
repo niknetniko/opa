@@ -7,7 +7,7 @@
 
 #include "domain/event/event_repository.h"
 #include "domain/event/person_events_model.h"
-#include "editors/event_editor_dialog.h"
+#include "../ui/event/event_editor_dialog.h"
 #include "link_existing/choose_existing_event_window.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/grouping_proxy_model.h"
@@ -37,7 +37,6 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
         PersonEventListModel::DATE,
         PersonEventListModel::NAME,
         PersonEventListModel::ID,
-        PersonEventListModel::ROLE_ID,
         PersonEventListModel::RELATION_ID,
     });
 
@@ -46,7 +45,7 @@ PersonEventTab::PersonEventTab(IntegerPrimaryKey person, QWidget* parent) : QWid
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setUniformRowHeights(true);
-    treeView->hideColumn(PersonEventListModel::ROLE_ID);
+    treeView->hideColumn(PersonEventListModel::ROLE);
     treeView->hideColumn(PersonEventListModel::ID);
     treeView->hideColumn(PersonEventListModel::RELATION_ID);
 
@@ -138,12 +137,12 @@ void PersonEventTab::onEditSelectedEvent() {
     }
 
     auto eventId = selectedIndex.siblingAtColumn(PersonEventListModel::ID).data();
-    auto eventRoleId = selectedIndex.siblingAtColumn(PersonEventListModel::ROLE_ID).data();
+    auto eventRole = selectedIndex.siblingAtColumn(PersonEventListModel::ROLE).data();
     auto relationId = selectedIndex.siblingAtColumn(PersonEventListModel::RELATION_ID).data();
 
     EventEditorDialog::showDialogForExistingEvent(
         eventId.toLongLong(),
-        eventRoleId.toLongLong(),
+        eventRole.toString(),
         relationId.toLongLong(),
         person,
         this
@@ -237,8 +236,7 @@ void PersonEventTab::onLinkExistingEvent() {
     }
 
     EventRepository repo;
-    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.roleId.toLongLong())
-             .has_value()) {
+    if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.role).has_value()) {
         QMessageBox::warning(
             this,
             tr("Could not link event"),

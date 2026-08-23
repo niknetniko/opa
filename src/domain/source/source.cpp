@@ -20,5 +20,5 @@ SourcesTableModel::SourcesTableModel(QObject* parent) : QSqlTableModel(parent) {
     QSqlTableModel::setHeaderData(CONFIDENCE, Qt::Horizontal, i18n("Confidence"));
     QSqlTableModel::setHeaderData(NOTE, Qt::Horizontal, i18n("Note"));
     QSqlTableModel::setHeaderData(PARENT_ID, Qt::Horizontal, i18n("Parent ID"));
-    QSqlTableModel::setHeaderData(TYPE_ID, Qt::Horizontal, i18n("Type"));
+    QSqlTableModel::setHeaderData(TYPE, Qt::Horizontal, i18n("Type"));
 }

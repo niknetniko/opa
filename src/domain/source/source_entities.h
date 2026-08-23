@@ -17,10 +17,10 @@ using namespace Qt::StringLiterals;
 struct SourceEntity {
     IntegerPrimaryKey id = -1;
     QString title;
-    std::optional<IntegerPrimaryKey> typeId;
+    QString type;
     QString author;
     QString publication;
-    QString confidence;
+    int confidence;
     QString note;
     std::optional<IntegerPrimaryKey> parentId;
 
@@ -28,10 +28,10 @@ struct SourceEntity {
         return {
             .id = query.value(u"id").toLongLong(),
             .title = query.value(u"title").toString(),
-            .typeId = validOrOptional<IntegerPrimaryKey>(query.value(u"type_id")),
+            .type = query.value(u"type").toString(),
             .author = query.value(u"author").toString(),
             .publication = query.value(u"publication").toString(),
-            .confidence = query.value(u"confidence").toString(),
+            .confidence = query.value(u"confidence").toInt(),
             .note = query.value(u"note").toString(),
             .parentId = validOrOptional<IntegerPrimaryKey>(query.value(u"parent_id")),
         };

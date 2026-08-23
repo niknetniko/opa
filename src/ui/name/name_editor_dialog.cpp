@@ -5,14 +5,12 @@
  */
 #include "./name_editor_dialog.h"
 
-#include "../../domain/name/name_origin_translation_repository.h"
-#include "../../domain/name/name_origins_model.h"
 #include "../../domain/name/name_repository.h"
 #include "../../domain/name/names.h"
 #include "../../editors/note_editor_dialog.h"
 #include "ui_name_editor_dialog.h"
+#include "domain/name/name_origins_model.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QCompleter>
@@ -26,7 +24,7 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
     form->setupUi(this);
 
     NameRepository nameRepo;
-    auto entity = nameRepo.findById(nameId);
+    const auto entity = nameRepo.findById(nameId);
 
     if (newRow) {
         this->setWindowTitle(i18n("Nieuwe naam toevoegen"));
@@ -36,43 +34,11 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
     }
 
     // Populate origin combo box from the name origins model.
-    originsModel = new NameOriginsModel(this);
-    auto* originsProxy = new TranslatingProxyModel(
-        TypeTranslationResolver(
-            [](IntegerPrimaryKey originId, const QString& locale) {
-                return NameOriginTranslationRepository().findByTypeIdAndLocale(originId, locale);
-            },
-            NameOrigins::toDisplayString
-        ),
-        this
-    );
-    originsProxy->setSourceModel(originsModel);
-    form->origin->setModel(originsProxy);
-    form->origin->setModelColumn(NameOriginsModel::ORIGIN);
+    auto* nameOriginsModel = new NameOriginsModel(this);
+    form->origin->setModel(nameOriginsModel);
+    form->origin->setModelColumn(0);
     form->origin->setEditable(true);
-
-    // Populate form fields from the entity (empty if not found / new).
-    if (entity.has_value()) {
-        form->titles->setText(entity->titles);
-        form->givenNames->setText(entity->givenNames);
-        form->prefix->setText(entity->prefix);
-        form->surname->setText(entity->surname);
-        form->noteEdit->setTextOrHtml(entity->note);
-
-        // Select the correct origin in the combo box.
-        if (entity->originId.has_value()) {
-            for (int row = 0; row < originsModel->rowCount(); ++row) {
-                auto pkIndex = originsModel->index(row, NameOriginsModel::ID);
-                if (pkIndex.data().toLongLong() == *entity->originId) {
-                    form->origin->setCurrentIndex(row);
-                    break;
-                }
-            }
-        } else {
-            form->origin->setCurrentIndex(-1);
-            form->origin->clearEditText();
-        }
-    }
+    form->origin->setCurrentText(entity->origin);
 
     // Set up autocomplete on surname and given names using all names in the DB.
     auto* surnameModel = new QStringListModel(nameRepo.findAllSurnames(), this);
@@ -92,14 +58,6 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
 }
 
 void NamesEditorDialog::accept() {
-    // Resolve the origin_id from the selected combo box entry.
-    IntegerPrimaryKey originId = -1;
-    const int selectedRow = form->origin->currentIndex();
-    if (selectedRow >= 0) {
-        auto pkIndex = originsModel->index(selectedRow, NameOriginsModel::ID);
-        originId = pkIndex.data().toLongLong();
-    }
-
     NameRepository nameRepo;
     const bool ok = nameRepo.updateName(
         nameId,
@@ -108,7 +66,7 @@ void NamesEditorDialog::accept() {
         form->prefix->text(),
         form->surname->text(),
         form->noteEdit->textOrHtml(),
-        originId
+        form->origin->currentText()
     );
 
     if (!ok) {
@@ -122,7 +80,10 @@ void NamesEditorDialog::accept() {
 void NamesEditorDialog::revert() {
     if (isNewItem) {
         NameRepository nameRepo;
-        nameRepo.deleteName(nameId);
+        if (const bool ok = nameRepo.deleteName(nameId); !ok) {
+            qWarning() << "NamesEditorDialog: could not revert name" << nameId;
+            return;
+        }
         nameId = -1;
     }
 }

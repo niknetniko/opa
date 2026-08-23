@@ -19,7 +19,7 @@ class SourceEditorForm;
 class QAbstractItemModel;
 class QFrame;
 class QLineEdit;
-class SourceTypesListModel;
+class SourceTypesModel;
 
 class SourceEditorDialog : public QDialog {
     Q_OBJECT
@@ -47,7 +47,7 @@ private:
     std::optional<IntegerPrimaryKey> sourceId;
     std::optional<IntegerPrimaryKey> parentId;
     QAbstractItemModel* confidenceModel;
-    SourceTypesListModel* sourceTypesModel = nullptr;
+    SourceTypesModel* sourceTypesModel = nullptr;
 
     QString suggestedParentName;
     QList<SourceEntity> parentSuggestionMatches;

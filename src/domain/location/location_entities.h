@@ -12,21 +12,6 @@
 #include <QString>
 #include <optional>
 
-struct LocationTypeEntity {
-    IntegerPrimaryKey id = -1;
-    QString type;
-    bool builtin = false;
-
-    static LocationTypeEntity fromSql(const QSqlQuery& query) {
-        using namespace Qt::StringLiterals;
-        return {
-            .id = query.value(u"id").toLongLong(),
-            .type = query.value(u"type").toString(),
-            .builtin = query.value(u"builtin").toBool(),
-        };
-    }
-};
-
 struct Coordinates {
     double latitude = 0.0;
     double longitude = 0.0;
@@ -35,7 +20,7 @@ struct Coordinates {
 struct LocationEntity {
     IntegerPrimaryKey id = -1;
     QString name;
-    std::optional<IntegerPrimaryKey> typeId;
+    QString type;
     std::optional<IntegerPrimaryKey> parentId;
     QString note;
     std::optional<Coordinates> coordinates;
@@ -48,12 +33,12 @@ struct LocationEntity {
         const auto lon = validOrOptional<double>(query.value(u"longitude"));
         std::optional<Coordinates> coords;
         if (lat.has_value() && lon.has_value()) {
-            coords = Coordinates{*lat, *lon};
+            coords = Coordinates {*lat, *lon};
         }
         return {
             .id = query.value(u"id").toLongLong(),
             .name = query.value(u"name").toString(),
-            .typeId = validOrOptional<IntegerPrimaryKey>(query.value(u"type_id")),
+            .type = query.value(u"type").toString(),
             .parentId = validOrOptional<IntegerPrimaryKey>(query.value(u"parent_id")),
             .note = query.value(u"note").toString(),
             .coordinates = coords,

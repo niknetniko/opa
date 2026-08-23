@@ -12,7 +12,7 @@
 class PersonBirthEventsModel : public ObjectTableModel<PersonEventEntity> {
     Q_OBJECT
 public:
-    enum Columns { ID = 0, ROLE_ID, ROLE, TYPE, DATE, NAME, DATE_RAW };
+    enum Columns { ID = 0, ROLE, TYPE, DATE, NAME, DATE_RAW };
     Q_ENUM(Columns);
 
     explicit PersonBirthEventsModel(IntegerPrimaryKey personId, QObject* parent = nullptr);

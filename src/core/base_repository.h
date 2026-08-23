@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include "data_event_broker.h"
 #include "query_helper.h"
 
 #include <QList>
@@ -34,22 +33,7 @@ protected:
      */
     template<typename T>
     [[nodiscard]] QList<T> fetchAll(const QString& sql, const QVariantMap& bindings = {}) const {
-        auto [query, result] = QueryHelper::executeWithResult(sql, bindings);
-
-        QList<T> results;
-        if (!result) {
-            return results;
-        }
-
-        if (query.driver()->hasFeature(QSqlDriver::QuerySize)) {
-            results.reserve(query.size());
-        }
-
-        while (query.next()) {
-            results << T::fromSql(query);
-        }
-
-        return results;
+        return QueryHelper::fetchAll<T>(sql, bindings);
     }
 
     /**
@@ -65,24 +49,6 @@ protected:
      */
     template<typename T>
     [[nodiscard]] std::optional<T> fetchOne(const QString& sql, const QVariantMap& bindings = {}) const {
-        auto [query, result] = QueryHelper::executeWithResult(sql, bindings);
-
-        if (!result) {
-            return std::nullopt;
-        }
-
-        if (query.next()) {
-            auto value = T::fromSql(query);
-
-            // Be strict about this, to prevent accidental errors or wrong assumptions.
-            if (query.next()) {
-                qCritical() << "More than one result returned for fetchOne query, refusing to return.";
-                return std::nullopt;
-            }
-
-            return value;
-        }
-
-        return std::nullopt;
+        return QueryHelper::fetchOne<T>(sql, bindings);
     }
 };

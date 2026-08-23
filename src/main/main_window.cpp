@@ -12,12 +12,7 @@
 #include "domain/name/names.h"
 #include "editors/new_person_editor_dialog.h"
 #include "import/import_wizard.h"
-#include "lists/event_roles_management_window.h"
-#include "lists/event_types_management_window.h"
 #include "lists/location_management_window.h"
-#include "lists/location_types_management_window.h"
-#include "lists/name_origins_management_window.h"
-#include "lists/source_types_management_window.h"
 #include "person_detail/person_detail_view.h"
 #include "person_placeholder_widget.h"
 #include "ui/family/family_list_dock.h"
@@ -71,29 +66,9 @@ MainWindow::MainWindow() {
 
     setAttribute(Qt::WA_DeleteOnClose);
 
-    manageNameOrigins_ = new QAction(this);
-    manageNameOrigins_->setText(i18n("Manage name origins"));
-    connect(manageNameOrigins_, &QAction::triggered, this, &MainWindow::openNameOriginManager);
-
-    manageEventRoles_ = new QAction(this);
-    manageEventRoles_->setText(i18n("Manage event roles"));
-    connect(manageEventRoles_, &QAction::triggered, this, &MainWindow::openEventRolesManager);
-
-    manageEventTypes_ = new QAction(this);
-    manageEventTypes_->setText(i18n("Manage event types"));
-    connect(manageEventTypes_, &QAction::triggered, this, &MainWindow::openEventTypesManager);
-
     manageLocations_ = new QAction(this);
     manageLocations_->setText(i18n("Manage locations"));
     connect(manageLocations_, &QAction::triggered, this, &MainWindow::openLocationManager);
-
-    manageLocationTypes_ = new QAction(this);
-    manageLocationTypes_->setText(i18n("Manage location types"));
-    connect(manageLocationTypes_, &QAction::triggered, this, &MainWindow::openLocationTypesManager);
-
-    manageSourceTypes_ = new QAction(this);
-    manageSourceTypes_->setText(i18n("Manage source types"));
-    connect(manageSourceTypes_, &QAction::triggered, this, &MainWindow::openSourceTypesManager);
 
     addNewPersonAction_ = new QAction(this);
     addNewPersonAction_->setText(i18n("Add new person"));
@@ -135,12 +110,7 @@ MainWindow::MainWindow() {
     connect(importAction_, &QAction::triggered, this, &MainWindow::importData);
 
     auto* actionCollection = KXMLGUIClient::actionCollection();
-    actionCollection->addAction(QStringLiteral("manage_name_origins"), manageNameOrigins_);
-    actionCollection->addAction(QStringLiteral("manage_event_roles"), manageEventRoles_);
-    actionCollection->addAction(QStringLiteral("manage_event_types"), manageEventTypes_);
     actionCollection->addAction(QStringLiteral("manage_locations"), manageLocations_);
-    actionCollection->addAction(QStringLiteral("manage_location_types"), manageLocationTypes_);
-    actionCollection->addAction(QStringLiteral("manage_source_types"), manageSourceTypes_);
     actionCollection->addAction(QStringLiteral("person_add_new"), addNewPersonAction_);
     actionCollection->addAction(QStringLiteral("person_delete_existing"), removePersonAction_);
     actionCollection->addAction(QStringLiteral("source_add_new"), addNewSourceAction_);
@@ -212,12 +182,7 @@ void MainWindow::clearUi() {
 
 void MainWindow::syncActions() {
     const QList fileActions = {
-        manageEventRoles_,
-        manageEventTypes_,
-        manageNameOrigins_,
         manageLocations_,
-        manageLocationTypes_,
-        manageSourceTypes_,
         addNewPersonAction_,
         addNewSourceAction_,
         showPeopleListAction_,
@@ -357,35 +322,8 @@ PersonDock* MainWindow::findDockFor(IntegerPrimaryKey personId) const {
     return nullptr;
 }
 
-void MainWindow::openNameOriginManager() const {
-    auto* window = new NameOriginsManagementWindow;
-    window->show();
-}
-
-void MainWindow::openEventRolesManager() const {
-    auto* window = new EventRolesManagementWindow;
-    window->show();
-}
-
-void MainWindow::openEventTypesManager() const {
-    auto* window = new EventTypesManagementWindow;
-    window->show();
-}
-
 void MainWindow::openLocationManager() const {
     auto* window = new LocationManagementWindow;
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
-}
-
-void MainWindow::openSourceTypesManager() const {
-    auto* window = new SourceTypesManagementWindow;
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
-}
-
-void MainWindow::openLocationTypesManager() const {
-    auto* window = new LocationTypesManagementWindow;
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
 }

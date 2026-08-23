@@ -11,14 +11,14 @@
 #include "core/data_event_broker.h"
 #include "database/schema.h"
 #include "dates/genealogical_date.h"
-#include "domain/event/person_birth_events_model.h"
-#include "domain/event/person_death_events_model.h"
 #include "domain/person/person_repository.h"
 #include "person_event_tab.h"
 #include "person_family_tab.h"
 #include "person_media_tab.h"
 #include "person_name_tab.h"
 #include "ui_person_detail_view.h"
+#include "domain/event/person_birth_events_model.h"
+#include "domain/event/person_death_events_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>

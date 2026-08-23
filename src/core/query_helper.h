@@ -8,6 +8,7 @@
 #include "data_event_broker.h"
 #include "database/schema.h"
 
+#include <QSqlDriver>
 #include <QSqlQuery>
 #include <QVariantMap>
 
@@ -103,6 +104,82 @@ template<typename EventType>
         DataEventBroker::instance().notifyChanged<EventType>(id);
     }
     return result;
+}
+
+template <typename T>
+using QueryExtractor = std::function<T(const QSqlQuery&)>;
+
+/**
+ * Execute a query and get all results.
+ *
+ * @tparam T The type of the result objects.
+ * @param sql The SQL query to execute.
+ * @param bindings Optional bindings for the query parameters.
+ *
+ * @return A list of result objects.
+ */
+template<typename T>
+[[nodiscard]] QList<T> fetchAll(const QString& sql, const QVariantMap& bindings, const QueryExtractor<T>& extractor) {
+    auto [query, result] = executeWithResult(sql, bindings);
+
+    QList<T> results;
+    if (!result) {
+        return results;
+    }
+
+    if (query.driver()->hasFeature(QSqlDriver::QuerySize)) {
+        results.reserve(query.size());
+    }
+
+    while (query.next()) {
+        results << extractor(query);
+    }
+
+    return results;
+}
+
+template<typename T>
+[[nodiscard]] QList<T> fetchAll(const QString& sql, const QVariantMap& bindings = {}) {
+    return fetchAll<T>(sql, bindings, &T::fromSql);
+}
+
+/**
+ * Execute a query and get one result.
+ *
+ * This is a strict function: if there is more than one result, we will error.
+ *
+ * @tparam T The type of the result objects.
+ * @param sql The SQL query to execute.
+ * @param bindings Optional bindings for the query parameters.
+ *
+ * @return The resulting object.
+ */
+template<typename T>
+[[nodiscard]] std::optional<T> fetchOne(const QString& sql, const QVariantMap& bindings, const QueryExtractor<T>& extractor) {
+    auto [query, result] = QueryHelper::executeWithResult(sql, bindings);
+
+    if (!result) {
+        return std::nullopt;
+    }
+
+    if (query.next()) {
+        auto value = extractor(query);
+
+        // Be strict about this, to prevent accidental errors or wrong assumptions.
+        if (query.next()) {
+            qCritical() << "More than one result returned for fetchOne query, refusing to return.";
+            return std::nullopt;
+        }
+
+        return value;
+    }
+
+    return std::nullopt;
+}
+
+template<typename T>
+[[nodiscard]] std::optional<T> fetchOne(const QString& sql, const QVariantMap& bindings = {}) {
+    return fetchOne<T>(sql, bindings, &T::fromSql);
 }
 
 }

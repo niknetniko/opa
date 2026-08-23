@@ -14,11 +14,9 @@
 LocationListModel::LocationListModel(QObject* parent) : ObjectTableModel(parent) {
     this->setColumn(ID, i18n("ID"), &LocationEntity::id);
     this->setColumn(NAME, i18n("Name"), &LocationEntity::name);
-    this->setColumn(TYPE_ID, i18n("Type"), [](const LocationEntity& e) -> QVariant {
-        return e.typeId.has_value() ? QVariant(*e.typeId) : QVariant{};
-    });
+    this->setColumn(TYPE, i18n("Type"), &LocationEntity::type);
     this->setColumn(PARENT_ID, i18n("Parent"), [](const LocationEntity& e) -> QVariant {
-        return e.parentId.has_value() ? QVariant(*e.parentId) : QVariant{};
+        return e.parentId.has_value() ? QVariant(*e.parentId) : QVariant {};
     });
 
     connectToTable<Schema::Locations>(this);

@@ -22,5 +22,5 @@ public:
 
 private:
     QString model;
-    QNetworkAccessManager network{this};
+    QNetworkAccessManager network {this};
 };

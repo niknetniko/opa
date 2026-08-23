@@ -85,17 +85,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void settingsConfigure();
 
-    void openNameOriginManager() const;
-
-    void openEventRolesManager() const;
-
-    void openEventTypesManager() const;
-
     void openLocationManager() const;
-
-    void openLocationTypesManager() const;
-
-    void openSourceTypesManager() const;
 
     bool queryClose() override;
 
@@ -121,12 +111,7 @@ private:
     Ui::Settings* m_settings = nullptr;
     QAction* m_switchAction = nullptr;
 
-    QAction* manageNameOrigins_ = nullptr;
-    QAction* manageEventRoles_ = nullptr;
-    QAction* manageEventTypes_ = nullptr;
     QAction* manageLocations_ = nullptr;
-    QAction* manageLocationTypes_ = nullptr;
-    QAction* manageSourceTypes_ = nullptr;
     KRecentFilesAction* recentFilesAction_ = nullptr;
     QAction* openNewAction_ = nullptr;
     QAction* openAction_ = nullptr;

@@ -12,7 +12,7 @@ class EventListModel : public ObjectTableModel<EventDisplayEntity> {
     Q_OBJECT
 
 public:
-    enum Columns { ID = 0, TYPE_ID, TYPE, DATE, NAME };
+    enum Columns { ID = 0, TYPE, DATE, NAME };
     Q_ENUM(Columns);
 
     explicit EventListModel(QObject* parent = nullptr);

@@ -16,7 +16,6 @@ PersonBirthEventsModel::PersonBirthEventsModel(IntegerPrimaryKey personId, QObje
     personId(personId) {
 
     this->setColumn(ID, i18n("ID"), &PersonEventEntity::id);
-    this->setColumn(ROLE_ID, i18n("Role ID"), &PersonEventEntity::roleId);
     this->setColumn(ROLE, i18n("Role"), &PersonEventEntity::role);
     this->setColumn(TYPE, i18n("Type"), &PersonEventEntity::type);
     this->setColumn(DATE, i18n("Date"), [](const PersonEventEntity& e) -> QVariant {
@@ -29,8 +28,6 @@ PersonBirthEventsModel::PersonBirthEventsModel(IntegerPrimaryKey personId, QObje
     this->setColumn(DATE_RAW, i18n("Date (raw)"), &PersonEventEntity::date);
 
     connectToTable<Schema::Events>(this);
-    connectToTable<Schema::EventTypes>(this);
-    connectToTable<Schema::EventRoles>(this);
     connectToTable<Schema::EventRelations>(this);
 
     reload();

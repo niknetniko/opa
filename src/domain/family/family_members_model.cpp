@@ -20,15 +20,15 @@
 
 namespace {
 quintptr encodeParent(int itemIndex) {
-    return static_cast<quintptr>(static_cast<quint32>(itemIndex));
+    return static_cast<quint32>(itemIndex);
 }
 
-quintptr encodeChild(int parentKey, int childItemIndex) {
+quintptr encodeChild(const int parentKey, const int childItemIndex) {
     return (static_cast<quintptr>(static_cast<quint32>(parentKey + 1)) << 32U) |
            static_cast<quintptr>(static_cast<quint32>(childItemIndex + 1));
 }
 
-bool isChildId(quintptr id) {
+bool isChildId(const quintptr id) {
     return (id >> 32U) != 0;
 }
 }
@@ -41,8 +41,6 @@ FamilyMembersModel::FamilyMembersModel(IntegerPrimaryKey personId, QObject* pare
     connectToTable<Schema::Names>(this);
     connectToTable<Schema::Families>(this);
     connectToTable<Schema::Events>(this);
-    connectToTable<Schema::EventTypes>(this);
-    connectToTable<Schema::EventRoles>(this);
     connectToTable<Schema::EventRelations>(this);
 
     reload();

@@ -9,17 +9,14 @@
 #include "domain/media/media_repository.h"
 #include "domain/source/source.h"
 #include "domain/source/source_repository.h"
-#include "domain/source/source_type_translation_repository.h"
-#include "domain/source/source_types.h"
-#include "domain/source/source_types_list_model.h"
 #include "editors/note_editor_dialog.h"
 #include "link_existing/choose_existing_source_window.h"
 #include "opaSettings.h"
 #include "ui/media/media_list_widget.h"
 #include "ui_source_editor_dialog.h"
+#include "domain/source/source_types_model.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
-#include "utils/translating_proxy_model.h"
 
 #include <KCollapsibleGroupBox>
 #include <KLocalizedString>
@@ -29,7 +26,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QVBoxLayout>
 #include <exception>
 
 SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId, QWidget* parent) :
@@ -49,19 +45,8 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
     );
 
     // Populate the type combo box from the source types lookup table.
-    sourceTypesModel = new SourceTypesListModel(this);
-    auto* typesProxy = new TranslatingProxyModel(
-        TypeTranslationResolver(
-            [](IntegerPrimaryKey typeId, const QString& locale) {
-                return SourceTypeTranslationRepository().findByTypeIdAndLocale(typeId, locale);
-            },
-            SourceTypes::toDisplayString
-        ),
-        this
-    );
-    typesProxy->setSourceModel(sourceTypesModel);
-    form->sourceTypeComboBox->setModel(typesProxy);
-    form->sourceTypeComboBox->setModelColumn(SourceTypesListModel::TYPE);
+    sourceTypesModel = new SourceTypesModel(this);
+    form->sourceTypeComboBox->setModel(sourceTypesModel);
     form->sourceTypeComboBox->setCurrentIndex(-1);
 
     // Populate the confidence combo box from the enum.
@@ -78,22 +63,8 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
             form->sourceAuthorEdit->setText(entity->author);
             form->sourcePublicationEdit->setText(entity->publication);
             form->noteEdit->setTextOrHtml(entity->note);
-
-            if (entity->typeId.has_value()) {
-                for (int i = 0; i < sourceTypesModel->rowCount(); ++i) {
-                    const auto idx = sourceTypesModel->index(i, SourceTypesListModel::ID);
-                    if (sourceTypesModel->data(idx).toLongLong() == *entity->typeId) {
-                        form->sourceTypeComboBox->setCurrentIndex(i);
-                        break;
-                    }
-                }
-            }
-
-            const auto storedValue = qToUnderlying(enumFromString<Confidence::Values>(entity->confidence));
-            const auto idx = form->sourceConfidenceCombobox->findData(storedValue);
-            if (idx >= 0) {
-                form->sourceConfidenceCombobox->setCurrentIndex(idx);
-            }
+            form->sourceTypeComboBox->setCurrentText(entity->type);
+            form->sourceConfidenceCombobox->setCurrentIndex(entity->confidence);
 
             parentId = entity->parentId;
             updateParentDisplay();
@@ -102,8 +73,6 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
             this->setWindowTitle(i18n("Editing %1", nameId));
         }
     } else {
-        const auto idx = form->sourceConfidenceCombobox->findData(qToUnderlying(Confidence::Values::Normal));
-        form->sourceConfidenceCombobox->setCurrentIndex(idx);
         this->setWindowTitle(i18n("Add new source"));
     }
 
@@ -139,27 +108,20 @@ void SourceEditorDialog::accept() {
     SourceRepository repo;
 
     auto title = form->sourcetTitleEdit->text();
-    const auto typeRow = form->sourceTypeComboBox->currentIndex();
-    const auto typeId = typeRow >= 0
-                            ? std::optional<IntegerPrimaryKey>(
-                                  sourceTypesModel->index(typeRow, SourceTypesListModel::ID).data().toLongLong()
-                              )
-                            : std::nullopt;
+    auto type = form->sourceTypeComboBox->currentText();
     auto author = form->sourceAuthorEdit->text();
     auto publication = form->sourcePublicationEdit->text();
     auto note = form->noteEdit->textOrHtml();
-
-    auto confidenceInt = form->sourceConfidenceCombobox->currentData(Qt::UserRole).toInt();
-    auto confidence = enumToString(static_cast<Confidence::Values>(confidenceInt));
+    auto confidence = form->sourceConfidenceCombobox->currentIndex();
 
     if (!sourceId.has_value()) {
-        const auto newId = repo.insert(title, typeId, author, publication, confidence, note, parentId);
+        const auto newId = repo.insert(title, type, author, publication, confidence, note, parentId);
         if (!newId) {
             qWarning() << "Could not insert new source";
             return;
         }
         sourceId = newId;
-    } else if (!repo.update(*sourceId, title, typeId, author, publication, confidence, note, parentId)) {
+    } else if (!repo.update(*sourceId, title, type, author, publication, confidence, note, parentId)) {
         qWarning() << "Could not save source" << *sourceId;
         return;
     }
@@ -217,29 +179,29 @@ void SourceEditorDialog::updateParentDisplay() const {
     }
 }
 
-const QJsonObject extractionSchema = QJsonObject{
+const QJsonObject extractionSchema = QJsonObject {
     {u"$schema"_s, u"https://json-schema.org/draft/2020-12/schema"_s},
     {u"type"_s, u"object"_s},
     {u"properties"_s,
-     QJsonObject{
-         {u"title"_s, QJsonObject{{u"type"_s, u"string"_s}}},
-         {u"type"_s, QJsonObject{{u"type"_s, u"string"_s}}},
-         {u"author"_s, QJsonObject{{u"type"_s, u"string"_s}}},
-         {u"publication"_s, QJsonObject{{u"type"_s, u"string"_s}}},
-         {u"note"_s, QJsonObject{{u"type"_s, u"string"_s}}},
+     QJsonObject {
+         {u"title"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+         {u"type"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+         {u"author"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+         {u"publication"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+         {u"note"_s, QJsonObject {{u"type"_s, u"string"_s}}},
          {u"suggested_parent"_s,
-          QJsonObject{
+          QJsonObject {
               {u"type"_s, u"string"_s},
               {u"description"_s,
                u"Name of the parent source this item belongs to (e.g. newspaper name, book series, archive)"_s}
           }},
          {u"message"_s,
-          QJsonObject{
+          QJsonObject {
               {u"type"_s, u"string"_s},
               {u"description"_s, u"Optional note about ambiguous or missing fields"_s}
           }},
      }},
-    {u"required"_s, QJsonArray{u"title"_s, u"type"_s, u"confidence"_s}},
+    {u"required"_s, QJsonArray {u"title"_s, u"type"_s, u"confidence"_s}},
 };
 
 void SourceEditorDialog::onExtractClicked() {
@@ -284,13 +246,7 @@ void SourceEditorDialog::onAiResponse(const QString& response) {
     setOrSuggest(u"publication"_s, form->sourcePublicationEdit);
 
     if (const auto t = obj[u"type"_s].toString(); !t.isEmpty()) {
-        for (int i = 0; i < sourceTypesModel->rowCount(); ++i) {
-            const auto typeIdx = sourceTypesModel->index(i, SourceTypesListModel::TYPE);
-            if (sourceTypesModel->data(typeIdx).toString().compare(t, Qt::CaseInsensitive) == 0) {
-                form->sourceTypeComboBox->setCurrentIndex(i);
-                break;
-            }
-        }
+        form->sourceTypeComboBox->setCurrentText(t);
     }
 
     if (const auto n = obj[u"note"_s].toString(); !n.isEmpty()) {

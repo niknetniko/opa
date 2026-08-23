@@ -109,7 +109,7 @@ GenealogicalDateEditorDialog::~GenealogicalDateEditorDialog() {
 }
 
 GenealogicalDate GenealogicalDateEditorDialog::editDate(const GenealogicalDate& existingDate, QWidget* parent) {
-    GenealogicalDateEditorDialog editWindow{existingDate, parent};
+    GenealogicalDateEditorDialog editWindow {existingDate, parent};
     editWindow.exec();
     return editWindow.date;
 }
@@ -142,7 +142,7 @@ void GenealogicalDateEditorDialog::updateDateFromForms() {
     ui->timeEdit->setVisible(hasDay);
     ui->hasTimeCheck->setEnabled(hasDay);
 
-    const QDate proleptic{
+    const QDate proleptic {
         ui->yearSpinBox->value(),
         hasMonth ? ui->monthSpinBox->value() : 1,
         (hasDay && hasMonth) ? ui->daySpinBox->value() : 1
@@ -158,7 +158,7 @@ void GenealogicalDateEditorDialog::updateDateFromForms() {
         ui->timeEdit2->setVisible(hasDay2);
         ui->hasTime2Check->setEnabled(hasDay2);
 
-        const QDate proleptic2{
+        const QDate proleptic2 {
             ui->yearSpinBox2->value(),
             hasMonth2 ? ui->monthSpinBox2->value() : 1,
             (hasDay2 && hasMonth2) ? ui->daySpinBox2->value() : 1
@@ -189,12 +189,12 @@ void GenealogicalDateEditorDialog::updateDateFromForms() {
                 hasDay2 && hasMonth2
             );
         }
-        this->date.setStartTime(hasTime ? ui->timeEdit->time() : QTime{});
-        this->date.setEndTime(hasTime2 ? ui->timeEdit2->time() : QTime{});
+        this->date.setStartTime(hasTime ? ui->timeEdit->time() : QTime {});
+        this->date.setEndTime(hasTime2 ? ui->timeEdit2->time() : QTime {});
     } else {
         const auto modifier = ui->modifierInput->currentData().value<GenealogicalDate::Modifier>();
         this->date = {modifier, quality, proleptic, true, hasMonth, hasDay && hasMonth, QStringLiteral()};
-        this->date.setStartTime(hasTime ? ui->timeEdit->time() : QTime{});
+        this->date.setStartTime(hasTime ? ui->timeEdit->time() : QTime {});
     }
 }
 

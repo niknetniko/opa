@@ -9,8 +9,6 @@
 #include "../domain/person/person_sex.h"
 #include "database/database.h"
 #include "domain/event/event_repository.h"
-#include "domain/event/parent_event_roles_list_model.h"
-#include "domain/event/person_birth_events_model.h"
 #include "domain/family/family_repository.h"
 #include "domain/person/person_detail_model.h"
 #include "link_existing/choose_existing_person_window.h"
@@ -28,22 +26,17 @@ struct BirthEventDetails {
     bool isNew;
 };
 
-BirthEventDetails getOrCreateBirthEvent(QObject* parent, IntegerPrimaryKey personId) {
-    auto* birthEventModel = new PersonBirthEventsModel(personId, parent);
-    if (birthEventModel->rowCount() == 0) {
-        EventRepository repo;
-        const auto primaryRoleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-        const auto birthTypeId = repo.findEventTypeIdByName(QStringLiteral("Birth"));
-        if (!primaryRoleId || !birthTypeId) {
-            qWarning() << "Could not find Primary role or Birth event type";
-            return {};
-        }
-        const auto newEventId = repo.insertEventWithRelation(*birthTypeId, personId, *primaryRoleId);
-        return {.eventId = newEventId ? QVariant(*newEventId) : QVariant{}, .isNew = true};
-    } else {
-        QVariant birthEventId = birthEventModel->index(0, PersonBirthEventsModel::ID).data();
-        return {.eventId = birthEventId, .isNew = false};
+BirthEventDetails getOrCreateBirthEvent(IntegerPrimaryKey personId) {
+    EventRepository repo;
+    const auto birthEvents = repo.findBirthEventsForPerson(personId);
+
+    if (birthEvents.count() == 0) {
+        const auto newEventId = repo.insertEventWithRelation(QStringLiteral("Birth"), personId, QStringLiteral("Primary"));
+        return {.eventId = newEventId ? QVariant(*newEventId) : QVariant {}, .isNew = true};
     }
+
+    IntegerPrimaryKey birthEventId = birthEvents.at(0).id;
+    return {.eventId = birthEventId, .isNew = false};
 }
 }
 
@@ -54,7 +47,7 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
 
     data.childId = personId;
 
-    auto [birthEventId, hasNewBirthEvent] = getOrCreateBirthEvent(parent, personId);
+    auto [birthEventId, hasNewBirthEvent] = getOrCreateBirthEvent(personId);
     data.hasNewBirthEvent = hasNewBirthEvent;
     Q_ASSERT(birthEventId.isValid());
     data.birthEventId = birthEventId;
@@ -64,7 +57,8 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
     connect(form->motherNewPerson, &QPushButton::clicked, this, &NewFamilyEditorDialog::onSelectNewMother);
     connect(form->fatherNewPerson, &QPushButton::clicked, this, &NewFamilyEditorDialog::onSelectNewFather);
 
-    auto* parentRolesModel = new ParentEventRolesListModel(this);
+    // TODO: populate
+    auto* parentRolesModel = new QStringListModel(this);
 
     form->motherRelation->setEnabled(false);
     motherIdMapper = new QDataWidgetMapper(this);
@@ -75,9 +69,6 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
     // TODO: Support translatable enums in the QComboxBox.
     // Issue URL: https://github.com/niknetniko/opa/issues/59
     form->motherRelation->setModel(parentRolesModel);
-    // TODO: intelligently select a default role.
-    // Issue URL: https://github.com/niknetniko/opa/issues/58
-    form->motherRelation->setModelColumn(ParentEventRolesListModel::ROLE);
 
     form->fatherRelation->setEnabled(false);
     fatherIdMapper = new QDataWidgetMapper(this);
@@ -86,13 +77,12 @@ NewFamilyEditorDialog::NewFamilyEditorDialog(IntegerPrimaryKey personId, QWidget
     fatherRelationMapper = new QDataWidgetMapper(this);
 
     form->fatherRelation->setModel(parentRolesModel);
-    form->fatherRelation->setModelColumn(ParentEventRolesListModel::ROLE);
 
     parentRelationMapper = new QDataWidgetMapper(this);
     form->parentRelationRole->setEnabled(false);
-    auto* relationshipEventTypes = new RelationshipEventTypesListModel(this);
+    // TODO: populate
+    auto* relationshipEventTypes = new QStringListModel(this);
     form->parentRelationRole->setModel(relationshipEventTypes);
-    form->parentRelationRole->setModelColumn(RelationshipEventTypesListModel::TYPE);
 
     this->setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -121,9 +111,9 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
     if (chosenMotherId.isValid() && chosenFatherId.isValid()) {
         auto selectedTypeRow = form->parentRelationRole->currentIndex();
         auto chosenTypeId = form->parentRelationRole->model()
-                                ->index(selectedTypeRow, RelationshipEventTypesListModel::ID)
+                                ->index(selectedTypeRow, 0)
                                 .data()
-                                .toLongLong();
+                                .toString();
 
         auto eventId = repo.insertEvent(chosenTypeId);
         if (!eventId.has_value()) {
@@ -131,16 +121,12 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
             return false;
         }
 
-        auto primaryId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-        if (!primaryId.has_value() ||
-            !repo.insertEventRelation(*eventId, chosenMotherId.toLongLong(), *primaryId).has_value()) {
+        if (!repo.insertEventRelation(*eventId, chosenMotherId.toLongLong(), QStringLiteral("Primary")).has_value()) {
             qWarning() << "Could not insert mother to relationship event";
             return false;
         }
 
-        auto partnerId = repo.findEventRoleIdByName(QStringLiteral("Partner"));
-        if (!partnerId.has_value() ||
-            !repo.insertEventRelation(*eventId, chosenFatherId.toLongLong(), *partnerId).has_value()) {
+        if (!repo.insertEventRelation(*eventId, chosenFatherId.toLongLong(), QStringLiteral("Partner")).has_value()) {
             qWarning() << "Could not insert father to relationship event";
             return false;
         }
@@ -153,9 +139,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     // Now, link the parents to the child.
     if (chosenMotherId.isValid()) {
-        auto motherRole = repo.findEventRoleIdByName(QStringLiteral("Mother"));
-        if (!motherRole.has_value() ||
-            !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), *motherRole)
+        if (!repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), QStringLiteral("Mother"))
                  .has_value()) {
             qWarning() << "Could not insert mother to birth event relationship";
             return false;
@@ -163,9 +147,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
     }
 
     if (chosenFatherId.isValid()) {
-        auto fatherRole = repo.findEventRoleIdByName(QStringLiteral("Father"));
-        if (!fatherRole.has_value() ||
-            !repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), *fatherRole)
+        if (!repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), QStringLiteral("Father"))
                  .has_value()) {
             qWarning() << "Could not insert father to birth event relationship";
             return false;
@@ -265,10 +247,11 @@ void NewFamilyEditorDialog::setMother(const QVariant& motherId) {
     motherNameMapper->addMapping(form->motherName, PersonDetailModel::DISPLAY_NAME, "text");
     motherNameMapper->toFirst();
 
-    auto* birthEvent = new PersonBirthEventsModel(motherId.toLongLong(), this);
-    motherBirthMapper->setModel(birthEvent);
-    motherBirthMapper->addMapping(form->motherBirth, PersonBirthEventsModel::DATE, "text");
-    motherBirthMapper->toFirst();
+    // TODO: replace by just querying
+    // auto* birthEvent = new PersonBirthEventsModel(motherId.toLongLong(), this);
+    // motherBirthMapper->setModel(birthEvent);
+    // motherBirthMapper->addMapping(form->motherBirth, PersonBirthEventsModel::DATE, "text");
+    // motherBirthMapper->toFirst();
 
     setParentRelationIfPossible();
 }
@@ -290,10 +273,11 @@ void NewFamilyEditorDialog::setFather(const QVariant& fatherId) {
     fatherNameMapper->addMapping(form->fatherName, PersonDetailModel::DISPLAY_NAME, "text");
     fatherNameMapper->toFirst();
 
-    auto* birthEvent = new PersonBirthEventsModel(fatherId.toLongLong(), this);
-    fatherBirthMapper->setModel(birthEvent);
-    fatherBirthMapper->addMapping(form->fatherBirth, PersonBirthEventsModel::DATE, "text");
-    fatherBirthMapper->toFirst();
+    // TODO: replace by just querying
+    // auto* birthEvent = new PersonBirthEventsModel(fatherId.toLongLong(), this);
+    // fatherBirthMapper->setModel(birthEvent);
+    // fatherBirthMapper->addMapping(form->fatherBirth, PersonBirthEventsModel::DATE, "text");
+    // fatherBirthMapper->toFirst();
 
     setParentRelationIfPossible();
 }

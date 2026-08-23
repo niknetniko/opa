@@ -13,13 +13,11 @@
 
 EventListModel::EventListModel(QObject* parent) : ObjectTableModel(parent) {
     this->setColumn(ID, i18n("ID"), &EventDisplayEntity::id);
-    this->setColumn(TYPE_ID, i18n("Type ID"), &EventDisplayEntity::typeId);
     this->setColumn(TYPE, i18n("Type"), &EventDisplayEntity::type);
     this->setColumn(DATE, i18n("Date"), &EventDisplayEntity::date);
     this->setColumn(NAME, i18n("Name"), &EventDisplayEntity::name);
 
     connectToTable<Schema::Events>(this);
-    connectToTable<Schema::EventTypes>(this);
 
     reload();
 }

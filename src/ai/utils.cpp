@@ -33,7 +33,7 @@ QFuture<QString> readFromKeychainLax(const QString& service, const QString& key,
 
     QObject::connect(job, &QKeychain::ReadPasswordJob::finished, [job, promise = std::move(promise)]() mutable {
         if (job->error() != QKeychain::NoError) {
-            promise.addResult(QString{});
+            promise.addResult(QString {});
         } else {
             promise.addResult(job->textData());
         }

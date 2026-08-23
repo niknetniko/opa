@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include "../../domain/name/name_origins_model.h"
 #include "../../editors/editor_dialog.h"
 #include "database/schema.h"
 
@@ -43,5 +42,4 @@ protected:
 private:
     Ui::NameEditorForm* form;
     IntegerPrimaryKey nameId;
-    NameOriginsModel* originsModel = nullptr;
 };

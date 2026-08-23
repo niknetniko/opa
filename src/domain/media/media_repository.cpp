@@ -33,8 +33,8 @@ std::optional<IntegerPrimaryKey> MediaRepository::insert(
         sql,
         {
             {u":path"_s, path},
-            {u":title"_s, title ? QVariant(*title) : QVariant{}},
-            {u":note"_s, note ? QVariant(*note) : QVariant{}},
+            {u":title"_s, title ? QVariant(*title) : QVariant {}},
+            {u":note"_s, note ? QVariant(*note) : QVariant {}},
             {u":mime_type"_s, mimeType},
         }
     );
@@ -52,8 +52,8 @@ bool MediaRepository::update(
     return QueryHelper::executeAndNotify<Schema::Media>(
         id,
         u"UPDATE media SET title = :title, note = :note WHERE id = :id"_s,
-        {{u":title"_s, title ? QVariant(*title) : QVariant{}},
-         {u":note"_s, note ? QVariant(*note) : QVariant{}},
+        {{u":title"_s, title ? QVariant(*title) : QVariant {}},
+         {u":note"_s, note ? QVariant(*note) : QVariant {}},
          {u":id"_s, id}}
     );
 }

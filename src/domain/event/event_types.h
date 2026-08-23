@@ -16,7 +16,7 @@ enum class Values { Birth, Death, Marriage, Divorce, Baptism, Funeral };
 
 Q_ENUM_NS(Values);
 
-const QHash<Values, KLazyLocalizedString> typeToString{
+const QHash<Values, KLazyLocalizedString> typeToString {
     {Values::Birth, kli18n("Birth")},
     {Values::Death, kli18n("Death")},
     {Values::Marriage, kli18n("Marriage")},

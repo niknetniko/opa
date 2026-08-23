@@ -101,7 +101,7 @@ public:
     static constexpr int CONFIDENCE = 4;
     static constexpr int NOTE = 5;
     static constexpr int PARENT_ID = 6;
-    static constexpr int TYPE_ID = 7;
+    static constexpr int TYPE = 7;
 
     explicit SourcesTableModel(QObject* parent = nullptr);
 };

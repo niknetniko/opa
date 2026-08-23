@@ -41,7 +41,7 @@ std::optional<PersonEntity> PersonRepository::findById(IntegerPrimaryKey id) con
 }
 
 QList<PersonDisplayEntity> PersonRepository::findPeopleWithPrimaryName(const PersonCriteria& criteria) const {
-    QueryHelper::SqlQueryBuilder builder{PRIMARY_NAME_JOIN};
+    QueryHelper::SqlQueryBuilder builder {PRIMARY_NAME_JOIN};
 
     if (criteria.rootOnly.has_value() && *criteria.rootOnly) {
         builder.where(u"p.root = 1"_s);

@@ -15,9 +15,9 @@
 
 using namespace Qt::Literals::StringLiterals;
 
-static constexpr QLatin1StringView DATE_FORMAT_FULL{"yyyy-MM-dd"};
-static constexpr QLatin1StringView DATE_FORMAT_YEAR_MONTH{"yyyy-MM"};
-static constexpr QLatin1StringView TIME_FORMAT{"HH:mm"};
+static constexpr QLatin1StringView DATE_FORMAT_FULL {"yyyy-MM-dd"};
+static constexpr QLatin1StringView DATE_FORMAT_YEAR_MONTH {"yyyy-MM"};
+static constexpr QLatin1StringView TIME_FORMAT {"HH:mm"};
 
 static QString formatDateIso(const GenealogicalDate::DatePoint& p) {
     QString result;
@@ -60,7 +60,7 @@ GenealogicalDate::GenealogicalDate(
 ) :
     dateModifier(modifier),
     dateQuality(quality),
-    start{.proleptic = proleptic, .year = hasYear, .month = hasMonth, .day = hasDay},
+    start {.proleptic = proleptic, .year = hasYear, .month = hasMonth, .day = hasDay},
     userText(std::move(text)) {
 }
 
@@ -221,21 +221,21 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     const auto [startWallTime, startHasTime] = parseTime(result[u"time"_s].toString());
     const auto [endWallTime, endHasTime] = parseTime(result[u"endTime"_s].toString());
 
-    DatePoint startPoint{
-        .proleptic=QDate::fromJulianDay(result[u"proleptic"_s].toInteger()),
-        .wallTime=startWallTime,
-        .year=result[u"year"_s].toBool(),
-        .month=result[u"month"_s].toBool(),
-        .day=result[u"day"_s].toBool(),
-        .hasTime=startHasTime,
+    DatePoint startPoint {
+        .proleptic = QDate::fromJulianDay(result[u"proleptic"_s].toInteger()),
+        .wallTime = startWallTime,
+        .year = result[u"year"_s].toBool(),
+        .month = result[u"month"_s].toBool(),
+        .day = result[u"day"_s].toBool(),
+        .hasTime = startHasTime,
     };
-    DatePoint endPoint{
-        .proleptic=QDate::fromJulianDay(result[u"endProleptic"_s].toInteger()),
-        .wallTime=endWallTime,
-        .year=result[u"endYear"_s].toBool(),
-        .month=result[u"endMonth"_s].toBool(),
-        .day=result[u"endDay"_s].toBool(),
-        .hasTime=endHasTime,
+    DatePoint endPoint {
+        .proleptic = QDate::fromJulianDay(result[u"endProleptic"_s].toInteger()),
+        .wallTime = endWallTime,
+        .year = result[u"endYear"_s].toBool(),
+        .month = result[u"endMonth"_s].toBool(),
+        .day = result[u"endDay"_s].toBool(),
+        .hasTime = endHasTime,
     };
     const auto userText = result[u"userText"_s].toString();
 
@@ -279,7 +279,7 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     }
 
     GenealogicalDate
-        d{modifier, quality, startPoint.proleptic, startPoint.year, startPoint.month, startPoint.day, userText};
+        d {modifier, quality, startPoint.proleptic, startPoint.year, startPoint.month, startPoint.day, userText};
     d.start.wallTime = startPoint.wallTime;
     d.start.hasTime = startPoint.hasTime;
     return d;
@@ -354,18 +354,25 @@ static GenealogicalDate::DatePoint parsePartialDate(const QString& text) {
     // Full date
     auto date = QDate::fromString(datePart, DATE_FORMAT_FULL);
     if (date.isValid()) {
-        return {.proleptic=date, .wallTime=wallTime, .year=true, .month=true, .day=true, .hasTime=hasTime};
+        return {.proleptic = date, .wallTime = wallTime, .year = true, .month = true, .day = true, .hasTime = hasTime};
     }
     // Year+month (time ignored for partial dates without a day)
     date = QDate::fromString(datePart + u"-01"_s, DATE_FORMAT_FULL);
     if (date.isValid()) {
-        return {.proleptic=date, .wallTime={}, .year=true, .month=true, .day=false, .hasTime=false};
+        return {.proleptic = date, .wallTime = {}, .year = true, .month = true, .day = false, .hasTime = false};
     }
     // Year-only
     bool ok = false;
     const int yearVal = datePart.toInt(&ok);
     if (ok && yearVal != 0) {
-        return {.proleptic=QDate(yearVal, 1, 1), .wallTime={}, .year=true, .month=false, .day=false, .hasTime=false};
+        return {
+            .proleptic = QDate(yearVal, 1, 1),
+            .wallTime = {},
+            .year = true,
+            .month = false,
+            .day = false,
+            .hasTime = false
+        };
     }
     return {};
 }
@@ -457,7 +464,7 @@ GenealogicalDate GenealogicalDate::fromDisplayText(const QString& text) {
         return {};
     }
 
-    GenealogicalDate d{modifier, quality, p.proleptic, p.year, p.month, p.day, QStringLiteral()};
+    GenealogicalDate d {modifier, quality, p.proleptic, p.year, p.month, p.day, QStringLiteral()};
     d.start.wallTime = p.wallTime;
     d.start.hasTime = p.hasTime;
     return d;

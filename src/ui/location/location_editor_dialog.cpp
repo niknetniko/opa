@@ -3,19 +3,17 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "location_editor_dialog.h"
+#include "./location_editor_dialog.h"
 
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_editor_dialog.h"
 #include "domain/location/location_repository.h"
-#include "domain/location/location_type_translation_repository.h"
 #include "domain/location/location_types.h"
-#include "domain/location/location_types_list_model.h"
 #include "link_existing/choose_existing_location_window.h"
-#include "note_editor_dialog.h"
+#include "../../editors/note_editor_dialog.h"
 #include "ui_location_editor_dialog.h"
+#include "domain/location/location_types_model.h"
 #include "utils/formatted_identifier_delegate.h"
-#include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 
@@ -42,19 +40,8 @@ LocationEditorDialog::LocationEditorDialog(
     connect(form->dateStartEditButton, &QPushButton::clicked, this, &LocationEditorDialog::editDateStartWithEditor);
     connect(form->dateEndEditButton, &QPushButton::clicked, this, &LocationEditorDialog::editDateEndWithEditor);
 
-    auto* typesModel = new LocationTypesListModel(this);
-    auto* typesProxy = new TranslatingProxyModel(
-        TypeTranslationResolver(
-            [](IntegerPrimaryKey typeId, const QString& locale) {
-                return LocationTypeTranslationRepository().findByTypeIdAndLocale(typeId, locale);
-            },
-            LocationTypes::toDisplayString
-        ),
-        this
-    );
-    typesProxy->setSourceModel(typesModel);
-    form->typeComboBox->setModel(typesProxy);
-    form->typeComboBox->setModelColumn(LocationTypesListModel::TYPE);
+    auto* typesModel = new LocationTypesModel(this);
+    form->typeComboBox->setModel(typesModel);
     // Start with no type selected (nullable)
     form->typeComboBox->setCurrentIndex(-1);
 
@@ -67,18 +54,7 @@ LocationEditorDialog::LocationEditorDialog(
         if (const auto entity = repo.findById(*locationId)) {
             form->nameEdit->setText(entity->name);
             form->noteEdit->setTextOrHtml(entity->note);
-
-            if (entity->typeId.has_value()) {
-                // Find the row in the model for this type id
-                const auto* model = typesModel;
-                for (int i = 0; i < model->rowCount(); ++i) {
-                    const auto idx = model->index(i, LocationTypesListModel::ID);
-                    if (model->data(idx).toLongLong() == *entity->typeId) {
-                        form->typeComboBox->setCurrentIndex(i);
-                        break;
-                    }
-                }
-            }
+            form->typeComboBox->setCurrentText(entity->type);
 
             if (entity->coordinates.has_value()) {
                 form->latitudeSpinBox->setValue(entity->coordinates->latitude);
@@ -111,49 +87,45 @@ LocationEditorDialog::~LocationEditorDialog() = default;
 void LocationEditorDialog::accept() {
     LocationRepository repo;
 
-    const auto name = form->nameEdit->text();
+    auto name = form->nameEdit->text();
     if (name.isEmpty()) {
         return;
     }
-
-    const auto note = form->noteEdit->textOrHtml();
-
-    const auto typeIdx = form->typeComboBox->currentIndex();
-    std::optional<IntegerPrimaryKey> typeId;
-    if (typeIdx >= 0) {
-        const auto idIdx = form->typeComboBox->model()->index(typeIdx, LocationTypesListModel::ID);
-        typeId = form->typeComboBox->model()->data(idIdx).toLongLong();
+    auto type = form->typeComboBox->currentText();
+    if (type.isEmpty()) {
+        return;
     }
+    auto note = form->noteEdit->textOrHtml();
 
     std::optional<Coordinates> coordinates;
-    const auto lat = form->latitudeSpinBox->value();
-    const auto lon = form->longitudeSpinBox->value();
+    auto lat = form->latitudeSpinBox->value();
+    auto lon = form->longitudeSpinBox->value();
     if (lat != LATITUDE_NOT_SET && lon != LONGITUDE_NOT_SET) {
-        coordinates = Coordinates{.latitude=lat, .longitude=lon};
+        coordinates = Coordinates{.latitude = lat, .longitude = lon};
     }
 
-    const auto dateStartText = form->dateStartEdit->text();
-    const auto dateStart = dateStartText.isEmpty()
-                               ? QString{}
-                               : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
+    auto dateStartText = form->dateStartEdit->text();
+    auto dateStart = dateStartText.isEmpty()
+                         ? QString{}
+                         : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
 
-    const auto dateEndText = form->dateEndEdit->text();
-    const auto dateEnd = dateEndText.isEmpty()
-                             ? QString{}
-                             : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
+    auto dateEndText = form->dateEndEdit->text();
+    auto dateEnd = dateEndText.isEmpty()
+                       ? QString{}
+                       : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
 
     if (!locationId.has_value()) {
-        const auto newId = repo.insert(name, typeId, parentId);
+        auto newId = repo.insert(name, type, parentId);
         if (!newId) {
             qWarning() << "Could not insert new location";
             return;
         }
         locationId = newId;
-        if (!repo.update(*locationId, name, typeId, parentId, note, coordinates, dateStart, dateEnd)) {
+        if (!repo.update(*locationId, name, type, parentId, note, coordinates, dateStart, dateEnd)) {
             qWarning() << "Could not update newly inserted location" << *locationId;
             return;
         }
-    } else if (!repo.update(*locationId, name, typeId, parentId, note, coordinates, dateStart, dateEnd)) {
+    } else if (!repo.update(*locationId, name, type, parentId, note, coordinates, dateStart, dateEnd)) {
         qWarning() << "Could not save location" << *locationId;
         return;
     }
@@ -183,16 +155,14 @@ void LocationEditorDialog::editNoteWithEditor() {
 }
 
 void LocationEditorDialog::addNewLocationAsParent() {
-    auto newId = showDialogForNewLocation(std::nullopt, this);
-    if (newId.isValid()) {
+    if (auto newId = showDialogForNewLocation(std::nullopt, this); newId.isValid()) {
         parentId = newId.toLongLong();
         updateParentDisplay();
     }
 }
 
 void LocationEditorDialog::selectExistingLocationAsParent() {
-    auto selected = ChooseExistingLocationWindow::selectLocation(this);
-    if (selected.isValid()) {
+    if (auto selected = ChooseExistingLocationWindow::selectLocation(this); selected.isValid()) {
         parentId = selected.toLongLong();
         updateParentDisplay();
     }

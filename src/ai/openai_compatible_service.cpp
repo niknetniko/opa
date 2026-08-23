@@ -51,22 +51,22 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
     QJsonObject body;
     body[u"model"_s] = model;
     if (!schema.isEmpty()) {
-        body[u"response_format"_s] = QJsonObject{
+        body[u"response_format"_s] = QJsonObject {
             {u"type"_s, u"json_schema"_s},
             {u"json_schema"_s,
-             QJsonObject{
+             QJsonObject {
                  {u"name"_s, u"extract_source"_s},
                  {u"strict"_s, true},
                  {u"schema"_s, schema},
              }},
         };
     }
-    body[u"messages"_s] = QJsonArray{
-        QJsonObject{
+    body[u"messages"_s] = QJsonArray {
+        QJsonObject {
             {u"role"_s, u"system"_s},
             {u"content"_s, systemPrompt},
         },
-        QJsonObject{
+        QJsonObject {
             {u"role"_s, u"user"_s},
             {u"content"_s, userMessage},
         },

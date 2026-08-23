@@ -11,7 +11,7 @@
 class LocationListModel : public ObjectTableModel<LocationEntity> {
     Q_OBJECT
 public:
-    enum Columns { ID = 0, NAME, TYPE_ID, PARENT_ID };
+    enum Columns { ID = 0, NAME, TYPE, PARENT_ID };
     Q_ENUM(Columns);
 
     explicit LocationListModel(QObject* parent = nullptr);

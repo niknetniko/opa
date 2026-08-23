@@ -207,7 +207,7 @@ void WelcomeView::onRecentItemsContextMenuRequested(const QPoint& pos) {
 }
 
 void WelcomeView::updateButtons() const {
-    const QList buttons{buttonNewFile, buttonOpenFile};
+    const QList buttons {buttonNewFile, buttonOpenFile};
     const int maxWidth =
         std::accumulate(buttons.cbegin(), buttons.cend(), 0, [](int maxWidth_, const QPushButton* button) {
             return std::max(maxWidth_, button->sizeHint().width());

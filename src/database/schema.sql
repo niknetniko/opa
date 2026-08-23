@@ -5,16 +5,10 @@ CREATE TABLE people (
 );
 
 CREATE TABLE person_external_ids (
-    person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
-    type TEXT NOT NULL,
-    external_id TEXT NOT NULL,
-    PRIMARY KEY (person_id, external_id)
-);
-
-CREATE TABLE name_origins (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  origin TEXT,
-  builtin BOOLEAN NOT NULL DEFAULT FALSE
+  person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  PRIMARY KEY (person_id, external_id)
 );
 
 CREATE TABLE names (
@@ -26,31 +20,13 @@ CREATE TABLE names (
   prefix TEXT,
   surname TEXT,
   note TEXT,
-  origin_id INTEGER NULL DEFAULT NULL REFERENCES name_origins (id) ON DELETE SET DEFAULT
-);
-
-CREATE TABLE event_types (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type TEXT,
-  builtin BOOLEAN NOT NULL DEFAULT FALSE
-);
-
-CREATE TABLE event_roles (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  role TEXT,
-  builtin BOOLEAN NOT NULL DEFAULT FALSE
-);
-
-CREATE TABLE location_types (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type TEXT NOT NULL,
-  builtin BOOLEAN NOT NULL DEFAULT FALSE
+  origin TEXT NULL DEFAULT NULL
 );
 
 CREATE TABLE locations (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  type_id INTEGER NULL REFERENCES location_types (id) ON DELETE SET NULL,
+  type TEXT NOT NULL,
   parent_id INTEGER NULL REFERENCES locations (id) ON DELETE SET NULL,
   note TEXT,
   latitude REAL,
@@ -62,10 +38,10 @@ CREATE TABLE locations (
 );
 
 CREATE TABLE location_external_ids (
-    location_id INTEGER NOT NULL REFERENCES locations (id) ON DELETE CASCADE,
-    type TEXT NOT NULL,
-    external_id TEXT NOT NULL,
-    PRIMARY KEY (location_id, external_id)
+  location_id INTEGER NOT NULL REFERENCES locations (id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  PRIMARY KEY (location_id, external_id)
 );
 
 CREATE TABLE families (
@@ -74,15 +50,15 @@ CREATE TABLE families (
 );
 
 CREATE TABLE family_external_ids (
-    family_id INTEGER NOT NULL REFERENCES families (id) ON DELETE CASCADE,
-    type TEXT NOT NULL,
-    external_id TEXT NOT NULL,
-    PRIMARY KEY (family_id, external_id)
+  family_id INTEGER NOT NULL REFERENCES families (id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  PRIMARY KEY (family_id, external_id)
 );
 
 CREATE TABLE events (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE RESTRICT,
+  type TEXT NOT NULL,
   date TEXT,
   date_sort INTEGER,
   name TEXT,
@@ -92,37 +68,36 @@ CREATE TABLE events (
 );
 
 CREATE TABLE event_external_ids (
-    event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
-    type TEXT NOT NULL,
-    external_id TEXT NOT NULL,
-    PRIMARY KEY (event_id, external_id)
+  event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  PRIMARY KEY (event_id, external_id)
 );
 
 CREATE TABLE event_relations (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   event_id INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
   person_id INTEGER NOT NULL REFERENCES people (id) ON DELETE CASCADE,
-  role_id INTEGER NOT NULL REFERENCES event_roles (id) ON DELETE RESTRICT,
-  UNIQUE (event_id, person_id, role_id)
+  role TEXT NOT NULL,
+  UNIQUE (event_id, person_id, role)
 );
 
 CREATE TABLE sources (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  title TEXT,
-  type TEXT,
+  title TEXT NOT NULL,
+  type TEXT NOT NULL,
   author TEXT,
   publication TEXT,
-  -- 1 (min) -> 5 (max)
   confidence INTEGER DEFAULT 3,
   note TEXT,
   parent_id INTEGER REFERENCES sources (id) ON DELETE SET NULL
 );
 
 CREATE TABLE source_external_ids (
-    source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-    type TEXT NOT NULL,
-    external_id TEXT NOT NULL,
-    PRIMARY KEY (source_id, external_id)
+  source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  PRIMARY KEY (source_id, external_id)
 );
 
 CREATE TABLE event_citations (
@@ -149,38 +124,6 @@ CREATE TABLE person_citations (
   PRIMARY KEY (person_id, source_id)
 );
 
-CREATE TABLE event_role_translations (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  role_id INTEGER NOT NULL REFERENCES event_roles (id) ON DELETE CASCADE,
-  locale TEXT NOT NULL,
-  name TEXT NOT NULL,
-  UNIQUE (role_id, locale)
-);
-
-CREATE TABLE name_origin_translations (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  origin_id INTEGER NOT NULL REFERENCES name_origins (id) ON DELETE CASCADE,
-  locale TEXT NOT NULL,
-  name TEXT NOT NULL,
-  UNIQUE (origin_id, locale)
-);
-
-CREATE TABLE event_type_translations (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type_id INTEGER NOT NULL REFERENCES event_types (id) ON DELETE CASCADE,
-  locale TEXT NOT NULL,
-  name TEXT NOT NULL,
-  UNIQUE (type_id, locale)
-);
-
-CREATE TABLE location_type_translations (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  type_id INTEGER NOT NULL REFERENCES location_types (id) ON DELETE CASCADE,
-  locale TEXT NOT NULL,
-  name TEXT NOT NULL,
-  UNIQUE (type_id, locale)
-);
-
 CREATE TABLE media (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   path TEXT NOT NULL,
@@ -190,10 +133,10 @@ CREATE TABLE media (
 );
 
 CREATE TABLE media_external_ids (
-     media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
-     type TEXT NOT NULL,
-     external_id TEXT NOT NULL,
-     PRIMARY KEY (media_id, external_id)
+  media_id INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  PRIMARY KEY (media_id, external_id)
 );
 
 CREATE TABLE person_media (

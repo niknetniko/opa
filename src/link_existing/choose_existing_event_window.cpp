@@ -22,13 +22,13 @@
 #include <QTableView>
 
 bool ExistingEventSelection::isValid() const {
-    return eventId.isValid() && roleId.isValid();
+    return eventId.isValid() && !role.isEmpty();
 }
 
 QDebug operator<<(QDebug dbg, const ExistingEventSelection& selection) {
     const QDebugStateSaver saver(dbg);
     dbg.resetFormat();
-    dbg << "ExistingEventSelection{ .eventId=" << selection.eventId << ", .roleId=" << selection.roleId << "}";
+    dbg << "ExistingEventSelection{ .eventId=" << selection.eventId << ", .role=" << selection.role << "}";
     return dbg;
 }
 
@@ -36,14 +36,11 @@ ExistingEventSelection ChooseExistingEventWindow::selectEventAndRole(QWidget* pa
     ChooseExistingEventWindow dialog(parent);
     dialog.exec();
 
-    return {.eventId = dialog.selected, .roleId = dialog.selectedRole};
+    return {.eventId = dialog.selected, .role = dialog.selectedRole.toString()};
 }
 
 void ChooseExistingEventWindow::accept() {
-    if (eventRoleComboBox->currentIndex() != -1) {
-        selectedRole =
-            eventRoleComboBox->model()->index(eventRoleComboBox->currentIndex(), EventRolesListModel::ID).data();
-    }
+    selectedRole = eventRoleComboBox->currentText();
     ChooseExistingReferenceWindow::accept();
 }
 
@@ -85,23 +82,10 @@ ChooseExistingEventWindow::ChooseExistingEventWindow(QWidget* parent) :
     eventRoleLabel->setText(i18n("Role"));
     formLayout->setWidget(0, QFormLayout::LabelRole, eventRoleLabel);
 
-    auto* comboBoxModel = new EventRolesListModel(this);
-    EventRepository repo;
-    auto defaultRoleId = repo.findEventRoleIdByName(QStringLiteral("Primary"));
-    int defaultRoleRow = 0;
-    if (defaultRoleId.has_value()) {
-        auto defaultRoleIndex =
-            comboBoxModel->match(comboBoxModel->index(0, EventRolesListModel::ID), Qt::DisplayRole, *defaultRoleId);
-        if (!defaultRoleIndex.isEmpty()) {
-            defaultRoleRow = defaultRoleIndex.constFirst().row();
-        }
-    }
-
+    auto* comboBoxModel = new EventRolesModel(this);
     eventRoleComboBox = new QComboBox(roleGroupBox);
     eventRoleComboBox->setEditable(true);
     eventRoleComboBox->setModel(comboBoxModel);
-    eventRoleComboBox->setModelColumn(EventRolesListModel::ROLE);
-    eventRoleComboBox->setCurrentIndex(defaultRoleRow);
     formLayout->setWidget(0, QFormLayout::FieldRole, eventRoleComboBox);
 
     layout->addWidget(roleGroupBox);

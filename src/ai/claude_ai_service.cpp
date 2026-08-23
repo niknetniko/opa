@@ -44,8 +44,8 @@ ClaudeAiService::ask(const QString& systemPrompt, const QString& userMessage, co
         body[u"model"_s] = model;
         body[u"max_tokens"_s] = 4096;
         body[u"system"_s] = systemPrompt;
-        body[u"messages"_s] = QJsonArray{
-            QJsonObject{
+        body[u"messages"_s] = QJsonArray {
+            QJsonObject {
                 {u"role"_s, u"user"_s},
                 {u"content"_s, userMessage},
             },
@@ -53,14 +53,14 @@ ClaudeAiService::ask(const QString& systemPrompt, const QString& userMessage, co
 
         const bool useTools = !schema.isEmpty();
         if (useTools) {
-            body[u"tools"_s] = QJsonArray{
-                QJsonObject{
+            body[u"tools"_s] = QJsonArray {
+                QJsonObject {
                     {u"name"_s, u"extract_source"_s},
                     {u"description"_s, u"Extract genealogical source metadata from text"_s},
                     {u"input_schema"_s, schema},
                 },
             };
-            body[u"tool_choice"_s] = QJsonObject{
+            body[u"tool_choice"_s] = QJsonObject {
                 {u"type"_s, u"tool"_s},
                 {u"name"_s, u"extract_source"_s},
             };

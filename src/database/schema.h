@@ -23,11 +23,6 @@ struct Names : TableTag {
 };
 inline constexpr auto NamesTable = Names::table;
 
-struct NameOrigins : TableTag {
-    static constexpr auto table = QLatin1String("name_origins");
-};
-inline constexpr auto NameOriginsTable = NameOrigins::table;
-
 struct Families : TableTag {
     static constexpr auto table = QLatin1String("families");
 };
@@ -37,16 +32,6 @@ struct Events : TableTag {
     static constexpr auto table = QLatin1String("events");
 };
 inline constexpr auto EventsTable = Events::table;
-
-struct EventRoles : TableTag {
-    static constexpr auto table = QLatin1String("event_roles");
-};
-inline constexpr auto EventRolesTable = EventRoles::table;
-
-struct EventTypes : TableTag {
-    static constexpr auto table = QLatin1String("event_types");
-};
-inline constexpr auto EventTypesTable = EventTypes::table;
 
 struct EventRelations : TableTag {
     static constexpr auto table = QLatin1String("event_relations");
@@ -78,45 +63,10 @@ struct PersonCitations : TableTag {
 };
 inline constexpr auto PersonCitationsTable = PersonCitations::table;
 
-struct LocationTypes : TableTag {
-    static constexpr auto table = QLatin1String("location_types");
-};
-inline constexpr auto LocationTypesTable = LocationTypes::table;
-
 struct Locations : TableTag {
     static constexpr auto table = QLatin1String("locations");
 };
 inline constexpr auto LocationsTable = Locations::table;
-
-struct EventRoleTranslations : TableTag {
-    static constexpr auto table = QLatin1String("event_role_translations");
-};
-inline constexpr auto EventRoleTranslationsTable = EventRoleTranslations::table;
-
-struct NameOriginTranslations : TableTag {
-    static constexpr auto table = QLatin1String("name_origin_translations");
-};
-inline constexpr auto NameOriginTranslationsTable = NameOriginTranslations::table;
-
-struct SourceTypes : TableTag {
-    static constexpr auto table = QLatin1String("source_types");
-};
-inline constexpr auto SourceTypesTable = SourceTypes::table;
-
-struct SourceTypeTranslations : TableTag {
-    static constexpr auto table = QLatin1String("source_type_translations");
-};
-inline constexpr auto SourceTypeTranslationsTable = SourceTypeTranslations::table;
-
-struct EventTypeTranslations : TableTag {
-    static constexpr auto table = QLatin1String("event_type_translations");
-};
-inline constexpr auto EventTypeTranslationsTable = EventTypeTranslations::table;
-
-struct LocationTypeTranslations : TableTag {
-    static constexpr auto table = QLatin1String("location_type_translations");
-};
-inline constexpr auto LocationTypeTranslationsTable = LocationTypeTranslations::table;
 
 struct Media : TableTag {
     static constexpr auto table = QLatin1String("media");

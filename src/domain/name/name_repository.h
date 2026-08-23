@@ -14,19 +14,13 @@
 
 class NameRepository : public BaseRepository {
 public:
-    [[nodiscard]] QList<NameOriginEntity> findAllOrigins() const;
-
     [[nodiscard]] QStringList findAllSurnames() const;
 
     [[nodiscard]] QStringList findAllGivenNames() const;
 
     [[nodiscard]] QList<NameEntity> findNamesForPerson(IntegerPrimaryKey personId) const;
 
-    [[nodiscard]] QList<NameWithOriginEntity> findNamesWithOriginForPerson(IntegerPrimaryKey personId) const;
-
     [[nodiscard]] std::optional<NameEntity> findById(IntegerPrimaryKey id) const;
-
-    [[nodiscard]] std::optional<NameWithOriginEntity> findWithOriginById(IntegerPrimaryKey id) const;
 
     std::optional<IntegerPrimaryKey> insertName(IntegerPrimaryKey personId, int sort) const;
 
@@ -37,7 +31,7 @@ public:
         const QString& prefix,
         const QString& surname,
         const QString& note,
-        std::optional<IntegerPrimaryKey> originId
+        const QString& origin
     ) const;
 
     bool updateNameSort(IntegerPrimaryKey id, int sort) const;

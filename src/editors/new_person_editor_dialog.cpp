@@ -6,13 +6,11 @@
 
 #include "new_person_editor_dialog.h"
 
-#include "../domain/name/name_origin_translation_repository.h"
 #include "../domain/name/name_origins_model.h"
 #include "../domain/name/name_repository.h"
 #include "../domain/name/names.h"
 #include "../domain/person/person_repository.h"
 #include "ui_new_person_editor_dialog.h"
-#include "utils/translating_proxy_model.h"
 
 #include <KLocalizedString>
 #include <QCompleter>
@@ -64,18 +62,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
 
     // Set up origin combo box from the name origins model.
     originsModel = new NameOriginsModel(this);
-    auto* originsProxy = new TranslatingProxyModel(
-        TypeTranslationResolver(
-            [](IntegerPrimaryKey originId, const QString& locale) {
-                return NameOriginTranslationRepository().findByTypeIdAndLocale(originId, locale);
-            },
-            NameOrigins::toDisplayString
-        ),
-        this
-    );
-    originsProxy->setSourceModel(originsModel);
-    form->origin->setModel(originsProxy);
-    form->origin->setModelColumn(NameOriginsModel::ORIGIN);
+    form->origin->setModel(originsModel);
     form->origin->setEditable(true);
     form->origin->setCurrentIndex(-1);
     form->origin->clearEditText();
@@ -93,13 +80,8 @@ void NewPersonEditorDialog::accept() {
     PersonRepository personRepo;
     personRepo.updatePerson(newPersonId, form->sexComboBox->currentText(), false);
 
-    // Resolve the origin_id from the selected combo box entry.
-    IntegerPrimaryKey originId = -1;
-    const int selectedRow = form->origin->currentIndex();
-    if (selectedRow >= 0) {
-        auto pkIndex = originsModel->index(selectedRow, NameOriginsModel::ID);
-        originId = pkIndex.data().toLongLong();
-    }
+    const int selectedOrigin = form->origin->currentIndex();
+    QString origin = originsModel->index(selectedOrigin).data().toString();
 
     // Save the name fields via the repository.
     NameRepository nameRepo;
@@ -109,8 +91,8 @@ void NewPersonEditorDialog::accept() {
             form->givenNames->text(),
             form->prefix->text(),
             form->surname->text(),
-            QString(),
-            originId
+            {},
+            origin
         )) {
         qWarning() << "NewPersonEditorDialog: could not save name" << newNameId;
         return;

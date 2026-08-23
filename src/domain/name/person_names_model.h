@@ -10,7 +10,7 @@
 #include "name_entities.h"
 #include "names.h"
 
-class PersonNamesModel : public ObjectTableModel<NameWithOriginEntity> {
+class PersonNamesModel : public ObjectTableModel<NameEntity> {
     Q_OBJECT
 public:
     enum Columns { ID = 0, SORT, TITLES, GIVEN_NAMES, PREFIX, SURNAME, ORIGIN };

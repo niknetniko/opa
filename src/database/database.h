@@ -61,29 +61,23 @@ auto rawExecuteInTransaction(QSqlDatabase& database, const Function& operation) 
         return std::nullopt;
     }
 
-    try {
-        const ReturnType result = operation();
-        if (result.has_value()) {
-            if (database.commit()) {
-                return result;
-            } else {
-                qWarning() << "Failed to commit transaction:" << database.lastError().text();
-            }
-        }
-
+    auto rollback = qScopeGuard([&]() {
         if (!database.rollback()) {
             qWarning() << "Failed to rollback transaction:" << database.lastError().text();
         }
+    });
 
-        return std::nullopt;
-
-    } catch (...) {
-        if (!database.rollback()) {
-            qWarning() << "Failed to rollback transaction:" << database.lastError().text();
+    if (const ReturnType result = operation(); result.has_value()) {
+        if (!database.commit()) {
+            qWarning() << "Failed to commit transaction:" << database.lastError().text();
+        } else {
+            // No rollback needed if commit succeeded
+            rollback.dismiss();
+            return result;
         }
-
-        throw;
     }
+
+    return std::nullopt;
 }
 
 /**
@@ -99,11 +93,15 @@ template<typename Function>
 auto executeInTransaction(const Function& operation) -> decltype(operation()) {
     auto guard = DataEventBroker::instance().batchNotifications();
 
+    auto discard = qScopeGuard([&]() {
+        guard.discard();
+    });
+
     auto db = QSqlDatabase::database();
     auto result = rawExecuteInTransaction(db, operation);
 
-    if (!result.has_value()) {
-        guard.discard();
+    if (result.has_value()) {
+        discard.dismiss();
     }
 
     return result;

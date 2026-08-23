@@ -13,8 +13,6 @@
 #include <optional>
 
 class CitationListWidget;
-class EventTypesListModel;
-class EventRolesListModel;
 class LocationPathsModel;
 
 namespace Ui {
@@ -28,7 +26,7 @@ public:
     EventEditorDialog(IntegerPrimaryKey personId, QWidget* parent);
     EventEditorDialog(
         IntegerPrimaryKey eventId,
-        IntegerPrimaryKey roleId,
+        const QString& role,
         IntegerPrimaryKey relationId,
         IntegerPrimaryKey personId,
         QWidget* parent
@@ -37,7 +35,7 @@ public:
     static void showDialogForNewEvent(IntegerPrimaryKey personId, QWidget* parent);
     static void showDialogForExistingEvent(
         IntegerPrimaryKey eventId,
-        IntegerPrimaryKey roleId,
+        const QString& role,
         IntegerPrimaryKey relationId,
         IntegerPrimaryKey personId,
         QWidget* parent
@@ -56,15 +54,13 @@ private:
     Ui::EventEditorForm* form;
     std::optional<IntegerPrimaryKey> eventId;
     IntegerPrimaryKey personId;
-    IntegerPrimaryKey roleId = 0;
+    QString role;
     std::optional<IntegerPrimaryKey> relationId;
 
-    EventTypesListModel* typesModel{};
-    EventRolesListModel* rolesModel{};
-    LocationPathsModel* locationsModel{};
+    LocationPathsModel* locationsModel {};
 
-    CitationListWidget* eventRelationCitationsWidget{};
-    CitationListWidget* eventCitationsWidget{};
+    CitationListWidget* eventRelationCitationsWidget {};
+    CitationListWidget* eventCitationsWidget {};
 
     PendingListModel<SourceEntity> eventCitationsPending;
     PendingListModel<SourceEntity> relationCitationsPending;

@@ -28,7 +28,6 @@ struct FamilyEntity {
 
 struct FamilyMemberEntity {
     QString eventType;
-    IntegerPrimaryKey eventTypeId = -1;
     IntegerPrimaryKey personId = -1;
     std::optional<IntegerPrimaryKey> partnerId;
     std::optional<IntegerPrimaryKey> familyId;
@@ -42,7 +41,6 @@ struct FamilyMemberEntity {
     static FamilyMemberEntity fromSql(const QSqlQuery& query) {
         FamilyMemberEntity e;
         e.eventType = query.value(u"event_type"_s).toString();
-        e.eventTypeId = query.value(u"event_type_id"_s).toLongLong();
         e.personId = query.value(u"person_id"_s).toLongLong();
         e.partnerId = validOrOptional<IntegerPrimaryKey>(query.value(u"partner_id"_s));
         e.familyId = validOrOptional<IntegerPrimaryKey>(query.value(u"family_id"_s));
@@ -101,9 +99,9 @@ struct AncestorEntity {
         AncestorEntity e;
         e.childId = query.value(u"child_id"_s).toLongLong();
         const auto fatherValue = query.value(u"father_id"_s);
-        e.fatherId = fatherValue.isNull() ? std::nullopt : std::optional<IntegerPrimaryKey>{fatherValue.toLongLong()};
+        e.fatherId = fatherValue.isNull() ? std::nullopt : std::optional<IntegerPrimaryKey> {fatherValue.toLongLong()};
         const auto motherValue = query.value(u"mother_id"_s);
-        e.motherId = motherValue.isNull() ? std::nullopt : std::optional<IntegerPrimaryKey>{motherValue.toLongLong()};
+        e.motherId = motherValue.isNull() ? std::nullopt : std::optional<IntegerPrimaryKey> {motherValue.toLongLong()};
         e.visited = query.value(u"visited"_s).toString();
         e.level = query.value(u"level"_s).toInt();
         e.titles = query.value(u"titles"_s).toString();
@@ -116,7 +114,6 @@ struct AncestorEntity {
 
 struct ParentEntity {
     IntegerPrimaryKey personId = -1;
-    IntegerPrimaryKey roleId = -1;
     QString role;
     QString titles;
     QString givenNames;
@@ -126,7 +123,6 @@ struct ParentEntity {
     static ParentEntity fromSql(const QSqlQuery& query) {
         return {
             .personId = query.value(u"person_id"_s).toLongLong(),
-            .roleId = query.value(u"role_id"_s).toLongLong(),
             .role = query.value(u"role"_s).toString(),
             .titles = query.value(u"titles"_s).toString(),
             .givenNames = query.value(u"given_names"_s).toString(),

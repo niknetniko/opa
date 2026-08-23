@@ -31,7 +31,6 @@ AncestorModel::AncestorModel(IntegerPrimaryKey personId, QObject* parent) :
     connectToTable<Schema::People>(this);
     connectToTable<Schema::Names>(this);
     connectToTable<Schema::Events>(this);
-    connectToTable<Schema::EventRoles>(this);
     connectToTable<Schema::EventRelations>(this);
 
     reload();
