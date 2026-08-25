@@ -5,14 +5,14 @@
  */
 #include "./location_editor_dialog.h"
 
+#include "../../editors/note_editor_dialog.h"
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_editor_dialog.h"
 #include "domain/location/location_repository.h"
 #include "domain/location/location_types.h"
-#include "link_existing/choose_existing_location_window.h"
-#include "../../editors/note_editor_dialog.h"
-#include "ui_location_editor_dialog.h"
 #include "domain/location/location_types_model.h"
+#include "link_existing/choose_existing_location_window.h"
+#include "ui_location_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>
@@ -101,18 +101,17 @@ void LocationEditorDialog::accept() {
     auto lat = form->latitudeSpinBox->value();
     auto lon = form->longitudeSpinBox->value();
     if (lat != LATITUDE_NOT_SET && lon != LONGITUDE_NOT_SET) {
-        coordinates = Coordinates{.latitude = lat, .longitude = lon};
+        coordinates = Coordinates {.latitude = lat, .longitude = lon};
     }
 
     auto dateStartText = form->dateStartEdit->text();
     auto dateStart = dateStartText.isEmpty()
-                         ? QString{}
+                         ? QString {}
                          : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
 
     auto dateEndText = form->dateEndEdit->text();
-    auto dateEnd = dateEndText.isEmpty()
-                       ? QString{}
-                       : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
+    auto dateEnd = dateEndText.isEmpty() ? QString {}
+                                         : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
 
     if (!locationId.has_value()) {
         auto newId = repo.insert(name, type, parentId);

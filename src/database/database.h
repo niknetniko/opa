@@ -93,9 +93,7 @@ template<typename Function>
 auto executeInTransaction(const Function& operation) -> decltype(operation()) {
     auto guard = DataEventBroker::instance().batchNotifications();
 
-    auto discard = qScopeGuard([&]() {
-        guard.discard();
-    });
+    auto discard = qScopeGuard([&]() { guard.discard(); });
 
     auto db = QSqlDatabase::database();
     auto result = rawExecuteInTransaction(db, operation);

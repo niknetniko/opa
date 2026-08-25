@@ -10,7 +10,7 @@
 
 using namespace Qt::StringLiterals;
 
-SourceTypesModel::SourceTypesModel(QObject *parent) : DistinctStringModel(parent) {
+SourceTypesModel::SourceTypesModel(QObject* parent) : DistinctStringModel(parent) {
     this->setTable(Schema::Sources::table, u"type"_s);
 
     connectToTable<Schema::Sources>(this);

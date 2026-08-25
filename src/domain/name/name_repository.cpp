@@ -25,7 +25,8 @@ QStringList NameRepository::findAllSurnames() const {
 QStringList NameRepository::findAllGivenNames() const {
     // language=sqlite
     const auto sql = QStringLiteral(
-        "SELECT DISTINCT given_names FROM names WHERE given_names IS NOT NULL AND given_names != '' ORDER BY given_names"
+        "SELECT DISTINCT given_names FROM names WHERE given_names IS NOT NULL AND given_names != '' ORDER BY "
+        "given_names"
     );
     QStringList result;
     for (const auto& entity: fetchAll<NameEntity>(sql, {})) {

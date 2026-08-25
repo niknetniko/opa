@@ -12,13 +12,15 @@ using namespace Qt::StringLiterals;
 
 QList<SourceEntity> SourceRepository::findAll() const {
     // language=sqlite
-    const auto sql = u"SELECT id, title, type, author, publication, confidence, note, parent_id FROM sources ORDER BY id"_s;
+    const auto sql =
+        u"SELECT id, title, type, author, publication, confidence, note, parent_id FROM sources ORDER BY id"_s;
     return fetchAll<SourceEntity>(sql, {});
 }
 
 std::optional<SourceEntity> SourceRepository::findById(IntegerPrimaryKey id) const {
     // language=sqlite
-    const auto sql = u"SELECT id, title, type, author, publication, confidence, note, parent_id FROM sources WHERE id = :id"_s;
+    const auto sql =
+        u"SELECT id, title, type, author, publication, confidence, note, parent_id FROM sources WHERE id = :id"_s;
     return fetchOne<SourceEntity>(sql, {{u":id"_s, id}});
 }
 

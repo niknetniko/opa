@@ -5,9 +5,9 @@
  */
 #include "person_event_tab.h"
 
+#include "../ui/event/event_editor_dialog.h"
 #include "domain/event/event_repository.h"
 #include "domain/event/person_events_model.h"
-#include "../ui/event/event_editor_dialog.h"
 #include "link_existing/choose_existing_event_window.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/grouping_proxy_model.h"

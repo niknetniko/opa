@@ -9,11 +9,11 @@
 
 class QSqlQuery;
 
-class DistinctStringModel: public QStringListModel {
+class DistinctStringModel : public QStringListModel {
     Q_OBJECT
 
 public:
-    DistinctStringModel(QObject *parent = nullptr);
+    DistinctStringModel(QObject* parent = nullptr);
 
 public Q_SLOTS:
     void reload();
@@ -27,4 +27,3 @@ private:
 
     static QString extract(const QSqlQuery& query);
 };
-

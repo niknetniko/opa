@@ -81,7 +81,7 @@ private Q_SLOTS:
         auto nameId = repo.insertName(personId, 1);
         QVERIFY(nameId.has_value());
 
-        bool ok = repo.updateName(*nameId, u"Dr."_s, u"John"_s, u"van"_s, u"Doe"_s, u"A note"_s, QString{});
+        bool ok = repo.updateName(*nameId, u"Dr."_s, u"John"_s, u"van"_s, u"Doe"_s, u"A note"_s, QString {});
         QVERIFY(ok);
 
         auto updated = repo.findById(*nameId);

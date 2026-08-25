@@ -53,7 +53,7 @@ public:
     insertEventWithRelation(const QString& type, IntegerPrimaryKey personId, const QString& role) const;
 
     std::optional<IntegerPrimaryKey> insertFullEvent(
-         const QString& type,
+        const QString& type,
         const QString& date,
         const QString& name,
         const QString& note,

@@ -19,7 +19,7 @@ add_library(
   domain/name/name_entities.h
   domain/name/name_repository.h
   domain/name/name_repository.cpp
-    domain/name/person_names_model.h
+  domain/name/person_names_model.h
   domain/name/person_names_model.cpp
   domain/event/event_entities.h
   domain/event/event_repository.h
@@ -34,9 +34,9 @@ add_library(
   domain/event/event_types_model.cpp
   domain/event/event_roles_model.h
   domain/event/event_roles_model.cpp
-    domain/event/event_list_model.h
+  domain/event/event_list_model.h
   domain/event/event_list_model.cpp
-    domain/family/family_entities.h
+  domain/family/family_entities.h
   domain/family/family_repository.h
   domain/family/family_repository.cpp
   domain/family/ancestor_model.h
@@ -61,15 +61,15 @@ add_library(
   domain/source/source_repository.cpp
   domain/source/source_list_model.h
   domain/source/source_list_model.cpp
-    domain/location/location_entities.h
+  domain/location/location_entities.h
   domain/location/location_repository.h
   domain/location/location_repository.cpp
-    domain/location/location_list_model.h
+  domain/location/location_list_model.h
   domain/location/location_list_model.cpp
   domain/location/location_paths_model.h
   domain/location/location_paths_model.cpp
   domain/location/location_types.h
-    domain/event/event_types.h
+  domain/event/event_types.h
   domain/event/event_types.cpp
   person_detail/person_detail_view.h
   person_detail/person_detail_view.cpp
@@ -79,11 +79,11 @@ add_library(
   utils/multi_filter_proxy_model.cpp
   domain/name/names.h
   domain/name/names.cpp
-    utils/formatted_identifier_delegate.h
+  utils/formatted_identifier_delegate.h
   utils/formatted_identifier_delegate.cpp
   person_detail/person_name_tab.h
   person_detail/person_name_tab.cpp
-    dates/genealogical_date.h
+  dates/genealogical_date.h
   dates/genealogical_date.cpp
   dates/genealogical_date_proxy_model.h
   dates/genealogical_date_proxy_model.cpp
@@ -99,15 +99,15 @@ add_library(
   utils/builtin_model.h
   utils/builtin_text_translating_delegate.h
   utils/builtin_text_translating_delegate.cpp
-    lists/simple_list_manager.h
+  lists/simple_list_manager.h
   lists/simple_list_manager.cpp
-    lists/location_management_window.h
+  lists/location_management_window.h
   lists/location_management_window.cpp
-    ui/event/event_editor_dialog.h
-    ui/event/event_editor_dialog.cpp
+  ui/event/event_editor_dialog.h
+  ui/event/event_editor_dialog.cpp
   ui/location/location_editor_dialog.h
-    ui/location/location_editor_dialog.cpp
-    ui/location/location_editor_dialog.ui
+  ui/location/location_editor_dialog.cpp
+  ui/location/location_editor_dialog.ui
   editors/type_translations_dialog.h
   editors/type_translations_dialog.cpp
   editors/type_translations_dialog.ui
@@ -170,7 +170,7 @@ add_library(
   utils/pending_list_model.h
   utils/rich_text_plain_delegate.cpp
   utils/rich_text_plain_delegate.h
-    core/query_helper.h
+  core/query_helper.h
   core/query_helper.cpp
   model/object_table_model.h
   core/data_event_broker.h
@@ -178,7 +178,7 @@ add_library(
   core/base_repository.h
   core/query_utils.h
   domain/person/person_detail_model.cpp
-    domain/event/event_roles.h
+  domain/event/event_roles.h
   domain/event/event_roles.cpp
   domain/source/source.h
   domain/source/source.cpp
@@ -194,24 +194,24 @@ add_library(
   main/ai_settings_widget.cpp
   ai/utils.cpp
   ai/utils.h
-    utils/async.h
+  utils/async.h
   import/gramps_xml.cpp
   import/gramps_xml.h
   import/import_wizard.cpp
   import/import_wizard.h
   utils/resource_exception.h
-    domain/name/name_origins_model.cpp
-    domain/name/name_origins_model.h
-    model/distinct_string_model.h
-    model/distinct_string_model.cpp
-    domain/event/event_types_model.cpp
-    domain/event/event_types_model.h
-    domain/event/event_roles_model.cpp
-    domain/event/event_roles_model.h
-    domain/location/location_types_model.cpp
-    domain/location/location_types_model.h
-    domain/source/source_types_model.cpp
-    domain/source/source_types_model.h)
+  domain/name/name_origins_model.cpp
+  domain/name/name_origins_model.h
+  model/distinct_string_model.h
+  model/distinct_string_model.cpp
+  domain/event/event_types_model.cpp
+  domain/event/event_types_model.h
+  domain/event/event_roles_model.cpp
+  domain/event/event_roles_model.h
+  domain/location/location_types_model.cpp
+  domain/location/location_types_model.h
+  domain/source/source_types_model.cpp
+  domain/source/source_types_model.h)
 
 target_compile_features(opa-lib PUBLIC cxx_std_23)
 
@@ -276,9 +276,7 @@ qt_add_resources(
   opa-lib "opa-database"
   PREFIX "/"
   BASE "database"
-  FILES
-    database/schema.sql
-    database/seed.sql)
+  FILES database/schema.sql database/seed.sql)
 
 qt_add_resources(
   opa-lib "opa-schemas"

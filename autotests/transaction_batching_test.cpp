@@ -319,7 +319,8 @@ private Q_SLOTS:
         auto result = executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
             EventRepository repo;
 
-            auto eventId = repo.insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u"Note"_s, personId, u"Primary"_s);
+            auto eventId =
+                repo.insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u"Note"_s, personId, u"Primary"_s);
             VERIFY_OR_THROW(eventId.has_value());
 
             // Nothing should have been emitted yet.
@@ -525,7 +526,8 @@ private Q_SLOTS:
         auto personId = insertPerson();
         spy.clear();
 
-        auto result = EventRepository().insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u""_s, personId, u"Primary"_s);
+        auto result =
+            EventRepository().insertFullEvent(u"Birth"_s, u"1900-01-01"_s, u"Test"_s, u""_s, personId, u"Primary"_s);
         QVERIFY(result.has_value());
 
         // Check that Events and EventRelations notifications were emitted.
@@ -548,7 +550,12 @@ private Q_SLOTS:
         auto personId = insertPerson();
 
         auto eventId = EventRepository().insertFullEvent(
-            u"Birth"_s, u"1950-06-15"_s, u"Birth of John"_s, u"<p>Hospital</p>"_s, personId, u"Primary"_s
+            u"Birth"_s,
+            u"1950-06-15"_s,
+            u"Birth of John"_s,
+            u"<p>Hospital</p>"_s,
+            personId,
+            u"Primary"_s
         );
         QVERIFY(eventId.has_value());
 

@@ -9,7 +9,7 @@
 
 using namespace Qt::StringLiterals;
 
-DistinctStringModel::DistinctStringModel(QObject* parent): QStringListModel(parent) {
+DistinctStringModel::DistinctStringModel(QObject* parent) : QStringListModel(parent) {
 }
 
 void DistinctStringModel::reload() {

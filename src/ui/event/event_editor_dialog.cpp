@@ -5,23 +5,23 @@
  */
 #include "./event_editor_dialog.h"
 
+#include "../../editors/note_editor_dialog.h"
+#include "../location/location_editor_dialog.h"
 #include "database/database.h"
 #include "dates/genealogical_date.h"
 #include "dates/genealogical_date_editor_dialog.h"
+#include "domain/event/event_list_model.h"
 #include "domain/event/event_repository.h"
+#include "domain/event/event_roles_model.h"
 #include "domain/event/event_types.h"
+#include "domain/event/event_types_model.h"
 #include "domain/location/location_paths_model.h"
 #include "domain/location/location_repository.h"
 #include "domain/media/media_repository.h"
 #include "domain/source/source_repository.h"
-#include "../location/location_editor_dialog.h"
-#include "../../editors/note_editor_dialog.h"
 #include "ui/media/media_list_widget.h"
 #include "ui/source/citation_list_widget.h"
 #include "ui_event_editor_dialog.h"
-#include "domain/event/event_list_model.h"
-#include "domain/event/event_roles_model.h"
-#include "domain/event/event_types_model.h"
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>

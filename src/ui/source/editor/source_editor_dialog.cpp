@@ -9,12 +9,12 @@
 #include "domain/media/media_repository.h"
 #include "domain/source/source.h"
 #include "domain/source/source_repository.h"
+#include "domain/source/source_types_model.h"
 #include "editors/note_editor_dialog.h"
 #include "link_existing/choose_existing_source_window.h"
 #include "opaSettings.h"
 #include "ui/media/media_list_widget.h"
 #include "ui_source_editor_dialog.h"
-#include "domain/source/source_types_model.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/model_utils.h"
 

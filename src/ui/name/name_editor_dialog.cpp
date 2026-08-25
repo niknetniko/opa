@@ -8,8 +8,8 @@
 #include "../../domain/name/name_repository.h"
 #include "../../domain/name/names.h"
 #include "../../editors/note_editor_dialog.h"
-#include "ui_name_editor_dialog.h"
 #include "domain/name/name_origins_model.h"
+#include "ui_name_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 
 #include <KLocalizedString>

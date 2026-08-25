@@ -5,9 +5,9 @@
  */
 #include "location_management_window.h"
 
+#include "../ui/location/location_editor_dialog.h"
 #include "domain/location/location_list_model.h"
 #include "domain/location/location_repository.h"
-#include "../ui/location/location_editor_dialog.h"
 #include "utils/formatted_identifier_delegate.h"
 #include "utils/tree_proxy_model.h"
 

@@ -31,7 +31,8 @@ BirthEventDetails getOrCreateBirthEvent(IntegerPrimaryKey personId) {
     const auto birthEvents = repo.findBirthEventsForPerson(personId);
 
     if (birthEvents.count() == 0) {
-        const auto newEventId = repo.insertEventWithRelation(QStringLiteral("Birth"), personId, QStringLiteral("Primary"));
+        const auto newEventId =
+            repo.insertEventWithRelation(QStringLiteral("Birth"), personId, QStringLiteral("Primary"));
         return {.eventId = newEventId ? QVariant(*newEventId) : QVariant {}, .isNew = true};
     }
 
@@ -110,10 +111,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     if (chosenMotherId.isValid() && chosenFatherId.isValid()) {
         auto selectedTypeRow = form->parentRelationRole->currentIndex();
-        auto chosenTypeId = form->parentRelationRole->model()
-                                ->index(selectedTypeRow, 0)
-                                .data()
-                                .toString();
+        auto chosenTypeId = form->parentRelationRole->model()->index(selectedTypeRow, 0).data().toString();
 
         auto eventId = repo.insertEvent(chosenTypeId);
         if (!eventId.has_value()) {
@@ -139,7 +137,11 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     // Now, link the parents to the child.
     if (chosenMotherId.isValid()) {
-        if (!repo.insertEventRelation(data.birthEventId.toLongLong(), chosenMotherId.toLongLong(), QStringLiteral("Mother"))
+        if (!repo.insertEventRelation(
+                     data.birthEventId.toLongLong(),
+                     chosenMotherId.toLongLong(),
+                     QStringLiteral("Mother")
+            )
                  .has_value()) {
             qWarning() << "Could not insert mother to birth event relationship";
             return false;
@@ -147,7 +149,11 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
     }
 
     if (chosenFatherId.isValid()) {
-        if (!repo.insertEventRelation(data.birthEventId.toLongLong(), chosenFatherId.toLongLong(), QStringLiteral("Father"))
+        if (!repo.insertEventRelation(
+                     data.birthEventId.toLongLong(),
+                     chosenFatherId.toLongLong(),
+                     QStringLiteral("Father")
+            )
                  .has_value()) {
             qWarning() << "Could not insert father to birth event relationship";
             return false;

@@ -36,11 +36,8 @@ std::optional<LocationEntity> LocationRepository::findById(IntegerPrimaryKey id)
     );
 }
 
-std::optional<IntegerPrimaryKey> LocationRepository::insert(
-    const QString& name,
-    const QString& type,
-    std::optional<IntegerPrimaryKey> parentId
-) const {
+std::optional<IntegerPrimaryKey>
+LocationRepository::insert(const QString& name, const QString& type, std::optional<IntegerPrimaryKey> parentId) const {
     auto newId = QueryHelper::insert(
         u"INSERT INTO locations (name, type, parent_id) VALUES (:name, :type, :parent_id)"_s,
         {

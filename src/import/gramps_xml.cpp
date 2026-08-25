@@ -60,7 +60,7 @@ static int countElementChildren(const xmlNode* parent) {
 
 static bool nodeNameIs(const xmlNode* node, const char* name) {
     // ReSharper disable once CppCStyleCast
-    return xmlStrEqual(node->name, BAD_CAST name) != 0;
+    return node->type == XML_ELEMENT_NODE && xmlStrEqual(node->name, BAD_CAST name) != 0;
 }
 
 static QString attrStr(const xmlNode* node, const char* name) {
@@ -1047,6 +1047,134 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
     return sourceIdByRepositoryHandle;
 }
 
+static std::optional<QHash<QString, IntegerPrimaryKey>> importLocations(
+    QPromise<bool>& promise,
+    int& progress,
+    const GrampsData& data,
+    const QHash<QString, IntegerPrimaryKey>& mediaIdByHandle,
+    const QSqlDatabase& db
+) {
+
+    QHash<QString, const GrampsPlace*> placesByHandle;
+    for (const auto& place: data.places) {
+        placesByHandle.insert(place.handle, &place);
+    }
+
+    QList<QString> sortedHandles;
+    QSet<QString> visited;
+    std::function<void(const QString&)> visit = [&](const QString& handle) {
+        if (visited.contains(handle)) {
+            return;
+        }
+        visited.insert(handle);
+        const auto* place = placesByHandle.value(handle, nullptr);
+        if (!place) {
+            return;
+        }
+        for (const auto& parentHandle: place->parentHandles) {
+            visit(parentHandle);
+        }
+        sortedHandles.append(handle);
+    };
+    for (const auto& place: data.places) {
+        visit(place.handle);
+    }
+
+    QSqlQuery insert(db);
+    if (!insert.prepare(
+            u"INSERT INTO locations (name, type, parent_id, note, latitude, longitude) VALUES (:name, :type, :parent_id, :note, :latitude, :longitude)"_s
+        )) {
+        qCritical() << "Failed to prepare location insert:" << insert.lastError().text();
+        return {};
+    }
+
+    QSqlQuery externalIdInsert(db);
+    if (!externalIdInsert.prepare(
+            u"INSERT INTO location_external_ids (location_id, type, external_id) VALUES (:location_id, :type, :external_id)"_s
+        )) {
+        qCritical() << "Failed to prepare location external id insert:" << externalIdInsert.lastError().text();
+        return {};
+    }
+
+    QSqlQuery mediaInsert(db);
+    if (!mediaInsert.prepare(
+            u"INSERT INTO location_media (location_id, media_id) VALUES (:location_id, :media_id)"_s
+        )) {
+        qCritical() << "Failed to prepare location media insert:" << mediaInsert.lastError().text();
+        return {};
+    }
+
+    QHash<QString, IntegerPrimaryKey> locationIdByHandle;
+
+    for (const auto& handle: sortedHandles) {
+        if (promise.isCanceled()) {
+            return {};
+        }
+        promise.setProgressValueAndText(progress++, i18n("Importing locations"));
+
+        const auto* place = placesByHandle.value(handle, nullptr);
+        if (!place) {
+            continue;
+        }
+
+        QString name = place->names.isEmpty() ? place->title : place->names.first().value;
+        if (name.isEmpty()) {
+            name = place->id;
+        }
+
+        QStringList noteParts;
+        for (const auto& noteHandle: place->noteHandles) {
+            if (const auto it = data.notesByHandle.constFind(noteHandle); it != data.notesByHandle.constEnd()) {
+                noteParts.append(it->text);
+            }
+        }
+
+        QVariant parentId;
+        if (!place->parentHandles.isEmpty()) {
+            if (const auto it = locationIdByHandle.constFind(place->parentHandles.first());
+                it != locationIdByHandle.constEnd()) {
+                parentId = *it;
+            }
+        }
+
+        insert.bindValue(u":name"_s, name);
+        insert.bindValue(u":type"_s, place->type);
+        insert.bindValue(u":parent_id"_s, parentId);
+        insert.bindValue(u":note"_s, noteParts.isEmpty() ? QVariant() : noteParts.join(u"\n"_s));
+        insert.bindValue(u":latitude"_s, place->hasCoordinates ? QVariant(place->latitude) : QVariant());
+        insert.bindValue(u":longitude"_s, place->hasCoordinates ? QVariant(place->longitude) : QVariant());
+
+        if (!insert.exec()) {
+            qCritical() << "Failed to insert location" << place->id << insert.lastError().text();
+            return {};
+        }
+
+        const auto insertedId = insert.lastInsertId().toLongLong();
+        locationIdByHandle.insert(handle, insertedId);
+
+        externalIdInsert.bindValue(u":location_id"_s, insertedId);
+        externalIdInsert.bindValue(u":type"_s, GRAMPS_ID);
+        externalIdInsert.bindValue(u":external_id"_s, place->id);
+        if (!externalIdInsert.exec()) {
+            qCritical() << "Failed to insert location external id" << place->id << externalIdInsert.lastError().text();
+            return {};
+        }
+
+        for (const auto& mediaRef: place->mediaRefs) {
+            if (const auto it = mediaIdByHandle.constFind(mediaRef.mediaHandle); it != mediaIdByHandle.constEnd()) {
+                mediaInsert.bindValue(u":location_id"_s, insertedId);
+                mediaInsert.bindValue(u":media_id"_s, *it);
+                if (!mediaInsert.exec()) {
+                    qCritical() << "Failed to insert location media" << place->id << mediaInsert.lastError().text();
+                    return {};
+                }
+            }
+        }
+    }
+
+    return locationIdByHandle;
+}
+
 void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result) {
     const int total = result.people + result.families + result.events + result.sources + result.places + result.media +
                       result.repositories + result.notes + result.citations;
@@ -1086,6 +1214,12 @@ void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result
         auto sourceByRepositoryHandle = importRepositorySource(promise, progress, data, db);
         if (!sourceByRepositoryHandle) {
             qWarning() << "Failed to import repositories, aborting...";
+            return {};
+        }
+
+        auto locationIdByHandle = importLocations(promise, progress, data, *mediaIdByHandle, db);
+        if (!locationIdByHandle) {
+            qWarning() << "Failed to import locations, aborting...";
             return {};
         }
 

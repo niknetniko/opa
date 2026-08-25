@@ -106,7 +106,7 @@ template<typename EventType>
     return result;
 }
 
-template <typename T>
+template<typename T>
 using QueryExtractor = std::function<T(const QSqlQuery&)>;
 
 /**
@@ -155,7 +155,8 @@ template<typename T>
  * @return The resulting object.
  */
 template<typename T>
-[[nodiscard]] std::optional<T> fetchOne(const QString& sql, const QVariantMap& bindings, const QueryExtractor<T>& extractor) {
+[[nodiscard]] std::optional<T>
+fetchOne(const QString& sql, const QVariantMap& bindings, const QueryExtractor<T>& extractor) {
     auto [query, result] = QueryHelper::executeWithResult(sql, bindings);
 
     if (!result) {

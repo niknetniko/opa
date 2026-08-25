@@ -12,5 +12,5 @@
 class SourceTypesModel : public DistinctStringModel {
     Q_OBJECT
 public:
-    explicit SourceTypesModel(QObject *parent = nullptr);
+    explicit SourceTypesModel(QObject* parent = nullptr);
 };

@@ -12,5 +12,5 @@
 class LocationTypesModel : public DistinctStringModel {
     Q_OBJECT
 public:
-    explicit LocationTypesModel(QObject *parent = nullptr);
+    explicit LocationTypesModel(QObject* parent = nullptr);
 };

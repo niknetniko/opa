@@ -11,7 +11,7 @@
 
 using namespace Qt::StringLiterals;
 
-LocationTypesModel::LocationTypesModel(QObject *parent) : DistinctStringModel(parent) {
+LocationTypesModel::LocationTypesModel(QObject* parent) : DistinctStringModel(parent) {
     this->setTable(Schema::Locations::table, u"type"_s);
 
     connectToTable<Schema::Locations>(this);
