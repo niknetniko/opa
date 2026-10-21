@@ -24,8 +24,8 @@ Opa must use built-in functionality of KDE where possible and integrate with KDE
 
 ## Architecture
 
-Read `ai/architecture.md` before making changes. It is the authoritative source for patterns and migration checklists.
-
+Read `ai/status.md` first: current focus, next steps and open migrations. Update it at the end of a session.
+Read `ai/architecture.md` before making changes. It is the authoritative source for patterns.
 ### Layer Stack
 
 ```
