@@ -22,6 +22,7 @@ ecm_add_tests(
   source_repository_test.cpp
   location_repository_test.cpp
   pending_list_model_test.cpp
+  object_table_model_test.cpp
   transaction_batching_test.cpp
   openai_compatible_service_test.cpp
   LINK_LIBRARIES opa-lib Qt::Test)
