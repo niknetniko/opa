@@ -211,7 +211,10 @@ add_library(
   domain/location/location_types_model.cpp
   domain/location/location_types_model.h
   domain/source/source_types_model.cpp
-  domain/source/source_types_model.h)
+  domain/source/source_types_model.h
+  model/object_tree_model.cpp
+  model/object_tree_model.h
+  model/base_object_model.h)
 
 target_compile_features(opa-lib PUBLIC cxx_std_23)
 
