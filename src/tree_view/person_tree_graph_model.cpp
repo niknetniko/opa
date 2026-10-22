@@ -47,7 +47,7 @@ std::unordered_set<NodeId> PersonTreeGraphModel::allNodeIds() const {
 }
 
 std::unordered_set<ConnectionId> PersonTreeGraphModel::allConnectionIds(NodeId nodeId) const {
-    std::unordered_set<ConnectionId> result;
+    const std::unordered_set<ConnectionId> result;
 
     auto inNodes = connections(nodeId, PortType::In, 0);
     auto outNodes = connections(nodeId, PortType::Out, 0);
@@ -253,12 +253,12 @@ void PersonTreeGraphModel::calculateNodePositions() const {
         auto nodes = levelToNodes[level];
         std::ranges::sort(nodes);
         for (int nodeIndex = 0; nodeIndex < nodes.count(); ++nodeIndex) {
-            NodeId nodeId = nodes[nodeIndex];
-            double dIndex = nodeIndex;
-            int max = static_cast<int>(nodes.count()) - 1;
+            const NodeId nodeId = nodes[nodeIndex];
+            const double dIndex = nodeIndex;
+            const int max = static_cast<int>(nodes.count()) - 1;
             // NOLINTNEXTLINE(bugprone-integer-division)
-            double centeredIndex = dIndex - (max / 2) + (nodes.count() % 2 ? 0 : -0.5);
-            double xValue = 300 * centeredIndex;
+            const double centeredIndex = dIndex - (max / 2) + (nodes.count() % 2 ? 0 : -0.5);
+            const double xValue = 300 * centeredIndex;
             _nodeGeometryData[nodeId].pos.setX(xValue);
         }
     }

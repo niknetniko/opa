@@ -166,7 +166,7 @@ void PersonEventTab::onRemoveSelectedEvent() const {
     auto eventId = selectRow.siblingAtColumn(PersonEventListModel::ID).data().toLongLong();
 
     // Look up where it is linked.
-    EventRepository repo;
+    const EventRepository repo;
     const auto usedCount = repo.findRelationsForEvent(eventId).size();
 
     QMessageBox confirmationBox;
@@ -222,7 +222,7 @@ void PersonEventTab::onUnlinkSelectedEvent() {
         return;
     }
 
-    EventRepository repo;
+    const EventRepository repo;
     if (!repo.deleteEventRelation(relationId)) {
         qWarning() << "Could not unlink event relation" << relationId;
     }
@@ -235,7 +235,7 @@ void PersonEventTab::onLinkExistingEvent() {
         return;
     }
 
-    EventRepository repo;
+    const EventRepository repo;
     if (!repo.insertEventRelation(selectedEvent.eventId.toLongLong(), person, selectedEvent.role).has_value()) {
         QMessageBox::warning(
             this,

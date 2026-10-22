@@ -80,7 +80,7 @@ std::tuple<QString, QVariantMap> SqlQueryBuilder::construct() const {
     QString sql = baseSql;
 
     if (sql.isEmpty() && !tableName.isEmpty()) {
-        QString cols = selectColumns.isEmpty() ? u"*"_s : selectColumns.join(u", "_s);
+        const QString cols = selectColumns.isEmpty() ? u"*"_s : selectColumns.join(u", "_s);
         sql = u"SELECT %1 FROM %2"_s.arg(cols, tableName);
     }
 

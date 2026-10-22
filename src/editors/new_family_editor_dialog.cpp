@@ -27,7 +27,7 @@ struct BirthEventDetails {
 };
 
 BirthEventDetails getOrCreateBirthEvent(IntegerPrimaryKey personId) {
-    EventRepository repo;
+    const EventRepository repo;
     const auto birthEvents = repo.findBirthEventsForPerson(personId);
 
     if (birthEvents.count() == 0) {
@@ -36,7 +36,7 @@ BirthEventDetails getOrCreateBirthEvent(IntegerPrimaryKey personId) {
         return {.eventId = newEventId ? QVariant(*newEventId) : QVariant {}, .isNew = true};
     }
 
-    IntegerPrimaryKey birthEventId = birthEvents.at(0).id;
+    const IntegerPrimaryKey birthEventId = birthEvents.at(0).id;
     return {.eventId = birthEventId, .isNew = false};
 }
 }
@@ -104,7 +104,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
         return false;
     }
 
-    EventRepository repo;
+    const EventRepository repo;
 
     auto chosenMotherId = data.motherId;
     auto chosenFatherId = data.fatherId;
@@ -188,7 +188,7 @@ void NewFamilyEditorDialog::reject() {
         Q_ASSERT(data.birthEventId.isValid());
         const auto birthEventId = data.birthEventId.toLongLong();
 
-        EventRepository repo;
+        const EventRepository repo;
         // Delete all relations for this birth event, then delete the event itself.
         const auto relations = repo.findRelationsForEvent(birthEventId);
         for (const auto& relation: relations) {

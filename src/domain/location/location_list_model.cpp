@@ -25,6 +25,6 @@ LocationListModel::LocationListModel(QObject* parent) : ObjectTableModel(parent)
 }
 
 void LocationListModel::reload() {
-    LocationRepository repo;
+    const LocationRepository repo;
     this->setItems(repo.findAll());
 }

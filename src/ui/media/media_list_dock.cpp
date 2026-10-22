@@ -59,7 +59,7 @@ MediaTableWidget::MediaTableWidget(QWidget* parent) : QWidget(parent) {
 }
 
 void MediaTableWidget::openEditDialog(IntegerPrimaryKey mediaId) {
-    MediaRepository repo;
+    const MediaRepository repo;
     auto entity = repo.findById(mediaId);
     if (!entity.has_value()) {
         return;
@@ -94,7 +94,7 @@ void MediaTableWidget::onContextMenuRequested(const QPoint& pos) {
     auto* openAction = new QAction(i18n("&Open File"), &menu);
     openAction->setIcon(QIcon::fromTheme(u"document-open"_s));
     connect(openAction, &QAction::triggered, this, [mediaId]() {
-        MediaRepository repo;
+        const MediaRepository repo;
         auto entity = repo.findById(mediaId);
         if (!entity.has_value()) {
             return;
@@ -116,7 +116,7 @@ void MediaTableWidget::onContextMenuRequested(const QPoint& pos) {
             QMessageBox::Yes | QMessageBox::No
         );
         if (result == QMessageBox::Yes) {
-            MediaRepository repo;
+            const MediaRepository repo;
             Q_UNUSED(repo.remove(mediaId));
         }
     });

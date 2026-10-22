@@ -50,7 +50,7 @@ LocationEditorDialog::LocationEditorDialog(
     updateParentDisplay();
 
     if (locationId.has_value()) {
-        LocationRepository repo;
+        const LocationRepository repo;
         if (const auto entity = repo.findById(*locationId)) {
             form->nameEdit->setText(entity->name);
             form->noteEdit->setTextOrHtml(entity->note);
@@ -85,7 +85,7 @@ LocationEditorDialog::LocationEditorDialog(
 LocationEditorDialog::~LocationEditorDialog() = default;
 
 void LocationEditorDialog::accept() {
-    LocationRepository repo;
+    const LocationRepository repo;
 
     auto name = form->nameEdit->text();
     if (name.isEmpty()) {
@@ -185,7 +185,7 @@ void LocationEditorDialog::editDateEndWithEditor() {
 
 void LocationEditorDialog::updateParentDisplay() const {
     if (parentId.has_value()) {
-        LocationRepository repo;
+        const LocationRepository repo;
         if (const auto entity = repo.findById(*parentId)) {
             form->parentDisplay->setText(entity->name);
         } else {

@@ -26,6 +26,6 @@ SourcesListModel::SourcesListModel(QObject* parent) : ObjectTableModel(parent) {
 }
 
 void SourcesListModel::reload() {
-    SourceRepository repo;
+    const SourceRepository repo;
     this->setItems(repo.findAll());
 }

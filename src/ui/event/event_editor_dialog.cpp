@@ -76,7 +76,7 @@ EventEditorDialog::EventEditorDialog(
     setupUi();
 
     // Load the event data and pre-fill the form.
-    EventRepository repo;
+    const EventRepository repo;
     if (const auto event = repo.findEventById(eventId); event) {
         if (!event->date.isEmpty()) {
             form->eventDatePicker->setText(GenealogicalDate::fromDatabaseRepresentation(event->date).toDisplayText());
@@ -109,10 +109,10 @@ void EventEditorDialog::setupUi() {
     connect(form->eventDateEditButton, &QPushButton::clicked, this, &EventEditorDialog::editDateWithEditor);
     connect(form->noteEditButton, &QPushButton::clicked, this, &EventEditorDialog::editNoteWithEditor);
 
-    auto typesModel = new EventTypesModel(this);
+    auto* typesModel = new EventTypesModel(this);
     form->eventTypeComboBox->setModel(typesModel);
 
-    auto rolesModel = new EventRolesModel(this);
+    auto* rolesModel = new EventRolesModel(this);
     form->eventRoleComboBox->setModel(rolesModel);
 
     locationsModel = new LocationPathsModel(this);

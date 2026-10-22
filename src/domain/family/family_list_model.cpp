@@ -42,7 +42,7 @@ FamilyListModel::FamilyListModel(QObject* parent) : QAbstractItemModel(parent) {
 
 void FamilyListModel::reload() {
     beginResetModel();
-    FamilyRepository repo;
+    const FamilyRepository repo;
     rows = repo.findAllFamiliesOverview();
     rebuildMapping();
     endResetModel();
@@ -75,7 +75,7 @@ QModelIndex FamilyListModel::index(int row, int column, const QModelIndex& paren
         return createIndex(row, column, encodeParent(row));
     }
 
-    int familyListIndex = static_cast<int>(static_cast<quint32>(parent.internalId()));
+    const int familyListIndex = static_cast<int>(static_cast<quint32>(parent.internalId()));
     if (familyListIndex >= families.size()) {
         return {};
     }
@@ -91,12 +91,12 @@ QModelIndex FamilyListModel::parent(const QModelIndex& child) const {
         return {};
     }
 
-    quintptr id = child.internalId();
+    const quintptr id = child.internalId();
     if (!isChildId(id)) {
         return {};
     }
 
-    int familyListIndex = static_cast<int>(static_cast<quint32>(id >> 32U)) - 1;
+    const int familyListIndex = static_cast<int>(static_cast<quint32>(id >> 32U)) - 1;
     if (familyListIndex < 0 || familyListIndex >= families.size()) {
         return {};
     }
@@ -111,12 +111,12 @@ int FamilyListModel::rowCount(const QModelIndex& parent) const {
         return 0;
     }
 
-    quintptr id = parent.internalId();
+    const quintptr id = parent.internalId();
     if (isChildId(id)) {
         return 0;
     }
 
-    int familyListIndex = static_cast<int>(static_cast<quint32>(id));
+    const int familyListIndex = static_cast<int>(static_cast<quint32>(id));
     if (familyListIndex >= families.size()) {
         return 0;
     }
@@ -136,13 +136,13 @@ QVariant FamilyListModel::data(const QModelIndex& index, int role) const {
         return {};
     }
 
-    quintptr id = index.internalId();
+    const quintptr id = index.internalId();
     if (!isChildId(id)) {
-        int familyListIndex = static_cast<int>(static_cast<quint32>(id));
+        const int familyListIndex = static_cast<int>(static_cast<quint32>(id));
         if (familyListIndex >= families.size()) {
             return {};
         }
-        IntegerPrimaryKey familyId = families[familyListIndex];
+        const IntegerPrimaryKey familyId = families[familyListIndex];
         switch (index.column()) {
             case FAMILY_ID:
                 return familyId;
@@ -153,7 +153,7 @@ QVariant FamilyListModel::data(const QModelIndex& index, int role) const {
         }
     }
 
-    int rowIndex = static_cast<int>(static_cast<quint32>(id)) - 1;
+    const int rowIndex = static_cast<int>(static_cast<quint32>(id)) - 1;
     if (rowIndex < 0 || rowIndex >= rows.size()) {
         return {};
     }

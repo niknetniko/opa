@@ -124,7 +124,7 @@ void MediaListWidget::onAddFile() {
     const std::optional<QString> title = info.completeBaseName();
     const QString mimeType = QMimeDatabase().mimeTypeForFile(path).name();
 
-    MediaRepository repo;
+    const MediaRepository repo;
     const auto mediaId = repo.insert(*relativePath, title, std::nullopt, mimeType);
     if (mediaId) {
         Q_UNUSED(attachFn(*mediaId));

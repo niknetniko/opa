@@ -134,7 +134,7 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
     ui->setupUi(this);
 
     // Load person data from repository.
-    PersonRepository repo;
+    const PersonRepository repo;
     this->personData = repo.findDisplayById(id);
 
     this->birthModel = new PersonBirthEventsModel(id, this);
@@ -161,14 +161,14 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
     // Listen for person/name changes to refresh display.
     connectToTable<Schema::People>(this, [this](std::optional<IntegerPrimaryKey> changedId) {
         if (!changedId || changedId == this->id) {
-            PersonRepository r;
+            const PersonRepository r;
             this->personData = r.findDisplayById(this->id);
             populateName();
         }
     });
     connectToTable<Schema::Names>(this, [this](std::optional<IntegerPrimaryKey> changedId) {
         if (!changedId || changedId == this->id) {
-            PersonRepository r;
+            const PersonRepository r;
             this->personData = r.findDisplayById(this->id);
             populateName();
         }

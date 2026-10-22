@@ -34,6 +34,6 @@ PersonDeathEventsModel::PersonDeathEventsModel(IntegerPrimaryKey personId, QObje
 }
 
 void PersonDeathEventsModel::reload() {
-    EventRepository repo;
+    const EventRepository repo;
     this->setItems(repo.findDeathEventsForPerson(personId));
 }

@@ -48,7 +48,7 @@ FamilyMembersModel::FamilyMembersModel(IntegerPrimaryKey personId, QObject* pare
 
 void FamilyMembersModel::reload() {
     beginResetModel();
-    FamilyRepository repo;
+    const FamilyRepository repo;
     items = repo.findFamilyMembersForPerson(personId);
     rebuildMapping();
     endResetModel();
@@ -105,11 +105,11 @@ QModelIndex FamilyMembersModel::index(int row, int column, const QModelIndex& pa
         if (row >= keys.size()) {
             return {};
         }
-        int key = keys[row];
+        const int key = keys[row];
         return createIndex(row, column, encodeParent(key));
     } else {
         // Child row
-        int parentKey = static_cast<int>(static_cast<quint32>(parent.internalId()));
+        const int parentKey = static_cast<int>(static_cast<quint32>(parent.internalId()));
         if (!mapping.contains(parentKey)) {
             return {};
         }
@@ -117,7 +117,7 @@ QModelIndex FamilyMembersModel::index(int row, int column, const QModelIndex& pa
         if (row >= children.size()) {
             return {};
         }
-        int childItemIndex = children[row];
+        const int childItemIndex = children[row];
         return createIndex(row, column, encodeChild(parentKey, childItemIndex));
     }
 }
@@ -127,16 +127,16 @@ QModelIndex FamilyMembersModel::parent(const QModelIndex& child) const {
         return {};
     }
 
-    quintptr id = child.internalId();
+    const quintptr id = child.internalId();
     if (!isChildId(id)) {
         // Top-level row has no parent
         return {};
     }
 
     // Decode parent key
-    int parentKey = static_cast<int>(static_cast<quint32>(id >> 32U)) - 1;
+    const int parentKey = static_cast<int>(static_cast<quint32>(id >> 32U)) - 1;
     auto keys = mapping.keys();
-    int parentRow = static_cast<int>(keys.indexOf(parentKey));
+    const int parentRow = static_cast<int>(keys.indexOf(parentKey));
     if (parentRow == -1) {
         return {};
     }
@@ -152,13 +152,13 @@ int FamilyMembersModel::rowCount(const QModelIndex& parent) const {
         return 0;
     }
 
-    quintptr id = parent.internalId();
+    const quintptr id = parent.internalId();
     if (isChildId(id)) {
         // Child rows have no children
         return 0;
     }
 
-    int key = static_cast<int>(static_cast<quint32>(id));
+    const int key = static_cast<int>(static_cast<quint32>(id));
     if (!mapping.contains(key)) {
         return 0;
     }
@@ -188,7 +188,7 @@ QVariant FamilyMembersModel::data(const QModelIndex& index, int role) const {
         return {};
     }
 
-    quintptr id = index.internalId();
+    const quintptr id = index.internalId();
     int itemIndex = 0;
     if (isChildId(id)) {
         // Decode child item index

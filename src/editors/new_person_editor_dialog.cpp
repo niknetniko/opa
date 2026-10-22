@@ -24,7 +24,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     form->setupUi(this);
 
     // Insert a new person via the repository.
-    PersonRepository personRepo;
+    const PersonRepository personRepo;
     const auto insertedPersonId = personRepo.insertPerson(QString(), false);
     if (!insertedPersonId.has_value()) {
         qFatal() << "Could not insert new person for some reason";
@@ -35,7 +35,7 @@ NewPersonEditorDialog::NewPersonEditorDialog(QWidget* parent) :
     addedPersonId = newPersonId;
 
     // Insert a new name via the repository.
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     const auto insertedNameId = nameRepo.insertName(newPersonId, 1);
     if (!insertedNameId.has_value()) {
         qFatal() << "Could not insert new name for some reason";
@@ -77,14 +77,14 @@ NewPersonEditorDialog::~NewPersonEditorDialog() {
 
 void NewPersonEditorDialog::accept() {
     // Save the sex field via the repository.
-    PersonRepository personRepo;
+    const PersonRepository personRepo;
     personRepo.updatePerson(newPersonId, form->sexComboBox->currentText(), false);
 
     const int selectedOrigin = form->origin->currentIndex();
-    QString origin = originsModel->index(selectedOrigin).data().toString();
+    const QString origin = originsModel->index(selectedOrigin).data().toString();
 
     // Save the name fields via the repository.
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     if (!nameRepo.updateName(
             newNameId,
             form->titles->text(),
@@ -108,7 +108,7 @@ void NewPersonEditorDialog::reject() {
 
 void NewPersonEditorDialog::revert() {
     // Delete the person (CASCADE removes the name too).
-    PersonRepository personRepo;
+    const PersonRepository personRepo;
     personRepo.deletePerson(newPersonId);
     newPersonId = -1;
     newNameId = -1;

@@ -221,7 +221,7 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
     const auto [startWallTime, startHasTime] = parseTime(result[u"time"_s].toString());
     const auto [endWallTime, endHasTime] = parseTime(result[u"endTime"_s].toString());
 
-    DatePoint startPoint {
+    const DatePoint startPoint {
         .proleptic = QDate::fromJulianDay(result[u"proleptic"_s].toInteger()),
         .wallTime = startWallTime,
         .year = result[u"year"_s].toBool(),
@@ -229,7 +229,7 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
         .day = result[u"day"_s].toBool(),
         .hasTime = startHasTime,
     };
-    DatePoint endPoint {
+    const DatePoint endPoint {
         .proleptic = QDate::fromJulianDay(result[u"endProleptic"_s].toInteger()),
         .wallTime = endWallTime,
         .year = result[u"endYear"_s].toBool(),

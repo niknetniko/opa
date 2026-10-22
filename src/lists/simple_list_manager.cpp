@@ -351,7 +351,7 @@ bool SimpleListManagementWindow::doRemoveItem(const QVariant& id) const {
         qWarning() << "Could not find item to remove with id" << id;
         return false;
     }
-    int row = matches.first().row();
+    const int row = matches.first().row();
     if (!this->sqlModel->removeRow(row)) {
         qWarning() << "Could not remove item!";
         qWarning() << sqlModel->lastError();

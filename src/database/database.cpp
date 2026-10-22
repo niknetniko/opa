@@ -217,7 +217,7 @@ void openDatabase(const QString& file, bool seed, bool initialise) {
         abort();
     }
     QTextStream seedStream(&seedFile);
-    QString seedQuery = seedStream.readAll();
+    const QString seedQuery = seedStream.readAll();
     executeScriptOrAbort(seedQuery, database);
 }
 

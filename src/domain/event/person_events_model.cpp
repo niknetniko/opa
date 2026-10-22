@@ -34,6 +34,6 @@ PersonEventListModel::PersonEventListModel(IntegerPrimaryKey personId, QObject* 
 }
 
 void PersonEventListModel::reload() {
-    EventRepository repo;
+    const EventRepository repo;
     this->setItems(repo.findEventsForPerson(personId));
 }

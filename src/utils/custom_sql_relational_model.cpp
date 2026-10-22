@@ -104,7 +104,7 @@ void CustomSqlRelationalModel::setRelation(
 
 QModelIndex CustomSqlRelationalModel::index(const int row, const int column, const QModelIndex& parent) const {
     // Taken from KExtraColumnProxyModel
-    if (int extraCol = asExtraColumn(column); extraCol >= 0) {
+    if (const int extraCol = asExtraColumn(column); extraCol >= 0) {
         // We store the internal pointer of the index for column 0 in the proxy index for extra
         // columns. This will be useful in the parent method.
         return createIndex(row, column, QSqlTableModel::index(row, 0, parent).internalPointer());
@@ -221,7 +221,7 @@ QWidget* CustomSqlRelationalDelegate::createEditor(
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    QSqlTableModel* childModel = sourceModel->relationModel(index.column());
+    const QSqlTableModel* childModel = sourceModel->relationModel(index.column());
     if (childModel == nullptr) {
         // Nothing to do for us.
         return QStyledItemDelegate::createEditor(parent, option, index);

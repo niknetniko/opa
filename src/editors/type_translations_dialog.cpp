@@ -74,7 +74,7 @@ TypeTranslationsDialog::~TypeTranslationsDialog() {
 }
 
 void TypeTranslationsDialog::reload() {
-    QSignalBlocker blocker(tableModel);
+    const QSignalBlocker blocker(tableModel);
     tableModel->removeRows(0, tableModel->rowCount());
     for (const auto& entry: loadFn()) {
         auto* localeItem = new QStandardItem(formatLocale(entry.locale));

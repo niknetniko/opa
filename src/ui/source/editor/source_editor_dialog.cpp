@@ -56,7 +56,7 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
     form->noteEdit->enableRichTextMode();
 
     // Load and pre-fill the entity data.
-    SourceRepository repo;
+    const SourceRepository repo;
     if (sourceId.has_value()) {
         if (const auto entity = repo.findById(*sourceId)) {
             form->sourcetTitleEdit->setText(entity->title);
@@ -105,7 +105,7 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
 }
 
 void SourceEditorDialog::accept() {
-    SourceRepository repo;
+    const SourceRepository repo;
 
     auto title = form->sourcetTitleEdit->text();
     auto type = form->sourceTypeComboBox->currentText();
@@ -272,7 +272,7 @@ void SourceEditorDialog::onAiFailed(const QString& error) {
 }
 
 void SourceEditorDialog::showParentSuggestion() {
-    SourceRepository repo;
+    const SourceRepository repo;
     parentSuggestionMatches = repo.findByTitleContaining(suggestedParentName);
 
     // Exclude self from matches.

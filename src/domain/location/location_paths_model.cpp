@@ -21,6 +21,6 @@ LocationPathsModel::LocationPathsModel(QObject* parent) : ObjectTableModel(paren
 }
 
 void LocationPathsModel::reload() {
-    LocationRepository repo;
+    const LocationRepository repo;
     this->setItems(repo.findAllWithPaths());
 }

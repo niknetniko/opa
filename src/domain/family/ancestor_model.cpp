@@ -37,6 +37,6 @@ AncestorModel::AncestorModel(IntegerPrimaryKey personId, QObject* parent) :
 }
 
 void AncestorModel::reload() {
-    FamilyRepository repo;
+    const FamilyRepository repo;
     this->setItems(repo.findAncestorsForPerson(personId));
 }

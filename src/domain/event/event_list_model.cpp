@@ -23,6 +23,6 @@ EventListModel::EventListModel(QObject* parent) : ObjectTableModel(parent) {
 }
 
 void EventListModel::reload() {
-    EventRepository repo;
+    const EventRepository repo;
     this->setItems(repo.findAllEvents());
 }

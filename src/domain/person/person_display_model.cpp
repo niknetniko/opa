@@ -27,6 +27,6 @@ PersonDisplayModel::PersonDisplayModel(QObject* parent) : ObjectTableModel(paren
 }
 
 void PersonDisplayModel::reload() {
-    PersonRepository repo;
+    const PersonRepository repo;
     this->setItems(repo.findPeopleWithPrimaryName());
 }

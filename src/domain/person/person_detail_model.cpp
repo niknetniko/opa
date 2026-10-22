@@ -33,7 +33,7 @@ PersonDetailModel::PersonDetailModel(IntegerPrimaryKey personId, QObject* parent
 }
 
 void PersonDetailModel::reload() {
-    PersonRepository repo;
+    const PersonRepository repo;
     if (const auto result = repo.findDisplayById(personId)) {
         this->setItems({*result});
     } else {

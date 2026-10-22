@@ -57,7 +57,7 @@ void AbstractEditorDialog::addMapper(QDataWidgetMapper* mapper) {
 void AbstractEditorDialog::accept() {
     bool mappersAccept = true;
     for (auto* mapper: std::as_const(this->mappers)) {
-        bool thisMapperAccepts = mapper->submit();
+        const bool thisMapperAccepts = mapper->submit();
         if (!thisMapperAccepts) {
             qWarning() << "Mapper" << mapper << "rejects changes!";
             if (auto* sourceModel = findSourceModelOfType<QSqlQueryModel>(mapper->model())) {

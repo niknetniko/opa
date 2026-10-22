@@ -108,7 +108,7 @@ void SourceTreeWidget::onContextMenuRequested(const QPoint& pos) {
             QMessageBox::Yes | QMessageBox::No
         );
         if (result == QMessageBox::Yes) {
-            SourceRepository repo;
+            const SourceRepository repo;
             Q_UNUSED(repo.remove(sourceId));
         }
     });

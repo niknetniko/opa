@@ -23,7 +23,7 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
     nameId(nameId) {
     form->setupUi(this);
 
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     const auto entity = nameRepo.findById(nameId);
 
     if (newRow) {
@@ -58,7 +58,7 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
 }
 
 void NamesEditorDialog::accept() {
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     const bool ok = nameRepo.updateName(
         nameId,
         form->titles->text(),
@@ -79,7 +79,7 @@ void NamesEditorDialog::accept() {
 
 void NamesEditorDialog::revert() {
     if (isNewItem) {
-        NameRepository nameRepo;
+        const NameRepository nameRepo;
         if (const bool ok = nameRepo.deleteName(nameId); !ok) {
             qWarning() << "NamesEditorDialog: could not revert name" << nameId;
             return;

@@ -198,7 +198,7 @@ GrampsImportPage::GrampsImportPage(QWidget* parent) : QWizardPage(parent) {
 void GrampsImportPage::initializePage() {
     QWizardPage::initializePage();
 
-    auto previousPage = static_cast<GrampsCheckPage*>(wizard()->page(ImportWizard::Page_GrampsCheck));
+    auto* previousPage = dynamic_cast<GrampsCheckPage*>(wizard()->page(ImportWizard::Page_GrampsCheck));
 
     auto analysis = previousPage->takeAnalysis();
     auto databaseName = QSqlDatabase::database().connectionName();

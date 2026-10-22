@@ -25,7 +25,7 @@ void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent,
             deb.noquote() << QString(level, QLatin1Char(' '));
 
             for (int c = 0; c < model->columnCount(parent); ++c) {
-                QModelIndex index = model->index(r, c, parent);
+                const QModelIndex index = model->index(r, c, parent);
                 deb.quote() << index.data() << ",";
             }
         }

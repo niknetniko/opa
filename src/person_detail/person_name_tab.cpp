@@ -117,8 +117,8 @@ void PersonNameTab::onNameSelected(const QItemSelection& selected) const {
     auto selectedIndex = selected.indexes().first();
     auto* model = selectedIndex.model();
 
-    int nameSort = model->index(selectedIndex.row(), PersonNamesModel::SORT).data().toInt();
-    int rowCount = model->rowCount();
+    const int nameSort = model->index(selectedIndex.row(), PersonNamesModel::SORT).data().toInt();
+    const int rowCount = model->rowCount();
 
     // Do not allow removal of the main name.
     this->removeAction->setEnabled(nameSort != 1);
@@ -136,14 +136,14 @@ void PersonNameTab::onSortChanged(const QItemSelection& selected, const int logi
         return;
     }
 
-    bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
+    const bool allowUpAndDown = logicalIndex < 0 || logicalIndex == 1;
     // Only allow up and down if the view is not sorted or sorted on the second column.
     this->upAction->setEnabled(this->upAction->isEnabled() && allowUpAndDown);
     this->downAction->setEnabled(this->downAction->isEnabled() && allowUpAndDown);
 }
 
 void PersonNameTab::onAddNewName() {
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     const int nextSort = treeView->model()->rowCount() + 1;
     const auto newNameId = nameRepo.insertName(this->person, nextSort);
     if (!newNameId.has_value()) {
@@ -180,7 +180,7 @@ void PersonNameTab::onRemoveSelectedName() const {
     auto selectedIndex = selection->selectedRows().first();
     auto nameId = treeView->model()->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
 
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     if (!nameRepo.deleteName(nameId)) {
         qWarning() << "Could not remove name" << nameId;
     }
@@ -220,7 +220,7 @@ void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow
     std::ranges::iota(sortValues, 1);
     std::swap(sortValues[sourceRow], sortValues[destinationRow]);
 
-    NameRepository nameRepo;
+    const NameRepository nameRepo;
     for (int row = 0; row < model->rowCount(); ++row) {
         auto nameId = model->index(row, PersonNamesModel::ID).data().toLongLong();
         if (!nameRepo.updateNameSort(nameId, sortValues[row])) {

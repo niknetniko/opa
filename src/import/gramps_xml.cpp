@@ -42,7 +42,7 @@ static void relaxNgErrorCollector(void* ctx, const char* msg, ...) {
 
     va_list args;
     va_start(args, msg);
-    QString formattedError = QString::vasprintf(msg, args);
+    const QString formattedError = QString::vasprintf(msg, args);
     va_end(args);
 
     errorList->append(formattedError.trimmed());
@@ -94,7 +94,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
         return;
     }
 
-    QByteArray rngSchemaBytes = rngSchemaFile.readAll();
+    const QByteArray rngSchemaBytes = rngSchemaFile.readAll();
     rngSchemaFile.close();
 
     xmlRelaxNGParserCtxtPtr rawParserContext =
@@ -104,7 +104,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
         promise.setException(ResourceNotFoundException());
         return;
     }
-    std::unique_ptr<xmlRelaxNGParserCtxt, decltype(&xmlRelaxNGFreeParserCtxt)> parserContext(
+    const std::unique_ptr<xmlRelaxNGParserCtxt, decltype(&xmlRelaxNGFreeParserCtxt)> parserContext(
         rawParserContext,
         xmlRelaxNGFreeParserCtxt
     );
@@ -115,7 +115,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
         promise.setException(ResourceNotFoundException());
         return;
     }
-    std::unique_ptr<xmlRelaxNG, decltype(&xmlRelaxNGFree)> schema(rawSchema, xmlRelaxNGFree);
+    const std::unique_ptr<xmlRelaxNG, decltype(&xmlRelaxNGFree)> schema(rawSchema, xmlRelaxNGFree);
 
     xmlRelaxNGValidCtxtPtr rawValidationContext = xmlRelaxNGNewValidCtxt(schema.get());
     if (!rawValidationContext) {
@@ -123,7 +123,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
         promise.setException(ResourceNotFoundException());
         return;
     }
-    std::unique_ptr<xmlRelaxNGValidCtxt, decltype(&xmlRelaxNGFreeValidCtxt)> validationContext(
+    const std::unique_ptr<xmlRelaxNGValidCtxt, decltype(&xmlRelaxNGFreeValidCtxt)> validationContext(
         rawValidationContext,
         xmlRelaxNGFreeValidCtxt
     );
@@ -131,7 +131,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
     QStringList validationErrors;
     xmlRelaxNGSetValidErrors(validationContext.get(), relaxNgErrorCollector, nullptr, &validationErrors);
 
-    QByteArray rawFilename = filename.toUtf8();
+    const QByteArray rawFilename = filename.toUtf8();
     xmlDocPtr rawDocument = xmlReadFile(rawFilename.constData(), nullptr, XML_PARSE_NONET);
     if (!rawDocument) {
         qWarning() << "Failed to parse XML file.";
@@ -144,7 +144,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
     }
     GrampsXmlRoot document(rawDocument, xmlFreeDoc);
 
-    int validationResult = xmlRelaxNGValidateDoc(validationContext.get(), document.get());
+    const int validationResult = xmlRelaxNGValidateDoc(validationContext.get(), document.get());
 
     if (validationResult > 0) {
         qDebug() << "Invalid Gramps XML file.";
@@ -161,7 +161,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
         return;
     }
 
-    assert(validationResult == 0);
+    static_assert(validationResult == 0);
 
     GrampsXmlAnalysis result {
         .document = std::move(document),
@@ -971,7 +971,7 @@ importMedia(QPromise<bool>& promise, int& progress, const GrampsData& data, cons
             return {};
         }
 
-        qlonglong insertedId = insert.lastInsertId().toLongLong();
+        const qlonglong insertedId = insert.lastInsertId().toLongLong();
         mediaIdByHandle.insert(media.handle, insertedId);
 
         externalIdInsert.bindValue(u":media_id"_s, insertedId);
@@ -1031,7 +1031,7 @@ importRepositorySource(QPromise<bool>& promise, int& progress, const GrampsData&
             return {};
         }
 
-        qlonglong insertedId = insertRepository.lastInsertId().toLongLong();
+        const qlonglong insertedId = insertRepository.lastInsertId().toLongLong();
         sourceIdByRepositoryHandle.insert(repository.handle, insertedId);
 
         externalIdInsert.bindValue(u":source_id"_s, insertedId);
@@ -1180,7 +1180,7 @@ void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result
                       result.repositories + result.notes + result.citations;
     int progress = 0;
     // We first parse everything into one, and then insert it, and one extra step for preparation.
-    promise.setProgressRange(0, total * 2 + 1);
+    promise.setProgressRange(0, (total * 2) + 1);
     promise.setProgressValueAndText(progress++, i18n("Preparing"));
 
     // Begin by creating lookup tables.

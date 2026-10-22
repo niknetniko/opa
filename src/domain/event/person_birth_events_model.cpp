@@ -34,6 +34,6 @@ PersonBirthEventsModel::PersonBirthEventsModel(IntegerPrimaryKey personId, QObje
 }
 
 void PersonBirthEventsModel::reload() {
-    EventRepository repo;
+    const EventRepository repo;
     this->setItems(repo.findBirthEventsForPerson(personId));
 }

@@ -138,7 +138,7 @@ void LocationManagementWindow::deleteSelectedLocation() {
         return;
     }
 
-    LocationRepository repo;
+    const LocationRepository repo;
     if (repo.isUsed(id)) {
         QMessageBox::warning(
             this,

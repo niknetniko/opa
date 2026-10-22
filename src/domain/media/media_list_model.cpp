@@ -25,6 +25,6 @@ MediaListModel::MediaListModel(QObject* parent) : ObjectTableModel(parent) {
 }
 
 void MediaListModel::reload() {
-    MediaRepository repo;
+    const MediaRepository repo;
     this->setItems(repo.findAll());
 }

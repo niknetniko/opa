@@ -53,7 +53,7 @@ QString MediaService::resolveAbsolutePath(const QString& relativePath) const {
 }
 
 std::optional<QString> MediaService::importFile(const QString& absoluteSourcePath, const QString& subfolder) {
-    QFileInfo sourceInfo(absoluteSourcePath);
+    const QFileInfo sourceInfo(absoluteSourcePath);
     if (!sourceInfo.exists() || !sourceInfo.isFile()) {
         qWarning() << "MediaService::importFile: source does not exist:" << absoluteSourcePath;
         return std::nullopt;

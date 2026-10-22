@@ -80,7 +80,7 @@ MediaEditDialog::MediaEditDialog(const MediaEntity& entity, QWidget* parent) : Q
     // Preview section — images and PDFs are rendered inline.
     if (!absolutePath.isEmpty()) {
         if (entity.mimeType.startsWith(u"image/"_s)) {
-            QPixmap pixmap(absolutePath);
+            const QPixmap pixmap(absolutePath);
             if (!pixmap.isNull()) {
                 auto* previewLabel = new QLabel(this);
                 previewLabel->setAlignment(Qt::AlignCenter);
@@ -120,7 +120,7 @@ void MediaEditDialog::accept() {
     const auto noteText = noteEdit->toPlainText().trimmed();
     const std::optional<QString> note = noteText.isEmpty() ? std::nullopt : std::make_optional(noteText);
 
-    MediaRepository repo;
+    const MediaRepository repo;
     if (!repo.update(mediaId, title, note)) {
         qWarning() << "Could not update media" << mediaId;
         return;

@@ -28,6 +28,6 @@ ParentsModel::ParentsModel(IntegerPrimaryKey personId, QObject* parent) : Object
 }
 
 void ParentsModel::reload() {
-    FamilyRepository repo;
+    const FamilyRepository repo;
     this->setItems(repo.findParentsForPerson(personId));
 }

@@ -31,6 +31,6 @@ PersonNamesModel::PersonNamesModel(IntegerPrimaryKey personId, QObject* parent) 
 }
 
 void PersonNamesModel::reload() {
-    NameRepository repo;
+    const NameRepository repo;
     this->setItems(repo.findNamesForPerson(personId));
 }
