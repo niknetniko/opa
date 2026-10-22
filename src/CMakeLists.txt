@@ -266,7 +266,7 @@ target_link_libraries(
          Qt6::Pdf
          Qt6::PdfWidgets
          Qt6::Concurrent
-         SQLite::SQLite3
+         SQLite3::SQLite3
          QtNodes::QtNodes
          KDAB::kddockwidgets
          qt6keychain
