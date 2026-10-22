@@ -161,7 +161,7 @@ void validateGrampsXml(QPromise<GrampsXmlAnalysis>& promise, const QString& file
         return;
     }
 
-    static_assert(validationResult == 0);
+    Q_ASSERT(validationResult == 0);
 
     GrampsXmlAnalysis result {
         .document = std::move(document),
