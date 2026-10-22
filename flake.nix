@@ -116,7 +116,7 @@
           text = ''
             cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             cmake --build build-tidy --target opa_autogen opa-lib_autogen
-            run-clang-tidy -p build-tidy -quiet "$PWD/src/.*"
+            run-clang-tidy -p build-tidy -quiet "$@" "$PWD/src/.*"
           '';
         };
         # Wrap clazy-standalone
