@@ -13,7 +13,7 @@ void BuiltinTextTranslatingDelegate::setTranslator(const std::function<QString(Q
 }
 
 QString BuiltinTextTranslatingDelegate::displayText(const QVariant& value, const QLocale& locale) const {
-    const auto base = QStyledItemDelegate::displayText(value, locale);
+    auto base = QStyledItemDelegate::displayText(value, locale);
     if (!this->translator) {
         return base;
     }
