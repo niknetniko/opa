@@ -148,7 +148,7 @@
           text = ''
             cmake -S . -B build-tidy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             cmake --build build-tidy --target opa_autogen opa-lib_autogen
-            run-clang-tidy -clang-tidy-binary=clazy-standalone -p build-tidy -checks=level1,no-non-pod-global-static "$PWD/src/.*"
+            run-clang-tidy -clang-tidy-binary=clazy-standalone -p build-tidy -checks=level1,no-non-pod-global-static "$@" "$PWD/src/.*"
           '';
         };
       in
