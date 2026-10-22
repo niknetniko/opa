@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include <QList>
 #include <QModelIndex>
 #include <QString>
 #include <QVariant>
@@ -73,7 +72,7 @@ public:
         this->endResetModel();
     }
 
-    [[nodiscard]] QVariant
+    [[nodiscard]] virtual QVariant
     headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override {
         if (role != Qt::DisplayRole || orientation != Qt::Horizontal || section < 0 || section >= columns.size()) {
             return {};
@@ -82,7 +81,7 @@ public:
         return columns[section].header;
     }
 
-    [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
+    [[nodiscard]] virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
         if (role != Qt::DisplayRole && role != Qt::EditRole) {
             return {};
         }
@@ -95,7 +94,7 @@ public:
         return columns[index.column()].extractor(items[*itemIndex]);
     }
 
-    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override {
+    virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override {
         if (role != Qt::EditRole) {
             return false;
         }
@@ -119,7 +118,7 @@ public:
     }
 
 
-    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override {
+    [[nodiscard]] virtual Qt::ItemFlags flags(const QModelIndex& index) const override {
         Qt::ItemFlags defaultFlags = QtModel::flags(index);
 
         if (const auto itemIndex = this->itemIndex(index);
