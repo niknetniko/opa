@@ -47,6 +47,8 @@ Checks: "*,
         -cppcoreguidelines-noexcept-move-operations,
         -cppcoreguidelines-noexcept-swap,
         -cppcoreguidelines-use-default-member-init,
+        -modernize-use-std-print,
+        -modernize-use-std-numbers,
 
 "
 CheckOptions:
