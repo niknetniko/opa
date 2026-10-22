@@ -31,7 +31,7 @@ QFuture<QString> readFromKeychainLax(const QString& service, const QString& key,
     job->setKey(key);
     job->setAutoDelete(true);
 
-    QObject::connect(job, &QKeychain::ReadPasswordJob::finished, [job, promise = std::move(promise)]() mutable {
+    QObject::connect(job, &QKeychain::ReadPasswordJob::finished, [job, promise = std::move(promise)] mutable {
         if (job->error() != QKeychain::NoError) {
             promise.addResult(QString {});
         } else {

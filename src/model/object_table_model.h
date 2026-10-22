@@ -30,7 +30,7 @@ public:
     }
 
 protected:
-    std::optional<qsizetype> itemIndex(const QModelIndex& index) const override {
+    [[nodiscard]] std::optional<qsizetype> itemIndex(const QModelIndex& index) const override {
         if (!index.isValid() || index.row() >= this->items.size()) {
             return std::nullopt;
         }

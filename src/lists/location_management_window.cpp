@@ -166,13 +166,7 @@ void LocationManagementWindow::deleteSelectedLocation() {
         i18n("Are you sure you want to delete this location?"),
         QMessageBox::Yes | QMessageBox::No
     );
-    if (result == QMessageBox::Yes) {
-        if (!repo.deleteLocation(id)) {
-            QMessageBox::critical(
-                this,
-                i18n("Delete failed"),
-                i18n("Could not delete the location. Please try again.")
-            );
-        }
+    if (result == QMessageBox::Yes && !repo.deleteLocation(id)) {
+        QMessageBox::critical(this, i18n("Delete failed"), i18n("Could not delete the location. Please try again."));
     }
 }

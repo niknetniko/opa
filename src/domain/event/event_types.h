@@ -22,7 +22,7 @@ const QHash<Values, KLazyLocalizedString> typeToString {
     {Values::Marriage, kli18n("Marriage")},
     {Values::Divorce, kli18n("Divorce")},
     {Values::Baptism, kli18n("Baptism")},
-    {Values::Funeral, kli18n("Funeral")}
+    {Values::Funeral, kli18n("Funeral")},
 };
 
 const auto toDisplayString = [](const QString& databaseValue) -> QString {

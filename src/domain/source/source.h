@@ -66,7 +66,7 @@ enum class Values {
      */
     VeryHigh,
     /** Unknown at this time. */
-    Unknown
+    Unknown,
 };
 
 Q_ENUM_NS(Values)

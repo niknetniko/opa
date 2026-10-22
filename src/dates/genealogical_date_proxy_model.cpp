@@ -30,11 +30,11 @@ QVariant GenealogicalDateProxyModel::data(const QModelIndex& index, int role) co
         switch (role) {
             case Qt::DisplayRole:
             case Qt::EditRole: {
-                auto raw = QIdentityProxyModel::data(index, role).toString();
+                const auto raw = QIdentityProxyModel::data(index, role).toString();
                 return GenealogicalDate::fromDatabaseRepresentation(raw).toLocalizedText();
             }
             case RawDateRole: {
-                auto raw = QIdentityProxyModel::data(index, Qt::DisplayRole).toString();
+                const auto raw = QIdentityProxyModel::data(index, Qt::DisplayRole).toString();
                 return QVariant::fromValue(GenealogicalDate::fromDatabaseRepresentation(raw));
             }
             default:

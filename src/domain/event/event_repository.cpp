@@ -212,7 +212,7 @@ bool EventRepository::removeEventRelationCitation(IntegerPrimaryKey relationId, 
 
 std::optional<IntegerPrimaryKey>
 EventRepository::insertEventWithRelation(const QString& type, IntegerPrimaryKey personId, const QString& role) const {
-    return executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+    return executeInTransaction([&] -> std::optional<IntegerPrimaryKey> {
         auto eventId = insertEvent(type);
         if (!eventId) {
             return std::nullopt;
@@ -235,7 +235,7 @@ std::optional<IntegerPrimaryKey> EventRepository::insertFullEvent(
     const QString& role,
     std::optional<IntegerPrimaryKey> locationId
 ) const {
-    return executeInTransaction([&]() -> std::optional<IntegerPrimaryKey> {
+    return executeInTransaction([&] -> std::optional<IntegerPrimaryKey> {
         auto eventId = insertEvent(type);
         if (!eventId) {
             return std::nullopt;

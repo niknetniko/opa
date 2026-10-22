@@ -29,7 +29,7 @@ NamesEditorDialog::NamesEditorDialog(IntegerPrimaryKey nameId, bool newRow, QWid
     if (newRow) {
         this->setWindowTitle(i18n("Nieuwe naam toevoegen"));
     } else {
-        auto nameIdFormatted = format_id(FormattedIdentifierDelegate::NAME, nameId);
+        const auto nameIdFormatted = format_id(FormattedIdentifierDelegate::NAME, nameId);
         this->setWindowTitle(i18n("%1 bewerken", nameIdFormatted));
     }
 

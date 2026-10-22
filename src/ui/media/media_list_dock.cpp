@@ -88,12 +88,12 @@ void MediaTableWidget::onContextMenuRequested(const QPoint& pos) {
 
     auto* editAction = new QAction(i18n("&Edit..."), &menu);
     editAction->setIcon(QIcon::fromTheme(u"document-edit"_s));
-    connect(editAction, &QAction::triggered, this, [this, mediaId]() { openEditDialog(mediaId); });
+    connect(editAction, &QAction::triggered, this, [this, mediaId] { openEditDialog(mediaId); });
     menu.addAction(editAction);
 
     auto* openAction = new QAction(i18n("&Open File"), &menu);
     openAction->setIcon(QIcon::fromTheme(u"document-open"_s));
-    connect(openAction, &QAction::triggered, this, [mediaId]() {
+    connect(openAction, &QAction::triggered, this, [mediaId] {
         const MediaRepository repo;
         auto entity = repo.findById(mediaId);
         if (!entity.has_value()) {
@@ -108,7 +108,7 @@ void MediaTableWidget::onContextMenuRequested(const QPoint& pos) {
 
     auto* deleteAction = new QAction(i18n("&Delete"), &menu);
     deleteAction->setIcon(QIcon::fromTheme(u"edit-delete"_s));
-    connect(deleteAction, &QAction::triggered, this, [this, mediaId]() {
+    connect(deleteAction, &QAction::triggered, this, [this, mediaId] {
         const auto result = QMessageBox::warning(
             this,
             i18n("Delete Media"),

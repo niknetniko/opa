@@ -853,7 +853,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing people"));
-                    auto person = parsePerson(d);
+                    const auto person = parsePerson(d);
                     data.people.insert(person.id, person);
                 }
             }
@@ -861,7 +861,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing families"));
-                    auto family = parseFamily(d);
+                    const auto family = parseFamily(d);
                     data.families.insert(family.id, family);
                 }
             }
@@ -869,7 +869,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing events"));
-                    auto event = parseEvent(d);
+                    const auto event = parseEvent(d);
                     data.events.insert(event.id, event);
                 }
             }
@@ -877,7 +877,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing sources"));
-                    auto source = parseSource(d);
+                    const auto source = parseSource(d);
                     data.sources.insert(source.id, source);
                 }
             }
@@ -885,7 +885,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing places"));
-                    auto place = parsePlace(d);
+                    const auto place = parsePlace(d);
                     data.places.insert(place.id, place);
                 }
             }
@@ -893,7 +893,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing citations"));
-                    auto citation = parseCitation(d);
+                    const auto citation = parseCitation(d);
                     data.citations.insert(citation.id, citation);
                 }
             }
@@ -901,7 +901,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing media"));
-                    auto media = parseMedia(d);
+                    const auto media = parseMedia(d);
                     data.media.insert(media.id, media);
                 }
             }
@@ -909,7 +909,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing repositories"));
-                    auto repository = parseRepository(d);
+                    const auto repository = parseRepository(d);
                     data.repositories.insert(repository.id, repository);
                 }
             }
@@ -917,7 +917,7 @@ static GrampsData parseGrampsData(QPromise<bool>& promise, int& progress, const 
             for (const xmlNode* d = c->children; d; d = d->next) {
                 if (d->type == XML_ELEMENT_NODE) {
                     promise.setProgressValueAndText(progress++, i18n("Parsing notes"));
-                    auto note = parseNote(d);
+                    const auto note = parseNote(d);
                     data.notesById.insert(note.id, note);
                     data.notesByHandle.insert(note.handle, note);
                 }
@@ -1204,20 +1204,20 @@ void importGrampsResult(QPromise<bool>& promise, const GrampsXmlAnalysis& result
         return;
     }
 
-    auto transactionResult = rawExecuteInTransaction(db, [&]() -> std::optional<bool> {
+    auto transactionResult = rawExecuteInTransaction(db, [&] -> std::optional<bool> {
         auto mediaIdByHandle = importMedia(promise, progress, data, db);
         if (!mediaIdByHandle) {
             qWarning() << "Failed to import media, aborting...";
             return {};
         }
 
-        auto sourceByRepositoryHandle = importRepositorySource(promise, progress, data, db);
+        const auto sourceByRepositoryHandle = importRepositorySource(promise, progress, data, db);
         if (!sourceByRepositoryHandle) {
             qWarning() << "Failed to import repositories, aborting...";
             return {};
         }
 
-        auto locationIdByHandle = importLocations(promise, progress, data, *mediaIdByHandle, db);
+        const auto locationIdByHandle = importLocations(promise, progress, data, *mediaIdByHandle, db);
         if (!locationIdByHandle) {
             qWarning() << "Failed to import locations, aborting...";
             return {};

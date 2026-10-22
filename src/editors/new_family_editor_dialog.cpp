@@ -106,12 +106,12 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 
     const EventRepository repo;
 
-    auto chosenMotherId = data.motherId;
-    auto chosenFatherId = data.fatherId;
+    const auto chosenMotherId = data.motherId;
+    const auto chosenFatherId = data.fatherId;
 
     if (chosenMotherId.isValid() && chosenFatherId.isValid()) {
-        auto selectedTypeRow = form->parentRelationRole->currentIndex();
-        auto chosenTypeId = form->parentRelationRole->model()->index(selectedTypeRow, 0).data().toString();
+        const auto selectedTypeRow = form->parentRelationRole->currentIndex();
+        const auto chosenTypeId = form->parentRelationRole->model()->index(selectedTypeRow, 0).data().toString();
 
         auto eventId = repo.insertEvent(chosenTypeId);
         if (!eventId.has_value()) {
@@ -169,7 +169,7 @@ bool NewFamilyEditorDialog::saveNewFamily() const {
 }
 
 void NewFamilyEditorDialog::accept() {
-    auto result = executeInTransaction([&]() -> std::optional<bool> {
+    const auto result = executeInTransaction([&] -> std::optional<bool> {
         if (!saveNewFamily()) {
             return std::nullopt;
         }
@@ -206,14 +206,14 @@ void NewFamilyEditorDialog::reject() {
 }
 
 void NewFamilyEditorDialog::onSelectExistingMother() {
-    auto motherId = ChooseExistingPersonWindow::selectPerson(this);
+    const auto motherId = ChooseExistingPersonWindow::selectPerson(this);
     if (motherId.isValid()) {
         setMother(motherId.toLongLong());
     }
 }
 
 void NewFamilyEditorDialog::onSelectExistingFather() {
-    auto fatherId = ChooseExistingPersonWindow::selectPerson(this);
+    const auto fatherId = ChooseExistingPersonWindow::selectPerson(this);
     if (fatherId.isValid()) {
         setFather(fatherId.toLongLong());
     }

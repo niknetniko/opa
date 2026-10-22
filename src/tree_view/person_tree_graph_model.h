@@ -45,7 +45,7 @@ public:
 
     bool connectionExists(ConnectionId connectionId) const override;
     bool connectionPossible(ConnectionId connectionId) const override;
-    bool detachPossible(ConnectionId) const override;
+    bool detachPossible(ConnectionId /*connectionId*/ /*unused*/) const override;
     bool nodeExists(NodeId nodeId) const override;
     QVariant nodeData(NodeId nodeId, NodeRole role) const override;
     bool setNodeData(NodeId nodeId, NodeRole role, QVariant value) override;

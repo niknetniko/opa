@@ -125,20 +125,20 @@ void PersonEventTab::onAddNewEvent() {
 
 void PersonEventTab::onEditSelectedEvent() {
     // Get the currently selected name.
-    auto* selection = this->treeView->selectionModel();
+    const auto* selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     Q_ASSERT(selection->selectedRows().size() == 1);
-    auto selectedIndex = selection->selectedRows().first();
+    const auto selectedIndex = selection->selectedRows().first();
     if (!selectedIndex.parent().isValid()) {
         return; // group (role header) row selected, nothing to edit
     }
 
-    auto eventId = selectedIndex.siblingAtColumn(PersonEventListModel::ID).data();
-    auto eventRole = selectedIndex.siblingAtColumn(PersonEventListModel::ROLE).data();
-    auto relationId = selectedIndex.siblingAtColumn(PersonEventListModel::RELATION_ID).data();
+    const auto eventId = selectedIndex.siblingAtColumn(PersonEventListModel::ID).data();
+    const auto eventRole = selectedIndex.siblingAtColumn(PersonEventListModel::ROLE).data();
+    const auto relationId = selectedIndex.siblingAtColumn(PersonEventListModel::RELATION_ID).data();
 
     EventEditorDialog::showDialogForExistingEvent(
         eventId.toLongLong(),
@@ -150,7 +150,7 @@ void PersonEventTab::onEditSelectedEvent() {
 }
 
 void PersonEventTab::onRemoveSelectedEvent() const {
-    auto* selection = this->treeView->selectionModel();
+    const auto* selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
@@ -159,11 +159,11 @@ void PersonEventTab::onRemoveSelectedEvent() const {
 
     qDebug() << "Selection itself is " << selection;
 
-    auto selectRow = selection->selectedIndexes().first();
+    const auto selectRow = selection->selectedIndexes().first();
     if (!selectRow.parent().isValid()) {
         return; // group (role header) row selected, nothing to remove
     }
-    auto eventId = selectRow.siblingAtColumn(PersonEventListModel::ID).data().toLongLong();
+    const auto eventId = selectRow.siblingAtColumn(PersonEventListModel::ID).data().toLongLong();
 
     // Look up where it is linked.
     const EventRepository repo;
@@ -195,18 +195,18 @@ void PersonEventTab::onRemoveSelectedEvent() const {
 }
 
 void PersonEventTab::onUnlinkSelectedEvent() {
-    auto* selection = this->treeView->selectionModel();
+    const auto* selection = this->treeView->selectionModel();
     if (!selection->hasSelection()) {
         qDebug() << "There is no selection, so not deleting anything.";
         return;
     }
     Q_ASSERT(selection->selectedRows().size() == 1);
 
-    auto selectRow = selection->selectedIndexes().first();
+    const auto selectRow = selection->selectedIndexes().first();
     if (!selectRow.parent().isValid()) {
         return; // group (role header) row selected, nothing to unlink
     }
-    auto relationId = selectRow.siblingAtColumn(PersonEventListModel::RELATION_ID).data().toLongLong();
+    const auto relationId = selectRow.siblingAtColumn(PersonEventListModel::RELATION_ID).data().toLongLong();
 
     QMessageBox confirmationBox;
     confirmationBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);

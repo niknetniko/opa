@@ -75,7 +75,7 @@ void SourceTreeWidget::handleSelectedNewRow(const QItemSelection& selected) {
     if (selected.empty()) {
         return;
     }
-    auto personId = getIdFromSelection(selected, treeView->model(), SourcesListModel::ID);
+    const auto personId = getIdFromSelection(selected, treeView->model(), SourcesListModel::ID);
     Q_EMIT handleSourceSelected(personId);
 }
 
@@ -93,14 +93,14 @@ void SourceTreeWidget::onContextMenuRequested(const QPoint& pos) {
 
     auto* editAction = new QAction(i18n("&Edit Source"), &menu);
     editAction->setIcon(QIcon::fromTheme(u"document-edit"_s));
-    connect(editAction, &QAction::triggered, this, [this, sourceId]() {
+    connect(editAction, &QAction::triggered, this, [this, sourceId] {
         SourceEditorDialog::showDialogForExistingSource(sourceId, this);
     });
     menu.addAction(editAction);
 
     auto* deleteAction = new QAction(i18n("&Delete Source"), &menu);
     deleteAction->setIcon(QIcon::fromTheme(u"edit-delete"_s));
-    connect(deleteAction, &QAction::triggered, this, [this, sourceId]() {
+    connect(deleteAction, &QAction::triggered, this, [this, sourceId] {
         const auto result = QMessageBox::warning(
             this,
             i18n("Delete Source"),

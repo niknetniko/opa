@@ -61,7 +61,7 @@ auto rawExecuteInTransaction(QSqlDatabase& database, const Function& operation) 
         return std::nullopt;
     }
 
-    auto rollback = qScopeGuard([&]() {
+    auto rollback = qScopeGuard([&] {
         if (!database.rollback()) {
             qWarning() << "Failed to rollback transaction:" << database.lastError().text();
         }
@@ -91,9 +91,9 @@ auto rawExecuteInTransaction(QSqlDatabase& database, const Function& operation) 
  */
 template<typename Function>
 auto executeInTransaction(const Function& operation) -> decltype(operation()) {
-    auto guard = DataEventBroker::instance().batchNotifications();
+    const auto guard = DataEventBroker::instance().batchNotifications();
 
-    auto discard = qScopeGuard([&]() { guard.discard(); });
+    auto discard = qScopeGuard([&] { guard.discard(); });
 
     auto db = QSqlDatabase::database();
     auto result = rawExecuteInTransaction(db, operation);

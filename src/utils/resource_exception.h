@@ -12,7 +12,7 @@ public:
     void raise() const override {
         throw *this;
     }
-    ResourceNotFoundException* clone() const override {
+    [[nodiscard]] ResourceNotFoundException* clone() const override {
         return new ResourceNotFoundException(*this);
     }
 };

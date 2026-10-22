@@ -13,7 +13,7 @@ class DistinctStringModel : public QStringListModel {
     Q_OBJECT
 
 public:
-    DistinctStringModel(QObject* parent = nullptr);
+    explicit DistinctStringModel(QObject* parent = nullptr);
 
 public Q_SLOTS:
     void reload();

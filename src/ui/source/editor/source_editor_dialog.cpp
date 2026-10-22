@@ -69,7 +69,7 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
             parentId = entity->parentId;
             updateParentDisplay();
 
-            auto nameId = format_id(FormattedIdentifierDelegate::SOURCE, *sourceId);
+            const auto nameId = format_id(FormattedIdentifierDelegate::SOURCE, *sourceId);
             this->setWindowTitle(i18n("Editing %1", nameId));
         }
     } else {
@@ -107,12 +107,12 @@ SourceEditorDialog::SourceEditorDialog(std::optional<IntegerPrimaryKey> sourceId
 void SourceEditorDialog::accept() {
     const SourceRepository repo;
 
-    auto title = form->sourcetTitleEdit->text();
-    auto type = form->sourceTypeComboBox->currentText();
-    auto author = form->sourceAuthorEdit->text();
-    auto publication = form->sourcePublicationEdit->text();
-    auto note = form->noteEdit->textOrHtml();
-    auto confidence = form->sourceConfidenceCombobox->currentIndex();
+    const auto title = form->sourcetTitleEdit->text();
+    const auto type = form->sourceTypeComboBox->currentText();
+    const auto author = form->sourceAuthorEdit->text();
+    const auto publication = form->sourcePublicationEdit->text();
+    const auto note = form->noteEdit->textOrHtml();
+    const auto confidence = form->sourceConfidenceCombobox->currentIndex();
 
     if (!sourceId.has_value()) {
         const auto newId = repo.insert(title, type, author, publication, confidence, note, parentId);
@@ -143,15 +143,15 @@ void SourceEditorDialog::showDialogForExistingSource(IntegerPrimaryKey sourceId,
 }
 
 void SourceEditorDialog::editNoteWithEditor() {
-    auto currentText = form->noteEdit->textOrHtml();
-    if (auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+    const auto currentText = form->noteEdit->textOrHtml();
+    if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }
 }
 
 void SourceEditorDialog::addNewSourceAsParent() {
     qDebug() << "Adding new source as parent...";
-    auto newSourceId = showDialogForNewSource(this);
+    const auto newSourceId = showDialogForNewSource(this);
     qDebug() << "New source ID:" << newSourceId;
     if (newSourceId.isValid()) {
         parentId = newSourceId.toLongLong();
@@ -163,7 +163,7 @@ void SourceEditorDialog::addNewSourceAsParent() {
 }
 
 void SourceEditorDialog::selectExistingSourceAsParent() {
-    auto parentSource = ChooseExistingSourceWindow::selectSource(this);
+    const auto parentSource = ChooseExistingSourceWindow::selectSource(this);
     if (parentSource.isValid()) {
         parentId = parentSource.toLongLong();
         updateParentDisplay();
@@ -182,25 +182,33 @@ void SourceEditorDialog::updateParentDisplay() const {
 const QJsonObject extractionSchema = QJsonObject {
     {u"$schema"_s, u"https://json-schema.org/draft/2020-12/schema"_s},
     {u"type"_s, u"object"_s},
-    {u"properties"_s,
-     QJsonObject {
-         {u"title"_s, QJsonObject {{u"type"_s, u"string"_s}}},
-         {u"type"_s, QJsonObject {{u"type"_s, u"string"_s}}},
-         {u"author"_s, QJsonObject {{u"type"_s, u"string"_s}}},
-         {u"publication"_s, QJsonObject {{u"type"_s, u"string"_s}}},
-         {u"note"_s, QJsonObject {{u"type"_s, u"string"_s}}},
-         {u"suggested_parent"_s,
-          QJsonObject {
-              {u"type"_s, u"string"_s},
-              {u"description"_s,
-               u"Name of the parent source this item belongs to (e.g. newspaper name, book series, archive)"_s}
-          }},
-         {u"message"_s,
-          QJsonObject {
-              {u"type"_s, u"string"_s},
-              {u"description"_s, u"Optional note about ambiguous or missing fields"_s}
-          }},
-     }},
+    {
+        u"properties"_s,
+        QJsonObject {
+            {u"title"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+            {u"type"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+            {u"author"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+            {u"publication"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+            {u"note"_s, QJsonObject {{u"type"_s, u"string"_s}}},
+            {
+                u"suggested_parent"_s,
+                QJsonObject {
+                    {u"type"_s, u"string"_s},
+                    {
+                        u"description"_s,
+                        u"Name of the parent source this item belongs to (e.g. newspaper name, book series, archive)"_s,
+                    },
+                },
+            },
+            {
+                u"message"_s,
+                QJsonObject {
+                    {u"type"_s, u"string"_s},
+                    {u"description"_s, u"Optional note about ambiguous or missing fields"_s},
+                },
+            },
+        },
+    },
     {u"required"_s, QJsonArray {u"title"_s, u"type"_s, u"confidence"_s}},
 };
 
@@ -230,7 +238,7 @@ void SourceEditorDialog::onAiResponse(const QString& response) {
     clearFieldSuggestions();
 
     const auto wizardIcon = QIcon::fromTheme(u"tools-wizard"_s);
-    auto setOrSuggest = [&](const QString& key, QLineEdit* edit) {
+    const auto setOrSuggest = [&](const QString& key, QLineEdit* edit) {
         if (const auto v = obj[key].toString(); !v.isEmpty()) {
             if (edit->text().isEmpty()) {
                 edit->setText(v);
@@ -282,7 +290,7 @@ void SourceEditorDialog::showParentSuggestion() {
 
     if (!parentSuggestionMatches.isEmpty()) {
         const auto& best = parentSuggestionMatches.first();
-        auto displayId = format_id(FormattedIdentifierDelegate::SOURCE, best.id);
+        const auto displayId = format_id(FormattedIdentifierDelegate::SOURCE, best.id);
         form->parentSuggestionLabel->setText(i18n("%1 (%2)", best.title, displayId));
         form->parentSuggestionUseButton->setVisible(true);
         form->parentSuggestionPickButton->setVisible(true);
@@ -330,7 +338,7 @@ void SourceEditorDialog::clearFieldSuggestions() {
     }
     fieldSuggestionFrames.clear();
 
-    for (auto* action: fieldIndicatorActions) {
+    for (const auto* action: fieldIndicatorActions) {
         delete action;
     }
     fieldIndicatorActions.clear();
@@ -362,7 +370,7 @@ void SourceEditorDialog::showFieldSuggestion(QLineEdit* field, const QString& su
     auto* acceptBtn = new QPushButton(frame);
     acceptBtn->setIcon(QIcon::fromTheme(u"dialog-ok-apply"_s));
     acceptBtn->setFlat(true);
-    connect(acceptBtn, &QPushButton::clicked, this, [this, field, suggestedValue, frame]() {
+    connect(acceptBtn, &QPushButton::clicked, this, [this, field, suggestedValue, frame] {
         field->setText(suggestedValue);
         fieldSuggestionFrames.removeOne(frame);
         frame->deleteLater();
@@ -372,7 +380,7 @@ void SourceEditorDialog::showFieldSuggestion(QLineEdit* field, const QString& su
     auto* dismissBtn = new QPushButton(frame);
     dismissBtn->setIcon(QIcon::fromTheme(u"dialog-cancel"_s));
     dismissBtn->setFlat(true);
-    connect(dismissBtn, &QPushButton::clicked, this, [this, frame]() {
+    connect(dismissBtn, &QPushButton::clicked, this, [this, frame] {
         fieldSuggestionFrames.removeOne(frame);
         frame->deleteLater();
     });

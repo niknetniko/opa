@@ -30,7 +30,7 @@ class IntroPage : public QWizardPage {
 public:
     explicit IntroPage(QWidget* parent = nullptr);
 
-    int nextId() const override;
+    [[nodiscard]] int nextId() const override;
 
 private:
     QRadioButton* grampsXmlRadioButton;
@@ -42,7 +42,7 @@ class GrampsXmlSelectPage : public QWizardPage {
 public:
     explicit GrampsXmlSelectPage(QWidget* parent = nullptr);
 
-    int nextId() const override;
+    [[nodiscard]] int nextId() const override;
 
 private:
     KUrlRequester* urlRequester;
@@ -55,9 +55,9 @@ public:
 
     void initializePage() override;
     void cleanupPage() override;
-    bool isComplete() const override;
+    [[nodiscard]] bool isComplete() const override;
 
-    int nextId() const override;
+    [[nodiscard]] int nextId() const override;
 
     GrampsXmlAnalysis takeAnalysis();
 
@@ -83,7 +83,7 @@ public:
 
     void initializePage() override;
     void cleanupPage() override;
-    bool isComplete() const override;
+    [[nodiscard]] bool isComplete() const override;
 
 private:
     QProgressBar* progressBar;

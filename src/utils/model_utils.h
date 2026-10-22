@@ -21,14 +21,14 @@
  */
 template<typename T>
 bool modelTransaction(QSqlTableModel* model, T&& transaction) {
-    auto originalStrategy = model->editStrategy();
+    const auto originalStrategy = model->editStrategy();
     Q_ASSERT(!model->isDirty());
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
     // Do the transaction.
     transaction();
 
-    bool wasSubmitted = model->submitAll();
+    const bool wasSubmitted = model->submitAll();
     model->setEditStrategy(originalStrategy);
     return wasSubmitted;
 }
@@ -99,7 +99,7 @@ inline QModelIndex mapToSourceModel(const QModelIndex& index) {
  */
 template<typename E>
 bool isValidEnum(const QString& value) {
-    auto result = QMetaEnum::fromType<E>().keyToValue(value.toLatin1().constData());
+    const auto result = QMetaEnum::fromType<E>().keyToValue(value.toLatin1().constData());
     return result >= 0;
 }
 
@@ -117,12 +117,12 @@ QString enumToString(const E& value) {
 }
 
 template<typename E>
-QAbstractItemModel* getEnumModel(QObject* parent, std::function<QString(QString)> toDisplayText) {
+QAbstractItemModel* getEnumModel(QObject* parent, const std::function<QString(QString)>& toDisplayText) {
     auto* model = new QStandardItemModel(parent);
-    auto metaEnum = QMetaEnum::fromType<E>();
+    const auto metaEnum = QMetaEnum::fromType<E>();
     for (auto i = 0; i < metaEnum.keyCount(); ++i) {
-        auto value = metaEnum.value(i);
-        auto displayText = toDisplayText(QString::fromLatin1(metaEnum.key(i)));
+        const auto value = metaEnum.value(i);
+        const auto displayText = toDisplayText(QString::fromLatin1(metaEnum.key(i)));
 
         auto* item = new QStandardItem(displayText);
         item->setData(value, Qt::UserRole);
@@ -140,7 +140,7 @@ QAbstractItemModel* getEnumModel(QObject* parent, std::function<QString(QString)
  */
 template<typename E>
 E enumFromString(const QString& value) {
-    auto result = QMetaEnum::fromType<E>().keyToValue(value.toLatin1().constData());
+    const auto result = QMetaEnum::fromType<E>().keyToValue(value.toLatin1().constData());
     Q_ASSERT(result >= 0);
     return static_cast<E>(result);
 }

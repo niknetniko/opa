@@ -104,7 +104,7 @@ GrampsCheckPage::GrampsCheckPage(QWidget* parent) : QWizardPage(parent) {
 }
 
 void GrampsCheckPage::initializePage() {
-    auto file = field(u"grampsXmlFile"_s).toUrl().toLocalFile();
+    const auto file = field(u"grampsXmlFile"_s).toUrl().toLocalFile();
 
     if (analyzedFile == file && watcher_ == nullptr) {
         return; // Already analyzed
@@ -201,7 +201,7 @@ void GrampsImportPage::initializePage() {
     auto* previousPage = dynamic_cast<GrampsCheckPage*>(wizard()->page(ImportWizard::Page_GrampsCheck));
 
     auto analysis = previousPage->takeAnalysis();
-    auto databaseName = QSqlDatabase::database().connectionName();
+    const auto databaseName = QSqlDatabase::database().connectionName();
 
     watcher_ = new QFutureWatcher<bool>(this);
     connect(watcher_, &QFutureWatcher<bool>::finished, this, &GrampsImportPage::onFinished);

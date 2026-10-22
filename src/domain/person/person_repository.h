@@ -28,9 +28,9 @@ public:
 
     [[nodiscard]] std::optional<PersonDisplayEntity> findDisplayById(IntegerPrimaryKey id) const;
 
-    std::optional<IntegerPrimaryKey> insertPerson(const QString& sex, bool root = false) const;
+    [[nodiscard]] std::optional<IntegerPrimaryKey> insertPerson(const QString& sex, bool root = false) const;
 
-    bool updatePerson(IntegerPrimaryKey id, const QString& sex, bool root) const;
+    [[nodiscard]] bool updatePerson(IntegerPrimaryKey id, const QString& sex, bool root) const;
 
-    bool deletePerson(IntegerPrimaryKey id) const;
+    [[nodiscard]] bool deletePerson(IntegerPrimaryKey id) const;
 };

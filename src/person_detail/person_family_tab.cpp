@@ -115,7 +115,7 @@ void PersonFamilyTab::onParentClicked(const QModelIndex& index) const {
         return;
     }
     Q_ASSERT(index.model() == parentsTreeView->model());
-    auto personId = index.model()->index(index.row(), ParentsModel::PERSON_ID, index.parent()).data();
+    const auto personId = index.model()->index(index.row(), ParentsModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
 }
 
@@ -124,7 +124,7 @@ void PersonFamilyTab::onPartnerOrChildClicked(const QModelIndex& index) const {
         return;
     }
     Q_ASSERT(index.model() == partnerAndDescendantTreeView->model());
-    auto personId = index.model()->index(index.row(), FamilyMembersModel::PERSON_ID, index.parent()).data();
+    const auto personId = index.model()->index(index.row(), FamilyMembersModel::PERSON_ID, index.parent()).data();
     openOrSelectPerson(personId.toLongLong());
 }
 

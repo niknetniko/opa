@@ -214,7 +214,7 @@ GenealogicalDate GenealogicalDate::fromDatabaseRepresentation(const QString& tex
         if (s.isEmpty()) {
             return {{}, false};
         }
-        auto t = QTime::fromString(s, TIME_FORMAT);
+        const auto t = QTime::fromString(s, TIME_FORMAT);
         return {t, t.isValid()};
     };
 
@@ -371,7 +371,7 @@ static GenealogicalDate::DatePoint parsePartialDate(const QString& text) {
             .year = true,
             .month = false,
             .day = false,
-            .hasTime = false
+            .hasTime = false,
         };
     }
     return {};

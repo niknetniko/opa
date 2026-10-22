@@ -78,7 +78,7 @@ bool NameRepository::updateName(
         "UPDATE names SET titles = :titles, given_names = :given_names, prefix = :prefix, "
         "surname = :surname, note = :note, origin = :origin WHERE id = :id"
     );
-    auto bindings = QVariantMap {
+    const auto bindings = QVariantMap {
         {u":titles"_s, titles},
         {u":given_names"_s, givenNames},
         {u":prefix"_s, prefix},

@@ -59,7 +59,7 @@ void executeScriptOrAbort(const QString& script, const QSqlDatabase& database) {
 }
 
 void runMigrations(QSqlDatabase& database) {
-    const int current = [&database]() {
+    const int current = [&database] {
         QSqlQuery vq(database);
         if (!vq.exec(u"PRAGMA user_version"_s)) {
             qCritical() << "Failed to query schema version:" << vq.lastError().text();
@@ -118,8 +118,9 @@ void runMigrations(QSqlDatabase& database) {
     }
 }
 
+// ReSharper disable once CppParameterMayBeConst
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-// NOLINTNEXTLINE(*-use-internal-linkage)
+// NOLINTNEXTLINE(*-use-internal-linkage, readability-non-const-parameter)
 int sql_trace_callback(unsigned int type, void* context, void* p, void* x) {
     Q_UNUSED(context);
     Q_UNUSED(x);

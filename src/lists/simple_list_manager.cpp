@@ -29,13 +29,13 @@ StatusTooltipModel::StatusTooltipModel(SimpleListManagementWindow* parent) : QId
 QVariant StatusTooltipModel::data(const QModelIndex& index, int role) const {
     Q_ASSERT(checkIndex(index, CheckIndexOption::IndexIsValid));
 
-    auto* window = qobject_cast<SimpleListManagementWindow*>(this->parent());
+    const auto* window = qobject_cast<SimpleListManagementWindow*>(this->parent());
     if (index.isValid() && role == Qt::StatusTipRole && index.column() == window->displayColumn) {
-        auto isBuiltin = QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
-        auto id = QIdentityProxyModel::index(index.row(), window->idColumn).data();
+        const auto isBuiltin = QIdentityProxyModel::index(index.row(), window->builtinColumn).data().toBool();
+        const auto id = QIdentityProxyModel::index(index.row(), window->idColumn).data();
 
-        auto rawData = QIdentityProxyModel::index(index.row(), window->displayColumn).data();
-        auto value = window->originTranslator->displayText(rawData, QLocale::system());
+        const auto rawData = QIdentityProxyModel::index(index.row(), window->displayColumn).data();
+        const auto value = window->originTranslator->displayText(rawData, QLocale::system());
         return window->translatedItemDescription(value, isBuiltin);
     }
 
@@ -47,13 +47,13 @@ SimpleListManagementWindow::SimpleListManagementWindow() {
 }
 
 void SimpleListManagementWindow::addItem() const {
-    auto id = doAddItem();
+    const auto id = doAddItem();
     if (!id.isValid()) {
         return;
     }
 
     // The table might be sorted, so we need to select the row with the highest ID.
-    auto searchIndex = this->tableView->model()->index(0, idColumn);
+    const auto searchIndex = this->tableView->model()->index(0, idColumn);
     auto newlyInserted = this->tableView->model()->match(searchIndex, Qt::DisplayRole, id);
 
     if (newlyInserted.isEmpty()) {
@@ -61,8 +61,8 @@ void SimpleListManagementWindow::addItem() const {
         return;
     }
 
-    auto insertedIndex = newlyInserted.first();
-    auto editIndex = this->tableView->model()->index(insertedIndex.row(), displayColumn);
+    const auto insertedIndex = newlyInserted.first();
+    const auto editIndex = this->tableView->model()->index(insertedIndex.row(), displayColumn);
 
     tableView->scrollTo(insertedIndex);
     tableView->setFocus();
@@ -74,14 +74,14 @@ void SimpleListManagementWindow::addItem() const {
 }
 
 void SimpleListManagementWindow::removeItem() const {
-    auto* selection = this->tableView->selectionModel();
+    const auto* selection = this->tableView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
-    auto selectedIndex = selection->selection().first().indexes().first();
-    auto rootIndex = mapToSourceModel(selectedIndex);
-    auto id = this->model->index(rootIndex.row(), idColumn).data();
+    const auto selectedIndex = selection->selection().first().indexes().first();
+    const auto rootIndex = mapToSourceModel(selectedIndex);
+    const auto id = this->model->index(rootIndex.row(), idColumn).data();
 
     doRemoveItem(id);
 }
@@ -97,8 +97,8 @@ void SimpleListManagementWindow::repairItems() {
 
     // Trim all values.
     for (int r = 0; r < this->sqlModel->rowCount(); ++r) {
-        auto index = this->sqlModel->index(r, displayColumn);
-        auto trimmed = index.data().toString().simplified();
+        const auto index = this->sqlModel->index(r, displayColumn);
+        const auto trimmed = index.data().toString().simplified();
         auto lowered = trimmed.toLower();
         if (!lowered.isEmpty()) {
             lowered[0] = lowered[0].toTitleCase();
@@ -111,8 +111,8 @@ void SimpleListManagementWindow::repairItems() {
     QHash<QString, QVector<IntegerPrimaryKey>> valueToIds;
     QHash<IntegerPrimaryKey, QString> idToValue;
     for (int r = 0; r < this->sqlModel->rowCount(); ++r) {
-        auto index = this->sqlModel->index(r, idColumn).data().toLongLong();
-        auto value = this->sqlModel->index(r, displayColumn).data().toString();
+        const auto index = this->sqlModel->index(r, idColumn).data().toLongLong();
+        const auto value = this->sqlModel->index(r, displayColumn).data().toString();
         valueToIds[value].append(index);
         idToValue[index] = value;
     }
@@ -139,11 +139,10 @@ void SimpleListManagementWindow::repairItems() {
 
     // Finally, remove the rows that are in the set.
     for (int r = this->sqlModel->rowCount() - 1; r >= 0; r--) {
-        if (toRemove.contains(this->sqlModel->index(r, idColumn).data().toLongLong())) {
-            if (this->sqlModel->removeRow(r)) {
-                qWarning() << "Could not remove row " << r << "!";
-                qWarning() << sqlModel->lastError();
-            }
+        if ((toRemove.contains(this->sqlModel->index(r, idColumn).data().toLongLong())) &&
+            (this->sqlModel->removeRow(r))) {
+            qWarning() << "Could not remove row " << r << "!";
+            qWarning() << sqlModel->lastError();
         }
     }
 
@@ -160,10 +159,10 @@ void SimpleListManagementWindow::onSelectionChanged(
         return;
     }
 
-    auto selectedIndex = selected.indexes().first();
-    auto rootIndex = mapToSourceModel(selectedIndex);
-    auto isBuiltin = this->model->index(rootIndex.row(), builtinColumn).data().toBool();
-    auto id = this->model->index(rootIndex.row(), idColumn).data();
+    const auto selectedIndex = selected.indexes().first();
+    const auto rootIndex = mapToSourceModel(selectedIndex);
+    const auto isBuiltin = this->model->index(rootIndex.row(), builtinColumn).data().toBool();
+    const auto id = this->model->index(rootIndex.row(), idColumn).data();
     this->removeAction->setEnabled(!isBuiltin && !isUsed(id));
 }
 
@@ -241,7 +240,7 @@ void SimpleListManagementWindow::initializeLayout() {
     );
 
     // Support models being reset.
-    connect(tableView->model(), &QAbstractItemModel::modelReset, this, [this]() {
+    connect(tableView->model(), &QAbstractItemModel::modelReset, this, [this] {
         this->onSelectionChanged(QItemSelection(), QItemSelection());
     });
 
@@ -259,7 +258,9 @@ void SimpleListManagementWindow::initializeLayout() {
     setCentralWidget(centralWidget);
 
     auto* tableCount = new QLabel;
-    auto updater = [tableCount, this] { tableCount->setText(translatedItemCount(tableView->model()->rowCount())); };
+    const auto updater = [tableCount, this] {
+        tableCount->setText(translatedItemCount(tableView->model()->rowCount()));
+    };
     connect(tableView->model(), &QAbstractItemModel::rowsInserted, this, updater);
     connect(tableView->model(), &QAbstractItemModel::rowsRemoved, this, updater);
     connect(tableView->model(), &QAbstractItemModel::modelReset, this, updater);
@@ -293,7 +294,7 @@ void SimpleListManagementWindow::removeReferencesFromModel(
     int foreignKeyColumn
 ) {
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
-        auto index = foreignModel->index(r, foreignKeyColumn);
+        const auto index = foreignModel->index(r, foreignKeyColumn);
 
         // If the model is empty, stop it now.
         if (!index.isValid() || index.data().isNull()) {
@@ -304,8 +305,8 @@ void SimpleListManagementWindow::removeReferencesFromModel(
             continue;
         }
 
-        auto originInModel = index.data().toLongLong();
-        auto value = idToValue[originInModel];
+        const auto originInModel = index.data().toLongLong();
+        const auto value = idToValue[originInModel];
         auto idsForThisValue = valueToIds[value];
 
         // If there are no duplicates, we do not need to update anything.
@@ -345,7 +346,7 @@ QVariant SimpleListManagementWindow::doAddItem() const {
 
 bool SimpleListManagementWindow::doRemoveItem(const QVariant& id) const {
     // Find the row in the base model by ID.
-    auto searchIndex = this->model->index(0, idColumn);
+    const auto searchIndex = this->model->index(0, idColumn);
     auto matches = this->model->match(searchIndex, Qt::DisplayRole, id);
     if (matches.isEmpty()) {
         qWarning() << "Could not find item to remove with id" << id;

@@ -15,6 +15,6 @@ QList<EventRoles::Values> EventRoles::parentRoles() {
         Values::FosterParent,
         Values::SurrogateMother,
         Values::GeneticDonor,
-        Values::RecognizedParent
+        Values::RecognizedParent,
     };
 }

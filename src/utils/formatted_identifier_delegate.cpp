@@ -35,6 +35,6 @@ QString FormattedIdentifierDelegate::displayText(const QVariant& value, const QL
 
 IntegerPrimaryKey getIdFromSelection(const QItemSelection& selected, const QAbstractItemModel* model, int column) {
     Q_ASSERT(!selected.indexes().isEmpty());
-    auto selectedIndex = selected.indexes().first();
+    const auto selectedIndex = selected.indexes().first();
     return model->index(selectedIndex.row(), column, selectedIndex.parent()).data().toLongLong();
 }

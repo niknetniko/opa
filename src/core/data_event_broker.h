@@ -62,7 +62,7 @@ private:
     void flushNotifications();
     void discardNotifications() const;
 
-    bool isBatching() const;
+    [[nodiscard]] bool isBatching() const;
     void pushBatch() const;
     void popBatch();
 };
@@ -90,7 +90,7 @@ private:
 
 template<typename T>
 static void connectToTable(QObject* receiver, const std::function<void(std::optional<IntegerPrimaryKey>)>& callback) {
-    auto* broker = &DataEventBroker::instance();
+    const auto* broker = &DataEventBroker::instance();
     QObject::connect(
         broker,
         &DataEventBroker::entityChanged,

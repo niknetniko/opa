@@ -21,8 +21,8 @@ struct MediaEntity {
     QString mimeType;
 
     static MediaEntity fromSql(const QSqlQuery& query) {
-        auto title = query.value(u"title");
-        auto note = query.value(u"note");
+        const auto title = query.value(u"title");
+        const auto note = query.value(u"note");
         return {
             .id = query.value(u"id").toLongLong(),
             .path = query.value(u"path").toString(),

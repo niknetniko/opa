@@ -30,7 +30,7 @@ void debugPrintModel(const QAbstractItemModel* model, const QModelIndex& parent,
             }
         }
 
-        auto potentialParent = model->index(r, 0, parent);
+        const auto potentialParent = model->index(r, 0, parent);
         if (potentialParent.isValid()) {
             debugPrintModel(model, potentialParent, level + 1);
         }

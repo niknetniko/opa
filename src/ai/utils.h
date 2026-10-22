@@ -38,15 +38,15 @@ public:
         throw *this;
     }
 
-    KeychainException* clone() const override {
+    [[nodiscard]] KeychainException* clone() const override {
         return new KeychainException(*this);
     }
 
-    const char* what() const noexcept override {
+    [[nodiscard]] const char* what() const noexcept override {
         return m_byteArray.constData();
     }
 
-    QString message() const {
+    [[nodiscard]] QString message() const {
         return m_message;
     }
 

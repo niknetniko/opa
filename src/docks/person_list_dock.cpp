@@ -74,6 +74,6 @@ void PersonListWidget::handleSelectedNewRow(const QItemSelection& selected) {
     }
 
     // Get the ID of the person we want.
-    auto personId = getIdFromSelection(selected, tableView->model(), PersonDisplayModel::ID);
+    const auto personId = getIdFromSelection(selected, tableView->model(), PersonDisplayModel::ID);
     Q_EMIT handlePersonSelected(personId);
 }

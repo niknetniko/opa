@@ -58,7 +58,7 @@ WelcomeView::WelcomeView(MainWindow* mainWindow, QWidget* parent) : QScrollArea(
     listViewRecentItems->setLayout(layoutPlaceholderRecentItems);
 
     m_recentItemsModel = new RecentItemsModel(this);
-    connect(m_recentItemsModel, &RecentItemsModel::modelReset, this, [this]() {
+    connect(m_recentItemsModel, &RecentItemsModel::modelReset, this, [this] {
         const bool noRecentItems = m_recentItemsModel->rowCount() == 0;
         buttonClearRecentItems->setDisabled(noRecentItems);
         m_placeholderRecentItems->setVisible(noRecentItems);
@@ -85,9 +85,9 @@ WelcomeView::WelcomeView(MainWindow* mainWindow, QWidget* parent) : QScrollArea(
 
     connect(buttonNewFile, &QPushButton::clicked, mainWindow_, &MainWindow::newFile);
     connect(buttonOpenFile, &QPushButton::clicked, mainWindow_, &MainWindow::openFile);
-    connect(buttonClearRecentItems, &QPushButton::clicked, this, [recentFilesAction]() { recentFilesAction->clear(); });
+    connect(buttonClearRecentItems, &QPushButton::clicked, this, [recentFilesAction] { recentFilesAction->clear(); });
 
-    connect(labelHomepage, qOverload<>(&KUrlLabel::leftClickedUrl), this, [aboutData]() {
+    connect(labelHomepage, qOverload<>(&KUrlLabel::leftClickedUrl), this, [aboutData] {
         QDesktopServices::openUrl(QUrl(aboutData.homepage()));
     });
     // TODO
@@ -145,7 +145,7 @@ void WelcomeView::resizeEvent(QResizeEvent* event) {
 }
 
 bool WelcomeView::eventFilter(QObject* watched, QEvent* event) {
-    auto* recentFilesAction = mainWindow_->recentFilesAction();
+    const auto* recentFilesAction = mainWindow_->recentFilesAction();
     if (watched == recentFilesAction->menu()) {
         switch (event->type()) {
             case QEvent::ActionAdded:
@@ -153,7 +153,7 @@ bool WelcomeView::eventFilter(QObject* watched, QEvent* event) {
                 // since the KRecentFilesAction doesn't notify about adding or
                 // deleting items, we should use this dirty trick to find out
                 // the KRecentFilesAction has changed
-                QTimer::singleShot(0, this, [this, recentFilesAction]() {
+                QTimer::singleShot(0, this, [this, recentFilesAction] {
                     m_recentItemsModel->refresh(recentFilesAction->urls());
                 });
                 break;
@@ -180,7 +180,7 @@ void WelcomeView::onRecentItemsContextMenuRequested(const QPoint& pos) {
 
     auto* action = new QAction(i18n("Copy &Location"), this);
     action->setIcon(QIcon::fromTheme(QStringLiteral("edit-copy-path")));
-    connect(action, &QAction::triggered, this, [url]() {
+    connect(action, &QAction::triggered, this, [url] {
         qApp->clipboard()->setText(url.toString(QUrl::PreferLocalFile));
     });
     contextMenu.addAction(action);
@@ -188,12 +188,12 @@ void WelcomeView::onRecentItemsContextMenuRequested(const QPoint& pos) {
     action = new QAction(i18n("&Open Containing Folder"), this);
     action->setEnabled(url.isLocalFile());
     action->setIcon(QIcon::fromTheme(QStringLiteral("document-open-folder")));
-    connect(action, &QAction::triggered, this, [url]() { KIO::highlightInFileManager({url}); });
+    connect(action, &QAction::triggered, this, [url] { KIO::highlightInFileManager({url}); });
     contextMenu.addAction(action);
 
     action = new QAction(i18n("&Remove"), this);
     action->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
-    connect(action, &QAction::triggered, this, [this, selectedIndexes]() {
+    connect(action, &QAction::triggered, this, [this, selectedIndexes] {
         KRecentFilesAction* recentFilesAction = mainWindow_->recentFilesAction();
         for (const auto& selectedIndex: selectedIndexes) {
             if (const auto url_ = m_recentItemsModel->url(selectedIndex); url_.isValid()) {

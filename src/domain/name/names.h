@@ -34,7 +34,7 @@ const QHash<Values, KLazyLocalizedString> nameOriginToString = {
     {Values::Patronymic, kli18n("Patronymic")},
     {Values::Matronymic, kli18n("Matronymic")},
     {Values::Location, kli18n("Location")},
-    {Values::Occupation, kli18n("Occupation")}
+    {Values::Occupation, kli18n("Occupation")},
 };
 
 const auto toDisplayString = [](const QString& databaseValue) {

@@ -52,9 +52,11 @@ bool MediaRepository::update(
     return QueryHelper::executeAndNotify<Schema::Media>(
         id,
         u"UPDATE media SET title = :title, note = :note WHERE id = :id"_s,
-        {{u":title"_s, title ? QVariant(*title) : QVariant {}},
-         {u":note"_s, note ? QVariant(*note) : QVariant {}},
-         {u":id"_s, id}}
+        {
+            {u":title"_s, title ? QVariant(*title) : QVariant {}},
+            {u":note"_s, note ? QVariant(*note) : QVariant {}},
+            {u":id"_s, id},
+        }
     );
 }
 

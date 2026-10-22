@@ -21,10 +21,10 @@
 
 TreeViewWindow::TreeViewWindow(IntegerPrimaryKey person, QWidget* parent) : QMainWindow(parent) {
     auto* graphModel = new PersonTreeGraphModel(person);
-    auto rootIndex = graphModel->findByChildId(person).constFirst();
+    const auto rootIndex = graphModel->findByChildId(person).constFirst();
     auto* model = rootIndex.model();
-    auto name = model->index(rootIndex.row(), AncestorModel::DISPLAY_NAME).data().toString();
-    auto id = format_id(FormattedIdentifierDelegate::PERSON, person);
+    const auto name = model->index(rootIndex.row(), AncestorModel::DISPLAY_NAME).data().toString();
+    const auto id = format_id(FormattedIdentifierDelegate::PERSON, person);
     setWindowTitle(QStringLiteral("Pedigree for %1 [%2]").arg(name, id));
 
     QtNodes::ConnectionStyle::setConnectionStyle(generateConnectionStyle());
@@ -67,8 +67,8 @@ TreeViewWindow::TreeViewWindow(IntegerPrimaryKey person, QWidget* parent) : QMai
 }
 
 QString TreeViewWindow::generateConnectionStyle() const {
-    auto palette = QApplication::palette();
-    auto accent = palette.color(QPalette::Accent).name();
+    const auto palette = QApplication::palette();
+    const auto accent = palette.color(QPalette::Accent).name();
 
     return QStringLiteral(R"(
   {
@@ -91,13 +91,13 @@ QString TreeViewWindow::generateConnectionStyle() const {
 }
 
 QString TreeViewWindow::generateNodeStyle() const {
-    auto palette = QApplication::palette();
-    auto highlight = palette.color(QPalette::Highlight).name();
-    auto base = palette.color(QPalette::Base).name();
-    auto normalText = palette.color(QPalette::Text).name();
-    auto disabledText = palette.color(QPalette::Disabled, QPalette::Text).name();
-    auto shadow = palette.color(QPalette::Shadow).name();
-    auto mid = palette.color(QPalette::Mid).name();
+    const auto palette = QApplication::palette();
+    const auto highlight = palette.color(QPalette::Highlight).name();
+    const auto base = palette.color(QPalette::Base).name();
+    const auto normalText = palette.color(QPalette::Text).name();
+    const auto disabledText = palette.color(QPalette::Disabled, QPalette::Text).name();
+    const auto shadow = palette.color(QPalette::Shadow).name();
+    const auto mid = palette.color(QPalette::Mid).name();
 
     return QStringLiteral(R"(
   {
@@ -129,9 +129,9 @@ QString TreeViewWindow::generateNodeStyle() const {
 }
 
 QString TreeViewWindow::generateGraphicsViewStyle() const {
-    auto palette = QApplication::palette();
-    auto window = palette.color(QPalette::Window).name();
-    auto base = palette.color(QPalette::Base).name();
+    const auto palette = QApplication::palette();
+    const auto window = palette.color(QPalette::Window).name();
+    const auto base = palette.color(QPalette::Base).name();
 
     return QStringLiteral(R"(
   {

@@ -59,7 +59,7 @@ SqlQueryBuilder& SqlQueryBuilder::applyCriteria(const QueryCriteria& criteria) {
     for (const auto [key, value]: criteria.filters.asKeyValueRange()) {
         auto sanitizedKey = key;
         sanitizedKey.replace(u"."_s, u"_"_s);
-        auto paramName = u":%1"_s.arg(sanitizedKey);
+        const auto paramName = u":%1"_s.arg(sanitizedKey);
         this->where(u"%1 = %2"_s.arg(key, paramName));
         this->bind(paramName, value);
     }
@@ -123,7 +123,7 @@ std::tuple<QSqlQuery, bool> QueryHelper::executeWithResult(const QString& sql, c
         query.bindValue(key, value);
     }
 
-    auto result = query.exec();
+    const auto result = query.exec();
 
     if (!result) {
         qWarning() << "Failed to execute query" << query.executedQuery();
@@ -145,7 +145,7 @@ std::optional<IntegerPrimaryKey> QueryHelper::insert(const QString& sql, const Q
         return std::nullopt;
     }
 
-    auto lastId = query.lastInsertId();
+    const auto lastId = query.lastInsertId();
     if (lastId.isValid() && !lastId.isNull()) {
         auto signedId = lastId.toLongLong();
 

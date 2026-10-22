@@ -68,7 +68,7 @@ void TreeProxyModel::setSourceModel(QAbstractItemModel* newSourceModel) {
             &QAbstractItemModel::dataChanged,
             this,
             [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles) {
-                auto overlaps = [&](int col) { return col >= topLeft.column() && col <= bottomRight.column(); };
+                const auto overlaps = [&](int col) { return col >= topLeft.column() && col <= bottomRight.column(); };
 
                 if (overlaps(idColumn) || overlaps(parentIdColumn)) {
                     beginResetModel();
@@ -77,8 +77,8 @@ void TreeProxyModel::setSourceModel(QAbstractItemModel* newSourceModel) {
                 } else {
                     // Forward dataChanged per row, since rows may have different tree parents.
                     for (int row = topLeft.row(); row <= bottomRight.row(); ++row) {
-                        auto proxyTL = mapFromSource(sourceModel()->index(row, topLeft.column()));
-                        auto proxyBR = mapFromSource(sourceModel()->index(row, bottomRight.column()));
+                        const auto proxyTL = mapFromSource(sourceModel()->index(row, topLeft.column()));
+                        const auto proxyBR = mapFromSource(sourceModel()->index(row, bottomRight.column()));
                         if (proxyTL.isValid() && proxyBR.isValid()) {
                             Q_EMIT dataChanged(proxyTL, proxyBR, roles);
                         }
@@ -104,7 +104,7 @@ void TreeProxyModel::buildTree() {
     for (int row = 0; row < rowCount; ++row) {
         auto node = std::make_unique<TreeNode>();
         node->sourceRow = row;
-        auto idVariant = sourceModel()->index(row, idColumn).data();
+        const auto idVariant = sourceModel()->index(row, idColumn).data();
         if (idVariant.isValid() && !idVariant.isNull()) {
             node->id = idVariant.toString();
             idToNode.insert(node->id, node.get());
@@ -116,11 +116,11 @@ void TreeProxyModel::buildTree() {
     // Second pass: link children to parents.
     for (const auto& nodePtr: allNodes) {
         auto* node = nodePtr.get();
-        auto parentIdVariant = sourceModel()->index(node->sourceRow, parentIdColumn).data();
+        const auto parentIdVariant = sourceModel()->index(node->sourceRow, parentIdColumn).data();
         if (isInvalid(parentIdVariant)) {
             rootNodes.append(node);
         } else {
-            auto parentId = parentIdVariant.toString();
+            const auto parentId = parentIdVariant.toString();
             auto* parentNode = idToNode.value(parentId, nullptr);
             if (parentNode && parentNode != node) {
                 node->parent = parentNode;
@@ -162,7 +162,7 @@ QModelIndex TreeProxyModel::mapToSource(const QModelIndex& proxyIndex) const {
         return {};
     }
 
-    auto* node = static_cast<TreeNode*>(proxyIndex.internalPointer());
+    const auto* node = static_cast<TreeNode*>(proxyIndex.internalPointer());
     if (!node) {
         return {};
     }
@@ -175,7 +175,7 @@ QModelIndex TreeProxyModel::parent(const QModelIndex& child) const {
         return {};
     }
 
-    auto* node = static_cast<TreeNode*>(child.internalPointer());
+    const auto* node = static_cast<TreeNode*>(child.internalPointer());
     if (!node || !node->parent) {
         return {};
     }
@@ -192,7 +192,7 @@ bool TreeProxyModel::hasChildren(const QModelIndex& parent) const {
         return !rootNodes.isEmpty();
     }
 
-    auto* node = static_cast<TreeNode*>(parent.internalPointer());
+    const auto* node = static_cast<TreeNode*>(parent.internalPointer());
     return node && !node->children.isEmpty();
 }
 
@@ -219,7 +219,7 @@ QModelIndex TreeProxyModel::index(int row, int column, const QModelIndex& parent
         return {};
     }
 
-    auto* node = children.at(row);
+    const auto* node = children.at(row);
     return createIndex(row, column, node);
 }
 
@@ -240,7 +240,7 @@ int TreeProxyModel::rowCount(const QModelIndex& parent) const {
         return static_cast<int>(rootNodes.size());
     }
 
-    auto* node = static_cast<TreeNode*>(parent.internalPointer());
+    const auto* node = static_cast<TreeNode*>(parent.internalPointer());
     return node ? static_cast<int>(node->children.size()) : 0;
 }
 

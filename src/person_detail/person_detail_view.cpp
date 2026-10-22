@@ -29,8 +29,9 @@ BirthInformation constructBirthText(const QAbstractItemModel* model) {
         return {};
     }
 
-    auto dateString = model->index(0, PersonBirthEventsModel::DATE).data().toString();
-    auto type = enumFromString<EventTypes::Values>(model->index(0, PersonBirthEventsModel::TYPE).data().toString());
+    const auto dateString = model->index(0, PersonBirthEventsModel::DATE).data().toString();
+    const auto type =
+        enumFromString<EventTypes::Values>(model->index(0, PersonBirthEventsModel::TYPE).data().toString());
 
     QString symbol = {};
     if (type == EventTypes::Values::Birth) {
@@ -52,7 +53,7 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
 
     if (deathModel->rowCount() != 0) {
         qDebug() << "There is a death event";
-        auto index = deathModel->index(0, PersonDeathEventsModel::DATE);
+        const auto index = deathModel->index(0, PersonDeathEventsModel::DATE);
         deathDate = GenealogicalDate::fromDatabaseRepresentation(
             deathModel->index(0, PersonDeathEventsModel::DATE_RAW).data().toString()
         );
@@ -60,7 +61,7 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
             return {.symbol = QStringLiteral("✝︎"), .date = i18n("unknown date")};
         }
         string = index.data().toString();
-        auto type =
+        const auto type =
             enumFromString<EventTypes::Values>(deathModel->index(0, PersonDeathEventsModel::TYPE).data().toString());
 
         if (type == EventTypes::Values::Death) {
@@ -85,12 +86,12 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
 
     QString ageText;
     if (birthModel->rowCount() != 0) {
-        auto birthDate = GenealogicalDate::fromDatabaseRepresentation(
+        const auto birthDate = GenealogicalDate::fromDatabaseRepresentation(
             birthModel->index(0, PersonBirthEventsModel::DATE_RAW).data().toString()
         );
-        auto birthProleptic = birthDate.prolepticRepresentation();
-        auto deathProleptic = deathDate.prolepticRepresentation();
-        auto ageInDays = birthProleptic.daysTo(deathProleptic);
+        const auto birthProleptic = birthDate.prolepticRepresentation();
+        const auto deathProleptic = deathDate.prolepticRepresentation();
+        const auto ageInDays = birthProleptic.daysTo(deathProleptic);
 
         if (string.isEmpty()) {
             symbol = QStringLiteral("✝︎");
@@ -98,17 +99,17 @@ DeathInformation constructDeathText(const QAbstractItemModel* birthModel, const 
         }
         // We intentionally use 365 for age calculations, since that is how most people determine the age.
         // Leap years are typically not accounted for.
-        auto ageInYears = ageInDays / 365;
+        const auto ageInYears = ageInDays / 365;
         if (ageInYears != 0) {
             ageText = i18np("%1 year", "%1 years", ageInYears);
         } else {
             // See if we can calculate if there are a few months.
             // For simplicity, use 30 as the number of days in a month.
-            auto ageInMonths = ageInDays / 30;
+            const auto ageInMonths = ageInDays / 30;
             if (ageInMonths != 0) {
                 ageText = i18np("%1 month", "%1 months", ageInMonths);
             } else {
-                auto ageInWeeks = ageInDays / 7;
+                const auto ageInWeeks = ageInDays / 7;
                 if (ageInWeeks != 0) {
                     ageText = i18np("%1 week", "1% weeks", ageInWeeks);
                 } else {
@@ -180,7 +181,7 @@ PersonDetailView::PersonDetailView(IntegerPrimaryKey id, QWidget* parent) : QFra
 }
 
 void PersonDetailView::populateName() {
-    auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
+    const auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     ui->id->setText(personId);
     ui->displayName->setText(this->getDisplayName());
 
@@ -188,8 +189,8 @@ void PersonDetailView::populateName() {
     if (personData.has_value()) {
         sex = personData->sex;
     }
-    auto sexSymbol = Sex::toIcon(sex);
-    auto sexDescription = Sex::toDisplayString(sex);
+    const auto sexSymbol = Sex::toIcon(sex);
+    const auto sexDescription = Sex::toDisplayString(sex);
     ui->sexIcon->setText(sexSymbol);
     ui->sexIcon->setToolTip(sexDescription);
 
@@ -223,7 +224,7 @@ QString PersonDetailView::getDisplayName() const {
         name =
             construct_display_name(personData->titles, personData->givenNames, personData->prefix, personData->surname);
     }
-    auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
+    const auto personId = format_id(FormattedIdentifierDelegate::PERSON, id);
     return QStringLiteral("%1 [%2]").arg(name, personId);
 }
 

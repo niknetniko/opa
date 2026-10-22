@@ -59,7 +59,7 @@ public:
 
 private:
     struct TreeNode {
-        int sourceRow;
+        int sourceRow {};
         QString id;
         TreeNode* parent = nullptr;
         QList<TreeNode*> children;

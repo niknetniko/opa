@@ -21,7 +21,7 @@ struct PersonEntity {
         return {
             .id = query.value(u"id"_s).toLongLong(),
             .root = query.value(u"root"_s).toBool(),
-            .sex = query.value(u"sex"_s).toString()
+            .sex = query.value(u"sex"_s).toString(),
         };
     }
 };

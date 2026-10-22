@@ -13,6 +13,7 @@
   settings.formatter.clang-format.options = [
     "--style=file:./.clang-format"
   ];
+  programs.clang-format.package = pkgs.llvmPackages_23.clang-tools;
   # SQL
   programs.sql-formatter.enable = true;
   settings.formatter.sql-formatter.dialect = "sqlite";

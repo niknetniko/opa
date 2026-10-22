@@ -19,7 +19,7 @@ NoteEditorDialog::NoteEditorDialog(const QString& text, QWidget* parent) : QDial
     textEditor = new KRichTextWidget(this);
     textEditor->setTextOrHtml(text);
     textEditor->setCheckSpellingEnabled(true);
-    auto actions = textEditor->createActions();
+    const auto actions = textEditor->createActions();
 
     auto* allActions = new KActionCollection(this);
     allActions->addActions(actions);
@@ -68,7 +68,7 @@ NoteEditorDialog::NoteEditorDialog(const QString& text, QWidget* parent) : QDial
 
     layout->addLayout(nestedLayout);
     setLayout(layout);
-    auto defaultContentMargins = layout->contentsMargins();
+    const auto defaultContentMargins = layout->contentsMargins();
     // Needed to make the menu bar look good.
     layout->setContentsMargins(0, 0, 0, 0);
     nestedLayout->setContentsMargins(defaultContentMargins);

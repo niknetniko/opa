@@ -15,8 +15,8 @@ class NewFamilyEditorForm;
 }
 
 struct FamilyData {
-    IntegerPrimaryKey childId;
-    bool hasNewBirthEvent;
+    IntegerPrimaryKey childId {};
+    bool hasNewBirthEvent {};
     QVariant birthEventId;
     QVariant motherId;
     QVariant fatherId;

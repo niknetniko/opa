@@ -18,7 +18,7 @@ public:
     [[nodiscard]] std::optional<SourceEntity> findById(IntegerPrimaryKey id) const;
     [[nodiscard]] QList<SourceEntity> findByTitleContaining(const QString& searchTerm) const;
 
-    std::optional<IntegerPrimaryKey> insert(
+    [[nodiscard]] std::optional<IntegerPrimaryKey> insert(
         const QString& title,
         const QString& type,
         const QString& author,
@@ -28,7 +28,7 @@ public:
         std::optional<IntegerPrimaryKey> parentId
     ) const;
 
-    bool update(
+    [[nodiscard]] bool update(
         IntegerPrimaryKey id,
         const QString& title,
         const QString& type,
@@ -39,5 +39,5 @@ public:
         std::optional<IntegerPrimaryKey> parentId
     ) const;
 
-    bool remove(IntegerPrimaryKey id) const;
+    [[nodiscard]] bool remove(IntegerPrimaryKey id) const;
 };

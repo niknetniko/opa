@@ -19,16 +19,17 @@ public:
     [[nodiscard]] QList<MediaEntity> findAll() const;
     [[nodiscard]] std::optional<MediaEntity> findById(IntegerPrimaryKey id) const;
 
-    std::optional<IntegerPrimaryKey> insert(
+    [[nodiscard]] std::optional<IntegerPrimaryKey> insert(
         const QString& path,
         const std::optional<QString>& title,
         const std::optional<QString>& note,
         const QString& mimeType
     ) const;
 
-    bool update(IntegerPrimaryKey id, const std::optional<QString>& title, const std::optional<QString>& note) const;
+    [[nodiscard]] bool
+    update(IntegerPrimaryKey id, const std::optional<QString>& title, const std::optional<QString>& note) const;
 
-    bool remove(IntegerPrimaryKey id) const;
+    [[nodiscard]] bool remove(IntegerPrimaryKey id) const;
 
     // --- Queries per entity type ---
 
@@ -41,21 +42,21 @@ public:
 
     // --- Attach / detach per entity type ---
 
-    bool attachToPerson(IntegerPrimaryKey personId, IntegerPrimaryKey mediaId) const;
-    bool detachFromPerson(IntegerPrimaryKey personId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool attachToPerson(IntegerPrimaryKey personId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool detachFromPerson(IntegerPrimaryKey personId, IntegerPrimaryKey mediaId) const;
 
-    bool attachToName(IntegerPrimaryKey nameId, IntegerPrimaryKey mediaId) const;
-    bool detachFromName(IntegerPrimaryKey nameId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool attachToName(IntegerPrimaryKey nameId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool detachFromName(IntegerPrimaryKey nameId, IntegerPrimaryKey mediaId) const;
 
-    bool attachToEvent(IntegerPrimaryKey eventId, IntegerPrimaryKey mediaId) const;
-    bool detachFromEvent(IntegerPrimaryKey eventId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool attachToEvent(IntegerPrimaryKey eventId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool detachFromEvent(IntegerPrimaryKey eventId, IntegerPrimaryKey mediaId) const;
 
-    bool attachToEventRelation(IntegerPrimaryKey relationId, IntegerPrimaryKey mediaId) const;
-    bool detachFromEventRelation(IntegerPrimaryKey relationId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool attachToEventRelation(IntegerPrimaryKey relationId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool detachFromEventRelation(IntegerPrimaryKey relationId, IntegerPrimaryKey mediaId) const;
 
-    bool attachToSource(IntegerPrimaryKey sourceId, IntegerPrimaryKey mediaId) const;
-    bool detachFromSource(IntegerPrimaryKey sourceId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool attachToSource(IntegerPrimaryKey sourceId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool detachFromSource(IntegerPrimaryKey sourceId, IntegerPrimaryKey mediaId) const;
 
-    bool attachToLocation(IntegerPrimaryKey locationId, IntegerPrimaryKey mediaId) const;
-    bool detachFromLocation(IntegerPrimaryKey locationId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool attachToLocation(IntegerPrimaryKey locationId, IntegerPrimaryKey mediaId) const;
+    [[nodiscard]] bool detachFromLocation(IntegerPrimaryKey locationId, IntegerPrimaryKey mediaId) const;
 };

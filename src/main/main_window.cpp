@@ -43,7 +43,7 @@ PersonDock::PersonDock(IntegerPrimaryKey personId) :
 }
 
 void openOrSelectPerson(IntegerPrimaryKey personId, bool activate) {
-    auto allWindows = QApplication::topLevelWidgets();
+    const auto allWindows = QApplication::topLevelWidgets();
     const auto it = std::find_if(allWindows.constBegin(), allWindows.constEnd(), [](QWidget* element) {
         return qobject_cast<MainWindow*>(element) != nullptr;
     });
@@ -205,7 +205,7 @@ void MainWindow::syncActions() {
 }
 
 KDDockWidgets::QtWidgets::MainWindow* MainWindow::getMainDockHost() const {
-    auto* placeholder = qobject_cast<KDDockPlaceholderWidget*>(centralWidget());
+    const auto* placeholder = qobject_cast<KDDockPlaceholderWidget*>(centralWidget());
     Q_ASSERT(placeholder != nullptr);
     return placeholder->getDockContainer();
 }

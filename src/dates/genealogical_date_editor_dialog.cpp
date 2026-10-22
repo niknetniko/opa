@@ -242,8 +242,8 @@ void GenealogicalDateEditorDialog::updateFormsFromDate() const {
         ui->timeEdit->setTime(sp.wallTime);
     }
 
-    auto proleptic = date.prolepticRepresentation();
-    if (auto dmy = QCalendar().partsFromDate(proleptic); dmy.isValid()) {
+    const auto proleptic = date.prolepticRepresentation();
+    if (const auto dmy = QCalendar().partsFromDate(proleptic); dmy.isValid()) {
         ui->daySpinBox->setValue(dmy.day);
         ui->monthSpinBox->setValue(dmy.month);
         ui->yearSpinBox->setValue(dmy.year);
@@ -269,8 +269,8 @@ void GenealogicalDateEditorDialog::updateFormsFromDate() const {
         ui->timeEdit2->setTime(ep.wallTime);
     }
 
-    auto proleptic2 = ep.proleptic;
-    if (auto dmy = QCalendar().partsFromDate(proleptic2); dmy.isValid()) {
+    const auto proleptic2 = ep.proleptic;
+    if (const auto dmy = QCalendar().partsFromDate(proleptic2); dmy.isValid()) {
         ui->daySpinBox2->setValue(dmy.day);
         ui->monthSpinBox2->setValue(dmy.month);
         ui->yearSpinBox2->setValue(dmy.year);

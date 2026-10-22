@@ -99,7 +99,7 @@ EventEditorDialog::EventEditorDialog(
         qWarning() << "Event" << eventId << "not found in database — form will open with empty fields";
     }
 
-    auto nameId = format_id(FormattedIdentifierDelegate::EVENT, eventId);
+    const auto nameId = format_id(FormattedIdentifierDelegate::EVENT, eventId);
     setWindowTitle(i18n("%1 bewerken", nameId));
 }
 
@@ -121,8 +121,8 @@ void EventEditorDialog::setupUi() {
     form->eventLocationComboBox->setPlaceholderText(i18n("No location"));
     form->eventLocationComboBox->setCurrentIndex(-1);
 
-    connect(form->eventLocationNewButton, &QPushButton::clicked, this, [this]() {
-        auto newId = LocationEditorDialog::showDialogForNewLocation(std::nullopt, this);
+    connect(form->eventLocationNewButton, &QPushButton::clicked, this, [this] {
+        const auto newId = LocationEditorDialog::showDialogForNewLocation(std::nullopt, this);
         if (newId.isValid()) {
             // Find the new location in the model and select it
             for (int i = 0; i < locationsModel->rowCount(); ++i) {
@@ -211,21 +211,21 @@ void EventEditorDialog::accept() {
     // Collect values from widgets before the transaction.
     auto type = form->eventTypeComboBox->currentText();
 
-    auto displayDate = form->eventDatePicker->text();
+    const auto displayDate = form->eventDatePicker->text();
     auto date = displayDate.isEmpty() ? QString {}
                                       : GenealogicalDate::fromDisplayText(displayDate).toDatabaseRepresentation();
     auto name = form->eventNameEdit->text();
     auto note = form->noteEdit->textOrHtml();
     auto role = form->eventRoleComboBox->currentText();
 
-    auto locationRow = form->eventLocationComboBox->currentIndex();
+    const auto locationRow = form->eventLocationComboBox->currentIndex();
     auto selectedLocationId = locationRow >= 0
                                   ? std::optional<IntegerPrimaryKey>(
                                         locationsModel->index(locationRow, LocationPathsModel::ID).data().toLongLong()
                                     )
                                   : std::nullopt;
 
-    auto result = executeInTransaction([&]() -> std::optional<bool> {
+    const auto result = executeInTransaction([&] -> std::optional<bool> {
         EventRepository repo;
 
         if (!eventId.has_value()) {
@@ -308,16 +308,16 @@ void EventEditorDialog::showDialogForExistingEvent(
 }
 
 void EventEditorDialog::editDateWithEditor() {
-    auto currentText = form->eventDatePicker->text();
-    auto startDate = GenealogicalDate::fromDisplayText(currentText);
-    if (auto date = GenealogicalDateEditorDialog::editDate(startDate, this); date.isValid()) {
+    const auto currentText = form->eventDatePicker->text();
+    const auto startDate = GenealogicalDate::fromDisplayText(currentText);
+    if (const auto date = GenealogicalDateEditorDialog::editDate(startDate, this); date.isValid()) {
         form->eventDatePicker->setText(date.toDisplayText());
     }
 }
 
 void EventEditorDialog::editNoteWithEditor() {
-    auto currentText = form->noteEdit->textOrHtml();
-    if (auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+    const auto currentText = form->noteEdit->textOrHtml();
+    if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }
 }

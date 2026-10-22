@@ -84,8 +84,8 @@ QVariant VirtualParentsModel::data(const QModelIndex& index, int role) const {
         return {};
     }
 
-    auto sourceRowCount = sourceModel()->rowCount();
-    auto sourceColumnCount = sourceModel()->columnCount();
+    const auto sourceRowCount = sourceModel()->rowCount();
+    const auto sourceColumnCount = sourceModel()->columnCount();
 
     // These are the "group" cells in the virtual parent rows.
     if (index.row() >= sourceRowCount && index.column() >= sourceColumnCount) {
@@ -130,7 +130,7 @@ void VirtualParentsModel::calculateGroups() {
     groups.clear();
 
     for (int i = 0; i < sourceModel()->rowCount(); ++i) {
-        auto group = sourceModel()->index(i, groupedByColumn).data();
+        const auto group = sourceModel()->index(i, groupedByColumn).data();
         if (!isInvalid(group) && !groups.contains(group)) {
             groups.push_back(group);
         }

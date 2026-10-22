@@ -17,7 +17,7 @@ void MultiFilterProxyModel::addFilter(int columnIndex, const QVariant& data) {
 
 bool MultiFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex& sourceParent) const {
     return std::all_of(filters.constBegin(), filters.constEnd(), [&](const ColumnAndDataPair& it) {
-        auto index = sourceModel()->index(source_row, it.column, sourceParent);
+        const auto index = sourceModel()->index(source_row, it.column, sourceParent);
         return index.data() == it.data;
     });
 }

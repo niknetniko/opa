@@ -54,7 +54,7 @@ PersonNameTab::PersonNameTab(IntegerPrimaryKey person, QWidget* parent) : QWidge
     connect(treeView, &QTreeView::doubleClicked, this, &PersonNameTab::onEditSelectedName);
     // Preserve the selection when the sorting changes.
     connect(treeView->header(), &QHeaderView::sortIndicatorChanged, this, [this](int logicalIndex) {
-        auto* model = treeView->selectionModel();
+        const auto* model = treeView->selectionModel();
         onSortChanged(model->selection(), logicalIndex);
     });
 
@@ -114,7 +114,7 @@ void PersonNameTab::onNameSelected(const QItemSelection& selected) const {
 
     this->editAction->setEnabled(true);
 
-    auto selectedIndex = selected.indexes().first();
+    const auto selectedIndex = selected.indexes().first();
     auto* model = selectedIndex.model();
 
     const int nameSort = model->index(selectedIndex.row(), PersonNamesModel::SORT).data().toInt();
@@ -155,30 +155,30 @@ void PersonNameTab::onAddNewName() {
 }
 
 void PersonNameTab::onEditSelectedName() {
-    auto* selection = treeView->selectionModel();
+    const auto* selection = treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     Q_ASSERT(selection->selectedRows().size() == 1);
-    auto selectedIndex = selection->selectedIndexes().first();
+    const auto selectedIndex = selection->selectedIndexes().first();
     auto* model = selectedIndex.model();
 
-    auto idToEdit = model->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
+    const auto idToEdit = model->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
 
     NamesEditorDialog::showDialogForExistingName(idToEdit, this);
 }
 
 void PersonNameTab::onRemoveSelectedName() const {
-    auto* selection = treeView->selectionModel();
+    const auto* selection = treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     Q_ASSERT(selection->selectedRows().size() == 1);
 
-    auto selectedIndex = selection->selectedRows().first();
-    auto nameId = treeView->model()->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
+    const auto selectedIndex = selection->selectedRows().first();
+    const auto nameId = treeView->model()->index(selectedIndex.row(), PersonNamesModel::ID).data().toLongLong();
 
     const NameRepository nameRepo;
     if (!nameRepo.deleteName(nameId)) {
@@ -187,31 +187,31 @@ void PersonNameTab::onRemoveSelectedName() const {
 }
 
 void PersonNameTab::onMoveSelectedNameDown() const {
-    auto* selection = treeView->selectionModel();
+    const auto* selection = treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     Q_ASSERT(selection->selectedRows().size() == 1);
-    auto selectRow = selection->selectedRows().first().row();
-    auto newRow = selectRow + 1;
+    const auto selectRow = selection->selectedRows().first().row();
+    const auto newRow = selectRow + 1;
     moveSelectedNameToPosition(selectRow, newRow);
 }
 
 void PersonNameTab::onMoveSelectedNameUp() const {
-    auto* selection = treeView->selectionModel();
+    const auto* selection = treeView->selectionModel();
     if (!selection->hasSelection()) {
         return;
     }
 
     Q_ASSERT(selection->selectedRows().size() == 1);
-    auto selectRow = selection->selectedRows().first().row();
-    auto newRow = selectRow - 1;
+    const auto selectRow = selection->selectedRows().first().row();
+    const auto newRow = selectRow - 1;
     moveSelectedNameToPosition(selectRow, newRow);
 }
 
 void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow) const {
-    auto* model = treeView->model();
+    const auto* model = treeView->model();
 
     Q_ASSERT(sourceRow >= 0 && sourceRow < model->rowCount());
     Q_ASSERT(destinationRow >= 0 && destinationRow < model->rowCount());
@@ -222,7 +222,7 @@ void PersonNameTab::moveSelectedNameToPosition(int sourceRow, int destinationRow
 
     const NameRepository nameRepo;
     for (int row = 0; row < model->rowCount(); ++row) {
-        auto nameId = model->index(row, PersonNamesModel::ID).data().toLongLong();
+        const auto nameId = model->index(row, PersonNamesModel::ID).data().toLongLong();
         if (!nameRepo.updateNameSort(nameId, sortValues[row])) {
             qWarning() << "Could not update sort for name" << nameId;
         }

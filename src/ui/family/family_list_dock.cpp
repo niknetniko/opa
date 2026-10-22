@@ -63,16 +63,16 @@ void FamilyListWidget::handleSelectedNewRow(const QItemSelection& selected) {
     if (selected.empty()) {
         return;
     }
-    auto index = selected.indexes().first();
+    const auto index = selected.indexes().first();
     if (index.parent().isValid()) {
-        auto personId =
+        const auto personId =
             treeView->model()->index(index.row(), FamilyListModel::PERSON_ID, index.parent()).data().toLongLong();
         if (personId > 0) {
             Q_EMIT personSelected(personId);
         }
         return;
     }
-    auto familyId =
+    const auto familyId =
         treeView->model()->index(index.row(), FamilyListModel::FAMILY_ID, index.parent()).data().toLongLong();
     if (familyId > 0) {
         Q_EMIT familySelected(familyId);

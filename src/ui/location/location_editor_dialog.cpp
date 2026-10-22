@@ -87,34 +87,35 @@ LocationEditorDialog::~LocationEditorDialog() = default;
 void LocationEditorDialog::accept() {
     const LocationRepository repo;
 
-    auto name = form->nameEdit->text();
+    const auto name = form->nameEdit->text();
     if (name.isEmpty()) {
         return;
     }
-    auto type = form->typeComboBox->currentText();
+    const auto type = form->typeComboBox->currentText();
     if (type.isEmpty()) {
         return;
     }
-    auto note = form->noteEdit->textOrHtml();
+    const auto note = form->noteEdit->textOrHtml();
 
     std::optional<Coordinates> coordinates;
-    auto lat = form->latitudeSpinBox->value();
-    auto lon = form->longitudeSpinBox->value();
+    const auto lat = form->latitudeSpinBox->value();
+    const auto lon = form->longitudeSpinBox->value();
     if (lat != LATITUDE_NOT_SET && lon != LONGITUDE_NOT_SET) {
         coordinates = Coordinates {.latitude = lat, .longitude = lon};
     }
 
-    auto dateStartText = form->dateStartEdit->text();
-    auto dateStart = dateStartText.isEmpty()
-                         ? QString {}
-                         : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
+    const auto dateStartText = form->dateStartEdit->text();
+    const auto dateStart = dateStartText.isEmpty()
+                               ? QString {}
+                               : GenealogicalDate::fromDisplayText(dateStartText).toDatabaseRepresentation();
 
-    auto dateEndText = form->dateEndEdit->text();
-    auto dateEnd = dateEndText.isEmpty() ? QString {}
-                                         : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
+    const auto dateEndText = form->dateEndEdit->text();
+    const auto dateEnd = dateEndText.isEmpty()
+                             ? QString {}
+                             : GenealogicalDate::fromDisplayText(dateEndText).toDatabaseRepresentation();
 
     if (!locationId.has_value()) {
-        auto newId = repo.insert(name, type, parentId);
+        const auto newId = repo.insert(name, type, parentId);
         if (!newId) {
             qWarning() << "Could not insert new location";
             return;
@@ -147,38 +148,38 @@ void LocationEditorDialog::showDialogForExistingLocation(IntegerPrimaryKey locat
 }
 
 void LocationEditorDialog::editNoteWithEditor() {
-    auto currentText = form->noteEdit->textOrHtml();
-    if (auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
+    const auto currentText = form->noteEdit->textOrHtml();
+    if (const auto note = NoteEditorDialog::editText(currentText, i18n("Edit note"), this); !note.isEmpty()) {
         form->noteEdit->setTextOrHtml(note);
     }
 }
 
 void LocationEditorDialog::addNewLocationAsParent() {
-    if (auto newId = showDialogForNewLocation(std::nullopt, this); newId.isValid()) {
+    if (const auto newId = showDialogForNewLocation(std::nullopt, this); newId.isValid()) {
         parentId = newId.toLongLong();
         updateParentDisplay();
     }
 }
 
 void LocationEditorDialog::selectExistingLocationAsParent() {
-    if (auto selected = ChooseExistingLocationWindow::selectLocation(this); selected.isValid()) {
+    if (const auto selected = ChooseExistingLocationWindow::selectLocation(this); selected.isValid()) {
         parentId = selected.toLongLong();
         updateParentDisplay();
     }
 }
 
 void LocationEditorDialog::editDateStartWithEditor() {
-    auto currentText = form->dateStartEdit->text();
-    auto startDate = GenealogicalDate::fromDisplayText(currentText);
-    if (auto date = GenealogicalDateEditorDialog::editDate(startDate, this); date.isValid()) {
+    const auto currentText = form->dateStartEdit->text();
+    const auto startDate = GenealogicalDate::fromDisplayText(currentText);
+    if (const auto date = GenealogicalDateEditorDialog::editDate(startDate, this); date.isValid()) {
         form->dateStartEdit->setText(date.toDisplayText());
     }
 }
 
 void LocationEditorDialog::editDateEndWithEditor() {
-    auto currentText = form->dateEndEdit->text();
-    auto endDate = GenealogicalDate::fromDisplayText(currentText);
-    if (auto date = GenealogicalDateEditorDialog::editDate(endDate, this); date.isValid()) {
+    const auto currentText = form->dateEndEdit->text();
+    const auto endDate = GenealogicalDate::fromDisplayText(currentText);
+    if (const auto date = GenealogicalDateEditorDialog::editDate(endDate, this); date.isValid()) {
         form->dateEndEdit->setText(date.toDisplayText());
     }
 }

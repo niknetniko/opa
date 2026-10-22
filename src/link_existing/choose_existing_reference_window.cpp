@@ -23,7 +23,7 @@
 #include <QVBoxLayout>
 
 void ChooseExistingReferenceWindow::accept() {
-    if (auto selection = tableView->selectionModel()->selection(); !selection.isEmpty()) {
+    if (const auto selection = tableView->selectionModel()->selection(); !selection.isEmpty()) {
         const auto tableViewSelected = selection.indexes().first();
         const auto sourceSelection = mapToSourceModel(tableViewSelected);
         selected = sourceModel->index(sourceSelection.row(), resultColumn).data();

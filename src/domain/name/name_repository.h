@@ -22,9 +22,9 @@ public:
 
     [[nodiscard]] std::optional<NameEntity> findById(IntegerPrimaryKey id) const;
 
-    std::optional<IntegerPrimaryKey> insertName(IntegerPrimaryKey personId, int sort) const;
+    [[nodiscard]] std::optional<IntegerPrimaryKey> insertName(IntegerPrimaryKey personId, int sort) const;
 
-    bool updateName(
+    [[nodiscard]] bool updateName(
         IntegerPrimaryKey id,
         const QString& titles,
         const QString& givenNames,
@@ -34,7 +34,7 @@ public:
         const QString& origin
     ) const;
 
-    bool updateNameSort(IntegerPrimaryKey id, int sort) const;
+    [[nodiscard]] bool updateNameSort(IntegerPrimaryKey id, int sort) const;
 
-    bool deleteName(IntegerPrimaryKey id) const;
+    [[nodiscard]] bool deleteName(IntegerPrimaryKey id) const;
 };

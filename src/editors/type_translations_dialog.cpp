@@ -100,7 +100,7 @@ void TypeTranslationsDialog::addTranslation() {
             break;
         }
     }
-    const auto ok = executeInTransaction([&]() -> std::optional<bool> {
+    const auto ok = executeInTransaction([&] -> std::optional<bool> {
         if (existingId && !removeFn(*existingId)) {
             return std::nullopt;
         }
@@ -139,7 +139,7 @@ void TypeTranslationsDialog::onItemChanged(QStandardItem* item) {
         return;
     }
     // Update by removing the old row and inserting a new one with the same locale.
-    const auto ok = executeInTransaction([&]() -> std::optional<bool> {
+    const auto ok = executeInTransaction([&] -> std::optional<bool> {
         if (!removeFn(id)) {
             return std::nullopt;
         }

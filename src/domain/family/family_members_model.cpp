@@ -60,7 +60,7 @@ void FamilyMembersModel::rebuildMapping() {
     QHash<IntegerPrimaryKey, int> familyToRelationshipRow;
     for (int i = 0; i < items.size(); ++i) {
         const auto& item = items[i];
-        auto eventType = enumFromString<EventTypes::Values>(item.eventType);
+        const auto eventType = enumFromString<EventTypes::Values>(item.eventType);
         if (EventTypes::relationshipStartingEvents().contains(eventType) && item.familyId.has_value()) {
             familyToRelationshipRow[*item.familyId] = i;
         }
@@ -135,7 +135,7 @@ QModelIndex FamilyMembersModel::parent(const QModelIndex& child) const {
 
     // Decode parent key
     const int parentKey = static_cast<int>(static_cast<quint32>(id >> 32U)) - 1;
-    auto keys = mapping.keys();
+    const auto keys = mapping.keys();
     const int parentRow = static_cast<int>(keys.indexOf(parentKey));
     if (parentRow == -1) {
         return {};

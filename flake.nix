@@ -32,7 +32,6 @@
           };
         };
         build-inputs = with pkgs; [
-          llvmPackages.openmp
           kdePackages.kcoreaddons
           kdePackages.kconfigwidgets
           kdePackages.ki18n
@@ -63,20 +62,21 @@
           kdePackages.wrapQtAppsHook
           kdePackages.extra-cmake-modules
           cmake
+          llvmPackages_23.lld
         ];
         dev-tools = with pkgs; [
-          clang-tools
+          llvmPackages_23.clang-tools
           clazy
           valgrind
           gdb
-          lldb
+          llvmPackages_23.lldb
           qtcreator
           gersemi
           nodejs_24
           claude-code
           bashInteractive
         ];
-        opa = pkgs.clangStdenv.mkDerivation {
+        opa = pkgs.llvmPackages_23.stdenv.mkDerivation {
           pname = "opa";
           version = "0.1";
           src = ./.;
@@ -84,7 +84,7 @@
           buildInputs = build-inputs;
           nativeBuildInputs = native-build-inputs;
         };
-        qtnodes = pkgs.clangStdenv.mkDerivation rec {
+        qtnodes = pkgs.llvmPackages_23.stdenv.mkDerivation rec {
           pname = "qtnodes";
           version = "3.0.16";
 
@@ -109,7 +109,7 @@
         run-tidy = pkgs.writeShellApplication {
           name = "run-tidy";
           runtimeInputs = [
-            pkgs.clang-tools
+            pkgs.llvmPackages_23.clang-tools
             pkgs.cmake
           ];
           # TODO: enable on test code later
@@ -194,7 +194,7 @@
           );
           formatting = treefmtEval.config.build.check self;
         };
-        devShells.default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
+        devShells.default = pkgs.mkShell.override { stdenv = pkgs.llvmPackages_23.stdenv; } {
           inputsFrom = [ opa ];
           packages = dev-tools ++ [
             treefmtEval.config.build.wrapper

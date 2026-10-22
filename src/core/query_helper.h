@@ -11,6 +11,7 @@
 #include <QSqlDriver>
 #include <QSqlQuery>
 #include <QVariantMap>
+#include <utility>
 
 namespace QueryHelper {
 
@@ -37,7 +38,7 @@ class SqlQueryBuilder {
 public:
     SqlQueryBuilder() = default;
 
-    explicit SqlQueryBuilder(const QString& sql) : baseSql(sql) {
+    explicit SqlQueryBuilder(QString sql) : baseSql(std::move(sql)) {
     }
 
     SqlQueryBuilder& from(const QString& table);
@@ -55,7 +56,7 @@ public:
 
     SqlQueryBuilder& applyCriteria(const QueryCriteria& criteria);
 
-    std::tuple<QString, QVariantMap> construct() const;
+    [[nodiscard]] std::tuple<QString, QVariantMap> construct() const;
 };
 
 /**
@@ -99,7 +100,7 @@ public:
  */
 template<typename EventType>
 [[nodiscard]] bool executeAndNotify(IntegerPrimaryKey id, const QString& sql, const QVariantMap& bindings = {}) {
-    auto result = execute(sql, bindings);
+    const auto result = execute(sql, bindings);
     if (result) {
         DataEventBroker::instance().notifyChanged<EventType>(id);
     }

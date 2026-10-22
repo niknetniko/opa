@@ -33,7 +33,7 @@ struct LocationEntity {
         const auto lon = validOrOptional<double>(query.value(u"longitude"));
         std::optional<Coordinates> coords;
         if (lat.has_value() && lon.has_value()) {
-            coords = Coordinates {*lat, *lon};
+            coords = Coordinates {.latitude = *lat, .longitude = *lon};
         }
         return {
             .id = query.value(u"id").toLongLong(),

@@ -144,7 +144,7 @@ bool CustomSqlRelationalModel::setData(const QModelIndex& index, const QVariant&
     // changed.
     const bool result = QSqlTableModel::setData(index, value, role);
     if (auto [fk, extraColumn] = this->getFkFromForeignKeyColumn(index.column()); result && fk.isValid()) {
-        auto changedIndex = this->index(index.row(), extraColumn, index.parent());
+        const auto changedIndex = this->index(index.row(), extraColumn, index.parent());
         Q_EMIT dataChanged(changedIndex, changedIndex, {role});
     }
 
@@ -187,11 +187,11 @@ void connectComboBox(const QAbstractItemModel* model, int relationColumn, QCombo
 
 void CustomSqlRelationalModel::constructForeignCache(const int extraColumn) {
     const auto fk = this->_foreignKeys.at(extraColumn);
-    auto* const foreignModel = fk.foreignModel();
+    const auto* const foreignModel = fk.foreignModel();
     this->_foreignValues[extraColumn].clear();
 
     for (int r = 0; r < foreignModel->rowCount(); ++r) {
-        auto pk = foreignModel->index(r, fk.primaryKeyColumn()).data().toLongLong();
+        const auto pk = foreignModel->index(r, fk.primaryKeyColumn()).data().toLongLong();
         this->_foreignValues[extraColumn][pk] = QPersistentModelIndex(foreignModel->index(r, fk.displayColumn()));
     }
 
@@ -256,7 +256,7 @@ void CustomSqlRelationalDelegate::setModelData(
         QStyledItemDelegate::setModelData(editor, model, index);
         return;
     }
-    auto sqlIndex = mapToSourceModel(index);
+    const auto sqlIndex = mapToSourceModel(index);
     Q_ASSERT(sqlModel->checkIndex(sqlIndex));
 
     QSqlTableModel* childModel = sqlModel->relationModel(sqlIndex.column());
@@ -266,7 +266,7 @@ void CustomSqlRelationalDelegate::setModelData(
         return;
     }
 
-    auto* combo = qobject_cast<QComboBox*>(editor);
+    const auto* combo = qobject_cast<QComboBox*>(editor);
     if (combo == nullptr) {
         // Nothing to do for us.
         QStyledItemDelegate::setModelData(editor, model, index);
@@ -287,9 +287,9 @@ void CustomSqlRelationalDelegate::setModelData(
     // Both are the same, so update the foreign key column instead.
     const int fkColumn = sqlModel->relation(sqlIndex.column()).foreignKeyColumn();
     // Index for the fk in the parent model.
-    auto fkIndex = sqlModel->index(sqlIndex.row(), fkColumn);
+    const auto fkIndex = sqlModel->index(sqlIndex.row(), fkColumn);
     // Index for the pk in the foreign model.
-    auto pkIndex = childModel->index(currentItem, childEditIndex);
+    const auto pkIndex = childModel->index(currentItem, childEditIndex);
     sqlModel->setData(fkIndex, pkIndex.data(Qt::DisplayRole), Qt::DisplayRole);
     sqlModel->setData(fkIndex, pkIndex.data(Qt::EditRole), Qt::EditRole);
 }

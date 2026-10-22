@@ -45,7 +45,7 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
         QUrl url;
         QByteArray body;
     };
-    auto request = std::make_shared<RequestData>();
+    const auto request = std::make_shared<RequestData>();
     request->url = QUrl(endpoint + u"/chat/completions"_s);
 
     QJsonObject body;
@@ -53,12 +53,14 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
     if (!schema.isEmpty()) {
         body[u"response_format"_s] = QJsonObject {
             {u"type"_s, u"json_schema"_s},
-            {u"json_schema"_s,
-             QJsonObject {
-                 {u"name"_s, u"extract_source"_s},
-                 {u"strict"_s, true},
-                 {u"schema"_s, schema},
-             }},
+            {
+                u"json_schema"_s,
+                QJsonObject {
+                    {u"name"_s, u"extract_source"_s},
+                    {u"strict"_s, true},
+                    {u"schema"_s, schema},
+                },
+            },
         };
     }
     body[u"messages"_s] = QJsonArray {
@@ -75,7 +77,8 @@ OpenAiCompatibleService::ask(const QString& systemPrompt, const QString& userMes
 
     qCDebug(OPA) << "OpenAI: sending request to" << request->url << "schema empty=" << schema.isEmpty();
 
-    auto coroutine = [](OpenAiCompatibleService* self, std::shared_ptr<RequestData> request) -> QCoro::Task<QString> {
+    const auto coroutine = [](OpenAiCompatibleService* self,
+                              std::shared_ptr<RequestData> request) -> QCoro::Task<QString> {
         const QString apiKey =
             co_await readFromKeychainLax(KeychainKeys::Service, KeychainKeys::OpenAiCompatibleApiKey, self);
 

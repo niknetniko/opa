@@ -30,7 +30,7 @@ QFuture<QString>
 ClaudeAiService::ask(const QString& systemPrompt, const QString& userMessage, const QJsonObject& schema) {
     qCDebug(OPA) << "Claude AI request starting: model=" << model << "userMessage length=" << userMessage.size();
 
-    return spawn([this, systemPrompt, userMessage, schema]() -> QCoro::Task<QString> {
+    return spawn([this, systemPrompt, userMessage, schema] -> QCoro::Task<QString> {
         const QString apiKey = co_await readFromKeychain(KeychainKeys::Service, KeychainKeys::ClaudeApiKey, this);
 
         qCDebug(OPA) << "Claude AI: sending request, schema empty=" << schema.isEmpty();

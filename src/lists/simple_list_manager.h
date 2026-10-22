@@ -88,14 +88,14 @@ protected:
      * The default implementation uses the QSqlTableModel.
      * Returns the ID of the newly inserted item, or an invalid QVariant on failure.
      */
-    virtual QVariant doAddItem() const;
+    [[nodiscard]] virtual QVariant doAddItem() const;
 
     /**
      * Called by removeItem() to perform the actual deletion.
      * Subclasses override this to use the repository pattern.
      * The default implementation uses the QSqlTableModel.
      */
-    virtual bool doRemoveItem(const QVariant& id) const;
+    [[nodiscard]] virtual bool doRemoveItem(const QVariant& id) const;
 
     [[nodiscard]] virtual QString translatedItemCount(int itemCount) const;
 

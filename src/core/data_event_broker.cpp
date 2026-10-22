@@ -26,16 +26,16 @@ BatchGuard DataEventBroker::batchNotifications() {
 }
 
 void DataEventBroker::enqueueNotification(const QString& table, std::optional<IntegerPrimaryKey> id) const {
-    auto it = std::ranges::find_if(pendingNotifications, [&](const PendingNotification& n) {
+    const auto it = std::ranges::find_if(pendingNotifications, [&](const PendingNotification& n) {
         return n.table == table && n.id == id;
     });
     if (it == pendingNotifications.end()) {
-        pendingNotifications.push_back({table, id});
+        pendingNotifications.push_back({.table = table, .id = id});
     }
 }
 
 void DataEventBroker::flushNotifications() {
-    auto notifications = std::move(pendingNotifications);
+    const auto notifications = std::move(pendingNotifications);
     discardNotifications();
     for (const auto& [table, id]: notifications) {
         Q_EMIT entityChanged(table, id);

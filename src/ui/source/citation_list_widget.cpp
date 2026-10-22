@@ -71,31 +71,31 @@ void CitationListWidget::reload() {
 }
 
 void CitationListWidget::onAddNew() {
-    auto result = SourceEditorDialog::showDialogForNewSource(this);
+    const auto result = SourceEditorDialog::showDialogForNewSource(this);
     if (result.isValid()) {
-        auto sourceId = result.toLongLong();
+        const auto sourceId = result.toLongLong();
         Q_UNUSED(addFn(sourceId));
         reload();
     }
 }
 
 void CitationListWidget::onLinkExisting() {
-    auto result = ChooseExistingSourceWindow::selectSource(this);
+    const auto result = ChooseExistingSourceWindow::selectSource(this);
     if (result.isValid()) {
-        auto sourceId = result.toLongLong();
+        const auto sourceId = result.toLongLong();
         Q_UNUSED(addFn(sourceId));
         reload();
     }
 }
 
 void CitationListWidget::onRemove() {
-    auto indexes = tableView->selectionModel()->selectedRows();
+    const auto indexes = tableView->selectionModel()->selectedRows();
     if (indexes.isEmpty()) {
         return;
     }
 
-    auto row = indexes.constFirst().row();
-    auto sourceId = model->getItems().at(row).id;
+    const auto row = indexes.constFirst().row();
+    const auto sourceId = model->getItems().at(row).id;
     Q_UNUSED(removeFn(sourceId));
     reload();
 }

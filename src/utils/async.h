@@ -22,21 +22,21 @@
  */
 template<typename T>
 QFuture<T> spawn(QCoro::Task<T> task) {
-    auto promise = std::make_shared<QPromise<T>>();
+    const auto promise = std::make_shared<QPromise<T>>();
     promise->start();
     auto future = promise->future();
 
-    auto keeper = std::make_shared<std::optional<QCoro::Task<void>>>();
+    const auto keeper = std::make_shared<std::optional<QCoro::Task<void>>>();
     *keeper = std::move(task).then(
         [promise, keeper](T result) mutable {
             promise->addResult(std::move(result));
             promise->finish();
-            keeper->reset();
+            (*keeper).reset();
         },
         [promise, keeper](const std::exception&) mutable {
             promise->setException(std::current_exception());
             promise->finish();
-            keeper->reset();
+            (*keeper).reset();
         }
     );
 

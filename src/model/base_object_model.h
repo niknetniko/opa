@@ -72,7 +72,7 @@ public:
         this->endResetModel();
     }
 
-    [[nodiscard]] virtual QVariant
+    [[nodiscard]] QVariant
     headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override {
         if (role != Qt::DisplayRole || orientation != Qt::Horizontal || section < 0 || section >= columns.size()) {
             return {};
@@ -81,7 +81,7 @@ public:
         return columns[section].header;
     }
 
-    [[nodiscard]] virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
         if (role != Qt::DisplayRole && role != Qt::EditRole) {
             return {};
         }
@@ -94,7 +94,7 @@ public:
         return columns[index.column()].extractor(items[*itemIndex]);
     }
 
-    virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override {
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override {
         if (role != Qt::EditRole) {
             return false;
         }
@@ -104,7 +104,7 @@ public:
             return false;
         }
 
-        auto& setter = columns[index.column()].setter;
+        const auto& setter = columns[index.column()].setter;
         if (!setter) {
             return false;
         }
@@ -118,7 +118,7 @@ public:
     }
 
 
-    [[nodiscard]] virtual Qt::ItemFlags flags(const QModelIndex& index) const override {
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override {
         Qt::ItemFlags defaultFlags = QtModel::flags(index);
 
         if (const auto itemIndex = this->itemIndex(index);
