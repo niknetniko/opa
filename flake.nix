@@ -12,6 +12,10 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    openmp-llvm23-patch = {
+      url = "https://github.com/NixOS/nixpkgs/pull/575569.diff";
+      flake = false;
+    };
   };
 
   outputs =
@@ -20,12 +24,19 @@
       nixpkgs,
       utils,
       treefmt-nix,
+      openmp-llvm23-patch,
       ...
     }:
     utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs {
+        nixpkgs-patched = nixpkgs.legacyPackages.${system}.applyPatches {
+          name = "nixpkgs-patched";
+          src = nixpkgs;
+          # TODO: remove once NixOS/nixpkgs#575569 reaches nixos-unstable
+          patches = [ openmp-llvm23-patch ];
+        };
+        pkgs = import nixpkgs-patched {
           inherit system;
           config = {
             allowUnfree = true;
@@ -57,6 +68,7 @@
           kdePackages.qtkeychain
           pipewire
           libxml2
+          llvmPackages_23.openmp
         ];
         native-build-inputs = with pkgs; [
           kdePackages.wrapQtAppsHook

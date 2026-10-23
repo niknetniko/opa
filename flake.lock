@@ -16,9 +16,22 @@
         "type": "github"
       }
     },
+    "openmp-llvm23-patch": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-4tNssmRTgMWeMpjReP5kwTg+T0AD7mMUZcKbY6VXWfY=",
+        "type": "file",
+        "url": "https://github.com/NixOS/nixpkgs/pull/575569.diff"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/NixOS/nixpkgs/pull/575569.diff"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "openmp-llvm23-patch": "openmp-llvm23-patch",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix",
         "utils": "utils"
